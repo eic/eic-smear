@@ -1,0 +1,371 @@
+#ifndef _ERHIC_MONTE_CARLO_FILE_H_
+#define _ERHIC_MONTE_CARLO_FILE_H_
+
+//
+// File.h
+//
+// Created by TB on 7/29/11.
+// Copyright 2011 BNL. All rights reserved.
+//
+
+#include <iostream>
+#include <map>
+#include <string>
+
+#include <TObject.h>
+#include <TObjString.h>
+#include <TString.h>
+
+#include "EventBase.h"
+#include "EventMilou.h"
+#include "EventPythia.h"
+#include "EventFactory.h"
+
+// All eRHIC code goes in the erhic namespace
+namespace erhic {
+   
+   // Code related to the Monte Carlo generators goes in namespace
+   // erhic::monte_carlo
+   namespace monte_carlo {
+      
+      
+      /*******************************************************************//**
+       Base class for log file processors.
+       
+       Reads a log file from a Monte Carlo generator and extracts information.
+       Inherited classes for each generator type implement the Extract()
+       method to gather the required information for that generator and the
+       Save() method to store it to file.
+       **********************************************************************/
+      class LogReader : public TObject {
+         
+      public:
+         
+         LogReader() { }
+         
+         virtual ~LogReader() { }
+         
+         virtual LogReader* Create() const = 0;
+         
+         /**
+          Extract data from the named log file.
+          */
+         virtual bool Extract(const std::string& file) = 0;
+         
+         /**
+          Saves the extracted data to the current file, if one is open and is
+          writeable.
+          Returns -1 if the data cannot be saved.
+          To write the LogReader itself, use LogReader::Write().
+          */
+         virtual Int_t Save() const = 0;
+         
+         ClassDef(LogReader, 1)
+      };
+      
+      
+      /*******************************************************************//**
+       Processes PYTHIA log files.
+       
+       Reads a log file and finds the total cross section and the number
+       of generated events when Extract() is called.
+       Writes those values as TObjStrings to the current directory when
+       Save() is called, assuming that directory is writeable.
+       **********************************************************************/
+      class LogReaderPythia : public LogReader {
+         
+      public:
+         
+         /**
+          Constructor.
+          */
+         LogReaderPythia();
+         
+         /**
+          Destructor.
+          */
+         virtual ~LogReaderPythia();
+         
+         LogReaderPythia* Create() const;
+         
+         bool Extract(const std::string& file);
+         
+         /**
+          Write the extracted information to the current file, if it is
+          writeable. If you want to write the LogReaderPythia itself, use
+          LogReaderPythia::Write().
+          */
+         Int_t Save() const;
+         
+      protected:
+         
+         TObjString crossSection_; ///> Total cross section in microbarns
+         TObjString nEvents_; ///> Total number of events generated
+         
+         ClassDef(LogReaderPythia, 1)
+      };
+      
+      inline LogReaderPythia* LogReaderPythia::Create() const {
+         return new LogReaderPythia;
+      }
+
+      
+      
+      /*******************************************************************//**
+       Processes PYTHIA log files.
+       
+       Reads a log file and finds the total cross section and the number
+       of generated events when Extract() is called.
+       Writes those values as TObjStrings to the current directory when
+       Save() is called, assuming that directory is writeable.
+       **********************************************************************/
+      class LogReaderMilou : public LogReader {
+         
+      public:
+         
+         /**
+          Constructor.
+          */
+         LogReaderMilou() { }
+         
+         /**
+          Destructor.
+          */
+         virtual ~LogReaderMilou() { }
+         
+         LogReaderMilou* Create() const;
+         
+         bool Extract(const std::string& file);
+         
+         Int_t Save() const;
+         
+         /**
+          Returns the number of events reported by the log file.
+          Extract() should be called first.
+          */
+         Int_t GetNEvents() const;
+         
+         /**
+          Returns the total cross section reported by the log file.
+          Extract() should be called first.
+          */
+         Double_t GetCrossSection() const;
+         
+         /**
+          Returns the error on total cross section reported by the log file.
+          Extract() should be called first.
+          */
+         Double_t GetCrossSectionError() const;
+         
+      protected:
+         
+         TObjString crossSection_; ///> Total cross section in nb
+         TObjString crossSectionError_; ///> Cross section error in nb
+         TObjString nEvents_; ///> Total number of events generated
+         
+         ClassDef(LogReaderMilou, 1)
+      };
+      
+      inline LogReaderMilou* LogReaderMilou::Create() const {
+         return new LogReaderMilou;
+      }
+      
+      inline Int_t LogReaderMilou::GetNEvents() const {
+         return nEvents_.GetString().Atoi();
+      }
+      
+      /**
+       Returns the total cross section reported by the log file.
+       Extract() should be called first.
+       */
+      inline Double_t LogReaderMilou::GetCrossSection() const {
+         return crossSection_.GetString().Atof();
+      }
+      
+      /**
+       Returns the error on total cross section reported by the log file.
+       Extract() should be called first.
+       */
+      inline Double_t LogReaderMilou::GetCrossSectionError() const {
+         return crossSectionError_.GetString().Atof();
+      }
+      
+      
+      /*******************************************************************//**
+       Factory class for LogReaders.
+       
+       Singleton class.
+       Creates a LogReader instance corresponding to a Monte Carlo
+       generator type.
+       **********************************************************************/
+      class LogReaderFactory {
+         
+      public:
+         
+         static LogReaderFactory& GetInstance();
+         
+         /**
+          Returns a LogReader instance of the type for reading log files
+          from the Monte Carlo generator event type 'event'.
+          Returns NULL in the case of an unsupported generator.
+          The LogReader must be deleted by the user.
+          */
+         LogReader* CreateReader(const EventBase& event) const;
+         
+         /**
+          Returns a LogReader instance of the type for reading log files
+          from the Monte Carlo generator named 'name'.
+          Returns NULL in the case of an unsupported generator.
+          The LogReader must be deleted by the user.
+          */
+         LogReader* CreateReader(const std::string& name) const;
+         
+         
+         /**
+          Returns a LogReader instance of the type for reading log files
+          from the Monte Carlo generator which produced the content in an
+          istream, by reading the first line of that stream.
+          Returns NULL in the case of an unsupported generator.
+          The LogReader must be deleted by the user.
+          */
+         LogReader* CreateReader(std::istream&) const;
+         
+         /**
+          Attempts to locate a log file corresponding to the named Monte
+          Carlo file.
+          Searches for a file with the same base name and extension '.log'.
+          Looks in
+          the current directory and, if mcFile gives a path containing
+          'TXTFILES', in the corresonding directory substituting 'LOGFILES'.
+          */
+         std::string Locate(const std::string& mcFile) const;
+         
+      protected:
+         
+         LogReaderFactory();
+         
+         ~LogReaderFactory();
+         
+         typedef std::map<std::string, LogReader*> Map;
+         Map prototypes_;
+         
+         ClassDef(LogReaderFactory, 1)
+      };
+      
+      
+      /*******************************************************************//**
+       Abstract base class for Monte Carlo file types.
+       Describes a Monte Carlo file type and returns class information
+       related to that class.
+       **********************************************************************/
+      class FileType : public TObject {
+         
+      public:
+         
+         virtual ~FileType() { }
+         
+         virtual FileType* Create() const = 0;
+         
+         virtual EventBase* AllocateEvent() const = 0;
+         
+         virtual std::string GetGeneratorName() const = 0;
+         
+         virtual LogReader* CreateLogReader() const = 0;
+         
+         virtual VirtualEventFactory* CreateEventFactory(std::istream&) const = 0;
+         
+      protected:
+         
+         ClassDef(FileType, 1)
+      };
+      
+      
+      /*
+       Templated file descriptor class, valid for Monte Carlo event classes.
+       e.g. File<EventPythia> describes a Pythia event file.
+       */
+      template<typename T>
+      class File : public FileType {
+         
+      public:
+         
+         /**
+          Constructor.
+          
+          If the string argument is not empty, the File attempts to open
+          a file with that name. If the file is opened it tries to extract
+          */
+         File();
+         
+         virtual ~File();
+         
+         virtual File<T>* Create() const;
+         
+         /**
+          Allocates an event of the type for this file.
+          */
+         virtual T* AllocateEvent() const;
+         
+         /**
+          Returns the name of the generator.
+          Entirely in lower case.
+          */
+         virtual std::string GetGeneratorName() const;
+         
+         /**
+          Create a LogReader for this type of Monte Carlo file.
+          Returns NULL if the file type is unsupported or has no LogReader
+          class implemented.
+          The LogReader must be deleted by the user.
+          */
+         virtual LogReader* CreateLogReader() const;
+         
+         virtual EventFromAsciiFactory<T>* CreateEventFactory(std::istream& is) const {
+            return new EventFromAsciiFactory<T>(is);
+         }
+         
+      protected:
+         
+         T* t_;
+         
+         ClassDef(File, 1)
+      };
+      
+      template<typename T>
+      inline T* File<T>::AllocateEvent() const { return new T; }
+      
+      template<typename T>
+      inline File<T>* File<T>::Create() const {
+         return new File<T>();
+      }
+      
+      
+      /*******************************************************************//**
+       Factory class for Files.
+       Singleton class.
+       **********************************************************************/
+      class FileFactory {
+         
+      public:
+         
+         static FileFactory& GetInstance();
+         
+         const FileType* GetFile(const std::string& name) const;
+         
+         const FileType* GetFile(std::istream&) const;
+         
+      protected:
+         
+         FileFactory();
+         
+         virtual ~FileFactory();
+         
+         typedef std::map<std::string, FileType*> Map;
+         Map prototypes_;
+      };
+            
+   } // namespace monte_carlo
+   
+} // namespace erhic
+
+#endif
