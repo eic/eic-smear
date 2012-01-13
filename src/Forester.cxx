@@ -64,23 +64,12 @@ namespace erhic {
             std::cout << "\nProcessing " << GetInputFileName() << std::endl;
          } // if
          
-#if 0
-         // Here is the data loop. Each line is read and processed.
-         // The first line of the first event has already been read into mLine
-         // during the setup procedure.
-         do {
-            ProcessLine();
-         }
-         // MustQuit() precedes ReadNextLine() so we don't read the line
-         while(not MustQuit() and ReadNextLine());
-#endif
          static int i(0);
          while(not MustQuit()) {
-            
             ++i;
-            
             if(BeVerbose() and i % mInterval == 0) {
-               // Make the field just wide enough for the maximum number of events.
+               // Make the field just wide enough for the maximum
+               // number of events.
                int width = static_cast<int>(::log10(GetMaxNEvents()) + 1);
                std::cout << "Processing event "<< std::setw(width) << i;
                if(GetMaxNEvents() > 0) {
@@ -89,20 +78,27 @@ namespace erhic {
                std::cout << std::endl;
             } // if
             
-            mTree->ResetBranchAddress(mTree->GetBranch("event"));
+            // Build the next event
             VirtualEvent<ParticleMC>* event = mFactory->Create();
+            
+            // Fill the tree
             if(event) {
                mTree->SetBranchAddress("event", &event);
                mTree->Fill();
-               mTree->ResetBranchAddress(mTree->GetBranch("event"));
                if(GetMaxNEvents() > 0 and i >= GetMaxNEvents()) {
-                  SetMustQuit(true);
+                  SetMustQuit(true); // Hit max number of events, so quit
                } // if
+               
+               mStatus.ModifyEventCount(1);
+               mStatus.ModifyParticleCount(event->NTracks());
+               
+               // We must ResetBranchAddress before deleting the event.
+               mTree->ResetBranchAddress(mTree->GetBranch("event"));
                delete event;
             } // if
             else break;
          } // while
-         
+
          Finish();
          
          return 0;
@@ -238,12 +234,13 @@ namespace erhic {
    
    Int_t
    Forester::ProcessLine() {
-      
+      std::cout << "Processing line" << std::endl;
       int nTracksRead(0);
       
       if(AtEndOfEvent()) {
          // FinishEvent() will return <0 and set mQuit to true
          // if mMaxNEvents was reached
+         std::cout << "At end of event" << std::endl;
          nTracksRead = FinishEvent();
          mStatus.ModifyEventCount(1);
          mStatus.ModifyParticleCount(nTracksRead);
