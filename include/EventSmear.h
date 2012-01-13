@@ -70,7 +70,7 @@ namespace Smear {
       
 //      typedef TrackType PTyp;
       
-      std::vector<SPart> particles;
+//      std::vector<SPart> particles;
       Int_t nTracks; ///< Number of Particles in the event (intermediate + final)
       virtual UInt_t NTracks() const { return smearedParticles.size(); }
 
@@ -154,6 +154,15 @@ namespace Smear {
        */
       virtual void AddLast(TrackType*);
       
+      virtual double XDA() const { return xDA; }
+      virtual double Q2DA() const { return QSquaredDA; }
+      virtual double YDA() const { return yDA; }
+      virtual double W2DA() const { return WSquaredDA; }
+      
+      virtual double XJB() const { return xJB; }
+      virtual double Q2JB() const { return QSquaredJB; }
+      virtual double YJB() const { return yJB; }
+      virtual double W2JB() const { return WSquaredJB; }
       
       Double32_t x; ///< Bjorken scaling variable
       Double32_t QSquared; ///< Q<sup>2</sup> calculated from scattered electron
