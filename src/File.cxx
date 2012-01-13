@@ -37,7 +37,8 @@ namespace erhic {
          
          std::string line;
          const std::string searchPattern("Pythia total cross section normalisation:");
-         std::string normalisation("");
+         std::string normalisation;
+         std::string nEvents;
          
          while(ifs.good()) {
             std::getline(ifs, line);
@@ -47,14 +48,29 @@ namespace erhic {
                // Erase the text preceding the cross section.
                std::stringstream ss;
                line.erase(0, position + searchPattern.length());
+               ss.str("");
+               ss.clear();
                ss << line;
                ss >> normalisation;
-               break;
+            } // if
+            const std::string searchPattern2("Total Number of generated events");
+            position = line.find(searchPattern2);
+            if(position not_eq std::string::npos) {
+               // We found the line.
+               // Erase the text preceding the cross section.
+               std::stringstream ss;
+               line.erase(0, position + searchPattern2.length());
+               ss.str("");
+               ss.clear();
+               ss << line;
+               ss >> nEvents;
             } // if
          } // while
          
          crossSection_.SetString(normalisation.c_str());
          std::cout << crossSection_.GetString().Atof()<<std::endl;
+         nEvents_.SetString(nEvents.c_str());
+         std::cout << nEvents_.GetString().Atoi() << std::endl;
          
          std::cout << "Extracted information from " << file << std::endl;
          return true;
