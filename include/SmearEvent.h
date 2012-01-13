@@ -17,6 +17,7 @@
 #include "VirtualParticle.h"
 #include "Kinematics.h"
 #include "ParticleIdentifier.h"
+#include "ParticleMCSmeared.h"
 
 #include "Smear.h"
 

@@ -1,125 +1,77 @@
+/**
+ \file
+ Contains the declaration of class Bremsstrahlung, a specialized Device
+ class for modelling radiative losses.
+ 
+ \author Michael Savastio
+ */
+
 #ifndef _ERHIC_BUILDTREE_BREMSSTRAHLUNG_
 #define _ERHIC_BUILDTREE_BREMSSTRAHLUNG_
 
-// This file contains a list of specialized Device classes.
-
-#include <TString.h>
-#include <TRandom3.h>
 #include <TF1.h>
-#include <fstream>
-#include <TF2.h>
-#include <TLorentzVector.h>
-#include <iostream>
-#include <sstream>
-#include <cmath>
-
-#include "VirtualParticle.h"
-#include "Kinematics.h"
-#include "ParticleIdentifier.h"
-
-#include "Smear.h"
-#include "Acceptance.h"
 
 #include "Device.h"
+#include "EventS.h" // For ParticleS
+#include "Particle.h" // For Particle
 
 namespace Smear {
-
-  struct Dubious: public Device {
+   
+   struct Bremsstrahlung: public Device {
 		
-		Dubious() {
-			epsilon = 0.01;
-			Traversed = 10.;
-			RadLength = 47.1;
-			
-			Accept.AddParticle(11);
-			Accept.AddParticle(-11);
-		}
+      /**
+       Constructor.
+       Photon energies are randomly generated in the range
+       [epsilon, E - epsilon] for particle energy E.
+       traversed is the distance of material through with the particle passes
+       and radLength is the radiation length of that material (both in cm).
+       */
+      Bremsstrahlung(double epsilon = 0.01,
+                     double traversed = 10.,
+                     double radLength = 47.1);
 		
-		Particle *P;
+      /**
+       Returns dSigmga/dK at k = x[0].
+       The arguments have this form to interface with ROOT::TF1.
+       The second argument is unused.
+       */
+		double dSigmadK(double* x, double*);
 		
-		TF1 PDF;
+      /** Compute the number of photons emitted */
+		int NGamma();
 		
-		double kMin;
-		double kMax;
-		double epsilon;
-		double Traversed;
-		double RadLength;
+		void FixParticleKinematics(ParticleS&);
 		
-		double dSigmadK(double *x, double *par) {
-			double k = x[0];
-			par = NULL;
-			double ret = 4./3.;
-			ret += -4.*k/(3.*P->E);
-			ret += pow(k/P->E,2);
-			ret /= k;
-			return ret;
-		}
+      /** Returns a pointer to a duplicate of this object */
+		virtual Bremsstrahlung* Clone();
 		
-		void SetupPDF() {
-			PDF = TF1("PDF",this,&Smear::Dubious::dSigmadK,kMin,kMax,0,"Smear::Dubious");
-		}
+      /** Smear the properties of a Particle and assign them to a ParticleS */
+      void DevSmear(Particle&, ParticleS&);
+      
+   protected:
+      
+      /**
+       Set the radiating particle type and configure the dSigma/dK
+       function.
+       */
+		void SetParticle(Particle&);
+      
+      /** Configure the dSigma/dK function */
+		void SetupPDF();
 		
-		int NGamma() {
-			double ret = 4.*log(kMax/kMin)/3.;
-			ret += -4.*(kMax-kMin)/(3.*P->E);
-			ret += 0.5*pow((kMax-kMin)/P->E,2);
-			ret *= Traversed/RadLength;
-			int n = (int) ret;
-			if (fabs(ret-n)<fabs(ret-n-1)) {
-				return n;
-			} else {
-				return n+1;
-			}
-		}
+		Particle* mParticle; // Pointer to the current particle
 		
-		void SetParticle(Particle &prt) {
-			P = &prt;
-			kMin = epsilon;
-			kMax = P->E-epsilon;
-			SetupPDF();
-		}
+		double mKMin;
+		double mKMax;
+		double mEpsilon;
+		double mTraversed;
+		double mRadLength;
 		
-		void FixParticleKinematics(ParticleS& prt) {
-			prt.p = sqrt(prt.GetE()*prt.GetE() - prt.M()*prt.M());
-			prt.pt = prt.p*sin(prt.theta);
-			prt.pz = prt.p*cos(prt.theta);
-		}
-		
-		Dubious *Clone() {
-			Dubious *dev = new Dubious();
-			*dev = *this;
-			return dev;
-		}
-		
-     void DevSmear(Particle &prt, ParticleS& prtOut) {
-			
-			//double before;  double after;
-			
-			//before = prt.E;
-			//std::cout << "before " << before << std::endl;
-			
-			SetParticle(prt);
-			
-			for (int i=0; i<NGamma(); i++) {
-				prt.E = prt.E - PDF.GetRandom();
-			}
-
-			// Is this right?
-         // Should it not be prtOut that is modified?
-//			FixParticleKinematics(prt);
-        FixParticleKinematics(prtOut);
-//			HandleBogusValues(prt);
-        HandleBogusValues(prtOut);
-			
-			//after = prt.E;
-			//std::cout << "after " << after << std::endl;
-			
-			//if (after>before) std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!WTF!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		}
-		
-		ClassDef(Dubious,1)
+		TF1 mPdf; // dSigma/dK function
+      
+		ClassDef(Bremsstrahlung, 1)
 	};
-
+   
 }
 
 #endif

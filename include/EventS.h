@@ -8,4 +8,6 @@
 #include "ParticleMC.h"
 #include "EventSmear.h"
 
+typedef Smear::Event::TrackType ParticleS;
+
 #endif

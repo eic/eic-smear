@@ -21,6 +21,7 @@
 #include <memory>
 
 #include "Particle.h"
+#include "EventS.h"
 
 namespace Smear {
 	

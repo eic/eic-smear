@@ -10,6 +10,4 @@
 
 typedef ::erhic::EventMC::TrackType Particle;
 
-typedef ::Smear::Event::TrackType ParticleS;
-
 #endif
