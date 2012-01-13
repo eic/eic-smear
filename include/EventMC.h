@@ -194,6 +194,16 @@ namespace erhic {
        */
       virtual bool Parse(const std::string&);
       
+      virtual double XDA() const { return xDA; }
+      virtual double Q2DA() const { return QSquaredDA; }
+      virtual double YDA() const { return yDA; }
+      virtual double W2DA() const { return WSquaredDA; }
+      
+      virtual double XJB() const { return xJB; }
+      virtual double Q2JB() const { return QSquaredJB; }
+      virtual double YJB() const { return yJB; }
+      virtual double W2JB() const { return WSquaredJB; }
+      
    protected:
       
       Int_t number; ///< Event number
