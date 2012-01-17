@@ -86,7 +86,7 @@ int SmearTree(Smear::Detector det, TString inFileName, TString outFileName ="SAM
 		
 		tree->GetEntry(i);
 		
-		int nParticles = event->NTracks();
+		int nParticles = event->GetNTracks();
 		
 		for (int j=0; j<nParticles; j++) {
          Particle* ptr = event->GetTrack(j);

@@ -46,47 +46,47 @@ namespace erhic {
       /**
        Returns the index of this event.
        */
-      virtual ULong64_t N() const;
+      virtual ULong64_t GetN() const;
       
       /**
        Returns Bjorken-x of the event.
        x<sub>B</sub> = Q<sup>2</sup>/(2p.q)
        */
-      virtual Double_t X() const { return x; }
+      virtual Double_t GetX() const { return x; }
       
       /**
        Returns the four-momentum transfer (exchange boson mass) Q<sup>2</sup>.
        Q<sup>2</sup> = 2EE`(1+cos(theta)) = (e-e`)<sup>2</sup>
        */
-      virtual Double_t Q2() const { return QSquared; }
+      virtual Double_t GetQ2() const { return QSquared; }
       
       /**
        Returns the event inelasticity.
        y = (p.q)/(p.e)
        */
-      virtual Double_t Y() const { return y; }
+      virtual Double_t GetY() const { return y; }
       
       /**
        Returns the invariant mass of the hadronic final state.
        W<sup>2</sup> = M<sup>2</sup> + Q<sup>2</sup>(1-x)/x
        */
-      virtual Double_t W2() const { return WSquared; }
+      virtual Double_t GetW2() const { return WSquared; }
       
       /**
        Returns the exchange boson energy in the beam hadron rest frame.
        nu = q.p/M
        */
-      virtual Double_t Nu() const { return nu; }
+      virtual Double_t GetNu() const { return nu; }
       
       /**
        Returns a code describing the production process of this event.
        */
-      virtual Int_t Process() const;
+      virtual Int_t GetProcess() const;
       
       /**
        Returns the number of tracks in the event.
        */
-      virtual UInt_t NTracks() const;
+      virtual UInt_t GetNTracks() const;
       
       /**
        Returns the nth track.
@@ -194,15 +194,15 @@ namespace erhic {
        */
       virtual bool Parse(const std::string&);
       
-      virtual double XDA() const { return xDA; }
-      virtual double Q2DA() const { return QSquaredDA; }
-      virtual double YDA() const { return yDA; }
-      virtual double W2DA() const { return WSquaredDA; }
+      virtual double GetXDoubleAngle() const { return xDA; }
+      virtual double GetQ2DoubleAngle() const { return QSquaredDA; }
+      virtual double GetYDoubleAngle() const { return yDA; }
+      virtual double GetW2DoubleAngle() const { return WSquaredDA; }
       
-      virtual double XJB() const { return xJB; }
-      virtual double Q2JB() const { return QSquaredJB; }
-      virtual double YJB() const { return yJB; }
-      virtual double W2JB() const { return WSquaredJB; }
+      virtual double GetXJacquetBlondel() const { return xJB; }
+      virtual double GetQ2JacquetBlondel() const { return QSquaredJB; }
+      virtual double GetYJacquetBlondel() const { return yJB; }
+      virtual double GetW2JacquetBlondel() const { return WSquaredJB; }
       
    protected:
       
@@ -254,11 +254,11 @@ namespace erhic {
    
    inline bool EventMC::Parse(const std::string& ) { return false; }
    
-   inline ULong64_t EventMC::N() const { return number; }
+   inline ULong64_t EventMC::GetN() const { return number; }
    
-   inline Int_t EventMC::Process() const { return process; }
+   inline Int_t EventMC::GetProcess() const { return process; }
    
-   inline UInt_t EventMC::NTracks() const { return particles.size(); }
+   inline UInt_t EventMC::GetNTracks() const { return particles.size(); }
    
    inline const EventMC::TrackType* EventMC::GetTrack(UInt_t u) const {
       return (u < particles.size() ? particles.at(u) : NULL);

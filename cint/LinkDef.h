@@ -78,7 +78,7 @@
 //#pragma link C++ class erhic::JacquetBlondel+;
 //#pragma link C++ class erhic::DoubleAngle+;
 
-#pragma link C++ class Smear::Dubious+;
+#pragma link C++ class Smear::Bremsstrahlung+;
 #pragma link C++ class Smear::Device::Function+;
 #pragma link C++ class Smear::Copier+;
 #pragma link C++ class Smear::Gauss+;

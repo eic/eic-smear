@@ -38,17 +38,17 @@ namespace Smear {
       /**
        Returns the x component of 3-momentum.
        */
-      virtual Double_t Px() const;
+      virtual Double_t GetPx() const;
       
       /**
        Returns the y component of 3-momentum.
        */
-      virtual Double_t Py() const;
+      virtual Double_t GetPy() const;
       
       /**
        Returns the z component of 3-momentum.
        */
-      virtual Double_t Pz() const;
+      virtual Double_t GetPz() const;
       
       /**
        Returns the energy of the particle in the lab frame.
@@ -58,49 +58,49 @@ namespace Smear {
       /**
        Returns the (E,p) 4-vector in the lab frame.
        */
-      virtual TLorentzVector PxPyPzE() const;
-      virtual TLorentzVector Get4Vector() const { return PxPyPzE(); }
+      virtual TLorentzVector Get4Vector() const;
+      virtual TLorentzVector PxPyPzE() const { return Get4Vector(); }
       
       /**
        Returns invariant mass (GeV/c<sup>2</sup>).
        */
-      virtual Double_t M() const;
+      virtual Double_t GetM() const;
       
       /**
        Returns momentum transverse to the beam direction.
        */
-      virtual Double_t Pt() const;
+      virtual Double_t GetPt() const;
       
       /**
        Returns the origin point of the particle (cm).
        (0,0,0) indicates a particle originating in the collision.
        */
-      virtual TVector3 Vertex() const;
+      virtual TVector3 GetVertex() const;
       
       /**
        Returns the total momentum (GeV).
        */
-      virtual Double_t P() const;
+      virtual Double_t GetP() const;
       
       /**
        Returns the polar angle in the range [0,pi] radians.
        */
-      virtual Double_t Theta() const;
+      virtual Double_t GetTheta() const;
       
       /**
        Returns the polar angle in the range [0,2pi] radians.
        */
-      virtual Double_t Phi() const;
+      virtual Double_t GetPhi() const;
       
       /**
        Returns the rapidity.
        */
-      virtual Double_t Y() const;
+      virtual Double_t GetRapidity() const;
       
       /**
        Returns the pseudorapidity.
        */
-      virtual Double_t Eta() const;
+      virtual Double_t GetEta() const;
       
       /**
        Returns the ID of the particle.
@@ -137,29 +137,29 @@ namespace Smear {
       ClassDef(ParticleMCS, 1)
    };
    
-   inline Double_t ParticleMCS::Px() const { return p * sin(theta) * cos(phi); }
+   inline Double_t ParticleMCS::GetPx() const { return p * sin(theta) * cos(phi); }
    
-   inline Double_t ParticleMCS::Py() const { return p * sin(theta) * sin(phi); }
+   inline Double_t ParticleMCS::GetPy() const { return p * sin(theta) * sin(phi); }
    
-   inline Double_t ParticleMCS::Pz() const { return pz; }
+   inline Double_t ParticleMCS::GetPz() const { return pz; }
    
    inline Double_t ParticleMCS::GetE() const { return E; }
    
-   inline Double_t ParticleMCS::M() const { return sqrt(pow(E, 2.) - pow(p, 2.)); }
+   inline Double_t ParticleMCS::GetM() const { return sqrt(pow(E, 2.) - pow(p, 2.)); }
    
-   inline Double_t ParticleMCS::Pt() const { return pt; }
+   inline Double_t ParticleMCS::GetPt() const { return pt; }
    
-   inline TVector3 ParticleMCS::Vertex() const { return TVector3(); }
+   inline TVector3 ParticleMCS::GetVertex() const { return TVector3(); }
    
-   inline Double_t ParticleMCS::P() const { return p; }
+   inline Double_t ParticleMCS::GetP() const { return p; }
    
-   inline Double_t ParticleMCS::Theta() const { return theta; }
+   inline Double_t ParticleMCS::GetTheta() const { return theta; }
    
-   inline Double_t ParticleMCS::Phi() const { return phi; }
+   inline Double_t ParticleMCS::GetPhi() const { return phi; }
    
-   inline Double_t ParticleMCS::Y() const { return 0.; }
+   inline Double_t ParticleMCS::GetRapidity() const { return 0.; }
    
-   inline Double_t ParticleMCS::Eta() const { return 0.; }
+   inline Double_t ParticleMCS::GetEta() const { return 0.; }
    
    inline void ParticleMCS::SetE(Double_t e) { E = e; }
    

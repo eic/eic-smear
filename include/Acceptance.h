@@ -202,7 +202,7 @@ namespace Smear {
 		 This function determines if the particle provided lies within
        the acceptance of the
 		 detector.  Default acceptance is a full 4*pi solid angle,
-       with E and p in (0.2,1e12) GeV.
+       with E and p in (0.,1e12) GeV.
 		 This function automatically fixes polar and azimuthal angles
        which are not within their proper range.
 		 */

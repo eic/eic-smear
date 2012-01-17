@@ -90,7 +90,7 @@ namespace erhic {
                } // if
                
                mStatus.ModifyEventCount(1);
-               mStatus.ModifyParticleCount(event->NTracks());
+               mStatus.ModifyParticleCount(event->GetNTracks());
                
                // We must ResetBranchAddress before deleting the event.
                mTree->ResetBranchAddress(mTree->GetBranch("event"));
@@ -199,7 +199,7 @@ namespace erhic {
          // If we received the quit signal, then we should have completed an event.
          // If not, there will be particles in the event buffer - the file must
          // have terminated mid-event.
-         if(mEvent->NTracks() not_eq 0) {
+         if(mEvent->GetNTracks() not_eq 0) {
             std::cerr <<
             "Warning: processing may have finished mid-event - check input file"
             << std::endl;
@@ -226,7 +226,7 @@ namespace erhic {
       mStatus.StopTimer();
       
       if(BeVerbose()) {
-         GetStatus().Print(std::cout); // Messages for the user
+         GetGetStatus().Print(std::cout); // Messages for the user
       } // if
       
       mRootFile->Close();
@@ -268,7 +268,7 @@ namespace erhic {
 //      std::cout << "AddParticle " << std::endl;
 //      particle.Dump();
       
-//      if(particle.GetStatus() > 21) {
+//      if(particle.GetGetStatus() > 21) {
 //         return false;
 //      } // if
       
@@ -309,7 +309,7 @@ namespace erhic {
    
    Int_t
    Forester::FinishEvent() {
-      Int_t number = mEvent->N();
+      Int_t number = mEvent->GetN();
       
       // DisplayProgress();
       // We have reached the end of an event.
@@ -365,7 +365,7 @@ namespace erhic {
       
       mTree->Fill();
       
-      Int_t nTracksRead = mEvent->NTracks();
+      Int_t nTracksRead = mEvent->GetNTracks();
       
       // Free memory before starting the next event.
       mEvent->Reset();

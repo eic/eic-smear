@@ -73,11 +73,11 @@ Double_t KinematicsFromHadrons::getMandelstamS() const {
 //	================================================================================================
 // Helper functor for calculating E_h - pZ from a TLorentzVector.
 //	================================================================================================
-struct EMinusPZ : public std::unary_function<TLorentzVector, double> {
+struct EMinusPz : public std::unary_function<TLorentzVector, double> {
    double operator()( const TLorentzVector& fourMomentum ) const {
       return fourMomentum.E() - fourMomentum.Pz();
 // Using P instead of E here throws off Double angle method
-//      return fourMomentum.P() - fourMomentum.Pz();
+//      return fourMomentum.GetP() - fourMomentum.GetPz();
    }
 };
 
@@ -103,7 +103,7 @@ Double_t JacquetBlondel::computeY() const {
    transform(mParticles.begin(),
              mParticles.end(),
              back_inserter( eMinusPZ ),
-             EMinusPZ() );
+             EMinusGetPz() );
    
    return accumulate(eMinusPZ.begin(), eMinusPZ.end(), 0.0)
           / 2.0 / getLeptonEnergy();
@@ -112,8 +112,8 @@ Double_t JacquetBlondel::computeY() const {
 }
 
 Double_t JacquetBlondel::computeYExact() const {
-//   const TLorentzVector& p = mBeamHadron;//mProtonBeam->PxPyPzE();
-//   const TLorentzVector& k = mBeamLepton;//mElectronBeam->PxPyPzE();
+//   const TLorentzVector& p = mBeamHadron;//mProtonBeam->Get4Vector();
+//   const TLorentzVector& k = mBeamLepton;//mElectronBeam->Get4Vector();
    /*
    TLorentzVector pPrime = std::accumulate(mParticles.begin(),
                                            mParticles.end(),
@@ -150,9 +150,9 @@ Double_t JacquetBlondel::computeYExact() const {
    return
    accumulate(eMinusPZ.begin(),
               eMinusPZ.end(),
-              -::pow(mBeamHadron.M(), 2.)) /
+              -::pow(mBeamHadron.GetM(), 2.)) /
    (mBeamLepton.E() * mBeamHadron.E() +
-    mElectronBeam->P() * mProtonBeam->P());
+    mElectronBeam->GetP() * mProtonBeam->GetP());
               */
 }
 
@@ -240,7 +240,7 @@ Double_t JacquetBlondel::computeQSquaredExact() const {
                                      TLorentzVector());
    
 //   return
-//   2. * (mBeamHadron.P() * sumEh - mBeamHadron.Pz() * sumPzh) -
+//   2. * (mBeamHadron.GetP() * sumEh - mBeamHadron.GetPz() * sumPzh) -
 //   total.M2() -
 //   mBeamHadron.M2();
    return 2. * (mBeamHadron.E() * total.E() - mBeamHadron.Pz() * total.Pz())
@@ -300,7 +300,7 @@ Double_t DoubleAngle::computeQuarkAngle() const {
               mem_fun_ref( &TLorentzVector::Py ) );
    // Get the (E-pz) of each particle:
    transform( mParticles.begin(), mParticles.end(), back_inserter( eMinusPZ ),
-              EMinusPZ() );
+              EMinusPz() );
    
    // Square the sum of each momentum component
    struct SquareOfSum {
@@ -394,7 +394,7 @@ namespace erhic {
       if(event.BeamLepton() and event.ScatteredLepton()) {
          Q2 = 2. * (event.BeamLepton()->*getter)() *
          (event.ScatteredLepton()->*getter)() *
-         (1. + event.ScatteredLepton()->PxPyPzE().CosTheta());
+         (1. + event.ScatteredLepton()->Get4Vector().CosTheta());
       } // if
       return Q2;
    }
@@ -405,7 +405,7 @@ namespace erhic {
       double x(NAN);
       const ::Particle* p = event.BeamHadron();
       if(p) {
-         x = ComputeQSquared(event) / (2. * p->GetM() * ComputeNu(event));
+         x = ComputeQSquared(event) / (2. * p->GetGetM() * ComputeNu(event));
       } // for
       return x;
    }
@@ -417,10 +417,10 @@ namespace erhic {
       const ::Particle* p = event.BeamHadron();
       const ::Particle* l = event.BeamLepton();
       if(l) {
-         double gamma = p->PxPyPzE().Gamma();
-         double beta = p->PxPyPzE().Beta();
+         double gamma = p->Get4Vector().Gamma();
+         double beta = p->Get4Vector().Beta();
          // Calculate incident lepton energy in the hadron rest frame.
-         double EInNucl = gamma * ((l->*getter)() - beta * l->PxPyPzE().Pz());
+         double EInNucl = gamma * ((l->*getter)() - beta * l->Get4Vector().GetPz());
          y = ComputeNu(event) / EInNucl;
       } // if
       return y;
@@ -432,7 +432,7 @@ namespace erhic {
       double W2(NAN);
       const ::Particle* p = event.BeamHadron();
       if(p) {
-         return p->PxPyPzE().M2() +
+         return p->Get4Vector().M2() +
          (1. - ComputeX(event)) * ComputeQSquared(event) / ComputeX(event);
       } // if
       return W2;
@@ -446,17 +446,17 @@ namespace erhic {
       const ::Particle* l = event.BeamLepton();
       const ::Particle* s = event.ScatteredLepton();
       if(p and l and s) {
-         double gamma = p->PxPyPzE().Gamma();
-         double beta = p->PxPyPzE().Beta();
-         double ELeptonInNucl = gamma * ((l->*getter)() - beta * l->PxPyPzE().Pz());
-         double ELeptonOutNucl = gamma * ((s->*getter)() - beta * s->PxPyPzE().Pz());
+         double gamma = p->Get4Vector().Gamma();
+         double beta = p->Get4Vector().Beta();
+         double ELeptonInNucl = gamma * ((l->*getter)() - beta * l->Get4Vector().GetPz());
+         double ELeptonOutNucl = gamma * ((s->*getter)() - beta * s->Get4Vector().GetPz());
          nu = ELeptonInNucl - ELeptonOutNucl;
       } // if
 #if 0
       const ::Particle* p = event.BeamHadron();
       const ::Particle* q = event.ExchangeBoson();
       if(p and q) {
-         nu = p->PxPyPzE().Dot(q->PxPyPzE()) / p->PxPyPzE().M();
+         nu = p->Get4Vector().Dot(q->Get4Vector()) / p->Get4Vector().GetM();
       } // if
 #endif
       
@@ -480,9 +480,9 @@ namespace erhic {
    
    Double_t JacquetBlondel::ComputeQSquared(const EventBase& event, Getter) const {
       TLorentzVector total = event.HadronicFinalStateMomentum();
-      TLorentzVector mBeamHadron = event.BeamHadron()->PxPyPzE();
-      TLorentzVector mBeamLepton = event.BeamLepton()->PxPyPzE();
-      return 2. * (mBeamHadron.E() * total.E() - mBeamHadron.Pz() * total.Pz())
+      TLorentzVector mBeamHadron = event.BeamHadron()->Get4Vector();
+      TLorentzVector mBeamLepton = event.BeamLepton()->Get4Vector();
+      return 2. * (mBeamHadron.E() * total.E() - mBeamHadron.GetPz() * total.GetPz())
       - total.M2() - mBeamHadron.M2();
    }
    
@@ -508,19 +508,19 @@ namespace erhic {
                 mem_fun(&Particle::GetPz));
       const double sumPzh = accumulate(pz.begin(), pz.end(), 0.);
       
-      TLorentzVector mBeamHadron = event.BeamHadron()->PxPyPzE();
-      TLorentzVector mBeamLepton = event.BeamLepton()->PxPyPzE();
+      TLorentzVector mBeamHadron = event.BeamHadron()->Get4Vector();
+      TLorentzVector mBeamLepton = event.BeamLepton()->Get4Vector();
       return
       (mBeamHadron.E() * sumEh -
-       mBeamHadron.Pz() * sumPzh -
+       mBeamHadron.GetPz() * sumPzh -
        mBeamHadron.M2())
       /
       (mBeamLepton.E() * mBeamHadron.E() -
-       mBeamLepton.Pz() * mBeamHadron.Pz());
+       mBeamLepton.GetPz() * mBeamHadron.GetPz());
    }
    
    Double_t JacquetBlondel::ComputeWSquared(const EventBase& event, Getter) const {
-      TLorentzVector p = event.BeamHadron()->PxPyPzE();
+      TLorentzVector p = event.BeamHadron()->Get4Vector();
       return p.M2() + ComputeQSquared(event) * (1. / ComputeX(event) - 1.);
    }
    

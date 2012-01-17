@@ -45,10 +45,10 @@ namespace Smear {
 	 */
 	inline int PGenre(Particle prt) {
 		int o;
-      if (prt.Status()==1 && abs(prt.Id())>10 && abs(prt.Id())<23 && abs(prt.Id())!=21) {
+      if (prt.GetStatus()==1 && abs(prt.Id())>10 && abs(prt.Id())<23 && abs(prt.Id())!=21) {
 			o=1;
 		}
-		else if (prt.Status() == 1 && abs(prt.Id())>110) {
+		else if (prt.GetStatus() == 1 && abs(prt.Id())>110) {
 			o=2;
 		}
 		else {
@@ -101,15 +101,15 @@ namespace Smear {
 			case kE:
 				z = prt.GetE(); break;
 			case kP:
-				z = prt.P(); break;
+				z = prt.GetP(); break;
 			case kTheta:
-				z = prt.Theta(); break;
+				z = prt.GetTheta(); break;
 			case kPhi:
-				z = prt.Phi(); break;
+				z = prt.GetPhi(); break;
 			case kPz:
-				z = prt.Pz(); break;
+				z = prt.GetPz(); break;
 			case kPt:
-				z = prt.Pt(); break;
+				z = prt.GetPt(); break;
 			default:
 				z = prt.GetE(); break;
 		}	
@@ -151,13 +151,13 @@ namespace Smear {
 		if (prt.GetE() < 0. && kin==kE) {
 			prt.SetE(fault);
 		}
-		if (prt.P() < 0. && kin==kP) {
+		if (prt.GetP() < 0. && kin==kP) {
 			prt.SetP(fault);
 		}
-		if (prt.Pt() < 0. && kin==kPt) {
+		if (prt.GetPt() < 0. && kin==kPt) {
 			prt.SetPt(fault);
 		}
-		if (prt.Pz() < 0. && kin==kPz) {
+		if (prt.GetPz() < 0. && kin==kPz) {
 			prt.SetPz(fault);
 		}	
 	}
@@ -170,13 +170,13 @@ namespace Smear {
 		if (prt.GetE() < 0.) {
 			prt.SetE(fault);
 		}
-		if (prt.P() < 0.) {
+		if (prt.GetP() < 0.) {
 			prt.SetP(fault);
 		}
-		if (prt.Pt() < 0.) { 
+		if (prt.GetPt() < 0.) { 
 			prt.SetPt(fault);
 		}
-		if (prt.Pz() < 0.) {
+		if (prt.GetPz() < 0.) {
 			prt.SetPz(fault);
 		}
 	}

@@ -162,7 +162,7 @@ namespace Smear {
 //      Device *dev = new Device();
 //      *dev = *this;
 //      return dev;
-      std::cout << "Device::Clone()" << std::endl;
+//      std::cout << "Device::Clone()" << std::endl;
       return new Device(*this);
    }
    

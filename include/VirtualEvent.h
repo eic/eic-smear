@@ -32,31 +32,31 @@ namespace erhic {
        Returns Bjorken-x of the event.
        x<sub>B</sub> = Q<sup>2</sup>/(2p.q)
        */
-      virtual Double_t X() const = 0;
+      virtual Double_t GetX() const = 0;
       
       /**
        Returns the four-momentum transfer (exchange boson mass) Q<sup>2</sup>.
        Q<sup>2</sup> = 2EE`(1+cos(theta)) = (e-e`)<sup>2</sup>
        */
-      virtual Double_t Q2() const = 0;
+      virtual Double_t GetQ2() const = 0;
       
       /**
        Returns the event inelasticity.
        y = (p.q)/(p.e)
        */
-      virtual Double_t Y() const = 0;
+      virtual Double_t GetY() const = 0;
       
       /**
        Returns the invariant mass of the hadronic final state.
        W<sup>2</sup> = M<sup>2</sup> + Q<sup>2</sup>(1-x)/x
        */
-      virtual Double_t W2() const = 0;
+      virtual Double_t GetW2() const = 0;
       
       /**
        Returns the exchange boson energy in the beam hadron rest frame.
        nu = q.p/M
        */
-      virtual Double_t Nu() const = 0;
+      virtual Double_t GetNu() const = 0;
       
       /**
        Returns the nth track from the event.
@@ -73,7 +73,7 @@ namespace erhic {
       /**
        Returns the number of tracks in the event.
        */
-      virtual UInt_t NTracks() const = 0;
+      virtual UInt_t GetNTracks() const = 0;
       
       /**
        Add a new track to the end of the track list.

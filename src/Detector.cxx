@@ -238,12 +238,12 @@ namespace Smear {
          } // for
       } // if
       
-      if(prt.Status() == 1 and accept) {
+      if(prt.GetStatus() == 1 and accept) {
          
          prtOut = new ParticleS();
          
          for(unsigned i=0; i<GetNDevices(); i++) {
-//            std::cout << "\tSmearing with device " << Devices.at(i)->name << std::endl;
+//            std::cout << "\tSmearing with device " << i << " " << Devices.at(i)->name << std::endl;
             Devices.at(i)->DevSmear(prt,*prtOut);
          } // for
          

@@ -195,7 +195,7 @@ namespace Smear {
 			bGoodJohnnieHad  = false;
 			bTolerated = true;
 			
-			int nParticles = event->NTracks();
+			int nParticles = event->GetNTracks();
 			
 			bool foundN = false;
 			bool foundL = false;
@@ -213,12 +213,12 @@ namespace Smear {
            const Particle* part = event->GetTrack(j);
 			  if (not foundN and PartIdent.isBeamNucleon(*part)) {
 				  InKin.ENucleon = event->GetTrack(j)->GetE();
-              InKin.MNucleon = event->GetTrack(j)->M();
+              InKin.MNucleon = event->GetTrack(j)->GetM();
 //				  InKin.ENucleon = event->GetTrack(j)->E;
 //					InKin.MNucleon = event->GetTrack(j)->m;
 					foundN = true;
-					JBComp.setBeamHadron(event->GetTrack(j)->PxPyPzE());
-					DAComp.setBeamHadron(event->GetTrack(j)->PxPyPzE());
+					JBComp.setBeamHadron(event->GetTrack(j)->Get4Vector());
+					DAComp.setBeamHadron(event->GetTrack(j)->Get4Vector());
               // Store the incident beams even in the smeared event, to make
               // use of certain utility functions.
               //              eventS->GetTrack(1) = new Particle(event->particles.at(1));
@@ -229,8 +229,8 @@ namespace Smear {
 				else if (not foundL and PartIdent.isBeamLepton(*part)) {
 					InKin.Ee = event->GetTrack(j)->GetE();
 					foundL = true;
-					JBComp.setBeamLepton(event->GetTrack(j)->PxPyPzE());
-					DAComp.setBeamLepton(event->GetTrack(j)->PxPyPzE());
+					JBComp.setBeamLepton(event->GetTrack(j)->Get4Vector());
+					DAComp.setBeamLepton(event->GetTrack(j)->Get4Vector());
 //               std::cout << "Found beam lepton"<<std::endl;
 					//               event->GetTrack(j)->Dump();
                //               eventS->GetTrack(0) = new Particle(event->particles.at(0));
@@ -249,13 +249,13 @@ namespace Smear {
 				 }*/
 				else if (needBackground && accept) {
 					
-					TLorentzVector v = eventS->GetTrack(j)->PxPyPzE();
-//					TLorentzVector lv = event->GetTrack(j)->PxPyPzE();
+					TLorentzVector v = eventS->GetTrack(j)->Get4Vector();
+//					TLorentzVector lv = event->GetTrack(j)->Get4Vector();
 					//               std::cout << "4-vector:"<<std::endl;
-					//               std::cout << v.E() << " " << v.Px() << " " << v.Py() << " " << v.Pz() << std::endl;
+					//               std::cout << v.E() << " " << v.GetPx() << " " << v.GetPy() << " " << v.GetPz() << std::endl;
 					//               std::cout << tmpE << " " << tmpP << " " << tmpTheta << " " << tmpPhi << std::endl;
-					//               std::cout << lv.E() << " " << lv.Px() << " " << lv.Py() << " " << lv.Pz() << std::endl;
-//               std::cout <<"Adding " << v.E() << " " << v.Px() << " " << v.Py() << " " << v.Pz() << std::endl;
+					//               std::cout << lv.E() << " " << lv.GetPx() << " " << lv.GetPy() << " " << lv.GetPz() << std::endl;
+//               std::cout <<"Adding " << v.E() << " " << v.GetPx() << " " << v.GetPy() << " " << v.GetPz() << std::endl;
 					JBComp.addParticle(v);
 					DAComp.addParticle(v);
 					//               std::cout <<"Found final-state hadron" << std::endl;

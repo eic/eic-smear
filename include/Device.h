@@ -310,7 +310,7 @@ namespace Smear {
        definite quantities E and p, they will
 		 instead be set to -999.
 		 */
-		virtual void DevSmear(const Particle &prt, ParticleS &prtOut);
+		virtual void DevSmear(const Particle& prt, ParticleS& prtOut);
       
       // TODO implement data-hiding
 //   protected:
@@ -387,9 +387,9 @@ namespace Smear {
     */
    struct Copier : public Device::Function {
       virtual bool operator()(const Particle& p, ParticleS& s) {
-         s.p = p.P();
+         s.p = p.GetP();
          s.E = p.GetE();
-         s.theta = p.Theta();
+         s.theta = p.GetTheta();
          return true;
       }
       

@@ -25,7 +25,7 @@ namespace Smear {
    ParticleMCS::~ParticleMCS() {
    }
    
-   TLorentzVector ParticleMCS::PxPyPzE() const {
+   TLorentzVector ParticleMCS::Get4Vector() const {
       return TLorentzVector(px, py, pz, E);
    }
    

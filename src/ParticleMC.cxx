@@ -118,11 +118,11 @@ namespace erhic {
                                                EventMC& event
                                                ) {
       try {
-         const TLorentzVector& hadron = event.GetTrack(1)->PxPyPzE();
-         const TLorentzVector& lepton = event.GetTrack(2)->PxPyPzE();
-         const TLorentzVector& boson = event.GetTrack(3)->PxPyPzE();
+         const TLorentzVector& hadron = event.GetTrack(1)->Get4Vector();
+         const TLorentzVector& lepton = event.GetTrack(2)->Get4Vector();
+         const TLorentzVector& boson = event.GetTrack(3)->Get4Vector();
          
-         TLorentzVector pHadronBoson = PxPyPzE();
+         TLorentzVector pHadronBoson = Get4Vector();
          
          z = hadron.Dot(pHadronBoson) / hadron.Dot(boson);
          
@@ -159,7 +159,7 @@ namespace erhic {
          // Inverse --> rotate coordinate system to give new object
          // coordinates, not rotate object in fixed coordinates
          rotation = rotation.Inverse();
-         pHadronBoson = PxPyPzE();
+         pHadronBoson = Get4Vector();
          TLorentzRotation boost = boostToHadronRest;
          boost.Transform(rotation);
          pHadronBoson *= boost;
@@ -169,7 +169,7 @@ namespace erhic {
          // The index of the particles from the Monte Carlo runs from [1,N]
          // while the index in the array runs from [0,N-1], so subtract 1
          // from the parent index to find its position.
-         if(event.NTracks() > unsigned(orig - 1)) {
+         if(event.GetNTracks() > unsigned(orig - 1)) {
             parentId = event.GetTrack(orig - 1)->Id();
          } // if
       } // try
@@ -181,7 +181,7 @@ namespace erhic {
    }
    
    
-   TLorentzVector ParticleMC::PxPyPzE() const {
+   TLorentzVector ParticleMC::Get4Vector() const {
       return TLorentzVector(px, py, pz, E);
    }
    
@@ -208,7 +208,7 @@ namespace erhic {
       --idx; // Convert [1,N] --> [0,N)
       const ParticleMC* p(NULL);
       // Check this index is within the # of particles in the event
-      if(idx < GetEvent()->NTracks()) {
+      if(idx < GetEvent()->GetNTracks()) {
          p = GetEvent()->GetTrack(idx);
       } // if
       return p;
@@ -223,8 +223,8 @@ namespace erhic {
       const ParticleMC* p(NULL);
       
       if(GetEvent()) {
-         if(GetEvent()->NTracks() >= ParentIndex()) {
-            p = GetEvent()->GetTrack(ParentIndex() - 1);
+         if(GetEvent()->GetNTracks() >= GetParentIndex()) {
+            p = GetEvent()->GetTrack(GetParentIndex() - 1);
          } // if
       } // if
       

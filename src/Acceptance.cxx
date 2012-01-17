@@ -46,7 +46,7 @@ namespace Smear {
          mZones.at(n).thetaMax = FixTopologyTheta(max);
 //      } // try
 //      catch(std::exception& e) {
-//         std::cerr << "Exception in Smear::Acceptance::SetTheta() - " <<
+//         std::cerr << "Exception in Smear::Acceptance::SetGetTheta() - " <<
 //         e.what() << std::endl;
 //      } // catch
    }
@@ -240,8 +240,8 @@ namespace Smear {
    Bool_t Acceptance::Zone::Contains(Particle& prt) const {
       bool accept(true);
       
-      const double theta = FixTopologyTheta(prt.Theta());
-      const double phi = FixTopologyPhi(prt.Phi());
+      const double theta = FixTopologyTheta(prt.GetTheta());
+      const double phi = FixTopologyPhi(prt.GetPhi());
       
       if(theta < thetaMin or theta > thetaMax) {
          accept = false;
@@ -252,7 +252,7 @@ namespace Smear {
       else if(prt.GetE() < EMin or prt.GetE() > EMax) {
          accept = false;
       } // else if...
-      else if(prt.P() < PMin or prt.P() > PMax) {
+      else if(prt.GetP() < PMin or prt.GetP() > PMax) {
          accept = false;
       } // else if
       
@@ -287,8 +287,8 @@ namespace Smear {
       //#if 0
       //      std::cout<<"Looping over "<<mZones.size()<<" zones"<<std::endl;
       for(unsigned i(0); i < mZones.size(); i++) {
-         double theta = prt.Theta();
-         double phi = prt.Phi();
+         double theta = prt.GetTheta();
+         double phi = prt.GetPhi();
          intheta =
             theta >= mZones.at(i).thetaMin and theta <= mZones.at(i).thetaMax;
          inphi   =
@@ -296,7 +296,7 @@ namespace Smear {
          inE     =
             prt.GetE() >= mZones.at(i).EMin and prt.GetE() <= mZones.at(i).EMax;
          inp     =
-            prt.P() >= mZones.at(i).PMin and prt.P() <= mZones.at(i).PMax;
+            prt.GetP() >= mZones.at(i).PMin and prt.GetP() <= mZones.at(i).PMax;
 //         std::cout<<"\tLooping through "<<mZones.at(i).CustomCuts.size()<<" custom cuts"<<std::endl;
          // Loop through custom cuts in zone, if there are any
          if(mZones.at(i).CustomCuts.size() not_eq 0) {

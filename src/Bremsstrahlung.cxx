@@ -5,6 +5,7 @@
  \author Michael Savastio
  */
 
+#include <cassert>
 #include <cmath>
 
 #include "Bremsstrahlung.h"
@@ -21,10 +22,7 @@ namespace Smear {
    , mEpsilon(epsilon)
    , mTraversed(traversed)
    , mRadLength(radLength)
-   , mPdf("Smear_Bremsstrahlung_PDF",
-         this,
-         &Smear::Bremsstrahlung::dSigmadK,
-         mKMin, mKMax, 0)
+   , mPdf(NULL)
    {
       Accept.AddParticle(11);
       Accept.AddParticle(-11);
@@ -41,8 +39,18 @@ namespace Smear {
    }
    
    
-   void Bremsstrahlung::SetupPDF() {
-      mPdf.SetRange(mKMin, mKMax);
+   bool Bremsstrahlung::SetupPDF() {
+      
+      double lower = mEpsilon;
+      double upper = mParticle->E - mEpsilon;
+      
+      if(upper < lower or isnan(upper) or isnan(lower)) return false;
+      
+      mKMin = lower;
+      mKMax = upper;
+      mPdf->SetRange(mKMin, mKMax);
+      
+      return true;
    }
    
    
@@ -61,16 +69,21 @@ namespace Smear {
    }
    
    
-   void Bremsstrahlung::SetParticle(Particle &prt) {
-      mParticle = &prt;
-      mKMin = mEpsilon;
-      mKMax = mParticle->E - mEpsilon;
+   void Bremsstrahlung::SetParticle(const Particle& prt) {
+      mParticle.reset((Particle*)prt.Clone());
+      if(not mPdf) {
+         mPdf = new TF1("Smear_Bremsstrahlung_PDF",
+                        this,
+                        &Smear::Bremsstrahlung::dSigmadK,
+                        mKMin, mKMax, 0);
+      } // if
       SetupPDF();
    }
    
    
    void Bremsstrahlung::FixParticleKinematics(ParticleS& prt) {
-      prt.p = sqrt(prt.GetE() * prt.GetE() - prt.M() * prt.M());
+      prt.p = sqrt(prt.GetE() * prt.GetE() - prt.GetM() * prt.GetM());
+      if(prt.p < 0. or isnan(prt.p)) prt.p = 0.;
       prt.pt = prt.p * sin(prt.theta);
       prt.pz = prt.p * cos(prt.theta);
    }
@@ -81,18 +94,24 @@ namespace Smear {
    }
    
    
-   void Bremsstrahlung::DevSmear(Particle &prt, ParticleS& prtOut) {
+   void Bremsstrahlung::DevSmear(const Particle &prt, ParticleS& prtOut) {
       
       SetParticle(prt);
       
-      for(int i = 0; i < NGamma(); i++) {
-         prt.E = prt.E - mPdf.GetRandom();
+      const int nGamma = NGamma();
+      
+      for(int i = 0; i < nGamma; i++) {
+         if(not SetupPDF()) break;
+         double loss = mPdf->GetRandom();
+         mParticle->E -= loss;
       } // for
+      
+      prtOut.E = mParticle->GetE();
       
       FixParticleKinematics(prtOut);
       HandleBogusValues(prtOut);
       
-      mParticle = NULL;
+      mParticle.reset(NULL);
    }
 
 } // namespace Smear

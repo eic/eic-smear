@@ -40,7 +40,7 @@ namespace erhic {
       /**
        Default constructor.
        Initialises the Particle from the argument string with the format
-         I KS id orig daughter ldaughter px py pz m E xv yv zv
+         I KS id orig daughter ldaughter px py pz E m xv yv zv
        */
       ParticleMC(const std::string& = "");
       
@@ -55,23 +55,23 @@ namespace erhic {
       /**
        Returns the particle index in an event.
        */
-      virtual UInt_t Index() const;
+      virtual UInt_t GetIndex() const;
       
       /**
        Returns the status of the particle.
        See the description of variable K(I,1) in the PYTHIA manual for the
        meanings of codes.
        */
-      virtual UShort_t Status() const;
+      virtual UShort_t GetStatus() const;
       
       /**
        Returns the index of this particles parent in an event.
        */
-      virtual UShort_t ParentIndex() const;
+      virtual UShort_t GetParentIndex() const;
       
       /**
        Returns a pointer to the parent of this particle.
-       This is the particle with index ParentIndex() returned from the
+       This is the particle with index GetParentIndex() returned from the
        event containing this particle (obtainable via GetEvent()).
        Returns NULL if this particle has no parent or it cannot
        be accessed via GetEvent().
@@ -82,13 +82,13 @@ namespace erhic {
        Returns the index of this particle's first child particle.
        Returns 0 if this particle has no children.
        */
-      virtual UShort_t Child1() const;
+      virtual UShort_t GetChild1Index() const;
       
       /**
        Returns the index of this particle's last child particle.
        Returns 0 if this particle has zero or one children.
        */
-      virtual UShort_t ChildN() const;
+      virtual UShort_t GetChildNIndex() const;
       
       /**
        Returns the number of children of this particle.
@@ -100,9 +100,9 @@ namespace erhic {
        Returns a pointer to the nth child particle of this particle,
        where n is in the range [0, NChildren()).
        GetChild(0) returns the child whose index in this particle's
-       event is Child1().
+       event is GetChild1Index().
        GetChild(NChildren()-1) returns the child whose index
-       is ChildN().
+       is GetChildNIndex().
        Returns NULL if there is no such child particle or it
        cannot be accessed via the event (see GetEvent()).
        */
@@ -118,89 +118,89 @@ namespace erhic {
       /**
        Returns the x component of 3-momentum.
        */
-      virtual Double_t Px() const;
+      virtual Double_t GetPx() const;
       
       /**
        Returns the y component of 3-momentum.
        */
-      virtual Double_t Py() const;
+      virtual Double_t GetPy() const;
       
       /**
        Returns the z component of 3-momentum.
        */
-      virtual Double_t Pz() const;
+      virtual Double_t GetPz() const;
       
       /**
        Returns invariant mass (GeV/c<sup>2</sup>).
        */
-      virtual Double_t M() const;
+      virtual Double_t GetM() const;
       
       /**
        Returns momentum transverse to the beam direction.
        */
-      virtual Double_t Pt() const;
+      virtual Double_t GetPt() const;
       
       /**
        Returns the origin point of the particle (cm).
        (0,0,0) indicates a particle originating in the collision.
        */
-      virtual TVector3 Vertex() const;
+      virtual TVector3 GetVertex() const;
       
       /**
        Returns the PDG code of this particle's parent.
        
        */
-      virtual erhic::Pid ParentId() const;
+      virtual erhic::Pid GetParentId() const;
       
       /**
        Returns the total momentum (GeV).
        */
-      virtual Double_t P() const;
+      virtual Double_t GetP() const;
       
       /**
        Returns the polar angle in the range [0,pi] radians.
        */
-      virtual Double_t Theta() const;
+      virtual Double_t GetTheta() const;
       
       /**
        Returns the polar angle in the range [0,2pi] radians.
        */
-      virtual Double_t Phi() const;
+      virtual Double_t GetPhi() const;
       
       /**
        Returns the rapidity.
        */
-      virtual Double_t Y() const;
+      virtual Double_t GetRapidity() const;
       
       /**
        Returns the pseudorapidity.
        */
-      virtual Double_t Eta() const;
+      virtual Double_t GetEta() const;
       
       /**
        Returns the variable z.
        z = (P.p_h)/(P.q).
        */
-      virtual Double_t Z() const;
+      virtual Double_t GetZ() const;
       
       /**
        Returns Feynman-x.
        x<sub>F</sub> = 2*p<sub>z</sub>/sqrt(s).
        */
-      virtual Double_t Xf() const;
+      virtual Double_t GetXFeynman() const;
       
       /**
        Returns the angle with respect to the exchange boson.
        Defined in the beam hadron's rest frame.
        Given in the range [0,pi] radians.
        */
-      virtual Double_t AngleVsBoson() const;
+      virtual Double_t GetThetaVsGamma() const;
       
       /**
        Returns the p<sub>T</sub> with respect to the exchange boson.
        Defined in the beam hadron's rest frame.
        */
-      virtual Double_t PtVsBoson() const;
+      virtual Double_t GetPtVsGamma() const;
       
       /**
        Returns a pointer to the event containing this particle.
@@ -214,8 +214,8 @@ namespace erhic {
       /**
        Returns the (E,p) 4-vector in the lab frame.
        */
-      virtual TLorentzVector PxPyPzE() const;
-      virtual TLorentzVector Get4Vector() const { return PxPyPzE(); }
+      virtual TLorentzVector Get4Vector() const;
+      virtual TLorentzVector PxPyPzE() const { return Get4Vector(); }
       /**
        Returns the (E,p) 4-vector in the hadron-boson frame.
        This frame is defined such that
@@ -232,7 +232,7 @@ namespace erhic {
       /**
        Returns the invariant mass of the particle.
        */
-      virtual Double_t GetM() const;
+      virtual Double_t GetGetM() const;
       
       /**
        Returns the energy of the particle in the lab frame.
@@ -259,6 +259,7 @@ namespace erhic {
        Returns the ID of the particle.
        */
       virtual Pid Id() const;
+      virtual Pid GetPdgCode() const { return Id(); }
       
       /**
        Sets quantities derived from (E, px, py, pz).
@@ -342,51 +343,51 @@ namespace erhic {
    };
    
    
-   inline UInt_t ParticleMC::Index() const { return I; }
+   inline UInt_t ParticleMC::GetIndex() const { return I; }
    
-   inline UShort_t ParticleMC::Status() const { return KS; }
+   inline UShort_t ParticleMC::GetStatus() const { return KS; }
    
-   inline UShort_t ParticleMC::ParentIndex() const { return orig; }
+   inline UShort_t ParticleMC::GetParentIndex() const { return orig; }
    
-   inline UShort_t ParticleMC::Child1() const { return daughter; }
+   inline UShort_t ParticleMC::GetChild1Index() const { return daughter; }
    
-   inline UShort_t ParticleMC::ChildN() const { return ldaughter; }
+   inline UShort_t ParticleMC::GetChildNIndex() const { return ldaughter; }
    
-   inline Double_t ParticleMC::Px() const { return px; }
+   inline Double_t ParticleMC::GetPx() const { return px; }
    
-   inline Double_t ParticleMC::Py() const { return py; }
+   inline Double_t ParticleMC::GetPy() const { return py; }
    
-   inline Double_t ParticleMC::Pz() const { return pz; }
+   inline Double_t ParticleMC::GetPz() const { return pz; }
    
-   inline Double_t ParticleMC::M() const { return m; }
+   inline Double_t ParticleMC::GetM() const { return m; }
    
-   inline Double_t ParticleMC::Pt() const { return pt; }
+   inline Double_t ParticleMC::GetPt() const { return pt; }
    
-   inline TVector3 ParticleMC::Vertex() const {
+   inline TVector3 ParticleMC::GetVertex() const {
       return TVector3(xv, yv, zv);
    }
    
-   inline erhic::Pid ParticleMC::ParentId() const {
+   inline erhic::Pid ParticleMC::GetParentId() const {
       return erhic::Pid(parentId);
    }
    
-   inline Double_t ParticleMC::P() const { return p; }
+   inline Double_t ParticleMC::GetP() const { return p; }
    
-   inline Double_t ParticleMC::Theta() const { return theta; }
+   inline Double_t ParticleMC::GetTheta() const { return theta; }
    
-   inline Double_t ParticleMC::Phi() const { return phi; }
+   inline Double_t ParticleMC::GetPhi() const { return phi; }
    
-   inline Double_t ParticleMC::Y() const { return rapidity; }
+   inline Double_t ParticleMC::GetRapidity() const { return rapidity; }
    
-   inline Double_t ParticleMC::Eta() const { return eta; }
+   inline Double_t ParticleMC::GetEta() const { return eta; }
    
-   inline Double_t ParticleMC::Z() const { return z; }
+   inline Double_t ParticleMC::GetZ() const { return z; }
    
-   inline Double_t ParticleMC::Xf() const { return xFeynman; }
+   inline Double_t ParticleMC::GetXFeynman() const { return xFeynman; }
    
-   inline Double_t ParticleMC::AngleVsBoson() const { return thetaGamma; }
+   inline Double_t ParticleMC::GetThetaVsGamma() const { return thetaGamma; }
    
-   inline Double_t ParticleMC::PtVsBoson() const { return ptVsGamma; }
+   inline Double_t ParticleMC::GetPtVsGamma() const { return ptVsGamma; }
    
    inline Pid ParticleMC::Id() const { return Pid(id); }
    
@@ -396,7 +397,7 @@ namespace erhic {
       return ldaughter - daughter + 1;
    }
    
-   inline Double_t ParticleMC::GetM() const { return M(); }
+   inline Double_t ParticleMC::GetGetM() const { return GetM(); }
    
    inline Double_t ParticleMC::GetE() const { return E; }
    

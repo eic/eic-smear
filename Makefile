@@ -25,7 +25,8 @@ OPT = -O0
 # This will cause compilation failure due to ROOT routines, e.g.
 #	  warning: use of C99 long long integer constant
 # so suppress these warnings with -Wno-long-long.
-CFLAGS = $(shell root-config --cflags) $(INCLUDE) $(OPT) -fPIC -pedantic -Wall -Wextra -Wno-long-long -DUSE_NAMESPACE_ERHIC
+CFLAGS = $(shell root-config --cflags) $(INCLUDE) $(OPT) -fPIC -pedantic \
+	-Wall -Wextra -Wno-long-long -DUSE_NAMESPACE_ERHIC
 
 # Additional library libEG required for TDatabasePDG/TParticlePDG.
 LIBS=$(shell root-config --libs) -lEG
@@ -43,7 +44,7 @@ SRCEXT = cxx
 # Object file extension
 OBJEXT = o
 
-# Lists of all source files to compile and the object files generated from them.
+# Lists of all source files to compile and the object files generate
 
 # Extract the name of all source files in the src/ directory
 #SOURCE = $(notdir $(shell ls src/*$(SRCEXT)))
@@ -71,8 +72,10 @@ $(OBJDIR)/%.$(OBJEXT) : $(SRCDIR)/%.$(SRCEXT)
 # Builds the library
 $(LIBDIR)/libBuildTree.so: $(CINTDIR)/BuildTreeDict.$(OBJEXT) $(OBJECTS)
 	@mkdir -p lib
-	$(CXX) -shared -o $(LIBDIR)/libBuildTree.so $(OBJECTS) $(CINTDIR)/BuildTreeDict.$(OBJEXT) $(LIBS)
+	$(CXX) -shared -o $(LIBDIR)/libBuildTree.so $(OBJECTS) \
+		$(CINTDIR)/BuildTreeDict.$(OBJEXT) $(LIBS)
 #	@ln -s $(PWD)/$(LIBDIR)/libBuildTree.so $(PWD)/$(LIBDIR)/libeicsmear.so
+	ln -fs $(PWD)/$(LIBDIR)/libBuildTree.so $(PWD)/$(LIBDIR)/BuildTree.so
 
 # Generates the CINT dictionary
 $(CINTDIR)/BuildTreeDict.$(SRCEXT): $(HEADERS) $(LINKDEF)

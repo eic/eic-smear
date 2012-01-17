@@ -9,6 +9,8 @@
 #ifndef _ERHIC_BUILDTREE_BREMSSTRAHLUNG_
 #define _ERHIC_BUILDTREE_BREMSSTRAHLUNG_
 
+#include <memory>
+
 #include <TF1.h>
 
 #include "Device.h"
@@ -46,20 +48,26 @@ namespace Smear {
 		virtual Bremsstrahlung* Clone();
 		
       /** Smear the properties of a Particle and assign them to a ParticleS */
-      void DevSmear(Particle&, ParticleS&);
+      virtual void DevSmear(const Particle&, ParticleS&);
       
-   protected:
+//   protected:
       
       /**
        Set the radiating particle type and configure the dSigma/dK
        function.
        */
-		void SetParticle(Particle&);
+		void SetParticle(const Particle&);
       
-      /** Configure the dSigma/dK function */
-		void SetupPDF();
+      /**
+       Configure the dSigma/dK function, setting the energy range over
+       which to generate photons.
+       The energy range is computed from the energy of the current mParticle.
+       If the resultant energy range is invalid (e.g. max < min) the range
+       is not set and the function returns false.
+       */
+		bool SetupPDF();
 		
-		Particle* mParticle; // Pointer to the current particle
+      std::auto_ptr<Particle> mParticle; // Copy of the current particle
 		
 		double mKMin;
 		double mKMax;
@@ -67,7 +75,7 @@ namespace Smear {
 		double mTraversed;
 		double mRadLength;
 		
-		TF1 mPdf; // dSigma/dK function
+		TF1* mPdf; // dSigma/dK function
       
 		ClassDef(Bremsstrahlung, 1)
 	};

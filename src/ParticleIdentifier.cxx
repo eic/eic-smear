@@ -40,7 +40,7 @@ bool
 ParticleIdentifier::isScatteredLepton(const Particle& particle )
 const
 {
-   return 1 == particle.Status() and GetLeptonBeamPdgCode() == particle.Id();
+   return 1 == particle.GetStatus() and GetLeptonBeamPdgCode() == particle.Id();
 }
 
 //	=================================================================================================
@@ -54,9 +54,9 @@ bool
 ParticleIdentifier::SkipParticle(const Particle& particle )
 const
 {
-   int kI1 = particle.Status();
+   int kI1 = particle.GetStatus();
    int pdgCode = particle.Id();
-   int parent = particle.ParentIndex();
+   int parent = particle.GetParentIndex();
    // Remove duplicate outgoing electron, info is picked up later when KS < 21
    if(21 == kI1 and pdgCode == GetLeptonBeamPdgCode() and parent == 1 ) {
       return true;;
@@ -88,7 +88,7 @@ ParticleIdentifier::IsVirtualPhoton(const Particle& particle )
 const
 {
    return (22 == particle.Id() or 23 == particle.Id() ) and
-   21 == particle.Status();
+   21 == particle.GetStatus();
 }
 
 //	================================================================================================
@@ -118,7 +118,7 @@ ParticleIdentifier::IdentifyBeams(
                                   ) {
    beams.Reset();
    
-   const unsigned nParticles = event.NTracks();
+   const unsigned nParticles = event.GetNTracks();
    
    // Count leptons so we don't overwrite the beam and scattered lepton with
    // subsequent leptons of the same type.
@@ -146,20 +146,20 @@ ParticleIdentifier::IdentifyBeams(
       } // if
       
       if(finder.isBeamNucleon(particle ) ) {
-         beams.SetBeamHadron(particle.PxPyPzE() );
+         beams.SetBeamHadron(particle.Get4Vector() );
       }	//	if...
       else if(finder.isBeamLepton(particle ) and 0 == leptonCount ) {
-         beams.SetBeamLepton(particle.PxPyPzE() );
+         beams.SetBeamLepton(particle.Get4Vector() );
          ++leptonCount;
       }	//	else if...
       else if(finder.isScatteredLepton(particle ) and 1 == leptonCount ) {
          // Protect against additional KS == 1 electrons following this
-         beams.SetScatteredLepton(particle.PxPyPzE() );
+         beams.SetScatteredLepton(particle.Get4Vector() );
          // Protect against additional KS == 1 electrons following this
          ++leptonCount;
       }	//	if
       else if(finder.IsVirtualPhoton(particle ) and not haveFoundVirtualPhoton ) {
-         beams.SetBoson(particle.PxPyPzE() );
+         beams.SetBoson(particle.Get4Vector() );
          haveFoundVirtualPhoton = true;
       }	//	if
    } // for
@@ -184,7 +184,7 @@ ParticleIdentifier::IdentifyBeams(
    
    beams.assign(4, null);
    
-   const unsigned nParticles = event.NTracks();
+   const unsigned nParticles = event.GetNTracks();
    //   std::cout<<nParticles<<" particles"<<std::endl;
    
    // Count leptons so we don't overwrite the beam and scattered lepton with

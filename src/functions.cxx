@@ -101,7 +101,7 @@ void EventToDot::Generate(const erhic::EventMC& event,
    std::ostringstream oss;
    
    file << "digraph G {" << std::endl;
-   oss << "   label = \"Event " << event.N() << "\"';";
+   oss << "   label = \"Event " << event.GetN() << "\"';";
    file << oss.str() << std::endl;
    
    std::set<Pair> pairs;
@@ -115,18 +115,18 @@ void EventToDot::Generate(const erhic::EventMC& event,
    // parent/child relationships.
    // We look from parent->child and child->parent because they
    // aren't always fully indexed both ways.
-   for(unsigned i(0); i < event.NTracks(); ++i) {
+   for(unsigned i(0); i < event.GetNTracks(); ++i) {
       // Check parent of particle
       const erhic::ParticleMC* parent = event.GetTrack(i)->GetParent();
       if(parent) {
-         pairs.insert(Pair(parent->Index(), event.GetTrack(i)->Index()));
+         pairs.insert(Pair(parent->GetIndex(), event.GetTrack(i)->GetIndex()));
          used.insert(parent);
          used.insert(event.GetTrack(i));
       } // if
         // Check children of particle
       for(unsigned j(0); j < event.GetTrack(i)->NChildren(); ++j) {
-         pairs.insert(Pair(event.GetTrack(i)->Index(),
-                           event.GetTrack(i)->GetChild(j)->Index()));
+         pairs.insert(Pair(event.GetTrack(i)->GetIndex(),
+                           event.GetTrack(i)->GetChild(j)->GetIndex()));
          used.insert(event.GetTrack(i));
          used.insert(event.GetTrack(i)->GetChild(j));
       } // for
@@ -139,8 +139,8 @@ void EventToDot::Generate(const erhic::EventMC& event,
       const erhic::ParticleMC* a = event.GetTrack(i->a - 1);
       const erhic::ParticleMC* b = event.GetTrack(i->b - 1);
       oss.str("");
-      oss << "   " << a->Index() << " -> " <<
-      b->Index();
+      oss << "   " << a->GetIndex() << " -> " <<
+      b->GetIndex();
       file << oss.str() << std::endl;
    } // for
    
@@ -152,17 +152,17 @@ void EventToDot::Generate(const erhic::EventMC& event,
        ++i) {
       
       std::string shape("ellipse");
-      if((*i)->Status() == 1) {
+      if((*i)->GetStatus() == 1) {
          shape = "box";
       } // if
-      if((*i)->Index() < 3) {
+      if((*i)->GetIndex() < 3) {
          shape = "diamond";
       } // if
       
       oss.str("");
       oss << "   " <<
-      (*i)->Index() << " [label=\""
-      << (*i)->Index() << " "
+      (*i)->GetIndex() << " [label=\""
+      << (*i)->GetIndex() << " "
       << (*i)->Id().Info()->GetName()
       << "\", shape=" << shape << "];";
       file << oss.str() << std::endl;

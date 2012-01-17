@@ -212,7 +212,7 @@ namespace erhic {
       /**
        Prints a summary of the last call to Plant() to the requested output stream.
        */
-      const Status& GetStatus() const {
+      const Status& GetGetStatus() const {
          return mStatus;
       }
       

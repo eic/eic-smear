@@ -73,9 +73,9 @@ namespace erhic {
          return kFALSE;
       } // if
       
-      const TLorentzVector& lepton = beams.at(0)->PxPyPzE();
-      const TLorentzVector& hadron = beams.at(1)->PxPyPzE();
-      const TLorentzVector& scat = beams.at(3)->PxPyPzE();
+      const TLorentzVector& lepton = beams.at(0)->Get4Vector();
+      const TLorentzVector& hadron = beams.at(1)->Get4Vector();
+      const TLorentzVector& scat = beams.at(3)->Get4Vector();
       
       QSquared = 2.0 * lepton.E() * scat.E() * (1.0 + scat.CosTheta() );
       
@@ -116,14 +116,14 @@ namespace erhic {
 //      std::cout << "EventMC::ComputeJaquetBlondel()" << std::endl;
       
       ::JacquetBlondel jacquetBlondel;
-      jacquetBlondel.setBeamLepton(beams.at(0)->PxPyPzE());
-      jacquetBlondel.setBeamHadron(beams.at(1)->PxPyPzE());
+      jacquetBlondel.setBeamLepton(beams.at(0)->Get4Vector());
+      jacquetBlondel.setBeamHadron(beams.at(1)->Get4Vector());
       
       std::vector<const TrackType*> final;
       HadronicFinalState(final);
 
       for(unsigned i(0); i < final.size(); ++i ) {
-         jacquetBlondel.addParticle(final.at(i)->PxPyPzE() );
+         jacquetBlondel.addParticle(final.at(i)->Get4Vector() );
       } // for
 //      std::cout << "Added " << final.size() << " final state hadrons to the JB computer" << std::endl;
       
@@ -141,14 +141,14 @@ namespace erhic {
       
       ::DoubleAngle doubleAngle;
       
-      doubleAngle.setBeamLepton(beams.at(0)->PxPyPzE());
-      doubleAngle.setBeamHadron(beams.at(1)->PxPyPzE());
-      doubleAngle.setLeptonAngle(beams.at(3)->Theta() );
+      doubleAngle.setBeamLepton(beams.at(0)->Get4Vector());
+      doubleAngle.setBeamHadron(beams.at(1)->Get4Vector());
+      doubleAngle.setLeptonAngle(beams.at(3)->GetTheta() );
       
       std::vector<const TrackType*> final;
       HadronicFinalState(final);
       for(unsigned i(0); i < final.size(); ++i ) {
-         doubleAngle.addParticle(final.at(i)->PxPyPzE() );
+         doubleAngle.addParticle(final.at(i)->Get4Vector() );
       } // for
       
       yDA = doubleAngle.computeY();
@@ -208,7 +208,7 @@ namespace erhic {
          // Try to skip the proton beam remnant
          if(final.at(1) and
             (*i)->Id() == final.at(1)->Id() and
-            (*i)->P() > 0.7 * final.at(1)->P()) {
+            (*i)->GetP() > 0.7 * final.at(1)->GetP()) {
             final.erase(i);
             break;
          } // if
@@ -229,7 +229,7 @@ namespace erhic {
       typedef std::vector<TrackType*>::const_iterator Iter;
       
       for(Iter i_ = particles.begin(); i_ not_eq particles.end(); ++i_ ) {
-         if(1 == (*i_)->Status() ) {
+         if(1 == (*i_)->GetStatus() ) {
             final_.push_back(*i_);
          } // if
       } // for
@@ -247,7 +247,7 @@ namespace erhic {
       TLorentzVector mom;
       
       for(Iter i = final_.begin(); i not_eq final_.end(); ++i ) {
-         mom += (*i)->PxPyPzE();
+         mom += (*i)->Get4Vector();
       } // for
       
       return mom;
@@ -265,7 +265,7 @@ namespace erhic {
       TLorentzVector mom;
       
       for(Iter i = final_.begin(); i not_eq final_.end(); ++i ) {
-         mom += (*i)->PxPyPzE();
+         mom += (*i)->Get4Vector();
       } // for
       
       return mom;
@@ -355,18 +355,18 @@ namespace erhic {
       // parent/child relationships.
       // We look from parent->child and child->parent because they
       // aren't always fully indexed both ways.
-      for(unsigned i(0); i < NTracks(); ++i) {
+      for(unsigned i(0); i < GetNTracks(); ++i) {
          // Check parent of particle
          const ParticleMC* parent = GetTrack(i)->GetParent();
          if(parent) {
-            pairs.insert(Pair(parent->Index(), GetTrack(i)->Index()));
+            pairs.insert(Pair(parent->GetIndex(), GetTrack(i)->GetIndex()));
             used.insert(parent);
             used.insert(GetTrack(i));
          } // if
          // Check children of particle
          for(unsigned j(0); j < GetTrack(i)->NChildren(); ++j) {
-            pairs.insert(Pair(GetTrack(i)->Index(),
-                              GetTrack(i)->GetChild(j)->Index()));
+            pairs.insert(Pair(GetTrack(i)->GetIndex(),
+                              GetTrack(i)->GetChild(j)->GetIndex()));
             used.insert(GetTrack(i));
             used.insert(GetTrack(i)->GetChild(j));
          } // for
@@ -379,8 +379,8 @@ namespace erhic {
          const ParticleMC* a = GetTrack(i->a - 1);
          const ParticleMC* b = GetTrack(i->b - 1);
          oss.str("");
-         oss << "   " << a->Index() << " -> " <<
-         b->Index();
+         oss << "   " << a->GetIndex() << " -> " <<
+         b->GetIndex();
          file << oss.str() << std::endl;
       } // for
       
@@ -392,17 +392,17 @@ namespace erhic {
           ++i) {
          
          std::string shape("ellipse");
-         if((*i)->Status() == 1) {
+         if((*i)->GetStatus() == 1) {
             shape = "box";
          } // if
-         if((*i)->Index() < 3) {
+         if((*i)->GetIndex() < 3) {
             shape = "diamond";
          } // if
          
          oss.str("");
          oss << "   " <<
-         (*i)->Index() << " [label=\""
-         << (*i)->Index() << " "
+         (*i)->GetIndex() << " [label=\""
+         << (*i)->GetIndex() << " "
          << (*i)->Id().Info()->GetName()
          << "\", shape=" << shape << "];";
          file << oss.str() << std::endl;
@@ -446,9 +446,9 @@ namespace erhic {
    typename EventMCFinalState<T>::ParticlePtrList
    EventMCFinalState<T>::HadronicFinalState(const VirtualEvent<Type>& event) const {
       ParticlePtrList particles;
-      for(unsigned i(0); i < event.NTracks(); ++i) {
+      for(unsigned i(0); i < event.GetNTracks(); ++i) {
          const Type* p = event.GetTrack(i);
-         if(1 == p->Status() and p not_eq event.ScatteredLepton()) {
+         if(1 == p->GetStatus() and p not_eq event.ScatteredLepton()) {
             particles.push_back(p);
          } // if
       } // for
@@ -460,9 +460,9 @@ namespace erhic {
    typename EventMCFinalState<T>::ParticlePtrList
    EventMCFinalState<T>::FinalState(const VirtualEvent<Type>& event) const {
       ParticlePtrList particles;
-      for(unsigned i(0); i < event.NTracks(); ++i) {
+      for(unsigned i(0); i < event.GetNTracks(); ++i) {
          const Type* p = event.GetTrack(i);
-         if(1 == p->Status()) {
+         if(1 == p->GetStatus()) {
             particles.push_back(p);
          } // if
       } // for
@@ -477,7 +477,7 @@ namespace erhic {
       TLorentzVector p;
       typedef typename ParticlePtrList::const_iterator Iter;
       for(Iter i = particles.begin(); i not_eq particles.end(); ++i) {
-         p += (*i)->PxPyPzE();
+         p += (*i)->Get4Vector();
       } // for
       return p;
    }
@@ -490,7 +490,7 @@ namespace erhic {
       TLorentzVector p;
       typedef typename ParticlePtrList::const_iterator Iter;
       for(Iter i = particles.begin(); i not_eq particles.end(); ++i) {
-         p += (*i)->PxPyPzE();
+         p += (*i)->Get4Vector();
       } // for
       return p;
    }

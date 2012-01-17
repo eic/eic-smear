@@ -318,7 +318,7 @@ namespace Smear {
 		void DevSmear(Particle prt, ParticleS &prtOut) {
 			double up;
 			if (bUseMC) {
-				up = prt.P();
+				up = prt.GetP();
 			} else {
 				up = prtOut.p;
 			}
