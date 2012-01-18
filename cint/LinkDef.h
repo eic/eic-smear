@@ -48,7 +48,6 @@
 #pragma link C++ class BeamParticles+;
 
 #pragma link C++ namespace erhic;
-#pragma link C++ namespace erhic::monte_carlo;
 
 //#pragma link C++ class erhic::monte_carlo::File<int>+;
 //#pragma link C++ class erhic::monte_carlo::File<double>+;
@@ -144,7 +143,12 @@
 
 #pragma link C++ class erhic::Reader+;
 
+#pragma link C++ class erhic::Pythia6EventBuilder+;
+//#pragma link C++ class std::auto_ptr<erhic:EventPythia>+;
 
 //#pragma link C++ class Header+;
+#pragma link C++ class erhic::EventMCFilterABC+;
+//#pragma link C++ class erhic::EventMCNullFilter+;
+//#pragma link C++ class erhic::RandomFractionFilter+;
 
 #endif
