@@ -279,6 +279,22 @@ namespace erhic {
        */
       virtual void ComputeEventDependentQuantities(EventMC&);
       
+      virtual void SetIndex(int i) { 
+         I = i;
+//         std::cout << "Index = " << i << std::endl;
+      }
+      virtual void SetStatus(int i) { KS = i; }
+      virtual void SetId(int i) { id = i; }
+      virtual void SetParentIndex(int i) {
+//         std::cout << "orig = " << i << std::endl;
+         orig = i;
+      }
+      virtual void SetChild1Index(int i) { daughter = i; }
+      virtual void SetChildNIndex(int i) { ldaughter = i; }
+      virtual void Set4Vector(const TLorentzVector&);
+      virtual void SetVertex(const TVector3&);
+      virtual void SetParentId(int i) { parentId = i; }
+      
 //   protected:
       
       UShort_t    I;             ///< Particle index in event

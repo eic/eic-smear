@@ -118,6 +118,7 @@ namespace erhic {
                                                EventMC& event
                                                ) {
       try {
+         
          const TLorentzVector& hadron = event.GetTrack(1)->Get4Vector();
          const TLorentzVector& lepton = event.GetTrack(2)->Get4Vector();
          const TLorentzVector& boson = event.GetTrack(3)->Get4Vector();
@@ -255,5 +256,22 @@ namespace erhic {
    void ParticleMC::SetEvent(EventMC* e) {
       event = e;
    }
+   
+   
+   void ParticleMC::Set4Vector(const TLorentzVector& v) {
+      E = v.Energy();
+      px = v.Px();
+      py = v.Py();
+      pz = v.Pz();
+      ComputeDerivedQuantities(); // Rapidity etc
+   }
+   
+   
+   void ParticleMC::SetVertex(const TVector3& v) {
+      xv = v.X();
+      yv = v.Y();
+      zv = v.Z();
+   }
 
+   
 } // namespace erhic
