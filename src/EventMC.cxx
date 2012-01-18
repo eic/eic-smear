@@ -99,7 +99,7 @@ namespace erhic {
       // Do this before calculating event kinematic variables via hadronic
       // methods as those rely on the particles.
       
-      for(unsigned n(0); n < particles.size(); ++n ) {
+      for(unsigned n(0); n < GetNTracks(); ++n ) {
          GetTrack(n)->ComputeEventDependentQuantities(*this);
       } // for(particles )
       
@@ -130,7 +130,7 @@ namespace erhic {
       yJB = jacquetBlondel.computeY();
       QSquaredJB = jacquetBlondel.computeQSquared();
       xJB = jacquetBlondel.computeX();
-      
+      /** \todo WSquaredJB, WSquaredDA calculations */
 //      std::cout << QSquaredJB << " " << QSquared << std::endl;
 //      assert((QSquaredJB - QSquared) / QSquared < 1.e-4);
    }
@@ -438,6 +438,7 @@ namespace erhic {
    
    void EventMC::AddLast(TrackType* track) {
       particles.push_back(track);
+      nTracks = particles.size();
    }
    
    

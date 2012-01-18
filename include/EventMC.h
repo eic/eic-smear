@@ -203,6 +203,16 @@ namespace erhic {
       virtual double GetQ2JacquetBlondel() const { return QSquaredJB; }
       virtual double GetYJacquetBlondel() const { return yJB; }
       virtual double GetW2JacquetBlondel() const { return WSquaredJB; }
+      /*
+      virtual void SetX(double xB) { x = xB; }
+      virtual void SetQ2(double Q2) { QSquared = Q2; }
+      virtual void SetY(double inelasticity) { y = inelasticity; }
+      virtual void SetW2(double W2) { WSquared = W2; }
+      virtual void SetNu(double Nu) { nu = Nu; }
+      */
+      virtual void SetProcess(int code) { process = code; }
+      virtual void SetN(int n) { number = n; }
+      virtual void SetNTracks(int n) { nTracks = n; }
       
    protected:
       
