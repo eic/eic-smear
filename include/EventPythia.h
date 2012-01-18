@@ -47,6 +47,32 @@ struct EventPythia : public EventBase {
    Double32_t  pt2_hat;
    Double32_t  sHat;             ///< Partonic centre-of-mass energy
    
+   virtual void SetNucleon(int n) { nucleon = n; }
+   virtual void SetTargetParton(int n) { tgtparton = n; }
+   virtual void SetBeamParton(int n) { beamparton = n; }
+   virtual void SetGenEvent(int n) { genevent = n; }
+   virtual void SetTargetPartonX(double xB) { xtgtparton = xB; }
+   virtual void SetBeamPartonX(double xB) { xbeamparton = xB; }
+   virtual void SetBeamPartonTheta(double radians) { thetabeamparton = radians; }
+   virtual void SetLeptonPhi(double radians) { leptonphi = radians; }
+   virtual void SetF1(double f1) { F1 = f1; }
+   virtual void SetF2(double f2) { F2 = f2; }
+   virtual void SetSigmaRad(double sr) { sigma_rad = sr; }
+   virtual void SetHardS(double s) { sHat = s; }
+   virtual void SetHardT(double t) { t_hat = t; }
+   virtual void SetHardU(double u) { u_hat = u; }
+   virtual void SetHardQ2(double Q2) { Q2_hat = Q2; }
+   virtual void SetHardPt2(double pt2) { pt2_hat = pt2; }
+   virtual void SetSigRadCor(double s) { SigRadCor = s; }
+   virtual void SetEBrems(double e) { EBrems = e; }
+   virtual void SetPhotonFlux(double f) { photonflux = f; }
+   virtual void SetTrueY(double inelasticity) { trueY = inelasticity; }
+   virtual void SetTrueQ2(double Q2) { trueQ2 = Q2; }
+   virtual void SetTrueX(double xB) { trueX = xB; }
+   virtual void SetTrueW2(double W2) { trueW2 = W2; }
+   virtual void SetTrueNu(double Nu) { trueNu = Nu; }
+   virtual void SetR(double r) { R = r; }
+   
    ClassDef(EventPythia, 1 )
 };
 
