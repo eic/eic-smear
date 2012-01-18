@@ -49,20 +49,20 @@
 
 #pragma link C++ namespace erhic;
 
-//#pragma link C++ class erhic::monte_carlo::File<int>+;
-//#pragma link C++ class erhic::monte_carlo::File<double>+;
-//#pragma link C++ class erhic::monte_carlo::GeneratorType+;
-#pragma link C++ class erhic::monte_carlo::FileType+;
-#pragma link C++ class erhic::monte_carlo::File<EventPythia>+;
-#pragma link C++ class erhic::monte_carlo::File<EventMilou>+;
-#pragma link C++ class erhic::monte_carlo::File<EventPepsi>+;
-#pragma link C++ class erhic::monte_carlo::File<EventRapgap>+;
-#pragma link C++ class erhic::monte_carlo::File<EventDjangoh>+;
-#pragma link C++ class erhic::monte_carlo::FileFactory;
-#pragma link C++ class erhic::monte_carlo::LogReader+;
-#pragma link C++ class erhic::monte_carlo::LogReaderPythia+;
-#pragma link C++ class erhic::monte_carlo::LogReaderMilou+;
-#pragma link C++ class erhic::monte_carlo::LogReaderFactory;
+//#pragma link C++ class erhic::File<int>+;
+//#pragma link C++ class erhic::File<double>+;
+//#pragma link C++ class erhic::GeneratorType+;
+#pragma link C++ class erhic::FileType+;
+#pragma link C++ class erhic::File<EventPythia>+;
+#pragma link C++ class erhic::File<EventMilou>+;
+#pragma link C++ class erhic::File<EventPepsi>+;
+#pragma link C++ class erhic::File<EventRapgap>+;
+#pragma link C++ class erhic::File<EventDjangoh>+;
+#pragma link C++ class erhic::FileFactory;
+#pragma link C++ class erhic::LogReader+;
+#pragma link C++ class erhic::LogReaderPythia+;
+#pragma link C++ class erhic::LogReaderMilou+;
+#pragma link C++ class erhic::LogReaderFactory;
 
 #pragma link C++ class std::vector<Particle>+;
 #pragma link C++ class std::vector<Particle*>+;

@@ -1,12 +1,16 @@
+/**
+ Forester.h
+ 
+ \file
+ Declaration of class Forester.
+ 
+ \author TB
+ \date 6/23/11
+ \copyright 2011 BNL. All rights reserved.
+*/
+
 #ifndef _ERHIC_BUILDTREE_FORESTER_
 #define _ERHIC_BUILDTREE_FORESTER_
-
-//
-// Forester.h
-//
-// Created by TB on 6/23/11.
-// Copyright 2011 BNL. All rights reserved.
-//
 
 //	C(++) headers
 #include <cmath>
@@ -14,7 +18,6 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-//#include <memory>
 #include <string>
 
 //	ROOT headers
@@ -30,11 +33,9 @@
 
 namespace erhic {
    
-   // TODO implement a logger to collect all error messages.
-   
    /**
     Manages the creation of trees from plain-text Monte Carlo files.
-    Bad pun, I know!
+    Bad pun, I know, but the ROOT guys started it.
     */
    class Forester : public TObject {
       
@@ -120,6 +121,7 @@ namespace erhic {
       
       /**
        Prints the current configuration to the requested output stream.
+       \todo Implement
        */
       void Print(std::ostream& = std::cout) const { }
       
@@ -137,16 +139,16 @@ namespace erhic {
       /**
        Returns the file type information for the last processed file.
        Returns NULL if no input has been processed.
-       Do not delete.
+       Do not delete the returned object.
        */
-      const erhic::monte_carlo::FileType* GetFileType() const;
+      const erhic::FileType* GetFileType() const;
       
    protected:
       
       
       /*******************************************************************//**
-                                                                            Stores summary information about the last call to Forester::Plant().
-                                                                            **********************************************************************/
+       Stores summary information about the last call to Forester::Plant().
+       **********************************************************************/
       class Status {
          
       public:
@@ -210,15 +212,17 @@ namespace erhic {
       
       
       /**
-       Prints a summary of the last call to Plant() to the requested output stream.
+       Prints a summary of the last call to Plant()
+       to the requested output stream.
        */
       const Status& GetGetStatus() const {
          return mStatus;
       }
       
       /**
-       Opens the input file and checks that it was produced by a supported Monte
-       Carlo generator. Returns true upon success or false upon and I/O error or
+       Opens the input file and checks that it was produced by a
+       supported Monte Carlo generator.
+       Returns true upon success or false upon and I/O error or
        if the Monte Carlo generator is unsupported or cannot be determined.
        */
       bool OpenInput();
@@ -235,21 +239,23 @@ namespace erhic {
       
       /**
        Allocate an event buffer for the TTree based on the generator type.
-       Returns false if the generator has not yet been successfully determined.
+       Returns false if the generator has not yet been successfully
+       determined.
        */
       bool AllocateEvent();
       
       /**
        Aligns the input text file on the first line of the first event.
-       After a successful call, mLine stores the first line of the event and true
-       is returned. If unsuccessful, mLine is blank and false is returned.
+       After a successful call, mLine stores the first line of the event
+       and true is returned.
+       If unsuccessful, mLine is blank and false is returned.
        */
       bool FindFirstEvent();
       
       /**
        Read the next line from mTextFile into mLine.
-       Return true if the input stream is good after the read operation, false if
-       it is not.
+       Returns true if the input stream is good after the read operation,
+       false if it is not.
        */
       bool ReadNextLine();
       
@@ -259,8 +265,9 @@ namespace erhic {
       Int_t ProcessLine();
       
       /**
-       Adds a particle to the current event record using the current contents of
-       mLine. Returns true if the particle is added or false if it is skipped.
+       Adds a particle to the current event record using the current
+       contents of mLine.
+       Returns true if the particle is added or false if it is skipped.
        */
       bool AddParticle();
       
@@ -270,11 +277,11 @@ namespace erhic {
       bool AtEndOfEvent() const;
       
       /**
-       Performs end-of-event tasks - completes the event record, fills the tree,
-       prints status.
+       Performs end-of-event tasks; completes the event record,
+       fills the tree, prints status.
        Returns the number of tracks read in the event.
-       If the end of file or the max number of events is reached, sets mQuit to
-       // true.
+       If the end of file or the max number of events is reached,
+       sets mQuit to true.
        */
       Int_t FinishEvent();
       
@@ -284,8 +291,9 @@ namespace erhic {
       void PrintStatus() const;
       
       /**
-       Prints the quit flag status. A return value of true indicates that the input
-       file has ended or the mMaxNEvents has been reached. Processing the file will
+       Prints the quit flag status. A return value of true indicates
+       that the input file has ended or the mMaxNEvents has been reached.
+       Processing the file will
        quit after the end of the next call to FinishEvent().
        */
       bool MustQuit() const;
@@ -303,7 +311,7 @@ namespace erhic {
       TTree* mTree; ///< Output TTree, owned by mRootFile
       EventBase* mEvent; ///< Stores event branch address
       
-      const erhic::monte_carlo::FileType* mFile;
+      const erhic::FileType* mFile; ///< File type information
       
       TFile* mRootFile;
       
@@ -395,7 +403,7 @@ namespace erhic {
       return mVerbose;
    }
    
-   inline const erhic::monte_carlo::FileType* Forester::GetFileType() const {
+   inline const FileType* Forester::GetFileType() const {
       return mFile;
    }
    

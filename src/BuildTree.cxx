@@ -61,11 +61,8 @@ BuildTree(const TString& inputFileName,
    // Use the provided log file name if there is one, otherwise attempt
    // automated procedure to locate it.
    if(logFile.empty()) {
-#ifdef USE_NAMESPACE_ERHIC
-      using namespace erhic::monte_carlo;
-#endif
       logFile =
-      LogReaderFactory::GetInstance().Locate(inputFileName.Data());
+         erhic::LogReaderFactory::GetInstance().Locate(inputFileName.Data());
    } // if
    
    // Use the FileType created by Forester when running to generate a
@@ -73,16 +70,13 @@ BuildTree(const TString& inputFileName,
    // the log file was located.
    if(forester.GetFileType() and not logFile.empty()) {
       TFile rootFile(outName, "UPDATE");
-      erhic::monte_carlo::LogReader* reader =
+      erhic::LogReader* reader =
          forester.GetFileType()->CreateLogReader();
       bool wasRead = (reader ? reader->Extract(logFile) : false);
       if(wasRead) {
-//         std::cout <<"wrote "<<reader->Save()<<" bytes"<<std::endl;
          reader->Save();
       } // if
-        //      else std::cout <<"Failed to read log file "<<logFile<<std::endl;
    } // if
-     //   else std::cout << "Couldn't find the log file "<< forester.GetFileType() << " " << logFile <<std::endl;
    
    return result;
 }
