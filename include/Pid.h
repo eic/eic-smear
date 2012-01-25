@@ -117,13 +117,6 @@ namespace erhic {
    
    inline bool Pid::operator>=(Int_t i) const { return mCode >= i; }
    
-   struct SizeOf {
-      SizeOf() { }
-      int operator()() const {
-         return sizeof(Pid);
-      }
-      ClassDef(SizeOf, 1)
-   };
 } // namespace
 
 #endif

@@ -5,18 +5,13 @@
 // Copyright 2011 BNL. All rights reserved.
 //
 
-
 #include <iostream>
 #include <sstream>
-//#include <string>
 
 #include <TLorentzRotation.h>
 #include <TRotation.h>
 
-//#include <TRefArray.h>
-
 #include "EventBase.h"
-//#include "VirtualParticle.h"
 #include "functions.h"
 
 namespace erhic {
@@ -202,7 +197,7 @@ namespace erhic {
       // index is in the range [1,N]
       unsigned idx = daughter + u;
       if(daughter < 1 or // If first daughter index = 0, it has no children
-         u >= NChildren()) { // Insufficient children
+         u >= GetNChildren()) { // Insufficient children
          return NULL;
       } // if
       
@@ -234,7 +229,7 @@ namespace erhic {
    
    
    Bool_t ParticleMC::HasChild(Int_t pdg) const {
-      for(UInt_t i(0); i < NChildren(); ++i) {
+      for(UInt_t i(0); i < GetNChildren(); ++i) {
          if(not GetChild(i)) continue;
          if(pdg == GetChild(i)->Id()) return true;
       } // for

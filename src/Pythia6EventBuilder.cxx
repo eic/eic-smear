@@ -6,10 +6,12 @@
 //
 
 #include <cmath>
+#include <iostream>
 #include <memory>
 
 #include <TMCParticle.h>
 #include <TObjArray.h>
+#include <TProcessID.h>
 #include <TPythia6.h>
 
 #include "ParticleMC.h"
@@ -29,10 +31,14 @@ namespace erhic {
    
    EventPythia* Pythia6EventBuilder::Create() {
       
+      // Save current object count
+      int objectNumber = TProcessID::GetObjectCount();
+      
       TPythia6* pythia = TPythia6::Instance();
       
       // Import all particles (not just final-state)
       TObjArray* particles = pythia->ImportParticles("All");
+//      std::cout << "owned? " << particles->IsOwner() << std::endl;
       
       // Construct the EventPythia object from the current
       // state of TPythia6.
@@ -41,6 +47,7 @@ namespace erhic {
        \todo Compute & store F1, F2, R, sigma_rad, SigRadCor, EBrems
        */
       std::auto_ptr<EventPythia> event(new EventPythia);
+//      EventPythia* event = new EventPythia;
       
       // Extract the event-wise quantities:
       event->SetNucleon(pythia->GetMSTI(12));
@@ -86,7 +93,7 @@ namespace erhic {
       event->SetTrueNu(nu);
       
       // Now populate the particle list.
-      
+
       Pythia6ParticleBuilder builder;
       for(int i(0); i < particles->GetEntries(); ++i) {
          TMCParticle* p =
@@ -94,17 +101,27 @@ namespace erhic {
          std::auto_ptr<ParticleMC> particle = builder.Create(*p);
          particle->SetIndex(i + 1);
          particle->SetEvent(event.get());
+//         particle->SetEvent(event);
          event->AddLast(particle.release());
       } // for
-      
       // We need to calculate any remaining quantities that depend
       // on the particle list.
+      
       event->Compute();
+      
       
       // FORTRAN NGEN(0, 3) corresponds to NGEN[2][0] in the C version
       // i.e. reversal of indices and 3 --> 2 because of differing
       // C and FORTRAN array indexing.
       //      std::cout << pythia->GetPyint5()->NGEN[2][0] << " trials" << std::endl;
+      
+      //Restore Object count 
+      // See example in $ROOTSYS/test/Event.cxx
+      //To save space in the table keeping track of all referenced objects
+      //we assume that our events do not address each other. We reset the 
+      //object count to what it was at the beginning of the event.
+      TProcessID::SetObjectCount(objectNumber);
+      
       
       return event.release();
    }

@@ -1,11 +1,16 @@
+/**
+ VirtualParticle.h
+ 
+ \file
+ Declaration of class VirtualParticle.
+ 
+ \author TB
+ \date 8/19/11
+ \copyright 2011 BNL. All rights reserved.
+ */
+
 #ifndef _ERHIC_Particle_H_
 #define _ERHIC_Particle_H_
-
-// erhic_Particle.h
-// BuildTree
-//
-// Created by TB on 8/19/11.
-// Copyright 2011 BNL. All rights reserved.
 
 #include <TLorentzVector.h>
 #include <TVector3.h>
@@ -89,8 +94,8 @@ namespace erhic {
       virtual Double_t GetEta() const = 0;
       
       /**
-       Returns the origin point of the Particle (cm).
-       (0,0,0) indicates a Particle originating in the collision.
+       Returns the origin point of the particle in cm.
+       (0,0,0) indicates a particle originating in the collision.
        */
       virtual TVector3 GetVertex() const = 0;
       

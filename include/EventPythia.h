@@ -1,3 +1,14 @@
+/**
+ EventPythia.h
+ 
+ \file
+ Declaration of class EventPythia.
+ 
+ \author Thomas Burton
+ \date 8/31/11
+ \copyright 2011 BNL. All rights reserved.
+ */
+
 #ifndef _ERHIC_BUILDTREE_EVENTPYTHIA_
 #define _ERHIC_BUILDTREE_EVENTPYTHIA_
 
@@ -7,12 +18,22 @@
 
 #include "EventBase.h"
 
+namespace erhic {
+   
 /**
  Describes an event from the generator PYTHIA
  */
-struct EventPythia : public EventBase {
+class EventPythia : public EventBase {
    
-   EventPythia(const std::string& = "" );
+public:
+   
+   /**
+    Constructor.
+    Optionally pass a text string setting event-wise quantities.
+    */
+   EventPythia(const std::string& = "");
+   
+   virtual ~EventPythia() { --smNInstances; }
    
    /**
     Parses the event information from a text string.
@@ -20,32 +41,6 @@ struct EventPythia : public EventBase {
     false in case of an error.
     */
    virtual bool Parse(const std::string& );
-   
-	Int_t       nucleon;          ///< PDG code of the hadron beam
-   Int_t       tgtparton;        ///< PDG code of the struck parton in the hadron beam
-   Int_t       beamparton;       ///< Parton interacting with the hadron beam in the case of resolved photon processes and soft VMD
-   Int_t       genevent;
-	Double32_t  xtgtparton;
-   Double32_t  xbeamparton;
-	Double32_t  thetabeamparton;
-   Double32_t  leptonphi;
-   Double32_t  F1;
-   Double32_t  sigma_rad;
-	Double32_t  t_hat;
-   Double32_t  u_hat;
-   Double32_t  Q2_hat;
-   Double32_t  SigRadCor;
-   Double32_t  EBrems;
-   Double32_t  photonflux;
-	Double32_t  trueY;
-   Double32_t  trueQ2;
-   Double32_t  trueX;
-   Double32_t  trueW2;
-   Double32_t  trueNu;
-   Double32_t  F2;
-   Double32_t  R;
-   Double32_t  pt2_hat;
-   Double32_t  sHat;             ///< Partonic centre-of-mass energy
    
    virtual void SetNucleon(int n) { nucleon = n; }
    virtual void SetTargetParton(int n) { tgtparton = n; }
@@ -73,7 +68,40 @@ struct EventPythia : public EventBase {
    virtual void SetTrueNu(double Nu) { trueNu = Nu; }
    virtual void SetR(double r) { R = r; }
    
-   ClassDef(EventPythia, 1 )
+   // protected:
+   
+	Int_t       nucleon;          ///< PDG code of the hadron beam
+   Int_t       tgtparton;        ///< PDG code of the struck parton in the hadron beam
+   Int_t       beamparton;       ///< Parton interacting with the hadron beam in the case of resolved photon processes and soft VMD
+   Int_t       genevent;
+	Double32_t  xtgtparton;
+   Double32_t  xbeamparton;
+	Double32_t  thetabeamparton;
+   Double32_t  leptonphi;
+   Double32_t  F1;
+   Double32_t  sigma_rad;
+	Double32_t  t_hat;
+   Double32_t  u_hat;
+   Double32_t  Q2_hat;
+   Double32_t  SigRadCor;
+   Double32_t  EBrems;
+   Double32_t  photonflux;
+	Double32_t  trueY;
+   Double32_t  trueQ2;
+   Double32_t  trueX;
+   Double32_t  trueW2;
+   Double32_t  trueNu;
+   Double32_t  F2;
+   Double32_t  R;
+   Double32_t  pt2_hat;
+   Double32_t  sHat;             ///< Partonic centre-of-mass energy
+   
+   
+   static int smNInstances;
+   
+   ClassDef(erhic::EventPythia, 1 )
 };
+
+} // namespace erhic
 
 #endif

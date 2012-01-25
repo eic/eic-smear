@@ -13,6 +13,7 @@
 
 #include "EventPepsi.h"
 #include "EventDjangoh.h"
+#include "EventDpmjet.h"
 #include "EventRapgap.h"
 #include "File.h"
 
@@ -73,6 +74,148 @@ namespace erhic {
    }
    
    Int_t LogReaderPythia::Save() const {
+      return
+      crossSection_.Write("crossSection") +
+      nEvents_.Write("nEvents");
+   }
+   
+   
+   //
+   // class LogReaderPepsi
+   //
+   
+   LogReaderPepsi::LogReaderPepsi()
+   {}
+   
+   LogReaderPepsi::~LogReaderPepsi() { }
+   
+   bool LogReaderPepsi::Extract(const std::string& file) {
+      
+      // First we get the cross section from the log file.
+      std::ifstream ifs(file.c_str(), std::ios::in);
+      
+      if(not ifs.is_open()) return false;
+      
+      std::string line;
+      const std::string searchPattern("total cross section in pb from MC simulation");
+      std::string normalisation;
+      std::string nEvents;
+      
+      while(ifs.good()) {
+         std::getline(ifs, line);
+         size_t position = line.find(searchPattern);
+         if(position not_eq std::string::npos) {
+            // We found the line.
+            // Erase the text preceding the cross section.
+            std::stringstream ss;
+            line.erase(0, position + searchPattern.length());
+            ss.str("");
+            ss.clear();
+            ss << line;
+            double value;
+            // Divide by 1,000,000 to go from pb to microbarn
+            ss >> value;
+            value /= 1.e6;
+            ss.str("");
+            ss.clear();
+            ss << value;
+            ss >> normalisation;
+         } // if
+         const std::string searchPattern2("Total Number of trials");
+         position = line.find(searchPattern2);
+         if(position not_eq std::string::npos) {
+            // We found the line.
+            // Erase the text preceding the cross section.
+            std::stringstream ss;
+            line.erase(0, position + searchPattern2.length());
+            ss.str("");
+            ss.clear();
+            ss << line;
+            ss >> nEvents;
+         } // if
+      } // while
+      
+      crossSection_.SetString(normalisation.c_str());
+      std::cout << crossSection_.GetString().Atof()<<std::endl;
+      nEvents_.SetString(nEvents.c_str());
+      std::cout << nEvents_.GetString().Atoi() << std::endl;
+      
+      std::cout << "Extracted information from " << file << std::endl;
+      return true;
+   }
+   
+   Int_t LogReaderPepsi::Save() const {
+      return
+      crossSection_.Write("crossSection") +
+      nEvents_.Write("nEvents");
+   }
+   
+   
+   //
+   // class LogReaderDjangoh
+   //
+   
+   LogReaderDjangoh::LogReaderDjangoh()
+   {}
+   
+   LogReaderDjangoh::~LogReaderDjangoh() { }
+   
+   bool LogReaderDjangoh::Extract(const std::string& file) {
+      
+      // First we get the cross section from the log file.
+      std::ifstream ifs(file.c_str(), std::ios::in);
+      
+      if(not ifs.is_open()) return false;
+      
+      std::string line;
+      const std::string searchPattern("Total cross section is now    SIGTOT =");
+      std::string normalisation;
+      std::string nEvents;
+      
+      while(ifs.good()) {
+         std::getline(ifs, line);
+         size_t position = line.find(searchPattern);
+         if(position not_eq std::string::npos) {
+            // We found the line.
+            // Erase the text preceding the cross section.
+            std::stringstream ss;
+            line.erase(0, position + searchPattern.length());
+            ss.str("");
+            ss.clear();
+            ss << line;
+            double value;
+            // Divide by 1,000,000 to go from pb to microbarn
+            ss >> value;
+            value /= 1.e6;
+            ss.str("");
+            ss.clear();
+            ss << value;
+            ss >> normalisation;
+         } // if
+         const std::string searchPattern2("TOTAL EVENT NUMBER");
+         position = line.find(searchPattern2);
+         if(position not_eq std::string::npos) {
+            // We found the line.
+            // Erase the text preceding the cross section.
+            std::stringstream ss;
+            line.erase(0, position + searchPattern2.length());
+            ss.str("");
+            ss.clear();
+            ss << line;
+            ss >> nEvents;
+         } // if
+      } // while
+      
+      crossSection_.SetString(normalisation.c_str());
+      std::cout << crossSection_.GetString().Atof()<<std::endl;
+      nEvents_.SetString(nEvents.c_str());
+      std::cout << nEvents_.GetString().Atoi() << std::endl;
+      
+      std::cout << "Extracted information from " << file << std::endl;
+      return true;
+   }
+   
+   Int_t LogReaderDjangoh::Save() const {
       return
       crossSection_.Write("crossSection") +
       nEvents_.Write("nEvents");
@@ -273,6 +416,10 @@ namespace erhic {
                                         new LogReaderPythia));
       prototypes_.insert(std::make_pair("milou",
                                         new LogReaderMilou));
+      prototypes_.insert(std::make_pair("pepsi",
+                                        new LogReaderPepsi));
+      prototypes_.insert(std::make_pair("djangoh",
+                                        new LogReaderDjangoh));
    }
    
    LogReaderFactory::~LogReaderFactory() {
@@ -351,6 +498,8 @@ namespace erhic {
    FileFactory::FileFactory() {
       prototypes_.insert(std::make_pair("djangoh",
                                         new File<EventDjangoh>()));
+      prototypes_.insert(std::make_pair("dpmjet",
+                                        new File<EventDpmjet>()));
       prototypes_.insert(std::make_pair("milou",
                                         new File<EventMilou>()));
       prototypes_.insert(std::make_pair("pepsi",

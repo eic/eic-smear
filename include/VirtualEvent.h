@@ -1,11 +1,16 @@
+/**
+ VirtualEvent.h
+ 
+ \file
+ Declaration of class VirtualEvent.
+ 
+ \author TB
+ \date 8/19/11
+ \copyright 2011 BNL. All rights reserved.
+ */
+
 #ifndef _ERHIC_EVENT_H_
 #define _ERHIC_EVENT_H_
-
-// erhic_event.h
-// BuildTree
-//
-// Created by TB on 8/19/11.
-// Copyright 2011 BNL. All rights reserved.
 
 #include <TObject.h>
 
@@ -13,11 +18,12 @@ namespace erhic {
    
    /**
     Abstract base class for a lepton-hadron event.
-    An event is a collection of tracks plus (possibly) other quantities.
+    An "event" is defined here as a collection of tracks plus other
+    quantities (at least the minimal set of x, Q2, W2, y and nu).
     The template argument should be the name of a "track" type,
-    whatever that may be for your needs.
-    The event stores a list of these track (in principle the
-    track can be whatever you need a list of).
+    whatever that may be for your needs. The event stores a list of these 
+    (in principle the track can be whatever you need a list of,
+    not necessarily an actual "track").
     */
    template<typename T>
    class VirtualEvent : public TObject {

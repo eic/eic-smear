@@ -364,7 +364,7 @@ namespace erhic {
             used.insert(GetTrack(i));
          } // if
          // Check children of particle
-         for(unsigned j(0); j < GetTrack(i)->NChildren(); ++j) {
+         for(unsigned j(0); j < GetTrack(i)->GetNChildren(); ++j) {
             pairs.insert(Pair(GetTrack(i)->GetIndex(),
                               GetTrack(i)->GetChild(j)->GetIndex()));
             used.insert(GetTrack(i));

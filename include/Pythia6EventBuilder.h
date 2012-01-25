@@ -8,8 +8,8 @@
  Copyright 2012 BNL. All rights reserved.
 */
 
-#ifndef _Pythia6_H_
-#define _Pythia6_H_
+#ifndef _Pythia6EventBuilder_H_
+#define _Pythia6EventBuilder_H_
 
 #include <Rtypes.h> // For ClassDef macro
 
@@ -41,7 +41,18 @@ namespace erhic {
        The returned event is dynamically allocated and must
        be deleted by the user.
        */
-      EventPythia* Create();
+      virtual EventPythia* Create();
+      
+      /** */
+//      virtual int NEvents() const { return mNEvents; }
+      
+      /** */
+//      virtual int NTrials() const { return mNTrials; }
+      
+   protected:
+      
+//      int mNEvents;
+//      int mNTrials;
       
       ClassDef(erhic::Pythia6EventBuilder, 1)
    };

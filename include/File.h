@@ -21,18 +21,17 @@
 #include "EventPythia.h"
 #include "EventFactory.h"
 
-// All eRHIC code goes in the erhic namespace
 namespace erhic {
    
    
-   /*******************************************************************//**
-                                                                         Base class for log file processors.
-                                                                         
-                                                                         Reads a log file from a Monte Carlo generator and extracts information.
-                                                                         Inherited classes for each generator type implement the Extract()
-                                                                         method to gather the required information for that generator and the
-                                                                         Save() method to store it to file.
-                                                                         **********************************************************************/
+   /**
+    Base class for log file processors.
+    
+    Reads a log file from a Monte Carlo generator and extracts information.
+    Inherited classes for each generator type implement the Extract()
+    method to gather the required information for that generator and the
+    Save() method to store it to file.
+    */
    class LogReader : public TObject {
       
    public:
@@ -60,14 +59,14 @@ namespace erhic {
    };
    
    
-   /*******************************************************************//**
-                                                                         Processes PYTHIA log files.
-                                                                         
-                                                                         Reads a log file and finds the total cross section and the number
-                                                                         of generated events when Extract() is called.
-                                                                         Writes those values as TObjStrings to the current directory when
-                                                                         Save() is called, assuming that directory is writeable.
-                                                                         **********************************************************************/
+   /**
+    Processes PYTHIA log files.
+    
+    Reads a log file and finds the total cross section and the number
+    of generated events when Extract() is called.
+    Writes those values as TObjStrings to the current directory when
+    Save() is called, assuming that directory is writeable.
+    */
    class LogReaderPythia : public LogReader {
       
    public:
@@ -106,15 +105,106 @@ namespace erhic {
    }
    
    
+   /**
+    Processes PEPSI log files.
+    
+    Reads a log file and finds the total cross section and the number
+    of generated events when Extract() is called.
+    Writes those values as TObjStrings to the current directory when
+    Save() is called, assuming that directory is writeable.
+    */
+   class LogReaderPepsi : public LogReader {
+      
+   public:
+      
+      /**
+       Constructor.
+       */
+      LogReaderPepsi();
+      
+      /**
+       Destructor.
+       */
+      virtual ~LogReaderPepsi();
+      
+      LogReaderPepsi* Create() const;
+      
+      bool Extract(const std::string& file);
+      
+      /**
+       Write the extracted information to the current file, if it is
+       writeable. If you want to write the LogReaderPepsi itself, use
+       LogReaderPepsi::Write().
+       */
+      Int_t Save() const;
+      
+   protected:
+      
+      TObjString crossSection_; ///> Total cross section in microbarns
+      TObjString nEvents_; ///> Total number of events generated
+      
+      ClassDef(LogReaderPepsi, 1)
+   };
    
-   /*******************************************************************//**
-                                                                         Processes PYTHIA log files.
-                                                                         
-                                                                         Reads a log file and finds the total cross section and the number
-                                                                         of generated events when Extract() is called.
-                                                                         Writes those values as TObjStrings to the current directory when
-                                                                         Save() is called, assuming that directory is writeable.
-                                                                         **********************************************************************/
+   inline LogReaderPepsi* LogReaderPepsi::Create() const {
+      return new LogReaderPepsi;
+   }
+   
+   
+   /**
+    Processes DJANGOH log files.
+    
+    Reads a log file and finds the total cross section and the number
+    of generated events when Extract() is called.
+    Writes those values as TObjStrings to the current directory when
+    Save() is called, assuming that directory is writeable.
+    */
+   class LogReaderDjangoh : public LogReader {
+      
+   public:
+      
+      /**
+       Constructor.
+       */
+      LogReaderDjangoh();
+      
+      /**
+       Destructor.
+       */
+      virtual ~LogReaderDjangoh();
+      
+      LogReaderDjangoh* Create() const;
+      
+      bool Extract(const std::string& file);
+      
+      /**
+       Write the extracted information to the current file, if it is
+       writeable. If you want to write the LogReaderDjangoh itself, use
+       LogReaderDjangoh::Write().
+       */
+      Int_t Save() const;
+      
+   protected:
+      
+      TObjString crossSection_; ///> Total cross section in microbarns
+      TObjString nEvents_; ///> Total number of events generated
+      
+      ClassDef(LogReaderDjangoh, 1)
+   };
+   
+   inline LogReaderDjangoh* LogReaderDjangoh::Create() const {
+      return new LogReaderDjangoh;
+   }
+   
+   
+   /**
+    Processes PYTHIA log files.
+    
+    Reads a log file and finds the total cross section and the number
+    of generated events when Extract() is called.
+    Writes those values as TObjStrings to the current directory when
+    Save() is called, assuming that directory is writeable.
+    */
    class LogReaderMilou : public LogReader {
       
    public:
@@ -187,13 +277,13 @@ namespace erhic {
    }
    
    
-   /*******************************************************************//**
+   /**
     Factory class for LogReaders.
     
     Singleton class.
     Creates a LogReader instance corresponding to a Monte Carlo
     generator type.
-    **********************************************************************/
+    */
    class LogReaderFactory {
       
    public:
@@ -249,11 +339,11 @@ namespace erhic {
    };
    
    
-   /*******************************************************************//**
+   /**
     Abstract base class for Monte Carlo file types.
-    Describes a Monte Carlo file type and returns class information
-    related to that class.
-    **********************************************************************/
+    Describes a Monte Carlo file type and returns objects required for
+    processing or analysis of that file type.
+    */
    class FileType : public TObject {
       
    public:
@@ -337,10 +427,10 @@ namespace erhic {
    }
    
    
-   /*******************************************************************//**
+   /**
     Factory class for Files.
     Singleton class.
-    **********************************************************************/
+    */
    class FileFactory {
       
    public:

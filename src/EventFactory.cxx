@@ -11,6 +11,7 @@
 #include "EventPythia.h"
 #include "EventMilou.h"
 #include "EventDjangoh.h"
+#include "EventDpmjet.h"
 #include "EventRapgap.h"
 #include "EventPepsi.h"
 #include "functions.h" // For getFirstNonBlank()
@@ -84,9 +85,10 @@ namespace {
    
    // Need this to generate the code for each version
    erhic::EventFromAsciiFactory<EventDjangoh> ed;
+   erhic::EventFromAsciiFactory<EventDpmjet> ej;
    erhic::EventFromAsciiFactory<EventPepsi> ee;
    erhic::EventFromAsciiFactory<EventMilou> em;
    erhic::EventFromAsciiFactory<EventRapgap> er;
-   erhic::EventFromAsciiFactory<EventPythia> ep;
+   erhic::EventFromAsciiFactory<erhic::EventPythia> ep;
    
 }

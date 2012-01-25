@@ -11,33 +11,38 @@
 
 #include "EventPythia.h"
 
+namespace erhic {
+   
+   int EventPythia::smNInstances(0);
+   
 EventPythia::EventPythia(const std::string& /* Unused */ )
 : nucleon(std::numeric_limits<Int_t>::max() )
 , tgtparton(std::numeric_limits<Int_t>::max() )
 , beamparton(std::numeric_limits<Int_t>::max() )
 , genevent(-1 )
-, xtgtparton(NAN )
-, xbeamparton(NAN )
-, thetabeamparton(NAN )
-, leptonphi(NAN )
-, F1(NAN )
-, sigma_rad(NAN )
-, t_hat(NAN )
-, u_hat(NAN )
-, Q2_hat(NAN )
-, SigRadCor(NAN )
-, EBrems(NAN )
-, photonflux(NAN )
-, trueY(NAN )
-, trueQ2(NAN )
-, trueX(NAN )
-, trueW2(NAN )
-, trueNu(NAN )
-, F2(NAN )
-, R(NAN )
-, pt2_hat(NAN )
-, sHat(NAN )
+, xtgtparton(NAN)
+, xbeamparton(NAN)
+, thetabeamparton(NAN)
+, leptonphi(NAN)
+, F1(NAN)
+, sigma_rad(NAN)
+, t_hat(NAN)
+, u_hat(NAN)
+, Q2_hat(NAN)
+, SigRadCor(NAN)
+, EBrems(NAN)
+, photonflux(NAN)
+, trueY(NAN)
+, trueQ2(NAN)
+, trueX(NAN)
+, trueW2(NAN)
+, trueNu(NAN)
+, F2(NAN)
+, R(NAN)
+, pt2_hat(NAN)
+, sHat(NAN)
 {
+   ++smNInstances;
 }
 
 bool
@@ -61,3 +66,4 @@ EventPythia::Parse(const std::string& line ) {
    return not ss.fail();
 }
 
+} // namespace erhic

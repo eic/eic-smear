@@ -18,7 +18,7 @@ INCLUDE = -I./include -I.
 #INCLUDE = -I$(shell pwd)/include -I.
 
 # Optimisation flag
-OPT = -O0
+OPT = -O2
 
 # root-config --cflags includes ROOT include directory
 # Add -Wlong-long is activiated by -pedantic.

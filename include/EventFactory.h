@@ -15,12 +15,11 @@
 #include "functions.h"
 #include "VirtualEvent.h"
 #include "EventPythia.h"
+
 namespace erhic {
    
-//   class VirtualEvent;
    class ParticleMC;
 
-   // template<typename ParticleType>
    class VirtualEventFactory : public TObject {
       
    public:
@@ -33,39 +32,13 @@ namespace erhic {
       ClassDef(VirtualEventFactory, 1)
    };
    
-
-   /*
-    class EventFromAsciiFactory : public VirtualEventFactory {
-    
-    public:
-    
-    virtual EventMC* Create() const = 0;
-    };
-    
-   class PythiaEventFactory : public EventFromAsciiFactory {
-      
-   public:
-      
-      virtual 
-   };
-   
-   
-   class PepsiEventFactory : public EventMCFactor {
-      
-   public:
-      
-   };
-   */
-   
-   
-//   class EventMC;
    
    /**
     Creates events from an input plain text file containing
     appropriately formatted data.
     Templated for all the types inheriting from EventMC
-    (any event class implementing a Parse method to
-    populate the event's variables from a string)
+    (any event class implementing a Parse() method to
+    populate the event's variables from a string will work.)
     */
    template<typename T>
    class EventFromAsciiFactory : public VirtualEventFactory {
@@ -97,7 +70,6 @@ namespace erhic {
       
       ClassDef(EventFromAsciiFactory, 1)
    };
-   
    
    
 } // namespace erhic

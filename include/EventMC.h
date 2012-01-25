@@ -20,7 +20,6 @@
 
 class TTree;
 
-//#ifdef USE_NAMESPACE_ERHIC
 namespace erhic {
    
    class ParticleMC;

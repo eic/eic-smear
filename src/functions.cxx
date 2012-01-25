@@ -124,7 +124,7 @@ void EventToDot::Generate(const erhic::EventMC& event,
          used.insert(event.GetTrack(i));
       } // if
         // Check children of particle
-      for(unsigned j(0); j < event.GetTrack(i)->NChildren(); ++j) {
+      for(unsigned j(0); j < event.GetTrack(i)->GetNChildren(); ++j) {
          pairs.insert(Pair(event.GetTrack(i)->GetIndex(),
                            event.GetTrack(i)->GetChild(j)->GetIndex()));
          used.insert(event.GetTrack(i));

@@ -1,6 +1,3 @@
-#ifndef _ERHIC_PARTICLE_MC_SMEARED_H_
-#define _ERHIC_PARTICLE_MC_SMEARED_H_
-
 //
 // ParticleMCSmeared.h
 // BuildTree
@@ -8,6 +5,9 @@
 // Created by TB on 10/10/11.
 // Copyright 2011 BNL. All rights reserved.
 //
+
+#ifndef _ERHIC_PARTICLE_MC_SMEARED_H_
+#define _ERHIC_PARTICLE_MC_SMEARED_H_
 
 #include <cmath>
 
@@ -59,6 +59,10 @@ namespace Smear {
        Returns the (E,p) 4-vector in the lab frame.
        */
       virtual TLorentzVector Get4Vector() const;
+      
+      /**
+       Returns the (E,p) 4-vector in the lab frame.
+       */
       virtual TLorentzVector PxPyPzE() const { return Get4Vector(); }
       
       /**
@@ -105,9 +109,7 @@ namespace Smear {
       /**
        Returns the ID of the particle.
        */
-      virtual ::erhic::Pid Id() const {
-         return ::erhic::Pid(id);
-      }
+      virtual ::erhic::Pid Id() const;
       
       virtual void SetE(Double_t);
       
@@ -123,7 +125,7 @@ namespace Smear {
       
 //   protected:
       
-      Int_t      id;				///< PDG particle code TODO rename?
+      Int_t      id;				///< PDG particle code
       
       Double32_t px;           ///< x component of particle momentum
       Double32_t py;           ///< y component of particle momentum
@@ -137,15 +139,21 @@ namespace Smear {
       ClassDef(ParticleMCS, 1)
    };
    
-   inline Double_t ParticleMCS::GetPx() const { return p * sin(theta) * cos(phi); }
+   inline Double_t ParticleMCS::GetPx() const {
+      return p * sin(theta) * cos(phi);
+   }
    
-   inline Double_t ParticleMCS::GetPy() const { return p * sin(theta) * sin(phi); }
+   inline Double_t ParticleMCS::GetPy() const {
+      return p * sin(theta) * sin(phi);
+   }
    
    inline Double_t ParticleMCS::GetPz() const { return pz; }
    
    inline Double_t ParticleMCS::GetE() const { return E; }
    
-   inline Double_t ParticleMCS::GetM() const { return sqrt(pow(E, 2.) - pow(p, 2.)); }
+   inline Double_t ParticleMCS::GetM() const {
+      return sqrt(pow(E, 2.) - pow(p, 2.));
+   }
    
    inline Double_t ParticleMCS::GetPt() const { return pt; }
    
@@ -172,6 +180,8 @@ namespace Smear {
    inline void ParticleMCS::SetPhi(Double_t value) { phi = value; }
    
    inline void ParticleMCS::SetTheta(Double_t value) { theta = value; }
+   
+   inline erhic::Pid ParticleMCS::Id() const { return ::erhic::Pid(id); }
    
 } // namespace erhic
 

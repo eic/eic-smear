@@ -31,12 +31,6 @@ namespace erhic {
        */
       virtual bool Accept(const EventMC&) const = 0;
       
-      /**
-       Implement in derived class to return true when the event fails
-       the filter's criteria.
-       */
-//      virtual bool Reject(const EventMC&) const = 0;
-      
       ClassDef(erhic::EventMCFilterABC, 1)
    };
    

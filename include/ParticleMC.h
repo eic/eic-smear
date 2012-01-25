@@ -1,28 +1,22 @@
-//
-// ParticleMC.h
-// BuildTree
-//
-// Created by TB on 10/10/11.
-// Copyright 2011 BNL. All rights reserved.
-//
+/**
+ ParticleMC.h
+
+ \author TB
+ \date 10/10/11
+ \copyright 2011 BNL. All rights reserved.
+ */
 
 #ifndef _ERHIC_ParticleMC_H_
 #define _ERHIC_ParticleMC_H_
 
-//#include <functional>
-//#include <iostream>
-//#include <memory>
 #include <string>
 
 #include <TLorentzVector.h>
 #include <TRef.h>
-//#include <TRefArray.h>
 #include <TVector3.h>
 
 #include "Pid.h"
 #include "VirtualParticle.h"
-
-//class TRefArray;
 
 namespace erhic {
    
@@ -30,17 +24,22 @@ namespace erhic {
    class EventMC;
    
    
+   /**
+    A general particle thrown by a Monte Carlo generator.
+    */
    class ParticleMC : public VirtualParticle {
    public:
       
+      /** Destructor */
       virtual ~ParticleMC();
       
       static Long64_t smNInstances;
       
       /**
        Default constructor.
-       Initialises the Particle from the argument string with the format
-         I KS id orig daughter ldaughter px py pz E m xv yv zv
+       Optionally pass a string with particle information in a HEPEVT
+       style format, namely:
+         "index status id parent firstChild lastChild px py pz E m xv yv zv"
        */
       ParticleMC(const std::string& = "");
       
@@ -94,24 +93,25 @@ namespace erhic {
        Returns the number of children of this particle.
        Returns 0 if the particle did not decay.
        */
-      virtual UInt_t NChildren() const;
+      virtual UInt_t GetNChildren() const;
       
       /**
        Returns a pointer to the nth child particle of this particle,
-       where n is in the range [0, NChildren()).
+       where n is in the range [0, GetNChildren()).
        GetChild(0) returns the child whose index in this particle's
        event is GetChild1Index().
-       GetChild(NChildren()-1) returns the child whose index
+       GetChild(GetNChildren()-1) returns the child whose index
        is GetChildNIndex().
        Returns NULL if there is no such child particle or it
-       cannot be accessed via the event (see GetEvent()).
+       cannot be accessed via the event for some reason (see GetEvent()).
        */
       virtual const ParticleMC* GetChild(UShort_t) const;
       
       /**
-       Returns true if n is <= the number of children of this particle.
+       Returns true if n in the range [0, N), where N is the number
+       of children of this particle.
        Returns false otherwise.
-       Equivalent to NULL != GetChild(n).
+       Equivalent to GetChild(n) not_eq NULL.
        */
       virtual Bool_t HasChild(Int_t) const;
       
@@ -209,13 +209,21 @@ namespace erhic {
        */
       const EventMC* GetEvent() const;
       
+      /**
+       Set the event with which to associate this particle.
+       */
       void SetEvent(EventMC*);
       
       /**
        Returns the (E,p) 4-vector in the lab frame.
        */
       virtual TLorentzVector Get4Vector() const;
+      
+      /**
+       Returns the (E,p) 4-vector in the lab frame.
+       */
       virtual TLorentzVector PxPyPzE() const { return Get4Vector(); }
+      
       /**
        Returns the (E,p) 4-vector in the hadron-boson frame.
        This frame is defined such that
@@ -259,40 +267,79 @@ namespace erhic {
        Returns the ID of the particle.
        */
       virtual Pid Id() const;
+      
+      /**
+       Returns the ID of the particle.
+       */
       virtual Pid GetPdgCode() const { return Id(); }
       
       /**
-       Sets quantities derived from (E, px, py, pz).
-       Namely:
-       total momentum, transverse momentum, rapidity, pseudorapidity, theta,
-       phi. This should be called if (E, px, py, pz) are manually altered.
+       Sets quantities derived from the four-momentum (E, px, py, pz), namely
+       <UL>
+       <LI> total momentum </LI>
+       <LI> transverse momentum </LI>
+       <LI> rapidity </LI>
+       <LI> pseudorapidity </LI>
+       <LI> theta </LI>
+       <LI> phi </LI>
+       </UL>
+       This should be called if (E, px, py, pz) are manually altered
+       in order to propagate the changes to these other quantities.
        */
       virtual void ComputeDerivedQuantities();
       
       /**
-       Sets quantities that depend on the contents of the whole event.
-       Namely:
-       z, Feynman x, angle and pt with respect to the exchanged boson, 
-       azimuthal angle around the exchanged boson, parent pdg code.
+       Sets quantities that depend on the properties of the event or
+       associations of one particle with another, namely
+       <UL>
+       <LI> z </LI>
+       <LI> Feynman x </LI>
+       <LI> angle and pt with respect to the exchanged boson </LI> 
+       <LI> azimuthal angle around the exchanged boson </LI>
+       <LI> parent pdg code </LI>
+       </UL>
        Important: this particle is assumed to be in the same frame of
-       reference as those in the event argument.
+       reference as those contained in the event that is passed as an
+       argument.
        */
       virtual void ComputeEventDependentQuantities(EventMC&);
       
-      virtual void SetIndex(int i) { 
-         I = i;
-//         std::cout << "Index = " << i << std::endl;
-      }
+      /**
+       Sets the index of the particle i.e. its position in the track list
+       (in principle this can be any
+       integer you require to associated with the particle).
+       */
+      virtual void SetIndex(int i) { I = i; }
+      
+      /** Sets the status code of the particle (generally final state
+       particles are given status == 1 */
       virtual void SetStatus(int i) { KS = i; }
+      
+      /** Sets the ID of the particle. In order to make use of class Pid this
+       should be the PDG code of the particle, but in principle can be any
+       value you wish to use to identify it. */
       virtual void SetId(int i) { id = i; }
-      virtual void SetParentIndex(int i) {
-//         std::cout << "orig = " << i << std::endl;
-         orig = i;
-      }
+      
+      /** Sets the index of this particle's parent if it has one.
+       By default this is zero, indicating no parent. */
+      virtual void SetParentIndex(int i) { orig = i; }
+      
+      /** Sets the index of this particle's first child. By default this
+       is zero, indicating no children. */
       virtual void SetChild1Index(int i) { daughter = i; }
+      
+      /** Sets the index of this particle's last child.
+       By default this is zero, indication zero or one children. */
       virtual void SetChildNIndex(int i) { ldaughter = i; }
+      
+      /** Sets the four-momentum of the particle.
+       Changes are propagated to derived quantities. */
       virtual void Set4Vector(const TLorentzVector&);
+      
+      /** Sets the origin coordinates */
       virtual void SetVertex(const TVector3&);
+      
+      /** Sets the ID of this particle's parent. See comments in SetId() */
       virtual void SetParentId(int i) { parentId = i; }
       
 //   protected:
@@ -407,7 +454,7 @@ namespace erhic {
    
    inline Pid ParticleMC::Id() const { return Pid(id); }
    
-   inline UInt_t ParticleMC::NChildren() const {
+   inline UInt_t ParticleMC::GetNChildren() const {
       if(0 == daughter) return 0;
       if(0 == ldaughter) return 1;
       return ldaughter - daughter + 1;
