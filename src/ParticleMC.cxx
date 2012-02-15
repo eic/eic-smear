@@ -17,9 +17,6 @@
 namespace erhic {
    
    
-   Long64_t ParticleMC::smNInstances(0);
-
-   
    ParticleMC::ParticleMC(const std::string& line)
    : I(-1)
    , KS(-1)
@@ -62,13 +59,10 @@ namespace erhic {
       if(not line.empty()) {
          ComputeDerivedQuantities();
       } // if
-      
-      ++smNInstances;
    }
    
    
    ParticleMC::~ParticleMC() {
-      --smNInstances;
    }
    
    

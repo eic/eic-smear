@@ -1,13 +1,18 @@
+/**
+ Pid.h
+ 
+ \file
+ Declaration of class Pid
+ 
+ \author TB
+ \date 8/12/11
+ \copyright 2011 BNL. All rights reserved.
+ */
+
 #ifndef _ERHIC_BUILDTREE_Pid_H_
 #define _ERHIC_BUILDTREE_Pid_H_
 
-// Pid.h
-//
-// Created by TB on 8/12/11.
-// Copyright 2011 BNL. All rights reserved.
-
 #include <Rtypes.h>
-#include <TObject.h>
 
 class TParticlePDG;
 
@@ -22,30 +27,31 @@ namespace erhic {
       
       /**
        Returns a code indicating 'not valid'.
-       Use this value to consistently indicate particles without a PDG code.
+       Use this value to consistently indicate particles without an ID number.
        */
       static Int_t InvalidCode();
       
       /**
        Constructor.
+       @param [in] pdg The particle's PDG code, an integer
        */
-      Pid(Int_t = Pid::InvalidCode());
+      Pid(Int_t pdg = Pid::InvalidCode());
       
+      /** Destructor */
       virtual ~Pid();
       
-      /**
-       Returns the integer PDG code.
-       */
+      /** Returns the PDG code, an integer. */
       Int_t Code() const;
       
       /**
        Sets the integer PDG code.
+       @param [in] pdg The particle's PDG code, an integer
        */
-      void Set(Int_t);
+      void Set(Int_t pdg);
       
       /**
        Returns the particle information object corresponding to this PDG code.
-       From this, properties such as particle class, name, charge and mass
+       From this, properties such as particle name, charge and mass
        can be accessed.
        */
       TParticlePDG* Info() const;
@@ -58,37 +64,37 @@ namespace erhic {
       
       /**
        Comparison operator with integer.
-       Compares the argument with this objects integer PDG code.
+       Compares the argument with this object's integer PDG code.
        */
       bool operator==(Int_t i) const;
       
       /**
        Comparison operator with integer.
-       Compares the argument with this objects integer PDG code.
+       Compares the argument with this object's integer PDG code.
        */
       bool operator<(Int_t i) const;
       
       /**
        Comparison operator with integer.
-       Compares the argument with this objects integer PDG code.
+       Compares the argument with this object's integer PDG code.
        */
       bool operator>(Int_t i) const;
       
       /**
        Comparison operator with integer.
-       Compares the argument with this objects integer PDG code.
+       Compares the argument with this object's integer PDG code.
        */
       bool operator!=(Int_t i) const;
       
       /**
        Comparison operator with integer.
-       Compares the argument with this objects integer PDG code.
+       Compares the argument with this object's integer PDG code.
        */
       bool operator<=(Int_t i) const;
       
       /**
        Comparison operator with integer.
-       Compares the argument with this objects integer PDG code.
+       Compares the argument with this object's integer PDG code.
        */
       bool operator>=(Int_t i) const;
       

@@ -29,7 +29,7 @@ namespace erhic {
       virtual ~VirtualParticle() { }
       
       /**
-       Returns the PDG code identifying the Particle species.
+       Returns identity information for the Particle species.
        */
       virtual Pid Id() const = 0;
       
@@ -69,17 +69,17 @@ namespace erhic {
       virtual Double_t GetM() const = 0;
       
       /**
-       Returns momentum transverse to the beam direction.
+       Returns momentum perpendicular to the beam direction.
        */
       virtual Double_t GetPt() const = 0;
       
       /**
-       Returns the polar angle in the range [0,pi] radians.
+       Returns the polar angle in the range [0, pi] radians.
        */
       virtual Double_t GetTheta() const = 0;
       
       /**
-       Returns the polar angle in the range [0,2pi] radians.
+       Returns the polar angle in the range [0, 2pi] radians.
        */
       virtual Double_t GetPhi() const = 0;
       

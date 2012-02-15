@@ -20,29 +20,25 @@
 
 namespace erhic {
    
-   
    class EventMC;
    
-   
    /**
-    A general particle thrown by a Monte Carlo generator.
+    A particle produced by a Monte Carlo generator.
     */
    class ParticleMC : public VirtualParticle {
    public:
       
-      /** Destructor */
-      virtual ~ParticleMC();
-      
-      static Long64_t smNInstances;
-      
       /**
        Default constructor.
        Optionally pass a string with particle information in a HEPEVT
-       style format, namely:
+       format, namely:
          "index status id parent firstChild lastChild px py pz E m xv yv zv"
        */
       ParticleMC(const std::string& = "");
-      
+       
+      /** Destructor */
+      virtual ~ParticleMC();
+       
       /**
        Print the contents of Particle to standard output.
        The format is that of the input Monte Carlo i.e.
@@ -58,21 +54,21 @@ namespace erhic {
       
       /**
        Returns the status of the particle.
-       See the description of variable K(I,1) in the PYTHIA manual for the
-       meanings of codes.
+       The meaning of the status code depends on the generator.
+       For PYTHIA, see the description of variable K(I,1) in the manual.
        */
       virtual UShort_t GetStatus() const;
       
       /**
-       Returns the index of this particles parent in an event.
+       Returns the index of this particle's parent in an event.
        */
       virtual UShort_t GetParentIndex() const;
       
       /**
        Returns a pointer to the parent of this particle.
-       This is the particle with index GetParentIndex() returned from the
+       This is the particle with index GetParentIndex() in the
        event containing this particle (obtainable via GetEvent()).
-       Returns NULL if this particle has no parent or it cannot
+       Returns NULL if this particle has no parent or if it cannot
        be accessed via GetEvent().
        */
       virtual const ParticleMC* GetParent() const;
@@ -147,10 +143,10 @@ namespace erhic {
       virtual TVector3 GetVertex() const;
       
       /**
-       Returns the PDG code of this particle's parent.
+       Returns the identity information of this particle's parent.
        
        */
-      virtual erhic::Pid GetParentId() const;
+      virtual Pid GetParentId() const;
       
       /**
        Returns the total momentum (GeV).
@@ -158,12 +154,12 @@ namespace erhic {
       virtual Double_t GetP() const;
       
       /**
-       Returns the polar angle in the range [0,pi] radians.
+       Returns the polar angle in the range [0, pi] radians.
        */
       virtual Double_t GetTheta() const;
       
       /**
-       Returns the polar angle in the range [0,2pi] radians.
+       Returns the polar angle in the range [0, 2pi] radians.
        */
       virtual Double_t GetPhi() const;
       

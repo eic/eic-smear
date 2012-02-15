@@ -1,10 +1,13 @@
-//
-// EventMC.h
-// BuildTree
-//
-// Created by TB on 10/10/11.
-// Copyright 2011 BNL. All rights reserved.
-//
+/**
+ EventMC.h
+ 
+ \file
+ Declaration of class EventMC.
+ 
+ \author TB
+ \date 10/10/11
+ \copyright 2011 BNL. All rights reserved.
+ */
 
 #ifndef _ERHIC_EVENTMC_H_
 #define _ERHIC_EVENTMC_H_
@@ -32,50 +35,46 @@ namespace erhic {
       
    public:
       
-      /**
-       Constructor.
-       */
+      typedef std::vector<const erhic::ParticleMC*> ParticlePtrList;
+      
+      /** Constructor. */
       EventMC();
       
-      /**
-       Destructor.
-       */
+      /** Destructor. */
       virtual ~EventMC();
       
-      /**
-       Returns the index of this event.
-       */
+      /** Returns a unique identifier for this event. */
       virtual ULong64_t GetN() const;
       
       /**
        Returns Bjorken-x of the event.
        x<sub>B</sub> = Q<sup>2</sup>/(2p.q)
        */
-      virtual Double_t GetX() const { return x; }
+      virtual Double_t GetX() const;
       
       /**
        Returns the four-momentum transfer (exchange boson mass) Q<sup>2</sup>.
        Q<sup>2</sup> = 2EE`(1+cos(theta)) = (e-e`)<sup>2</sup>
        */
-      virtual Double_t GetQ2() const { return QSquared; }
+      virtual Double_t GetQ2() const;
       
       /**
        Returns the event inelasticity.
        y = (p.q)/(p.e)
        */
-      virtual Double_t GetY() const { return y; }
+      virtual Double_t GetY() const;
       
       /**
        Returns the invariant mass of the hadronic final state.
        W<sup>2</sup> = M<sup>2</sup> + Q<sup>2</sup>(1-x)/x
        */
-      virtual Double_t GetW2() const { return WSquared; }
+      virtual Double_t GetW2() const;
       
       /**
        Returns the exchange boson energy in the beam hadron rest frame.
        nu = q.p/M
        */
-      virtual Double_t GetNu() const { return nu; }
+      virtual Double_t GetNu() const;
       
       /**
        Returns a code describing the production process of this event.
@@ -89,40 +88,40 @@ namespace erhic {
       
       /**
        Returns the nth track.
-       Returns NULL if the track number is out of range.
+       Returns NULL if the track number is out of the range [0, GetNTracks()).
+       @param [in] The track index, in the range [0, GetNTracks()).
        */
       virtual const ParticleMC* GetTrack(UInt_t) const;
       
       /**
-       Returns the nth track.
-       Returns NULL if the track number is out of range.
+       \overload const ParticleMC* GetTrack(UInt_t) const
        */
       virtual ParticleMC* GetTrack(UInt_t);
       
       /**
        Add a new track to the end of the track list.
-       The track must be allocated via new and is subsequently owned
-       by the Event.
+       The track must be allocated via new.
+       It is subsequently owned and deleted by the Event.
+       @param [in] Pointer to the track to add.
        */
-      virtual void AddLast(TrackType*);
+      virtual void AddLast(TrackType* track);
       
       /**
-       Reset event properties to defaults.
-       Clears particle list.
+       Resets event properties to defaults.
+       Clears particle list (freeing any allocated memory).
        */
       virtual void Reset();
       
-      /**
-       Compute event properties from the current particle list.
-       */
+      /** Compute event properties from the current particle list. */
       virtual Bool_t Compute();
       
-      // Break off (Hadronic)FinalState(Momentum/Charge) methods into
-      // some kind of "interrogator" class?
-      
-      typedef std::vector<const ::erhic::ParticleMC*> ParticlePtrList;
-      
-      void FinalState(ParticlePtrList&) const;
+      /**
+       Stores pointers to all final state particles in the list.
+       These pointers should not be deleted by the user.
+       Any existing entries in the list are not changed.
+       @param [out] particles The list in which to store particles.
+       */
+      void FinalState(ParticlePtrList& particles) const;
       
       /**
        Yields all particles that belong to the hadronic final state.
@@ -131,19 +130,13 @@ namespace erhic {
        */
       void HadronicFinalState(ParticlePtrList&) const;
       
-      /**
-       Returns the total momentum of the final state.
-       */
+      /** Returns the total momentum of the final state in GeV/c. */
       TLorentzVector FinalStateMomentum() const;
       
-      /**
-       Returns the total momentum of the hadronic final state.
-       */
+      /** Returns the total momentum of the hadronic final state in GeV/c. */
       TLorentzVector HadronicFinalStateMomentum() const;
       
-      /**
-       Returns the total charge of the final state in units of e
-       */
+      /** Returns the total charge of the final state in units of e */
       Double_t FinalStateCharge() const;
       
       /**
@@ -153,6 +146,7 @@ namespace erhic {
        
        In the standard eRHIC Monte Carlo format, the incident lepton beam
        is assumed to be the first particle in the particle list.
+       This is the behaviour implemented here.
        Derived classes can implement other selection mechanisms depending on
        their data format.
        */
@@ -188,32 +182,77 @@ namespace erhic {
       
       /**
        Populates the event-wise variables from a string.
-       Does not populate the particle list or compute
-       derived quantities.
+       Does not populate the particle list or compute derived quantities.
+       See also Compute().
        */
       virtual bool Parse(const std::string&);
       
-      virtual double GetXDoubleAngle() const { return xDA; }
-      virtual double GetQ2DoubleAngle() const { return QSquaredDA; }
-      virtual double GetYDoubleAngle() const { return yDA; }
-      virtual double GetW2DoubleAngle() const { return WSquaredDA; }
+      /** Returns Bjorken x computed via the double-angle method */
+      virtual double GetXDoubleAngle() const;
       
-      virtual double GetXJacquetBlondel() const { return xJB; }
-      virtual double GetQ2JacquetBlondel() const { return QSquaredJB; }
-      virtual double GetYJacquetBlondel() const { return yJB; }
-      virtual double GetW2JacquetBlondel() const { return WSquaredJB; }
+      /** Returns Q-squared computed via the double-angle method */
+      virtual double GetQ2DoubleAngle() const;
+      
+      /** Returns inelasticity computed via the double-angle method */
+      virtual double GetYDoubleAngle() const;
+      
+      /** Returns W-squared computed via the double-angle method */
+      virtual double GetW2DoubleAngle() const;
+      
+      /** Returns Bjorken x computed via the Jacquet-Blondel method */
+      virtual double GetXJacquetBlondel() const;
+      
+      /** Returns Q-squared computed via the Jacquet-Blondel method */
+      virtual double GetQ2JacquetBlondel() const;
+      
+      /** Returns inelasticity computed via the Jacquet-Blondel method */
+      virtual double GetYJacquetBlondel() const;
+      
+      /** Returns W-squared computed via the Jacquet-Blondel method */
+      virtual double GetW2JacquetBlondel() const;
+
+      /**
+       Sets the code describing the production process of this event.
+       @param [in] code The identifying code, an integer
+       */
+      virtual void SetProcess(int code);
+      
+      /**
+       Sets the unique identifier for this event.
+       @param [in] n The identifying number, an integer
+       */
+      virtual void SetN(int n);
+      
+      /**
+       Sets the track count for this event.
+       @param [in] n The track count, an integer
+       */
+      virtual void SetNTracks(int n);
+      
       /*
-      virtual void SetX(double xB) { x = xB; }
-      virtual void SetQ2(double Q2) { QSquared = Q2; }
-      virtual void SetY(double inelasticity) { y = inelasticity; }
-      virtual void SetW2(double W2) { WSquared = W2; }
-      virtual void SetNu(double Nu) { nu = Nu; }
-      */
-      virtual void SetProcess(int code) { process = code; }
-      virtual void SetN(int n) { number = n; }
-      virtual void SetNTracks(int n) { nTracks = n; }
+       These could be implemented at some point
+       virtual void SetX(double xB) { x = xB; }
+       virtual void SetQ2(double Q2) { QSquared = Q2; }
+       virtual void SetY(double inelasticity) { y = inelasticity; }
+       virtual void SetW2(double W2) { WSquared = W2; }
+       virtual void SetNu(double Nu) { nu = Nu; }
+       */
       
    protected:
+      
+      /**
+       Computes kinematics using Jacquet-Blondel method using current
+       particle list.
+       The argument should contain 4 particles - the incident lepton, hadron,
+       the scattered lepton and the virtual photon, in that order.
+       */
+      void ComputeJaquetBlondel(const std::vector<const ParticleMC*>&);
+      
+      /**
+       Computes kinematics using double-angle method using current
+       particle list.
+       */
+      void ComputeDoubleAngle(const std::vector<const ParticleMC*>&);
       
       Int_t number; ///< Event number
       Int_t process; ///< PYTHIA code for the physics process producing the event
@@ -238,25 +277,9 @@ namespace erhic {
       Double32_t xDA; ///< x calculated via the double-angle method
       Double32_t WSquaredDA; ///< W2 calculated via the double-angle method
       
-      std::vector< ::erhic::ParticleMC*> particles; ///< Particle list
-      
-      /**
-       Computes kinematics using Jacquet-Blondel method using current
-       particle list.
-       The argument should contain 4 particles - the incident lepton, hadron,
-       the scattered lepton and the virtual photon.
-       */
-      void ComputeJaquetBlondel(const std::vector<const ::erhic::ParticleMC*>&);
-      
-      /**
-       Computes kinematics using double-angle method using current
-       particle list.
-       */
-      void ComputeDoubleAngle(const std::vector<const ::erhic::ParticleMC*>&);
+      std::vector<ParticleMC*> particles; ///< Particle list
       
    private:
-      
-      static int smCount;
       
       ClassDef(EventMC, 1)
    };
@@ -264,6 +287,16 @@ namespace erhic {
    inline bool EventMC::Parse(const std::string& ) { return false; }
    
    inline ULong64_t EventMC::GetN() const { return number; }
+   
+   inline Double_t EventMC::GetX() const { return x; }
+   
+   inline Double_t EventMC::GetQ2() const { return QSquared; }
+   
+   inline Double_t EventMC::GetY() const { return y; }
+   
+   inline Double_t EventMC::GetW2() const { return WSquared; }
+   
+   inline Double_t EventMC::GetNu() const { return nu; }
    
    inline Int_t EventMC::GetProcess() const { return process; }
    
@@ -276,6 +309,28 @@ namespace erhic {
    inline EventMC::TrackType* EventMC::GetTrack(UInt_t u) {
       return (u < particles.size() ? particles.at(u) : NULL);
    }
+   
+   inline double EventMC::GetXDoubleAngle() const { return xDA; }
+   
+   inline double EventMC::GetQ2DoubleAngle() const { return QSquaredDA; }
+   
+   inline double EventMC::GetYDoubleAngle() const { return yDA; }
+   
+   inline double EventMC::GetW2DoubleAngle() const { return WSquaredDA; }
+   
+   inline double EventMC::GetXJacquetBlondel() const { return xJB; }
+   
+   inline double EventMC::GetQ2JacquetBlondel() const { return QSquaredJB; }
+   
+   inline double EventMC::GetYJacquetBlondel() const { return yJB; }
+   
+   inline double EventMC::GetW2JacquetBlondel() const { return WSquaredJB; }
+   
+   inline void EventMC::SetProcess(int code) { process = code; }
+   
+   inline void EventMC::SetN(int n) { number = n; }
+   
+   inline void EventMC::SetNTracks(int n) { nTracks = n; }
    
 #if 0
    /**
@@ -347,8 +402,6 @@ namespace erhic {
       ClassDef(Reader, 1)
    };
    
-//#ifdef USE_NAMESPACE_ERHIC
 } // namespace erhic
-//#else
 
 #endif

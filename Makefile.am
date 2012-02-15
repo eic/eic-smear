@@ -1,9 +1,8 @@
 # Options to pass to aclocal when aclocal.m4 is to be rebuilt by make
 #ACLOCAL_AMFLAGS = -I m4
 
-lib_LTLIBRARIES = libBuildTree.la
+lib_LTLIBRARIES = libeicsmear.la
 
-#include_HEADERS = $(top_srcdir)/include/*.h
 include_HEADERS  =  \
 $(top_srcdir)/include/Acceptance.h \
 $(top_srcdir)/include/Armory.h \
@@ -39,7 +38,7 @@ $(top_srcdir)/include/Smear.h \
 $(top_srcdir)/include/VirtualEvent.h \
 $(top_srcdir)/include/VirtualParticle.h
 
-libBuildTree_la_SOURCES = \
+libeicsmear_la_SOURCES = \
 $(top_srcdir)/src/Acceptance.cxx \
 $(top_srcdir)/src/BeamParticles.cxx \
 $(top_srcdir)/src/Bremsstrahlung.cxx \
@@ -67,13 +66,13 @@ $(top_srcdir)/src/smear_event.cxx \
 $(top_srcdir)/src/SmearTree.cxx \
 $(top_srcdir)/cint/BuildTreeDict.cxx
 
-libBuildTree_la_CPPFLAGS = \
+libeicsmear_la_CPPFLAGS = \
 -I$(top_srcdir)/include
 
-libBuildTree_la_LIBADD = \
--lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lfreetype -lm -ldl -lEG -lEGPythia6
+libeicsmear_la_LIBADD = \
+-lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lfreetype -lm -ldl -lEG
 
-libBuildTree_la_LDFLAGS = -version-info 2:0:0
+libeicsmear_la_LDFLAGS = -version-info 0:0:0
 
 if ENABLE_PYTHIA6_SUPPORT
 include_HEADERS += \
@@ -81,12 +80,12 @@ $(top_srcdir)/include/Pythia6EventBuilder.h \
 $(top_srcdir)/include/Pythia6.h \
 $(top_srcdir)/include/Pythia6ParticleBuilder.h
 
-libBuildTree_la_SOURCES += \
+libeicsmear_la_SOURCES += \
 $(top_srcdir)/src/Pythia6.cxx \
 $(top_srcdir)/src/Pythia6EventBuilder.cxx \
 $(top_srcdir)/src/Pythia6ParticleBuilder.cxx
 
-libBuildTree_la_LIBADD += @PYTHIA6_LIBS@
+libeicsmear_la_LIBADD += @PYTHIA6_LIBS@
 
 LINKDEF=$(top_srcdir)/cint/LinkDef.h
 else
@@ -129,25 +128,9 @@ endif
 #$(top_srcdir)/include/VirtualEvent.h \
 #$(top_srcdir)/include/VirtualParticle.h \
 #$(top_srcdir)/cint/LinkDef.h
-#	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
-
-if ENABLE_PYTHIA6_SUPPORT
-test:
-	@echo "User enabled PYTHIA 6"
-#	@echo @enable_pythia6@
-	@echo @PYTHIA6_LIBS@
-	@echo $(libBuildTree_la_LIBADD)
-else
-test:
-	@echo Not using PYTHIA 6
-	@echo $(libBuildTree_la_LIBADD)
-endif
 
 $(top_srcdir)/cint/BuildTreeDict.cxx: $(include_HEADERS) $(LINKDEF)
-	@echo selected linkdef $^
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) $^
 
 clean-local:
-	rm -f $(BUILT_SOURCES) cint/*Dict*
-
-
+	rm -f $(BUILT_SOURCES) cint/*Dict* .libs _libs

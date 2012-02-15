@@ -30,7 +30,7 @@ namespace erhic {
       
    public:
       
-      typedef T TrackType; // The type of track in the event
+      typedef T TrackType; ///< The type of track in the event
       
       virtual ~VirtualEvent() { }
       

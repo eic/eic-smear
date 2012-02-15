@@ -24,11 +24,7 @@
 #include "ParticleIdentifier.h"
 #include "ParticleMC.h"
 
-//#ifdef USE_NAMESPACE_ERHIC   
 namespace erhic {
-//#endif
-   
-   int EventMC::smCount(0);
    
    EventMC::EventMC()
    : number(-1)
@@ -50,12 +46,10 @@ namespace erhic {
    , xDA(NAN)
    , WSquaredDA(NAN)
    {
-   ++smCount;
    }
    
    
    EventMC::~EventMC() {
-      --smCount;
       for(unsigned i(0); i < particles.size(); ++i) {
          if(GetTrack(i)) {
             delete GetTrack(i);
@@ -64,9 +58,11 @@ namespace erhic {
       particles.clear();
    }
    
+   
    Bool_t
    EventMC::Compute() {
       
+      // Find the beams, exchange boson, scattered lepton
       std::vector<const TrackType*> beams;
       if(not ParticleIdentifier::IdentifyBeams(*this, beams)) {
          std::cerr << "EventMC::Compute(): failed to find beams" << std::endl;
@@ -95,10 +91,9 @@ namespace erhic {
       
       WSquared = mass * mass + (1. - x ) * QSquared / x;
       
-      // Calculate event-dependent particle quantities.
+      // Calculate event-dependent particle quantities for each particle.
       // Do this before calculating event kinematic variables via hadronic
-      // methods as those rely on the particles.
-      
+      // methods, as those rely on the particles.
       for(unsigned n(0); n < GetNTracks(); ++n ) {
          GetTrack(n)->ComputeEventDependentQuantities(*this);
       } // for(particles )
@@ -113,8 +108,6 @@ namespace erhic {
    void
    EventMC::ComputeJaquetBlondel(const std::vector<const TrackType*>& beams ) {
       
-//      std::cout << "EventMC::ComputeJaquetBlondel()" << std::endl;
-      
       ::JacquetBlondel jacquetBlondel;
       jacquetBlondel.setBeamLepton(beams.at(0)->Get4Vector());
       jacquetBlondel.setBeamHadron(beams.at(1)->Get4Vector());
@@ -125,14 +118,10 @@ namespace erhic {
       for(unsigned i(0); i < final.size(); ++i ) {
          jacquetBlondel.addParticle(final.at(i)->Get4Vector() );
       } // for
-//      std::cout << "Added " << final.size() << " final state hadrons to the JB computer" << std::endl;
       
       yJB = jacquetBlondel.computeY();
       QSquaredJB = jacquetBlondel.computeQSquared();
       xJB = jacquetBlondel.computeX();
-      /** \todo WSquaredJB, WSquaredDA calculations */
-//      std::cout << QSquaredJB << " " << QSquared << std::endl;
-//      assert((QSquaredJB - QSquared) / QSquared < 1.e-4);
    }
    
    
@@ -163,8 +152,6 @@ namespace erhic {
    void
    EventMC::HadronicFinalState(std::vector<const TrackType*>& final) const {
       
-//      std::cout << "EventMC::HadronicFinalState()" << std::endl;
-      
       std::vector<const TrackType*> vp;
       ParticleIdentifier pi;
       if(not pi.IdentifyBeams(*this, vp)) {
@@ -172,17 +159,7 @@ namespace erhic {
          "EventMC::HadronicFinalState(): failed to find all beams"
          << std::endl;
       } // if
-/*
-      std::cout << "Found beams:" << std::endl;
-      std::cout << "Beam lepton:" << std::endl;
-      vp.at(0)->Dump();
-      std::cout << "Beam hadron:" << std::endl;
-      vp.at(1)->Dump();
-      std::cout << "Exchange boson:" << std::endl;
-      vp.at(2)->Dump();
-      std::cout << "Scattered lepton:" << std::endl;
-      vp.at(3)->Dump();
-      */
+      
       FinalState(final);
       
       typedef std::vector<const TrackType*>::iterator Iter;
@@ -196,25 +173,10 @@ namespace erhic {
             continue;
          } // if
          if(*i == vp.at(3)) {
-            //            std::cout << "Excluded scattered lepton for hadronic final state"
-            //            << std::endl;
             final.erase(i);
             break;
          } // if
       } // for
-      
-      /*
-      for(Iter i = final.begin(); i not_eq final.end(); ++i ) {
-         // Try to skip the proton beam remnant
-         if(final.at(1) and
-            (*i)->Id() == final.at(1)->Id() and
-            (*i)->GetP() > 0.7 * final.at(1)->GetP()) {
-            final.erase(i);
-            break;
-         } // if
-         
-      } // for
-       */
    }
    
    
@@ -320,103 +282,10 @@ namespace erhic {
    }
    
    
-   struct Pair {
-      int a;
-      int b;
-      Pair(int x, int y) : a(x), b(y) { }
-      /**
-       Less-than operator required for entry in sorted container.
-       */
-      bool operator<(const Pair& other) const {
-         if(other.a == a) return b < other.b;
-         return a < other.a;
-      }
-   };
+   //
+   // class Reader
+   //
    
-#if 0
-   void
-   EventMC::Dot(const std::string& name) const {
-      
-      std::ofstream file(name.c_str());
-      std::ostringstream oss;
-      
-      file << "digraph G {" << std::endl;
-      oss << "   label = \"Event " << number << "\"';";
-      file << oss.str() << std::endl;
-      
-      std::set<Pair> pairs;
-      
-      // Keep track of which particles we use in the diagram
-      // so we can set node attributes at the end.
-      // Use a set to avoid worrying about adding duplicates.
-      std::set<const ParticleMC*> used;
-      
-      // Loop over all tracks in the event and accumulate indices giving
-      // parent/child relationships.
-      // We look from parent->child and child->parent because they
-      // aren't always fully indexed both ways.
-      for(unsigned i(0); i < GetNTracks(); ++i) {
-         // Check parent of particle
-         const ParticleMC* parent = GetTrack(i)->GetParent();
-         if(parent) {
-            pairs.insert(Pair(parent->GetIndex(), GetTrack(i)->GetIndex()));
-            used.insert(parent);
-            used.insert(GetTrack(i));
-         } // if
-         // Check children of particle
-         for(unsigned j(0); j < GetTrack(i)->GetNChildren(); ++j) {
-            pairs.insert(Pair(GetTrack(i)->GetIndex(),
-                              GetTrack(i)->GetChild(j)->GetIndex()));
-            used.insert(GetTrack(i));
-            used.insert(GetTrack(i)->GetChild(j));
-         } // for
-      } // for
-      
-      // Insert relationships between particles.
-      for(std::set<Pair>::const_iterator i = pairs.begin();
-          i not_eq pairs.end();
-          ++i) {
-         const ParticleMC* a = GetTrack(i->a - 1);
-         const ParticleMC* b = GetTrack(i->b - 1);
-         oss.str("");
-         oss << "   " << a->GetIndex() << " -> " <<
-         b->GetIndex();
-         file << oss.str() << std::endl;
-      } // for
-      
-      file << "#   Node attributes" << std::endl;
-      
-      // Apply labels, formatting to used particles.
-      for(std::set<const ParticleMC*>::const_iterator i = used.begin();
-          i not_eq used.end();
-          ++i) {
-         
-         std::string shape("ellipse");
-         if((*i)->GetStatus() == 1) {
-            shape = "box";
-         } // if
-         if((*i)->GetIndex() < 3) {
-            shape = "diamond";
-         } // if
-         
-         oss.str("");
-         oss << "   " <<
-         (*i)->GetIndex() << " [label=\""
-         << (*i)->GetIndex() << " "
-         << (*i)->Id().Info()->GetName()
-         << "\", shape=" << shape << "];";
-         file << oss.str() << std::endl;
-      } // for
-      
-      file << "}";
-   }
-#endif
-#if 0
-   TASImage* EventMC::GenerateImage(const std::string& name) const {
-      Dot("tmp.gv");
-      gSystem->Exec("dot ");
-   }
-#endif
    
    Reader::Reader(const std::string& treeName)
    : mEvent(NULL)
@@ -441,83 +310,4 @@ namespace erhic {
       nTracks = particles.size();
    }
    
-   
-#if 0
-   template<typename T>
-   typename EventMCFinalState<T>::ParticlePtrList
-   EventMCFinalState<T>::HadronicFinalState(const VirtualEvent<Type>& event) const {
-      ParticlePtrList particles;
-      for(unsigned i(0); i < event.GetNTracks(); ++i) {
-         const Type* p = event.GetTrack(i);
-         if(1 == p->GetStatus() and p not_eq event.ScatteredLepton()) {
-            particles.push_back(p);
-         } // if
-      } // for
-      return particles;
-   }
-   
-   
-   template<typename T>
-   typename EventMCFinalState<T>::ParticlePtrList
-   EventMCFinalState<T>::FinalState(const VirtualEvent<Type>& event) const {
-      ParticlePtrList particles;
-      for(unsigned i(0); i < event.GetNTracks(); ++i) {
-         const Type* p = event.GetTrack(i);
-         if(1 == p->GetStatus()) {
-            particles.push_back(p);
-         } // if
-      } // for
-      return particles;
-   }
-   
-   
-   template<typename T>
-   TLorentzVector
-   EventMCFinalState<T>::FinalStateMomentum(const VirtualEvent<Type>& event) const {
-      ParticlePtrList particles = FinalState(event);
-      TLorentzVector p;
-      typedef typename ParticlePtrList::const_iterator Iter;
-      for(Iter i = particles.begin(); i not_eq particles.end(); ++i) {
-         p += (*i)->Get4Vector();
-      } // for
-      return p;
-   }
-   
-   
-   template<typename T>
-   TLorentzVector
-   EventMCFinalState<T>::HadronicFinalStateMomentum(const VirtualEvent<Type>& event) const {
-      ParticlePtrList particles = HadronicFinalState(event);
-      TLorentzVector p;
-      typedef typename ParticlePtrList::const_iterator Iter;
-      for(Iter i = particles.begin(); i not_eq particles.end(); ++i) {
-         p += (*i)->Get4Vector();
-      } // for
-      return p;
-   }
-   
-   
-   template<typename T>
-   Double_t
-   EventMCFinalState<T>::FinalStateCharge(const VirtualEvent<Type>& event) const {
-      ParticlePtrList particles = FinalState(event);
-      double charge(0.);
-      typedef typename ParticlePtrList::const_iterator Iter;
-      for(Iter i = particles.begin(); i not_eq particles.end(); ++i) {
-         TParticlePDG* pdg = (*i)->Id().Info();
-         if(pdg) {
-            charge += pdg->Charge() / 3.;
-         } // if
-      } // for
-      return charge;
-   }
-#endif
-   //#ifdef USE_NAMESPACE_ERHIC   
 } // namespace erhic
-#if 0
-namespace {
-   erhic::EventMCFinalState<erhic::ParticleMC> pm;
-   erhic::EventMCFinalState<Smear::ParticleMCS> ps;
-}
-#endif
-  //#endif

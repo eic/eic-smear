@@ -38,8 +38,8 @@ AC_PROG_MAKE_SET
 # Enable support for --enable-shared and --disable-shared configure flags
 AC_PROG_LIBTOOL
 
-CFLAGS="-Wall -Wextra -O2 ${CFLAGS}"
-CXXFLAGS="-Wall -Wextra -O2 ${CXXFLAGS}"
+CFLAGS="-Wall -Wextra ${CFLAGS}"
+CXXFLAGS="-Wall -Wextra ${CXXFLAGS}"
 LDFLAGS="${LDFLAGS} -L`root-config --libdir`"
 LIBS="${LIBS}"
 CPPFLAGS="${CPPFLAGS} -I`root-config --incdir`"
@@ -51,7 +51,7 @@ AC_ARG_WITH(
       [--with-pythia6-libdir=DIR],
       [directory containing libPythia6]
    )],
-   [PYTHIA6_LIBS="-L$withval -lPythia6"],
+   [PYTHIA6_LIBS="-lEGPythia6 -L$withval -lPythia6"],
    [PYTHIA6_LIBS=""]
 )
 AM_CONDITIONAL([ENABLE_PYTHIA6_SUPPORT], [test x"$PYTHIA6_LIBS" != x""])
