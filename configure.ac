@@ -45,20 +45,6 @@ LIBS="${LIBS}"
 CPPFLAGS="${CPPFLAGS} -I`root-config --incdir`"
 FFLAGS="${FFLAGS}"
 
-# Deal with options to disable PYTHIA
-#AC_ARG_ENABLE(
-#   [pythia6],
-#   [AS_HELP_STRING(
-#      [--enable-pythia6],
-#      [include PYTHIA 6 functionality.\nMust specify the PYTHIA 6 library location with --with-pythia6-libdir]
-#   )],
-#   [enable_pythia6="yes"],
-#   [enable_pythia6="no"]
-#)
-#AC_SUBST(enable_pythia6)
-
-#AM_CONDITIONAL([ENABLE_PYTHIA6_SUPPORT], [test "X$enable_pythia6" != "Xno"])
-
 AC_ARG_WITH(
    [pythia6-libdir],
    [AS_HELP_STRING(
@@ -68,11 +54,7 @@ AC_ARG_WITH(
    [PYTHIA6_LIBS="-L$withval -lPythia6"],
    [PYTHIA6_LIBS=""]
 )
-#   [PYTHIA6_LIBS="-L$withval -lPythia6"],
-#   [PYTHIA6_LIBS=""]
-#AM_CONDITIONAL([USE_PYTHIA], [$PYTHIA_LIBS != ""])
-AM_CONDITIONAL([ENABLE_PYTHIA6_SUPPORT], [test "X$PYTHIA6_LIBS" != ""])
-#AM_CONDITIONAL([USE_PYTHIA], [test ! "x$PYTHIA_LIBS" = ""])
+AM_CONDITIONAL([ENABLE_PYTHIA6_SUPPORT], [test x"$PYTHIA6_LIBS" != x""])
 AC_SUBST(PYTHIA6_LIBS)
 
 AC_CONFIG_FILES([Makefile])
