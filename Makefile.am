@@ -27,7 +27,6 @@ $(top_srcdir)/include/EventSmear.h \
 $(top_srcdir)/include/File.h \
 $(top_srcdir)/include/Forester.h \
 $(top_srcdir)/include/functions.h \
-$(top_srcdir)/include/GeneratorType.h \
 $(top_srcdir)/include/Kinematics.h \
 $(top_srcdir)/include/Particle.h \
 $(top_srcdir)/include/ParticleIdentifier.h \
