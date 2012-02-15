@@ -17,6 +17,7 @@
 
 namespace erhic {
    
+   class EventPythia;
    
    /**
     Interface to PYTHIA 6.
@@ -53,7 +54,6 @@ namespace erhic {
       
 //      int mNEvents;
 //      int mNTrials;
-      
       ClassDef(erhic::Pythia6EventBuilder, 1)
    };
    

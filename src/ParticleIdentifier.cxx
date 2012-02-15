@@ -63,7 +63,7 @@ const
    }	//	if
    
    // Remove repeat of incoming nucelon
-   if(21 == kI1 and pdgCode == 2212 and parent == 2 ) {
+   if(21 == kI1 and (pdgCode == 2112 or pdgCode == 2212) and parent == 2 ) {
       return true;;
    }	//	if
    
@@ -100,7 +100,7 @@ const
 {
    // Test against status 201 for SOPHIA events
    return (21  == particle.KS or 201 == particle.KS) and
-   2212 == particle.id and// particle.I < 3;
+   (2112 == particle.id or 2212 == particle.id) and// particle.I < 3;
    particle.orig == 0;
 }
 

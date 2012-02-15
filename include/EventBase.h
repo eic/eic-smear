@@ -3,10 +3,11 @@
 
 #include "EventMC.h"
 
-// For backward compatibility with earlier code.
-// EventBase is a typedef to erhic::EventMC.
-// Remove this typedef if the global EventBase clashes with something and you
-// want just to use the namespace version.
+// For backward compatibility with earlier code, where
+// the event base class was named EventBase.
+// EventBase is now a typedef to erhic::EventMC.
+// Remove this typedef if the global definition ofEventBase clashes
+// with something and you want just to use the namespace version.
 
 typedef erhic::EventMC EventBase;
 

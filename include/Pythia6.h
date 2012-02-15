@@ -68,7 +68,6 @@ namespace erhic {
       int mNGenerated; ///< Number of events passing PYTHIA selection
       int mNTrials; ///< Number of events thrown by PYTHIA
       EventMCFilterABC* mFilter; ///< Event filter
-      
       ClassDef(Pythia6, 1)
    };
    

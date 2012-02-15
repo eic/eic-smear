@@ -19,7 +19,6 @@ struct ParticleIdentifier {
     Initialise with the PDG code of the lepton beam.
     The default is an invalid value.
     */
-//   ParticleIdentifier(const int leptonPdg = std::numeric_limits<int>::max() );
    ParticleIdentifier(const int leptonPdg = ~unsigned(0)/2 );
    
    virtual ~ParticleIdentifier() { }

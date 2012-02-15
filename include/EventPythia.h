@@ -16,14 +16,14 @@
 
 #include <Rtypes.h>
 
-#include "EventBase.h"
+#include "EventMC.h"
 
 namespace erhic {
    
 /**
  Describes an event from the generator PYTHIA
  */
-class EventPythia : public EventBase {
+class EventPythia : public EventMC {
    
 public:
    
