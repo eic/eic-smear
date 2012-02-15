@@ -9,6 +9,8 @@
 
 /**
  Describes an event from the generator PEPSI
+ \todo Add accessor and setter methods
+ \todo Add comments describing each field
  */
 struct EventPepsi : public EventBase {
    
