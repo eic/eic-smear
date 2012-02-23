@@ -445,6 +445,7 @@ namespace erhic {
       // The event class name is "EventX" where "X" is the generator
       // name.
       TString name = t_->ClassName();
+      name.ReplaceAll("erhic::", "");
       name.ReplaceAll("Event", "");
       name.ToLower();
       return name.Data();
