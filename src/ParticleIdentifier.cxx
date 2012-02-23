@@ -7,6 +7,7 @@
 
 #include <iostream>
 
+#include "EventMC.h"
 #include "ParticleIdentifier.h"
 
 //	================================================================================================

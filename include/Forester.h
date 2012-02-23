@@ -331,7 +331,7 @@ namespace erhic {
       
       Status mStatus;   //!< Forester status information
       
-      VirtualEventFactory* mFactory;
+      VirtualEventFactory* mFactory; ///< Pointer to the event-builder object
       
       ClassDef(Forester, 1)
    };

@@ -31,7 +31,7 @@ struct EventDpmjet : public EventBase {
 	Double32_t dtrueX;
 	Double32_t theta_Evt;
 	Double32_t photonFlux;
-	ClassDef( EventDpmjet, 1 )
+	ClassDef(EventDpmjet, 1)
 };
 
 #endif

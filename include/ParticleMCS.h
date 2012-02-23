@@ -20,6 +20,9 @@ namespace Smear {
 
    class Event;
    
+   /**
+    A smeared Monte Carlo particle.
+    */
    class ParticleMCS : public ::erhic::VirtualParticle {
       
    public:
@@ -72,6 +75,7 @@ namespace Smear {
       
       /**
        Returns momentum transverse to the beam direction.
+       \todo check this is set properly
        */
       virtual Double_t GetPt() const;
       

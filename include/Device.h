@@ -41,15 +41,19 @@ namespace Smear {
     Each device has an 
 	 acceptance, which is an open subset of (E,p,theta,phi) momentum space.
     Only particles whose momentum lie in the acceptance can be smeared.
+    \todo Add a kElectromagnetic/kHadronic enum of genre
+    \todo Add genre as an optional third argument (default = all)
+    \todo Inherit from TObject
+    \todo Get rid of ParDim. Instead select TF1/2/3 via template?
 	 */
-	struct Device {
+	struct Device : public TObject {
 		
 		/**
 		 Default constructor.  Sets a 1-dimensional parametrization f(x)=0 in
        range [0.,1.e6] by default.
        Default input kinematics E, theta, default variable to be smeared is E.
 		 */
-		Device(KinType = kE, TString parameterisation = "0.");
+		Device(KinType = kE, TString parameterisation = "0.", int genre = 0);
 		
 		/**
 		 This determines what sorts of particles the device is able to smear.

@@ -1,4 +1,13 @@
-//here lies the function for smearing trees
+/**
+ SmearTree.cxx
+ 
+ \file
+ Here lies the function for smearing trees
+ 
+ \author Michael Savastio
+ \date 08/12/2011
+ \copyright 2011 BNL. All rights reserved.
+ */
 
 #include <TROOT.h>
 #include <TSystem.h>
@@ -23,14 +32,12 @@
 #include "ParticleID.h"
 #include "SmearEvent.h"
 
-//Long64_t ParticleS::count(0);
-//Long64_t EventS::count(0);
-
 using namespace std;
 
 /**
  Smear a tree using the Detector det.  If you do not specify the number of events to be smeared, this function
  will automatically smear all events in the tree.
+ \todo Add protection against invalid input
  */
 int SmearTree(Smear::Detector det, TString inFileName, TString outFileName ="SAME", Long64_t nEvents=-1) {
 
@@ -96,7 +103,7 @@ int SmearTree(Smear::Detector det, TString inFileName, TString outFileName ="SAM
          
          Particle& particle = *ptr;
 			
-			eventS->smearedParticles.push_back(det.DetSmear(particle) );
+			eventS->particles.push_back(det.DetSmear(particle) );
 		} // for
 		det.FillEventKinematics(event,eventS);
 		

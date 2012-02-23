@@ -7,7 +7,7 @@
 
 #include <limits>
 
-#include "ParticleMCSmeared.h"
+#include "ParticleMCS.h"
 
 namespace Smear {
    

@@ -33,6 +33,10 @@ namespace Smear {
 	 
 	 Detector level particle and event smearing is used by the SmearTree
     function.
+    
+    \todo Do something about the mix of object ownership with added Devices -
+    they may or may not need to be deleted, and there is no tracking of which
+    is which. Either make all or none owned by the Detector.
 	 */
 	class Detector {
 		
@@ -42,7 +46,9 @@ namespace Smear {
 		 Default contructor.
        By default particle ID is off, and the detector thinks the beam
 		 lepton is an electron.
-       TODO Add arguments to construtor to set PID, lepton species.
+       \todo Add optional arguments to construtor to set PID, lepton species,
+         event kinematics calculations
+         Detector(pid, lepton, kinematics)
 		 */
 		Detector();
 		

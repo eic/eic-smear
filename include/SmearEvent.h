@@ -1,3 +1,4 @@
+
 #ifndef _ERHIC_BUILDTREE_SMEAREVENT_
 #define _ERHIC_BUILDTREE_SMEAREVENT_
 
@@ -17,7 +18,7 @@
 #include "VirtualParticle.h"
 #include "Kinematics.h"
 #include "ParticleIdentifier.h"
-#include "ParticleMCSmeared.h"
+#include "ParticleMCS.h"
 
 #include "Smear.h"
 

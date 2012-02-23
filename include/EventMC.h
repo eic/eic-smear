@@ -30,6 +30,7 @@ namespace erhic {
    /**
     Abstract base class for Monte Carlo events.
     Implements common event properties and methods.
+    \todo Add Y+ = y^2 / (1 + (1-y)^2) as a member variable
     */
    class EventMC : public VirtualEvent<ParticleMC> {
       

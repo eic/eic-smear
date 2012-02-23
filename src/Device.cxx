@@ -9,7 +9,7 @@
 
 namespace Smear {
    
-   Device::Device(KinType kin, TString parameterisation)
+   Device::Device(KinType kin, TString parameterisation, int genre)
    : InKin1(kE)
    , InKin2(kTheta)
    , OutKin(kin)
@@ -20,6 +20,7 @@ namespace Smear {
    , ParMax2(1.e6)
    , name("Generic Device") {
       SetParametrization(parameterisation);
+      SetGenre(genre);  
    }
    
    void Device::SetGenre(int n) {

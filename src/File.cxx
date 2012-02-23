@@ -300,6 +300,7 @@ namespace erhic {
       // The event name will be "EventX" where "X" is the Monte Carlo
       // generator name.
       TString name = event.ClassName();
+      name.ReplaceAll("erhic::", "");
       name.ReplaceAll("Event", "");
       name.ToLower();
       return CreateReader(name.Data());

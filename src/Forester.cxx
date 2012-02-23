@@ -60,6 +60,8 @@ namespace erhic {
             std::cout << "\nProcessing " << GetInputFileName() << std::endl;
          } // if
          
+         /** \todo Get rid of the static counter. Replace with a member
+          that is reset every time Plant() is called.*/
          static int i(0);
          while(not MustQuit()) {
             ++i;
@@ -131,7 +133,6 @@ namespace erhic {
          } // for
          
          mFactory = mFile->CreateEventFactory(mTextFile);
-         std::cout << "Factory at " << mFactory << std::endl;
          
          return true;
       } // try...

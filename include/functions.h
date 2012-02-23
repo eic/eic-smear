@@ -24,7 +24,7 @@ namespace erhic {
  Returns a NULL termination character if there are no non-blank characters
  in the line.
  */
-char getFirstNonBlank(const std::string& );
+char getFirstNonBlank(const std::string&);
 
 /**
  \fn
@@ -37,7 +37,7 @@ char getFirstNonBlank(const std::string& );
  */
 double computeHermesPhiH(const TLorentzVector& hadronInPrf,
                          const TLorentzVector& leptonInPrf,
-                         const TLorentzVector& photonInPrf );
+                         const TLorentzVector& photonInPrf);
 
 // Forward declarations of functions for which we wish to build dictionaries
 // using rootcint
@@ -47,9 +47,9 @@ double computeHermesPhiH(const TLorentzVector& hadronInPrf,
  Function for generating a ROOT TTree file from a plain-text Monte Carl file.
  */
 Long64_t BuildTree(const TString& inputFileName,
-                const TString& outputDirName = ".",
-                const Long64_t maxEvent = 0,
-                std::string logFileName = "");
+                   const TString& outputDirName = ".",
+                   const Long64_t maxEvent = 0,
+                   std::string logFileName = "");
 
 
 /**
@@ -57,7 +57,10 @@ Long64_t BuildTree(const TString& inputFileName,
  Processes a ROOT Monte Carlo event file to produce a file with 
  information smeared for detector effects.
  */
-int SmearTree(Smear::Detector det, TString inFileName, TString outFileName="SAME", Long64_t nEvents=-1 );
+int SmearTree(Smear::Detector det,
+              TString inFileName,
+              TString outFileName="SAME",
+              Long64_t nEvents=-1);
 
 /**
  Produces a DOT file describing the particle content of the event.
@@ -68,7 +71,8 @@ public:
    
    virtual ~EventToDot() { }
    
-   void Generate(const erhic::EventMC&, const std::string& outputName) const;
+   void Generate(const erhic::EventMC&,
+                 const std::string& outputName) const;
    
    ClassDef(EventToDot, 0)
 };

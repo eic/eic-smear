@@ -1,3 +1,14 @@
+/**
+ ParticleID.h
+ 
+ \file
+ Declaration of class ParticleID.
+ 
+ \author TB
+ \date 8/12/11
+ \copyright 2011 BNL. All rights reserved.
+ */
+
 #ifndef _ERHIC_BUILDTREE_PARTICLEID_
 #define _ERHIC_BUILDTREE_PARTICLEID_
 
@@ -54,11 +65,14 @@ namespace Smear {
 	struct ParticleID {
 		
 		/**
-       \todo This needs to be settable by the user - provide static method
-       that can be called in a ROOT logon macro
 		 Default constructor.  Default path for probability matrix is "pmat_EVT_all.asc".  Also, by
 		 default, the particle ID uses smeared kinematic variables as input, rather than Monte Carlo 
 		 values.
+
+       \todo This needs to be settable by the user - provide static method
+       that can be called in a ROOT logon macro. Perhaps provide support
+       for an "EICSMEAR" environment variable to define the installation
+       location?
 		 */
 		ParticleID() {
 			PMatPath = "/afs/rhic.bnl.gov/eic/MACROS/BuildTree/PIDMatrix.dat";

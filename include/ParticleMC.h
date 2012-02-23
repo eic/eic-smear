@@ -402,25 +402,45 @@ namespace erhic {
    };
    
    
-   inline UInt_t ParticleMC::GetIndex() const { return I; }
+   inline UInt_t ParticleMC::GetIndex() const {
+      return I;
+   }
    
-   inline UShort_t ParticleMC::GetStatus() const { return KS; }
+   inline UShort_t ParticleMC::GetStatus() const {
+      return KS;
+   }
    
-   inline UShort_t ParticleMC::GetParentIndex() const { return orig; }
+   inline UShort_t ParticleMC::GetParentIndex() const {
+      return orig;
+   }
    
-   inline UShort_t ParticleMC::GetChild1Index() const { return daughter; }
+   inline UShort_t ParticleMC::GetChild1Index() const {
+      return daughter;
+   }
    
-   inline UShort_t ParticleMC::GetChildNIndex() const { return ldaughter; }
+   inline UShort_t ParticleMC::GetChildNIndex() const {
+      return ldaughter;
+   }
    
-   inline Double_t ParticleMC::GetPx() const { return px; }
+   inline Double_t ParticleMC::GetPx() const {
+      return px;
+   }
    
-   inline Double_t ParticleMC::GetPy() const { return py; }
+   inline Double_t ParticleMC::GetPy() const {
+      return py;
+   }
    
-   inline Double_t ParticleMC::GetPz() const { return pz; }
+   inline Double_t ParticleMC::GetPz() const {
+      return pz;
+   }
    
-   inline Double_t ParticleMC::GetM() const { return m; }
+   inline Double_t ParticleMC::GetM() const {
+      return m;
+   }
    
-   inline Double_t ParticleMC::GetPt() const { return pt; }
+   inline Double_t ParticleMC::GetPt() const {
+      return pt;
+   }
    
    inline TVector3 ParticleMC::GetVertex() const {
       return TVector3(xv, yv, zv);
@@ -430,25 +450,45 @@ namespace erhic {
       return erhic::Pid(parentId);
    }
    
-   inline Double_t ParticleMC::GetP() const { return p; }
+   inline Double_t ParticleMC::GetP() const {
+      return p;
+   }
    
-   inline Double_t ParticleMC::GetTheta() const { return theta; }
+   inline Double_t ParticleMC::GetTheta() const {
+      return theta;
+   }
    
-   inline Double_t ParticleMC::GetPhi() const { return phi; }
+   inline Double_t ParticleMC::GetPhi() const {
+      return phi;
+   }
    
-   inline Double_t ParticleMC::GetRapidity() const { return rapidity; }
+   inline Double_t ParticleMC::GetRapidity() const {
+      return rapidity;
+   }
    
-   inline Double_t ParticleMC::GetEta() const { return eta; }
+   inline Double_t ParticleMC::GetEta() const {
+      return eta;
+   }
    
-   inline Double_t ParticleMC::GetZ() const { return z; }
+   inline Double_t ParticleMC::GetZ() const {
+      return z;
+   }
    
-   inline Double_t ParticleMC::GetXFeynman() const { return xFeynman; }
+   inline Double_t ParticleMC::GetXFeynman() const {
+      return xFeynman;
+   }
    
-   inline Double_t ParticleMC::GetThetaVsGamma() const { return thetaGamma; }
+   inline Double_t ParticleMC::GetThetaVsGamma() const {
+      return thetaGamma;
+   }
    
-   inline Double_t ParticleMC::GetPtVsGamma() const { return ptVsGamma; }
+   inline Double_t ParticleMC::GetPtVsGamma() const {
+      return ptVsGamma;
+   }
    
-   inline Pid ParticleMC::Id() const { return Pid(id); }
+   inline Pid ParticleMC::Id() const {
+      return Pid(id);
+   }
    
    inline UInt_t ParticleMC::GetNChildren() const {
       if(0 == daughter) return 0;
@@ -456,25 +496,45 @@ namespace erhic {
       return ldaughter - daughter + 1;
    }
    
-   inline Double_t ParticleMC::GetGetM() const { return GetM(); }
+   inline Double_t ParticleMC::GetGetM() const {
+      return GetM();
+   }
    
-   inline Double_t ParticleMC::GetE() const { return E; }
+   inline Double_t ParticleMC::GetE() const {
+      return E;
+   }
    
-//   inline void ParticleMC::SetE(Double_t e) { E = e; }
+//   inline void ParticleMC::SetE(Double_t e) {
+//      E = e;
+//   }
    
-//   inline void ParticleMC::SetP(Double_t momentum) { p = momentum; }
+//   inline void ParticleMC::SetP(Double_t momentum) {
+//      p = momentum;
+//   }
    
-//   inline void ParticleMC::SetPt(Double_t momentum) { pt = momentum; }
+//   inline void ParticleMC::SetPt(Double_t momentum) {
+//      pt = momentum;
+//   }
    
-//   inline void ParticleMC::SetPz(Double_t momentum) { pz = momentum; }
+//   inline void ParticleMC::SetPz(Double_t momentum) {
+//      pz = momentum;
+//   }
    
-//   inline void ParticleMC::SetPhi(Double_t value) { phi = value; }
+//   inline void ParticleMC::SetPhi(Double_t value) {
+//      phi = value;
+//   }
    
-//   inline void ParticleMC::SetTheta(Double_t value) { theta = value; }
+//   inline void ParticleMC::SetTheta(Double_t value) {
+//      theta = value;
+//   }
    
-//   inline void ParticleMC::SetId(Int_t theId) { id = theId; }
+//   inline void ParticleMC::SetId(Int_t theId) {
+//      id = theId;
+//   }
    
-//   inline void ParticleMC::SetStatus(UShort_t status) { KS = status; }
+//   inline void ParticleMC::SetStatus(UShort_t status) {
+//      KS = status;
+//   }
    
 } // namespace erhic
 

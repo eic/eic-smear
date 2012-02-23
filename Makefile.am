@@ -31,7 +31,7 @@ $(top_srcdir)/include/Particle.h \
 $(top_srcdir)/include/ParticleIdentifier.h \
 $(top_srcdir)/include/ParticleID.h \
 $(top_srcdir)/include/ParticleMC.h \
-$(top_srcdir)/include/ParticleMCSmeared.h \
+$(top_srcdir)/include/ParticleMCS.h \
 $(top_srcdir)/include/Pid.h \
 $(top_srcdir)/include/SmearEvent.h \
 $(top_srcdir)/include/Smear.h \
@@ -53,16 +53,16 @@ $(top_srcdir)/src/EventMilou.cxx \
 $(top_srcdir)/src/EventPepsi.cxx \
 $(top_srcdir)/src/EventPythia.cxx \
 $(top_srcdir)/src/EventRapgap.cxx \
+$(top_srcdir)/src/EventSmear.cxx \
 $(top_srcdir)/src/File.cxx \
 $(top_srcdir)/src/Forester.cxx \
 $(top_srcdir)/src/functions.cxx \
 $(top_srcdir)/src/Kinematics.cxx \
 $(top_srcdir)/src/ParticleIdentifier.cxx \
 $(top_srcdir)/src/ParticleMC.cxx \
-$(top_srcdir)/src/ParticleMCSmeared.cxx \
+$(top_srcdir)/src/ParticleMCS.cxx \
 $(top_srcdir)/src/Pid.cxx \
 $(top_srcdir)/src/Smear.cxx \
-$(top_srcdir)/src/smear_event.cxx \
 $(top_srcdir)/src/SmearTree.cxx \
 $(top_srcdir)/cint/BuildTreeDict.cxx
 

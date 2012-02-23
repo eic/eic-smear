@@ -57,16 +57,15 @@ namespace erhic {
       /** Runs PYTHIA and writes output */
       virtual bool Run();
       
-      int mPrintInterval;
-      
    protected:
       
-      TFile* mFile; ///< Pointer to the output file
-      TTree* mTree; ///< Pointer to the generated tree
-      EventPythia* mEvent; ///< Pointer to the event buffer
-      const int mNEvents; ///< Number of events to produce
-      int mNGenerated; ///< Number of events passing PYTHIA selection
-      int mNTrials; ///< Number of events thrown by PYTHIA
+      int mPrintInterval;
+      TFile* mFile;           ///< Pointer to the output file
+      TTree* mTree;           ///< Pointer to the generated tree
+      EventPythia* mEvent;    ///< Pointer to the event buffer
+      const int mNEvents;     ///< Number of events to produce
+      int mNGenerated;        ///< Number of events passing PYTHIA selection
+      int mNTrials;           ///< Number of events thrown by PYTHIA
       EventMCFilterABC* mFilter; ///< Event filter
       
       ClassDef(Pythia6, 1)
