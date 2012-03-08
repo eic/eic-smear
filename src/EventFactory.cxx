@@ -7,6 +7,8 @@
 
 #include <memory>
 
+#include <TProcessID.h>
+
 #include "EventFactory.h"
 #include "EventPythia.h"
 #include "EventMilou.h"
@@ -28,27 +30,33 @@ namespace erhic {
    
    template<typename T>
    T* EventFromAsciiFactory<T>::Create() {
-      
+      // Save current object count
+      int objectNumber = TProcessID::GetObjectCount();
+
       mEvent.reset(new T);
-      
       while(std::getline(*mInput, mLine).good()) {
-//         std::cout << mLine << std::endl;
          if(AtEndOfEvent()) {
             FinishEvent();
             break;
          } // if
          else if('0' == getFirstNonBlank(mLine)) {
             mEvent->Parse(mLine);
-         }
+         } // else if
          else if('=' not_eq getFirstNonBlank(mLine)) {
             AddParticle();
-         }
+         } // else if
       } // if
-      
       if(not *mInput) {
          mEvent.reset(NULL);
       } // if
-      
+
+      // Restore Object count 
+      // See example in $ROOTSYS/test/Event.cxx
+      // To save space in the table keeping track of all referenced objects
+      // we assume that our events do not address each other. We reset the 
+      // object count to what it was at the beginning of the event.
+      TProcessID::SetObjectCount(objectNumber);
+
       return mEvent.release();
    }
    
