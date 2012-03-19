@@ -26,8 +26,9 @@ namespace erhic {
    Pythia6::Pythia6(TFile* file,
                     int nEvents,
                     const std::string& treeName,
-                    const std::string& branchName)
-   : mPrintInterval(100)
+                    const std::string& branchName,
+                    int printInterval)
+   : mPrintInterval(printInterval)
    , mFile(file)
    , mTree(NULL)
    , mEvent(NULL)

@@ -43,7 +43,8 @@ namespace erhic {
       Pythia6(TFile* file,
               int nEvents,
               const std::string& treeName = "EICTree",
-              const std::string& branchName = "event");
+              const std::string& branchName = "event",
+              int printInterval = 1000);
       
       /** Destructor */
       virtual ~Pythia6();
