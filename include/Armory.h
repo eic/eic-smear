@@ -238,30 +238,17 @@ namespace Smear {
 		}
 		
 		void DevSmear(const Particle &prt, ParticleS &prtOut) {
-         
-			Double32_t x1; Double32_t x2;
 			Double32_t y;
-			
 			if (Accept.Is(prt)) {
-				
 				SetParticle(prt);
-				
-				x1 = SwitchKinGetFromParticle(prt,InKin1);
-				x2 = SwitchKinGetFromParticle(prt,InKin2);
-				
 				y = SwitchKinGetFromParticle(prt,OutKin);
-				
 				y = Distribution.Generate(y,EvaluateRes());
-				
 				SwitchKinStoreToParticle(prtOut,y,OutKin);
-				
 				//make sure angular coordinates live in S^2
 				if (OutKin==kTheta) prtOut.theta = FixTopologyTheta(prtOut.theta);
 				if (OutKin==kPhi) prtOut.phi = FixTopologyPhi(prtOut.phi);
-				
 				//make sure E, p are positive definite
 				HandleBogusValues(prtOut,OutKin);
-				
 			} //if
 		}
 	

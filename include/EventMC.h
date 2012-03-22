@@ -30,7 +30,6 @@ namespace erhic {
    /**
     Abstract base class for Monte Carlo events.
     Implements common event properties and methods.
-    \todo Add Y+ = y^2 / (1 + (1-y)^2) as a member variable
     */
    class EventMC : public VirtualEvent<ParticleMC> {
       
@@ -64,6 +63,11 @@ namespace erhic {
        y = (p.q)/(p.e)
        */
       virtual Double_t GetY() const;
+      
+      /**
+       Returns Y+ = y<sup>2</sup> / (1 + (1-y)<sup>2</sup>)
+       */
+      virtual Double_t GetYPlus() const;
       
       /**
        Returns the invariant mass of the hadronic final state.
@@ -294,6 +298,10 @@ namespace erhic {
    inline Double_t EventMC::GetQ2() const { return QSquared; }
    
    inline Double_t EventMC::GetY() const { return y; }
+
+   inline Double_t EventMC::GetYPlus() const {
+      return pow(GetY(), 2.) / (1. + pow(1. - GetY(), 2.));
+   }
    
    inline Double_t EventMC::GetW2() const { return WSquared; }
    

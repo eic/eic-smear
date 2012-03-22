@@ -121,9 +121,8 @@ namespace erhic {
       
       /**
        Prints the current configuration to the requested output stream.
-       \todo Implement
        */
-      void Print(std::ostream& = std::cout) const { }
+      void Print(std::ostream& = std::cout) const;
       
       /**
        If set to true, prints messages during running.
@@ -303,17 +302,19 @@ namespace erhic {
        */
       void SetMustQuit(bool);
       
-      // Member variables:
+      // Member variables.
+      // Those with comment //!< will be treated as transient members by ROOT
+      // and won't be written to a file.
       
       Bool_t mQuit; //!< Quit status. Set to true once EoF or max events reached
       Bool_t mVerbose; ///< Verbosity flag
       
-      TTree* mTree; ///< Output TTree, owned by mRootFile
-      EventBase* mEvent; ///< Stores event branch address
+      TTree* mTree; //!< Output TTree, owned by mRootFile
+      EventBase* mEvent; //!< Stores event branch address
       
-      const erhic::FileType* mFile; ///< File type information
+      const erhic::FileType* mFile; //!< File type information
       
-      TFile* mRootFile;
+      TFile* mRootFile; //!< Pointer to output ROOT file
       
       Long64_t mMaxNEvents; ///< Maximum number of events to process
       Long64_t mInterval; ///< Event interval between printing status messages
@@ -331,7 +332,7 @@ namespace erhic {
       
       Status mStatus;   //!< Forester status information
       
-      VirtualEventFactory* mFactory; ///< Pointer to the event-builder object
+      VirtualEventFactory* mFactory; //!< Pointer to the event-builder object
       
       ClassDef(Forester, 1)
    };

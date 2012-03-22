@@ -350,4 +350,15 @@ namespace erhic {
       return true;
    }
    
+   void Forester::Print(std::ostream& os) const {
+      os << "Input file: " << mInputName << std::endl;
+      os << "Output file: " << mOutputName << std::endl;
+      os << "Output tree: " << mTreeName << std::endl;
+      os << "Output branch: " << mBranchName << std::endl;
+      os << "Maximum number of events: " << mMaxNEvents << std::endl;
+      if(mEvent) {
+         os << "Event type: " << mEvent->ClassName() << std::endl;
+      } // if
+   }
+   
 } // namespace erhic

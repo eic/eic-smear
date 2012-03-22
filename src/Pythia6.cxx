@@ -48,7 +48,7 @@ namespace erhic {
                            "PYTHIA 6 events");
          
          mTree->Bronch(branchName.c_str(),
-                       "EventPythia", &mEvent,
+                       "erhic::EventPythia", &mEvent,
                        32000,
                        99);
       } // try
@@ -66,7 +66,7 @@ namespace erhic {
    }
    
    bool Pythia6::Run() {
-      
+      TPythia6* pythia = TPythia6::Instance();
       Pythia6EventBuilder builder;
       
       TStopwatch timer;
@@ -74,19 +74,17 @@ namespace erhic {
       
       while(mTree->GetEntries() < mNEvents) {
          
-         const int initialNGenerated =
-            TPythia6::Instance()->GetMSTI(5);
-         const int initialNTrials =
-            TPythia6::Instance()->GetPyint5()->NGEN[2][0];
+         const int initialNGenerated = pythia->GetMSTI(5);
+         const int initialNTrials = pythia->GetPyint5()->NGEN[2][0];
          
-         TPythia6::Instance()->GenerateEvent();
+         pythia->GenerateEvent();
          mEvent = builder.Create();
          
          // Count the number of generations and trials for this event
-         mNGenerated +=
-            TPythia6::Instance()->GetMSTI(5) - initialNGenerated;
-         mNTrials +=
-            TPythia6::Instance()->GetPyint5()->NGEN[2][0] - initialNTrials;
+         mNGenerated += pythia->GetMSTI(5) - initialNGenerated;
+         const int trials = pythia->GetPyint5()->NGEN[2][0] - initialNTrials;
+         mEvent->SetGenEvent(trials);
+         mNTrials += trials;
          
          if(mFilter and not mFilter->Accept(*mEvent)) {
             delete mEvent;
@@ -122,7 +120,7 @@ namespace erhic {
       std::string s;
       
       // Write the total cross section
-      ss << TPythia6::Instance()->GetPARI(1) * 1000.; // * 1000 --> microbarn
+      ss << pythia->GetPARI(1) * 1000.; // * 1000 --> microbarn
       ss >> s;
       TObjString(s.c_str()).Write("crossSection");
       

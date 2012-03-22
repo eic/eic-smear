@@ -22,8 +22,7 @@ namespace erhic {
    
    /**
     Describes an event from the EIC PYTHIA6 implementation.
-    \todo Add accessor methods
-    \todo Complete method comments
+    \todo Change sHat/t_hat/u_hat naming to be consistent
     */
    class EventPythia : public EventMC {
       
@@ -76,28 +75,146 @@ namespace erhic {
        @param n [in] The number of trials
        */
       virtual void SetGenEvent(int n);
+
+      /** Sets the x of the target parton */
       virtual void SetTargetPartonX(double xB);
+
+      /** Sets the x of the beam parton */
       virtual void SetBeamPartonX(double xB);
+
+      /**
+       Sets the polar angle of the beam parton in the cm frame
+       \todo enforce range [0, pi] when setting
+       */
       virtual void SetBeamPartonTheta(double radians);
+
+      /**
+       Azimuthal angle of the scattered lepton in the cm frame
+       \todo enforce range [0, 2pi) when setting
+      */
       virtual void SetLeptonPhi(double radians);
+
+      /** Used for radiative corrections */
       virtual void SetF1(double f1);
+
+      /** Used for radiative corrections */
       virtual void SetF2(double f2);
+
+      /** Used for radiative corrections */
       virtual void SetSigmaRad(double sr);
-      virtual void SetHardS(double s);
-      virtual void SetHardT(double t);
-      virtual void SetHardU(double u);
-      virtual void SetHardQ2(double Q2);
-      virtual void SetHardPt2(double pt2);
-      virtual void SetSigRadCor(double s);
-      virtual void SetEBrems(double e);
-      virtual void SetPhotonFlux(double f);
-      virtual void SetTrueY(double inelasticity);
-      virtual void SetTrueQ2(double Q2);
-      virtual void SetTrueX(double xB);
-      virtual void SetTrueW2(double W2);
-      virtual void SetTrueNu(double Nu);
-      virtual void SetR(double r);
       
+      /** Sets the Mandelstamm s of the hard interaction */
+      virtual void SetHardS(double s);
+
+      /** Sets the Mandelstamm t of the hard interaction */
+      virtual void SetHardT(double t);
+
+      /** Sets the Mandelstamm u of the hard interaction */
+      virtual void SetHardU(double u);
+
+      /** Sets the Q<sup>2</sup> of the hard interaction */
+      virtual void SetHardQ2(double Q2);
+
+      /** Sets the squared p<sub>T</sub> of the hard interaction */
+      virtual void SetHardPt2(double pt2);
+
+      /** Used for radiative corrections */
+      virtual void SetSigRadCor(double s);
+
+      /** Sets the energy per radiative photon in the nuclear rest frame */
+      virtual void SetEBrems(double e);
+
+      /** Flux factor, see VINT(319) in PYTHIA 6 */
+      virtual void SetPhotonFlux(double f);
+
+      /** Sets the true (not reconstructed) value for inelasticity */
+      virtual void SetTrueY(double inelasticity);
+
+      /** Sets the true (not reconstructed) value for Q<sup>2</sup> */
+      virtual void SetTrueQ2(double Q2);
+
+      /** Sets the true (not reconstructed) value for x */
+      virtual void SetTrueX(double x);
+
+      /** Sets the true (not reconstructed) value for W<sup>2</sup> */
+      virtual void SetTrueW2(double W2);
+
+      /** Sets the true (not reconstructed) value for nu */
+      virtual void SetTrueNu(double Nu);
+
+      /** Used for radiative corrections */
+      virtual void SetR(double r);
+
+      /** Returns the number of trials required to generate this event */
+      virtual int GetGenEvent() const;
+
+      /** Returns the x of the target parton */
+      virtual double GetTargetPartonX() const;
+
+      /** Returns the x of the beam parton */
+      virtual double GetBeamPartonX() const;
+
+      /**
+       Returns the polar angle of the beam parton in the cm frame,
+       in radians in the range [0, pi]
+       */
+      virtual double GetBeamPartonTheta() const;
+
+      /** Returns the azimuthal angle of the scattered lepton in the cm frame,
+      in radians in the range [0, 2pi). */
+      virtual double GetLeptonPhi() const;
+
+      /** Used for radiative corrections */
+      virtual double GetF1() const;
+
+      /** Used for radiative corrections */
+      virtual double GetF2() const;
+
+      /** Used for radiative corrections */
+      virtual double GetSigmaRad() const;
+
+      /** Returns the Mandelstamm s of the hard interaction */
+      virtual double GetHardS() const;
+
+      /** Returns the Mandelstamm t of the hard interaction */
+      virtual double GetHardT() const;
+
+      /** Returns the Mandelstamm u of the hard interaction */
+      virtual double GetHardU() const;
+
+      /** Returns the Q<sup>2</sup> of the hard interaction */
+      virtual double GetHardQ2() const;
+
+      /** Returns the squared p<sub>T</sub> of the hard interaction */
+      virtual double GetHardPt2() const;
+
+      /** Used for radiative corrections */
+      virtual double GetSigRadCor() const;
+
+      /** Returnss the energy per radiative photon in the nuclear rest frame */
+      virtual double GetEBrems() const;
+
+      /** Returns the flux factor, see VINT(319) in PYTHIA 6 */
+      virtual double GetPhotonFlux() const;
+
+      /** Sets the true (not reconstructed) value for inelasticity */
+      virtual double GetTrueY() const;
+
+      /** Sets the true (not reconstructed) value for Q<sup>2</sup> */
+      virtual double GetTrueQ2() const;
+
+      /** Sets the true (not reconstructed) value for x */
+      virtual double GetTrueX() const;
+
+      /** Sets the true (not reconstructed) value for W<sup>2</sup> */
+      virtual double GetTrueW2() const;
+
+      /** Sets the true (not reconstructed) value for &nu; */
+      virtual double GetTrueNu() const;
+
+      /** Used for radiative corrections */
+      virtual double GetR() const;
+
 //   protected:
       
       // Inline comments after field names will appear in ROOT
@@ -145,7 +262,6 @@ namespace erhic {
                                     ///< subprocess, see PARI(18)
       Double32_t  sHat;             ///< Mandelstam s of the hard subprocess,
                                     ///< see PARI(14)
-      
       ClassDef(erhic::EventPythia, 1)
    };
    
@@ -223,6 +339,73 @@ namespace erhic {
    }
    inline void EventPythia::SetR(double r) {
       R = r;
+   }
+   
+   inline int EventPythia::GetGenEvent() const {
+      return genevent;
+   }
+   inline double EventPythia::GetTargetPartonX() const {
+      return xtgtparton;
+   }
+   inline double EventPythia::GetBeamPartonX() const {
+      return xbeamparton;
+   }
+   inline double EventPythia::GetBeamPartonTheta() const {
+      return thetabeamparton;
+   }
+   inline double EventPythia::GetLeptonPhi() const {
+      return leptonphi;
+   }
+   inline double EventPythia::GetF1() const {
+      return F1;
+   }
+   inline double EventPythia::GetF2() const {
+      return F2;
+   }
+   inline double EventPythia::GetSigmaRad() const {
+      return sigma_rad;
+   }
+   inline double EventPythia::GetHardS() const {
+      return sHat;
+   }
+   inline double EventPythia::GetHardT() const {
+      return t_hat;
+   }
+   inline double EventPythia::GetHardU() const {
+      return u_hat;
+   }
+   inline double EventPythia::GetHardQ2() const {
+      return Q2_hat;
+   }
+   inline double EventPythia::GetHardPt2() const {
+      return pt2_hat;
+   }
+   inline double EventPythia::GetSigRadCor() const {
+      return SigRadCor;
+   }
+   inline double EventPythia::GetEBrems() const {
+      return EBrems;
+   }
+   inline double EventPythia::GetPhotonFlux() const {
+      return photonflux;
+   }
+   inline double EventPythia::GetTrueY() const {
+      return trueY;
+   }
+   inline double EventPythia::GetTrueQ2() const {
+      return trueQ2;
+   }
+   inline double EventPythia::GetTrueX() const {
+      return trueX;
+   }
+   inline double EventPythia::GetTrueW2() const {
+      return trueW2;
+   }
+   inline double EventPythia::GetTrueNu() const {
+      return trueNu;
+   }
+   inline double EventPythia::GetR() const {
+      return R;
    }
    
 } // namespace erhic

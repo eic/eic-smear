@@ -38,16 +38,10 @@ namespace erhic {
       
       // Import all particles (not just final-state)
       TObjArray* particles = pythia->ImportParticles("All");
-//      std::cout << "owned? " << particles->IsOwner() << std::endl;
       
       // Construct the EventPythia object from the current
       // state of TPythia6.
-      /**
-       \todo Fill genevent in Pythia6EventBuilder::Create()
-       \todo Compute & store F1, F2, R, sigma_rad, SigRadCor, EBrems
-       */
       std::auto_ptr<EventPythia> event(new EventPythia);
-//      EventPythia* event = new EventPythia;
       
       // Extract the event-wise quantities:
       event->SetNucleon(pythia->GetMSTI(12));
@@ -101,19 +95,11 @@ namespace erhic {
          std::auto_ptr<ParticleMC> particle = builder.Create(*p);
          particle->SetIndex(i + 1);
          particle->SetEvent(event.get());
-//         particle->SetEvent(event);
          event->AddLast(particle.release());
       } // for
       // We need to calculate any remaining quantities that depend
       // on the particle list.
-      
       event->Compute();
-      
-      
-      // FORTRAN NGEN(0, 3) corresponds to NGEN[2][0] in the C version
-      // i.e. reversal of indices and 3 --> 2 because of differing
-      // C and FORTRAN array indexing.
-      //      std::cout << pythia->GetPyint5()->NGEN[2][0] << " trials" << std::endl;
       
       //Restore Object count 
       // See example in $ROOTSYS/test/Event.cxx
