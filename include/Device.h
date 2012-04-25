@@ -18,20 +18,100 @@
  TODO to TF3 also.
  */
 #include <cmath>
+#include <map>
+#include <vector>
 
 #include <TF1.h>
 #include <TF2.h>
+#include <TFormula.h>
 #include <Math/ParamFunctor.h> // For ROOT::TMath::ParamFunctor
 #include <TRandom3.h>
 #include <TString.h>
 
 #include "Acceptance.h"
 #include "Smear.h"
+#include "Smearer.h"
 
 class TRandom3;
 
+namespace erhic {
+   class ParticleMC;
+}
+
 namespace Smear {
-   
+
+   /**
+    Performs smearing of a single kinematic variable according to a simple
+    expression defined via a string.
+   */
+   class ParamSimple : public Smearer {
+   public:
+
+      /**
+       Constructor.
+       The first argument is the type of kinematic variable to smear.
+       The second argument is a formula giving the standard deviation of the
+       resolution in the variable selected with the first argument,
+          sigma(A) = f([B, C...])
+       where A, B, C.. are selected from: E, P, theta, phi, pZ, pT.
+       For example, for resolution in pT of 1% of pT times sin of polar angle:
+       ParamSimple(kPt, "0.01 * pT * sin(theta)");
+       See ROOT::TFormula for valid expressions.
+       Formulae can be a function of up to four variables.
+       The third argument allows selection of the types of particles that are
+       smeared: electromagnetic, hadronic or all [default].
+      */
+      ParamSimple(KinType = kE, const TString& formula = "0", EGenre = kAll);
+
+      /** Copy constructor */
+      ParamSimple(const ParamSimple&);
+
+      /** Destructor */
+      virtual ~ParamSimple();
+
+      /**
+       Returns a dynamically allocated copy of this object.
+       The argument is unused and is present for compatibility with
+       ROOT::TObject::Clone().
+       */
+      virtual ParamSimple* Clone(const char* = "") const;
+
+      /**
+       Smear the kinematic quantity of the input ParticleMC and store the
+       result in the ParticleMCS.
+      */
+      virtual void DevSmear(const erhic::ParticleMC&, ParticleMCS&);
+
+   protected:
+
+      /**
+       Process the formula, replacing patterns such as "E", "p" with variables
+       recognised by ROOT::TFormula ("x", "y", "z", "t").
+       Populate the vector with the KinType corresponding to pattern.
+       e.g. "0.3/sqrt(E)" would yield "0.3/sqrt(x)" and store Smear::kE in the
+       vector.
+      */
+      virtual int Parse(TString& formula, std::vector<Smear::KinType>&);
+
+      KinType mSmeared; ///< Smeared variable
+      TFormula* mFormula; ///< Expression for resolution standard deviation
+      std::vector<Smear::KinType> mDimensions; ///< Variables on which smearing
+                                               ///< is dependent (up to 4)
+//		Distributor Distribution; ///< Random distribution
+
+      /** Fills pattern-KinType map. */
+      static void FillKinTypeTable();
+      static const std::vector<TString> smPatterns;
+      static std::map<TString, KinType> smKinTypes; ///< Keyed by pattern string
+
+   private:
+
+      ParamSimple& operator=(const ParamSimple&) { return *this; }
+
+      ClassDef(Smear::ParamSimple, 1)
+   };
+
+
 	/**
 	 The device class.
     This is an object that will smear a single particle-wise kinematic
@@ -41,20 +121,22 @@ namespace Smear {
     Each device has an 
 	 acceptance, which is an open subset of (E,p,theta,phi) momentum space.
     Only particles whose momentum lie in the acceptance can be smeared.
-    \todo Add a kElectromagnetic/kHadronic enum of genre
     \todo Add genre as an optional third argument (default = all)
     \todo Inherit from TObject
     \todo Get rid of ParDim. Instead select TF1/2/3 via template?
+    \todo A lot of duplication of SetInOutKinematics methods. Would it make
+    more sense to have different classes for 1 and 2D functions? Or something
+    more sophisticated than now?
 	 */
-	struct Device : public TObject {
+	struct Device : public Smearer {
 		
 		/**
 		 Default constructor.  Sets a 1-dimensional parametrization f(x)=0 in
        range [0.,1.e6] by default.
        Default input kinematics E, theta, default variable to be smeared is E.
 		 */
-		Device(KinType = kE, TString parameterisation = "0.", int genre = 0);
-		
+		Device(KinType = kE, TString parameterisation = "0.", int genre = kAll);
+
 		/**
 		 This determines what sorts of particles the device is able to smear.
 		 
@@ -65,8 +147,6 @@ namespace Smear {
 		 2: The device detects final state hadrons only.
 		 */
 		void SetGenre(int);
-      
-//		void SetGenre(const TString&);
 		
 		/**
 		 Set the number of arguments of the smearing parametrization.  
@@ -150,7 +230,7 @@ namespace Smear {
 		 */
 		void SetDistribution(Distributor::Function f, int npars);
 		
-		/** 
+		/**
 		 Set the range of validity of the custom probability distribution.
        It is recomended that you set a distribution range whenever
 		 you use a custom probability distribution.
@@ -163,7 +243,7 @@ namespace Smear {
 		 in which values are generated will then be [x-minus,x+plus].
        This is useful if you want to generate new values in a flat
 		 distribution in a neighborhood of the original value, which can
-       be an important troubleshooting tool.  Setting a range
+       be an important troubleshooting tool. Setting a range
 		 will automatically activate this feature, but not the use of the
        custom probability distribution.
 		 */
@@ -227,6 +307,7 @@ namespace Smear {
 		 */
 		void SetParametrization(TString par, bool parse=true);
 		
+      /** \overload */
 		void SetParametrization(void *f, int npars);
 		
 		/**
@@ -259,13 +340,14 @@ namespace Smear {
 		void SetParams(double xi0, double xi1=0., double xi2=0.,
                      double xi3=0., double xi4=0., double xi5=0.);
 		
+      /** \overload */
 		void SetParams(int n, double xi);
 		
 		/**
 		 This returns the Root TRandom3 random number generator instance
        being used by the device.
 		 */
-		TRandom3 *GetRandomGenerator();
+		TRandom3& GetRandomGenerator();
 		
 		/**
 		 Set the random number generator seed for the Root TRandom3 random
@@ -277,7 +359,7 @@ namespace Smear {
 		
 		//note: every inherited class should contain its own version of
       //this function to work properly with Detector
-		virtual Device* Clone();
+		virtual Device* Clone(const char* newname = "") const;
 		
 		virtual double EvaluateRes(double x);
 		
@@ -314,7 +396,7 @@ namespace Smear {
        definite quantities E and p, they will
 		 instead be set to -999.
 		 */
-		virtual void DevSmear(const Particle& prt, ParticleS& prtOut);
+		virtual void DevSmear(const erhic::ParticleMC& prt, ParticleS& prtOut);
       
       // TODO implement data-hiding
 //   protected:
@@ -340,80 +422,9 @@ namespace Smear {
 		TF2 Param2;
       
 		TString name;
-		
-		/**
-		 This is the instance of the acceptance class associated with
-       the device.  Use this object to set the acceptance
-		 of the device.
-		 */
-      Acceptance Accept;
-      
-      // TODO look into using functor for generic user-defined function.
-      ROOT::Math::ParamFunctor* mFunctor;
-//      TF1*
-      
-      /**
-       Pure virtual base class for a generic smearing function.
-       The derived class must be copy-constructible to be compatible
-       with Device.
-       */
-      struct Function : public TObject {
-         
-         virtual ~Function() { }
-         
-         /**
-          Implement the function operator to conduct the desired smearing.
-          The first argument is an input particle with Monte Carlo values.
-          The second argument is the smeared particle whose properties are
-          to be set.
-          It should return true in the event of success or false in the
-          event of an error.
-          */
-         virtual bool operator()(const Particle&, ParticleS&) = 0;
-         
-         ClassDef(Function, 0)
-      };
-      
-      Function* mFunction;
-      
-      void SetFunction(const Function& f) {
-         mFunction = dynamic_cast<Function*>(f.Clone());
-      }
-      
-   private:
-      
+
 		ClassDef(Device, 1)
 	}; // class Device
-   
-   /**
-    Example custom function.
-    Copies values straight from a Particle to a ParticleS.
-    */
-   struct Copier : public Device::Function {
-      virtual bool operator()(const Particle& p, ParticleS& s) {
-         s.p = p.GetP();
-         s.E = p.GetE();
-         s.theta = p.GetTheta();
-         return true;
-      }
-      
-      ClassDef(Copier, 0)
-   };
-   
-   /**
-    Example custom function.
-    Applies Gaussian smearing to the Particle energy.
-    */
-   struct Gauss : public Device::Function {
-      virtual bool operator()(const Particle& p, ParticleS& s) {
-         if(not gRandom) return false;
-         s.E = gRandom->Gaus(p.GetE(), 0.35 * ::sqrt(p.GetE()));
-         return true;
-      }
-      
-      ClassDef(Gauss, 0)
-   };
-   
 } // namespace Smear
 
 #endif

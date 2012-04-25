@@ -1,6 +1,7 @@
 #ifndef _ERHIC_BUILDTREE_ACCEPTANCE_
 #define _ERHIC_BUILDTREE_ACCEPTANCE_
 
+#include <set>
 #include <vector>
 
 #include <TF1.h>
@@ -27,45 +28,73 @@ namespace Smear {
 		
    public:
       
+      //========================================================================
+		struct CustomCut {
+			CustomCut();
+			TF1 F1;
+			TF2 F2;
+			int dim;
+			KinType Kin1;
+         KinType Kin2;
+			double Min;
+         double Max;
+		};
+      
+      //========================================================================
+		struct Zone {
+			Zone(double theta = 0., double = pi,
+              double phi = 0., double = 2. * pi,
+              double E = 0., double = 1.e12,
+              double p = 0., double = 1.e12,
+              double pt = 0., double = 1.e12,
+              double pz = -1.e12, double = 1.e12);
+         
+         Bool_t Contains(erhic::ParticleMC&) const;
+         
+         Bool_t IsCustomAccepted(CustomCut, const erhic::ParticleMC&) const;
+			
+			double thetaMin;
+         double thetaMax;
+			double phiMin;
+         double phiMax;
+			double EMin;
+         double EMax;
+			double PMin;
+         double PMax;
+         double pTMin;
+         double pTMax;
+         double pZMin;
+         double pZMax;
+			
+			std::vector<CustomCut> CustomCuts;
+		};
+      
 		/**
 		 Default constructor.
        By default, the device has 4pi coverage,
        and accepts particles with energy and momenta up
 		 to 1e12 GeV.  Also, the genre is neutral, meaning the acceptance
-       function doesn't care what type of particle it 
-		 sees.
+       function doesn't care what type of particle it sees.
 		 */
-		Acceptance(int genre = kE);
-      
+		Acceptance(int genre = kAll);
+
 		/**
-		 Add a new default acceptance zone with 4pi coverage.
-       Particles will be accepted if they fall within any 
-		 acceptance zone.
+		 Add a new zone with user-specified coverage.
+       Particles will be accepted if they fall within any acceptance zone.
 		 */
-      // Replace with default arguments for next method
-      //		void AddZone();
-		
-		/**
-		 Add a new zone with use specified coverage.
-       Particles will be accepted if they fall within any acceptance
-		 zone.
-		 */
-		void AddZone(double thetamin = 0., double thetamax = pi,
-                   double phimin = 0., double phimax = 2. * pi,
-                   double Emin = 0., double Emax = 1.e12,
-                   double pmin = 0., double pmax = 1.e12);
-		
+      void AddZone(const Zone&);
+
       /**
        Returns the number of acceptance zones.
        */
       UInt_t GetNZones() const;
-      
+
 		/**
 		 Remove an acceptance zone.
        The nth zone you added is Zone n, the original zone is Zone 0.
 		 */
 		void RemoveZone(unsigned n);
-		
+
 		/**
 		 Set the acceptance in theta. 
 		 */
@@ -82,35 +111,26 @@ namespace Smear {
 		 Set the acceptance in p.
 		 */
 		void SetP(double min, double max, int n=0);		
+
+		/**
+		 Set the acceptance in pT.
+		 */
+		void SetPt(double min, double max, int n=0);		
+		/**
+		 Set the acceptance int pz.
+		 */
+		void SetPz(double min, double max, int n=0);
+      
+      /** Select the class(es) of particles to accept */
+		void SetGenre(int);
+
 		/**
 		 Set acceptance in the kinematic variable assiciated with type.
        Only valid for
 		 kE, kP, kTheta, kPhi.
 		 */
 		void Set(KinType type, double min, double max, int n=0);		
-		/**
-		 Set the acceptance in pT.
-       Note that this uses the AddCustomAcceptance method.
-       Therefore, if for some reason
-		 you want to call this more than once (with the purpose of changing
-       rather than adding a window) you should
-		 use ClearCustomAcceptance.  
-		 */
-		void SetPt(double min, double max, int n=0);		
-		/**
-		 Set the acceptance int pz.
-       Note that this uses the AddCustomAcceptance method.
-       Therefore, if for some reason
-		 you want to call this more than once (with the purpose of changing
-       rather than adding a window) you should 
-		 use ClearCustomAcceptance.
-		 */
-		void SetPz(double min, double max, int n=0);
-      
-		void SetGenre(int n);
 		
-//		void SetGenre(TString genre);
-      
 		/**
 		 Allows you to set the acceptance in some function of E,p,theta,phi
        for zone n.  For example, if you want to set the
@@ -155,48 +175,7 @@ namespace Smear {
 		 */
 		void RemoveParticle(int);
       
-      //======================================================================
-      // TODO Does this need to be public?
-      //======================================================================
-		struct CustomCut {
-			
-			CustomCut();
-			
-			TF1 F1;
-			TF2 F2;
-			int dim;
-			KinType Kin1;
-         KinType Kin2;
-			double Min;
-         double Max;
-		};
-		
-      //======================================================================
-      // TODO Does this need to be public?
-		//acceptance parameters
-      //======================================================================
-		struct Zone {
-         
-			Zone(double = 0., double = pi, double = 0., double = 2. * pi,
-              double = 0., double = 1.e12, double = 0., double = 1.e12);
-         
-         Bool_t Contains(Particle&) const;
-         
-         Bool_t IsCustomAccepted(CustomCut, const Particle&) const;
-			
-			double thetaMin;
-         double thetaMax;
-			double phiMin;
-         double phiMax;
-			double EMin;
-         double EMax;
-			double PMin;
-         double PMax;
-			
-			std::vector<CustomCut> CustomCuts;
-		};
-      
-      bool IsCustomAccepted(CustomCut& C, const Particle& prt) const;
+      bool IsCustomAccepted(CustomCut&, const erhic::ParticleMC&) const;
       
 		/**
 		 This function determines if the particle provided lies within
@@ -206,19 +185,17 @@ namespace Smear {
 		 This function automatically fixes polar and azimuthal angles
        which are not within their proper range.
 		 */
-		bool Is(const Particle& prt);
+		bool Is(const erhic::ParticleMC& prt);
       
 //   protected: TODO implement data hiding
 		std::vector<Zone> mZones;
-		std::vector<int> Particles;
+		std::set<int> Particles;
 		
 		int Genre;
       
    private:
       
-//#ifdef __CINT__
 		ClassDef(Acceptance, 1)
-//#endif
    };
    
    inline UInt_t Acceptance::GetNZones() const { return mZones.size(); }

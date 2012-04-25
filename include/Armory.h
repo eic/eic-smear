@@ -21,247 +21,221 @@
 
 #include "Smear.h"
 #include "Acceptance.h"
-
+#include "Smearer.h"
 #include "Device.h"
 
 namespace Smear {
 	
-  /**
-	 Specialized Device class for simulating tracking detectors.  Contains a special parametrization suited for tracking
-	 detectors and methods for setting the various input parameters (such as magnetic field and track length).
-	 If you want to simulate a tracker by entering a parametrization direclty, you will have to use the genereic Device class.
+   /**
+	 Specialized Device class for simulating tracking detectors.
+    Contains a special parametrization suited for tracking
+	 detectors and methods for setting the various input parameters
+    (such as magnetic field and track length).
+	 If you want to simulate a tracker by entering a parametrization direclty,
+    you will have to use the genereic Device class.
+    \todo Remove SetParticle(), P and bMoreCrit - can pass Particle as function
+          argument when required, as have a ComputePathLength(Particle) method
+          serving bMoreCrit's function.
 	 */
-  struct Tracker: public Smear::Device {
-	
-		Tracker() {
-			B = 2.;
-			Nrl = 0.03;
-			SigmaRPhi = 0.001;
-			n = 25.;
-			R1=0.1;
-			R2=1.;
-			l=6.;
-			fault = -999.;
-			
-			bMoreCrit = false;
-			
-			P = NULL;
-			
-			SetInputKinematics(kP);
-			SetSmearedKinematics(kP);
-			
-			FixAcceptance();
-			
-			name = "Tracker";
-		}
-		
-		Tracker(double inner, double outer, double L, double Bb, double nrl, double sigmaRPhi, double N) {
-			Tracker();
-			SetVals(inner,outer,L,Bb,nrl,sigmaRPhi,N);
-		}
-		
-		Tracker(double inner, double outer, double L) {
-			Tracker();
-			SetDimensions(inner,outer,L);
-		}
-		
-		double B;
-		double Nrl;
-		double SigmaRPhi;
-		double n;
-		double R1;
-		double R2;
-		double l;
-		double fault;
-		
-		bool bMoreCrit;
-		
-		const Particle *P;
-		
-		double MultipleScatteringContribution() {
-			if (!P) return fault;
-			double c1=0.0136/0.3;
-			return c1*P->p*sqrt(Nrl)/(L()*beta()*B*cosSquaredgamma());
-		}
-		
-		double IntrinsicContribution() {
-			if (!P) return fault;
-			double c1=sqrt(720.)/0.3;
-			double over = c1*P->p*P->p*SigmaRPhi;
-			return over/(B*pow(LPrime(),2)*sqrt(n+4.));
-		}
-		
-		double EvaluateRes() {
-			if (P) {
-				//std::cout << "Mult, Intrins " << MultipleScatteringContribution() << " " << IntrinsicContribution() << std::endl;
-				//std::cout << ">>>>>>>>>>>>>>>>> " << P->p << " " << P->theta << " " << std::endl;
-				//std::cout << "     ------  -- " << L() << " " << LPrime() << " " << beta() << " " << cosSquaredgamma() << std::endl;
-				//std::cout << "RES " << MultipleScatteringContribution()+IntrinsicContribution() << std::endl;
-			  return MultipleScatteringContribution()+IntrinsicContribution();
-			} else {
-				return fault;
-			}
-		}
-		
+   struct Tracker: public Smearer {
+
+      /** Default constructor */
+      Tracker();
+
+      /**
+       Constructor.
+       Initialise with all detector characteristics.
+       */
+		Tracker(double inner, double outer, double L, double Bb,
+              double nrl, double sigmaRPhi, double N);		
+
+      /**
+       Constructor.
+       Initialise with the detector dimensions and default values for
+       other characteristics.
+       */
+		Tracker(double inner, double outer, double L);
+
+      /** Destructor */
+      virtual ~Tracker();
+
+      /**
+       Returns a new copy of this Tracker.
+       The argument is not used.
+      */
+		virtual Tracker* Clone(const char*) const;
+
+      /**
+       Smear the kinematics of prt and store the result in prtOut.
+      */
+		void DevSmear(const Particle& prt, ParticleS& prtOut);
+
 		/**
 		 Set the magnetic field in the tracker in teslas.
 		 */
-		void SetMagneticField(double Bb) {
-			B = Bb;
-		}
+		void SetMagneticField(double Bb);
+
+		/**
+		 Set the inner and outer radius of your cylindrical tracker in meters.
+       Automatically calls FixAcceptance, so if you want a custom acceptance
+       you should call it AFTER calling this.
+		 */
+		void SetRadii(double inner, double outer);
 		
 		/**
-		 Set the inner and outer radius of your cylindrical tracker in meters.  Automatically calls FixAcceptance,
-		 so if you want a custom acceptance you should call it AFTER calling this.
+		 Set the total length of your tracker (centered at IP) in meters.
+       Automatically calls FixAcceptance, so if you want a custom acceptance
+       you should call it AFTER calling this.
 		 */
-		void SetRadii(double inner, double outer) {
-			if (inner < outer) {
-			  R1 = inner;  R2 = outer;
-			  FixAcceptance();
-			} else {
-				std::cerr << "ERROR! Outer radius must exceed inner.\n";
-				return;
-			}
-		}
-		
+		void SetLength(double L);
+
 		/**
-		 Set the total length of your tracker (automatically centered at IP) in meters.  Automatically calls FixAcceptance,
-		 so if you want a custom acceptance you should call it AFTER calling this.
+		 Set the radii and length in meters.
+       Automatically calls FixAcceptance, so if you want a custom acceptance,
+       you should set it AFTER calling this.
 		 */
-		void SetLength(double L) {
-			l = L;
-			FixAcceptance();
-		}
-		
-		/**
-		 Set the radii and length in meters.  Automatically calls FixAcceptance, so if you want a custom acceptance, you should
-		 set it AFTER calling this.
-		 */
-		void SetDimensions(double inner, double outer, double L) {
-			SetRadii(inner,outer);
-			SetLength(L);
-		}
-		
-		double cosSquaredgamma() {
-			if (!P) return fault;
-			return cos(pi/2. - P->theta)*cos(pi/2. - P->theta);
-		}
-		
-		double L() {
-			if (!P) return fault;
-			if (bMoreCrit) {
-				return LPrime()/sin(P->theta);
-			} else {
-				return sqrt(pow(LPrime(),2)+pow((l/2.)-(R1/tanTheta()),2));
-			}
-		}
-		
-		double LPrime() {
-			if (!P) return fault; 
-			if (bMoreCrit) {
-				return R2-R1;
-			} else {
-				return (l/2.)*tanTheta()-R1;
-			}
-		}
-		
-		double tanTheta() {
-			if (!P) return fault;
-			return fabs(tan(P->theta));
-		}
-		
-		double ThetaCrit() {
-			return atan(2.*R2/l);
-		}
-		
+		void SetDimensions(double inner, double outer, double L);
+      
 		/**
 		 Set the number of radiation lengths in the tracker.
 		 */
-		void SetNumberOfRadiationLengths(double nrl) {
-			Nrl = nrl;
-		}
-		
-		double beta() {
-			if (!P) return fault;
-			return (P->p)/(P->E);
-		}
-		
+		void SetNumberOfRadiationLengths(double);
+
 		/**
 		 Set the position resolution in meters.
 		 */
-		void SetPositionResolution(double sigmaRPhi) {
-			SigmaRPhi = sigmaRPhi;
-		}
-		
+		void SetPositionResolution(double);
+
 		/**
 		 Set the number of measurements.
 		 */
-		void SetNumberOfMeasurements(double N) {
-			n = N;
-		}
-											
+		void SetNumberOfMeasurements(double);
+
+		double beta();
+
+		double cosSquaredgamma();
+
+		double L();
+
+      double LPrime();
+
+		double tanTheta();
+
+		double ThetaCrit();
+
 		/**
-		 Returns the minimum theta of particle accepted by a tracker with the length and radii you specified.
-		 If you must set a different acceptance in theta, it is recomended that you allow it no closer to the beam
-		 line than this.
+		 Returns the minimum theta of particle accepted by a tracker with
+       the length and radii you specified.
+		 If you must set a different acceptance in theta, it is recomended
+       that you allow it no closer to the beam line than this.
 		 */
-		double GetThetaMin() {
-			return atan(2.*R1/l);
-		}
-		
+		double GetThetaMin();
+
+		void SetParticle(const Particle& prt);
+
+		void SetVals(double inner, double outer, double L, double Bb,
+                   double nrl, double sigmaRPhi, double N);
+
+   protected:
+
+		double MultipleScatteringContribution();
+      
+		double IntrinsicContribution();
+      
+		double EvaluateRes();
+
 		/**
-		 Automatically set acceptance to that of a cylinder with the dimensions you set.
+		 Automatically set acceptance to that of a cylinder with the dimensions
+       you set.
 		 */
-		void FixAcceptance() {
-			Accept.SetTheta(GetThetaMin(),pi-GetThetaMin());									
-		}
-		
-		//note: every inherited device should contain this function to work properly with Detector
-		Tracker *Clone() {
-			Tracker *dev = new Tracker();
-			*dev = *this;
-			return dev;
-		}
-		
-		void SetParticle(const Particle &prt) {
-			P = &prt;
-			if (P->theta >= ThetaCrit() && P->theta < pi-ThetaCrit()) {
-				bMoreCrit = true;
-			} else {
-				bMoreCrit = false;
-			}
-		}
-		
-		void SetVals(double inner, double outer, double L, double Bb, double nrl, double sigmaRPhi, double N) {
-			SetDimensions(inner,outer,L);  SetMagneticField(Bb);  SetNumberOfRadiationLengths(nrl);
-			SetPositionResolution(sigmaRPhi);  SetNumberOfMeasurements(N);
-		}
-		
-		void DevSmear(const Particle &prt, ParticleS &prtOut) {
-			Double32_t y;
-			if (Accept.Is(prt)) {
-				SetParticle(prt);
-				y = SwitchKinGetFromParticle(prt,OutKin);
-				y = Distribution.Generate(y,EvaluateRes());
-				SwitchKinStoreToParticle(prtOut,y,OutKin);
-				//make sure angular coordinates live in S^2
-				if (OutKin==kTheta) prtOut.theta = FixTopologyTheta(prtOut.theta);
-				if (OutKin==kPhi) prtOut.phi = FixTopologyPhi(prtOut.phi);
-				//make sure E, p are positive definite
-				HandleBogusValues(prtOut,OutKin);
-			} //if
-		}
-	
+		void FixAcceptance();
+
+		double B; ///< Magnetic field strength in Tesla
+		double Nrl; ///< Number of radiation lengths (dimensionless)
+		double SigmaRPhi; ///< Point resolution (
+		double n; ///< Number of fit points
+		double R1; ///< Inner radius (cm)
+		double R2; ///< Outer radius (cm)
+		double l; ///< Total tracker length (cm)
+		double fault;
+		bool bMoreCrit;
+      Distributor Distribution; ///< Random distribution
+		const Particle *P;
+      KinType OutKin;
+
 		ClassDef(Tracker,1)
 	};
-	
+
+   inline void Tracker::SetMagneticField(double Bb) {
+      B = Bb;
+   }
+
+   inline void Tracker::SetLength(double L) {
+      l = L;
+      FixAcceptance();
+   }
+
+   inline void Tracker::SetDimensions(double inner, double outer, double L) {
+      SetRadii(inner, outer); // Calls FixAcceptance
+      SetLength(L); // Calls FixAcceptance again
+   }
+
+   inline double Tracker::cosSquaredgamma() {
+      if(not P) {
+         return fault;
+      } // if
+      return cos(pi / 2. - P->theta) * cos(pi / 2. - P->theta);
+   }
+
+   inline double Tracker::tanTheta() {
+      if(not P) {
+         return fault;
+      } // if
+      return fabs(tan(P->theta));
+   }
+   
+   inline double Tracker::ThetaCrit() {
+      return atan(2. * R2 / l);
+   }
+
+   inline void Tracker::SetNumberOfRadiationLengths(double nrl) {
+      Nrl = nrl;
+   }
+
+   inline double Tracker::beta() {
+      if(not P) {
+         return fault;
+      } // if
+      return P->p / P->E;
+   }
+
+   inline void Tracker::SetPositionResolution(double sigmaRPhi) {
+      SigmaRPhi = sigmaRPhi;
+   }
+
+   inline void Tracker::SetNumberOfMeasurements(double N) {
+      n = N;
+   }
+
+   inline double Tracker::GetThetaMin() {
+      return atan(2. * R1 / l);
+   }
+
+   inline void Tracker::FixAcceptance() {
+      Accept.SetTheta(GetThetaMin(), pi - GetThetaMin());
+   }
+
+   inline Tracker* Tracker::Clone(const char*) const {
+      return new Tracker(*this);
+   }
+
 	/**
 	 Specialized EM calorimeter device.
 	 */
 	struct EMCalorimeter: public Smear::Device {
 		
 		EMCalorimeter() {
-		  c1 = 0.3;
+         c1 = 0.3;
 			c2 = 0.;
 			
 			Accept.SetGenre(1);
@@ -354,7 +328,7 @@ namespace Smear {
 	 parametrizations), then the Devious will smear to y=f(x) and store x=f^-1(y) in Particle.X.
 	 */
 	struct Devious: public Smear::Device {
-	
+      
 		Devious() {
 			
 			Param1 = TF1("f1","0.",1.e6);
@@ -462,7 +436,7 @@ namespace Smear {
 				if (bInverse) {
 					y = 1./SwitchKinGetFromParticle(prt,OutKin);
 				} else {
-				  y = InputFunc.Eval(SwitchKinGetFromParticle(prt,OutKin));
+               y = InputFunc.Eval(SwitchKinGetFromParticle(prt,OutKin));
 				}
 				
 				if (ParDim==2) {
@@ -473,11 +447,11 @@ namespace Smear {
 				}
 				
 				if (bInverse) {
-				  SwitchKinStoreToParticle(prtOut,1./y,OutKin);
+               SwitchKinStoreToParticle(prtOut,1./y,OutKin);
 				} else {
 					SwitchKinStoreToParticle(prtOut,InputFunc.GetX(y),OutKin);
 				}
-					
+            
 				//make sure angular coordinates live in S^2
 				if (OutKin==kTheta) prtOut.theta = FixTopologyTheta(prtOut.theta);
 				if (OutKin==kPhi) prtOut.phi = FixTopologyPhi(prtOut.phi);
@@ -490,8 +464,6 @@ namespace Smear {
 		
 		ClassDef(Devious,1)
 	};
-
-	
 }
 
 // 2011/10/18: Changed SetParticle and DevSmear arguments to const Particle&

@@ -35,7 +35,14 @@ namespace Smear {
 	enum KinType { 
       kE, kP, kTheta, kPhi, kPz, kPt	
 	};
-	
+
+   /** Classes of particles */
+   enum EGenre {
+      kAll = 0,
+      kElectromagnetic = 1,
+      kHadronic = 2
+   };
+   
 	/**
 	 This determines whether the particle in the argument is
 	 
@@ -240,82 +247,8 @@ namespace Smear {
 		}
 	}
 	
-	inline int ParseInputFunction(TString &s, KinType &kin1, KinType &kin2) {
-		int d=0;
-		if (s.Contains("E")) {
-			s.ReplaceAll("E","x");
-			d++;
-			kin1 = kE;
-		}
-		if (s.Contains("P")) {
-			d++;
-			if (d==2) {
-				s.ReplaceAll("P","y");
-				kin2 = kP;
-			} else {
-				s.ReplaceAll("P","x");
-				kin1 = kP;
-			}
-		}
-		if (s.Contains("theta") || s.Contains("Theta")) {
-			d++;
-			if (d==2) {
-				s.ReplaceAll("theta","y"); s.ReplaceAll("Theta","y");
-				kin2 = kTheta;
-			} else {
-				s.ReplaceAll("theta","x"); s.ReplaceAll("Theta","x");
-				kin1 = kTheta;
-			}
-		}
-		if (s.Contains("phi")) {
-			d++;
-			if (d==2) {
-				s.ReplaceAll("phi","y"); 
-				kin2 = kPhi;
-			} else {
-				s.ReplaceAll("phi","x"); 
-				kin1 = kPhi;
-			}
-		}
-		if (s.Contains("pT")) {
-			d++;
-			if (d==2) {
-				s.ReplaceAll("pT","y"); 
-				kin2 = kPt;
-			} else {
-				s.ReplaceAll("pT","x"); 
-				kin1 = kPt;
-			}
-		}
-		if (s.Contains("pZ")) {
-			d++;
-			if (d==2) {
-				s.ReplaceAll("pZ","y"); 
-				kin2 = kPz;
-			} else {
-				s.ReplaceAll("pZ","x"); 
-				kin1 = kPz;
-			}
-		}
-		if (d>2 || d<0) {
-			std::cout << "!WARNING! Not enough, or too many parameters detected in parametrization (d=";
-			std::cout << d << ").\n";
-		}
-		if (d==0) d++;
-		return d;
-	}
-	
-   /*
-    2011/08/17
-    Changes TString arguments to const TString&
-    Changed SetDistribution() argument from void* to double (*)(double*, double*);
-    Some forms of TF1 cannot be copied, so I made Distrib a pointer
-    - only allocated if a custom distribution is provided.
-    Removed CustomDist flag - use non-NULL Distrib.
-//    Added destructor to deallocate Distrib.
-    Added protection against SetMoveableRange() arguments <= 0.
-    Added protection against SetBias() argument < 0.
-    */
+   int ParseInputFunction(TString &s, KinType &kin1, KinType &kin2);
+   
 	/**
 	 Used by devices to generate smearing on some distribution.
     By default, smearing is generated on a Gaussian
@@ -324,10 +257,9 @@ namespace Smear {
 	 It is intended that you access this object via the methods provided
     in the Device class.
     
-    TODO This could do with some reworking, to make it compatible with
-    TODO an arbitrary function via a functor (which I think is the best way
-    TODO to go).
-    TODO Move to its own files.
+    \todo This could do with some reworking, to make it compatible with
+     an arbitrary function via a functor (which I think is the best way
+     to go). Move to its own files.
 	 */
 	class Distributor {
       
@@ -347,8 +279,7 @@ namespace Smear {
 //		bool CustomDist;
 		bool bMoveable;		
 		
-//		TF1* Distrib;
-      std::auto_ptr<TF1> Distrib;
+		TF1* Distrib;
 		TRandom3 Ran;
 		
 		void SetDistribution(const TString& s);

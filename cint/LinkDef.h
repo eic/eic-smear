@@ -18,6 +18,7 @@
 
 #pragma link C++ function BuildTree;
 #pragma link C++ function SmearTree;
+#pragma link C++ function Smear::ParseInputFunction;
 
 // Particle classes
 
@@ -62,8 +63,9 @@
 // Core smearing components
 
 #pragma link C++ class Smear::Acceptance+;
+#pragma link C++ class Smear::Smearer+;
 #pragma link C++ class Smear::Device+;
-#pragma link C++ class Smear::Device::Function+;
+#pragma link C++ class Smear::ParamSimple+;
 #pragma link C++ class Smear::Detector+;
 #pragma link C++ class Smear::Distributor+;
 #pragma link C++ class Smear::EventKinematicsComputer+;
@@ -76,11 +78,6 @@
 #pragma link C++ Class Smear::EMCalorimeter+;
 #pragma link C++ class Smear::HCalorimeter+;
 #pragma link C++ class Smear::Bremsstrahlung+;
-
-// Other smearing utilities
-
-#pragma link C++ class Smear::Copier+;
-#pragma link C++ class Smear::Gauss+;
 
 // Monte carlo log file processing
 

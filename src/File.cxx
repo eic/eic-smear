@@ -77,6 +77,7 @@ namespace erhic {
       return
       crossSection_.Write("crossSection") +
       nEvents_.Write("nEvents");
+      nEvents_.Write("nTrials");
    }
    
    

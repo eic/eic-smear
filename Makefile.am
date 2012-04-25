@@ -35,11 +35,13 @@ $(top_srcdir)/include/ParticleMCS.h \
 $(top_srcdir)/include/Pid.h \
 $(top_srcdir)/include/SmearEvent.h \
 $(top_srcdir)/include/Smear.h \
+$(top_srcdir)/include/Smearer.h \
 $(top_srcdir)/include/VirtualEvent.h \
 $(top_srcdir)/include/VirtualParticle.h
 
 libeicsmear_la_SOURCES = \
 $(top_srcdir)/src/Acceptance.cxx \
+$(top_srcdir)/src/Armory.cxx \
 $(top_srcdir)/src/BeamParticles.cxx \
 $(top_srcdir)/src/Bremsstrahlung.cxx \
 $(top_srcdir)/src/BuildTree.cxx \
@@ -124,6 +126,7 @@ endif
 #$(top_srcdir)/include/ParticleMCSmeared.h \
 #$(top_srcdir)/include/Pid.h \
 #$(top_srcdir)/include/SmearEvent.h \
+#$(top_srcdir)/include/Smearer.h \
 #$(top_srcdir)/include/Smear.h \
 #$(top_srcdir)/include/VirtualEvent.h \
 #$(top_srcdir)/include/VirtualParticle.h \

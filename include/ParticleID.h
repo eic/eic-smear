@@ -69,10 +69,10 @@ namespace Smear {
 		 default, the particle ID uses smeared kinematic variables as input, rather than Monte Carlo 
 		 values.
 
-       \todo This needs to be settable by the user - provide static method
-       that can be called in a ROOT logon macro. Perhaps provide support
-       for an "EICSMEAR" environment variable to define the installation
-       location?
+       \todo The path needs to be settable by the user - provide static method
+             that can be called in a ROOT logon macro. Perhaps provide support
+             for an "EICSMEAR" environment variable to define the installation
+             location?
 		 */
 		ParticleID() {
 			PMatPath = "/afs/rhic.bnl.gov/eic/MACROS/BuildTree/PIDMatrix.dat";
@@ -94,6 +94,8 @@ namespace Smear {
 			bUseMC = false;
 		}
 	
+      virtual ~ParticleID() { }
+      
 		TRandom3 Ran;
 		
 		TString PMatPath;
@@ -127,9 +129,9 @@ namespace Smear {
 		}
 		
 		/**
-		 Return the Root TRandom3 random number generator instance used by the ParticleID.
+		 Return the TRandom3 instance used by the ParticleID.
 		 */
-		TRandom3 GetRandomGenerator() {
+		TRandom3& GetRandomGenerator() {
 			return Ran;
 		}
 		

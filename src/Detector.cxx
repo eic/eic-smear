@@ -5,108 +5,67 @@
 // Copyright 2011 BNL. All rights reserved.
 //
 
+#include "Detector.h"
+
+#include <algorithm>
+#include <functional>
+
 #include "Device.h"
 #include "EventBase.h"
 #include "ParticleID.h"
 
-#include "Detector.h"
-
 namespace Smear {
-   
+
    Detector::Detector()
-//   : NDevices(0)
    : useNM(false)
    , useJB(false)
    , useDA(false)
-   , NIdentifiers(0)
-   {}
-   
+   , NIdentifiers(0) {
+   }
+
+   Detector::Detector(const Detector& other)
+   : TObject(other) {
+      useNM = other.useNM;
+      useJB = other.useJB;
+      useDA = other.useDA;
+      EventKinComp = other.EventKinComp;
+      NIdentifiers = other.NIdentifiers;
+      Devices = other.CopyDevices();
+   }
+
+   Detector::~Detector() {
+   }
+
    void Detector::DeleteAllDevices() {
-      for(unsigned i=0; i<GetNDevices(); i++) {
+      for(unsigned i(0); i < GetNDevices(); i++) {
          delete Devices.at(i);
+         Devices.at(i) = NULL;
       } // for
       Devices.clear();
-      //NDevices=Devices.size();
    }
-   
-   void Detector::RemoveAllDevices() {
-      Devices.clear();
-      //NDevices=Devices.size();
-   }
-   
+
    void Detector::DeleteAllIdentifiers() {
-      for(int i=0; i<NIdentifiers; i++) {
+      for(int i(0); i < NIdentifiers; i++) {
          delete Identifiers.at(i);
-      }
+         Identifiers.at(i) = NULL;
+      } // for
       Identifiers.clear();
       NIdentifiers=Identifiers.size();
    }
-   
-   void Detector::RemoveAllIdentifiers() {
-      Identifiers.clear();
-      NIdentifiers=Identifiers.size();
-   }
-   
-   void Detector::AddDevice(Device* dev) {
-      Devices.push_back(dev);
-      //NDevices = Devices.size();
-   }
-   
-   void Detector::AddDevice(Device& dev) {
+
+   void Detector::AddDevice(Smearer& dev) {
       Devices.push_back(dev.Clone());
-      //NDevices = Devices.size();
    }
-   
-   void Detector::AddDevice(ParticleID* ident) {
-      Identifiers.push_back(ident);
-      NIdentifiers = Identifiers.size();
-   }
-   
+
    void Detector::AddDevice(ParticleID& ident) {
       Identifiers.push_back(ident.Clone());
       NIdentifiers = Identifiers.size();
    }
-   
+
    void Detector::SetPDGLeptonCode(int n) {
       EventKinComp.SetPDGLeptonCode(n);
    }
-   
-   void Detector::SetMasterAccept(KinType type, double min, double max) {
-      for(unsigned i=0; i<GetNDevices(); i++) {
-         Devices.at(i)->Accept.Set(type,min,max);
-      }
-   }
-   
-   void Detector::SetMasterParametrization(TString param) {
-      for(unsigned i=0; i<GetNDevices(); i++) {
-         Devices.at(i)->SetParametrization(param);
-      }
-   }
-   
-   void Detector::SetMasterRanSeed(int n) {
-      for(unsigned i=0; i<GetNDevices(); i++) {
-         Devices.at(i)->SetRanSeed(n);
-      }
-   }
-   
-   void Detector::SetMasterParams(int n, double xi) {
-      for(unsigned i=0; i<GetNDevices(); i++) {
-         Devices.at(i)->SetParams(n,xi);
-      }
-   }
-   
-   void Detector::SetMasterDistribution(TString f) {
-      for(unsigned i=0; i<GetNDevices(); i++) {
-         Devices.at(i)->SetDistribution(f);
-      }
-   }
-   
-   void Detector::SetMasterDistributionRange(double min, double max) {
-      for(unsigned i=0; i<GetNDevices(); i++) {
-         Devices.at(i)->SetDistributionRange(min,max);
-      }
-   }
-   
+
    void Detector::SetMissingEnergyTolerance(double E) {
       EventKinComp.SetMissingEnergyTolerance(E);
    }
@@ -145,7 +104,7 @@ namespace Smear {
       NIdentifiers = Identifiers.size();
    }
    
-   Device* Detector::GetDevice(int n) {
+   Smearer* Detector::GetDevice(int n) {
       // TODO Protect against out-of-range
       return Devices.at(n);
    }
@@ -154,27 +113,7 @@ namespace Smear {
       // TODO Protect against out-of-range
       return Identifiers.at(n);
    }
-   
-   Device* Detector::GetDeviceUsedFor(Particle prt, KinType kin) {
-      Device* dev(NULL);
-      for(unsigned i = 0; i < GetNDevices(); i++) {
-         if(GetDevice(i)->Accept.Is(prt) and GetDevice(i)->GetTargetVariable()==kin) {
-            dev = GetDevice(i);
-         } // if
-      } // for
-      return dev;
-   }
-   
-   int Detector::WhichDeviceUsedFor(Particle prt, KinType kin) {
-      int l(-1);
-      for(unsigned i=0; i<GetNDevices(); i++) {
-         if(GetDevice(i)->Accept.Is(prt) and GetDevice(i)->GetTargetVariable()==kin) {
-            l=i;
-         } // if
-      } // for
-      return l;
-   }
-   
+
    void Detector::FillEventKinematics(const EventBase *event, EventS *eventS) {
       if(not (useNM or useJB or useDA)) {
          return;
@@ -213,18 +152,15 @@ namespace Smear {
          eventS->WSquaredDA = EventKinComp.WSquared();
       } // if
    }
-   
+
    ParticleS* Detector::DetSmear(const Particle& prt) {
-      
       ParticleS *prtOut = NULL;
-//      std::cout << "Detector::DetSmear()" << std::endl;
       //check if particle is stable
       // TODO Particles should also only be created if they lie within the
       // detector acceptance.
       bool accept(false);
       for(unsigned i(0); i < Devices.size(); ++i) {
          if(Devices.at(i)->Accept.Is(prt)) {
-//            std::cout << "\tIn acceptance of Device " << Devices.at(i)->name << std::endl;
             accept = true;
             break;
          } // if
@@ -243,16 +179,12 @@ namespace Smear {
          prtOut = new ParticleS();
          
          for(unsigned i=0; i<GetNDevices(); i++) {
-//            std::cout << "\tSmearing with device " << i << " " << Devices.at(i)->name << std::endl;
             Devices.at(i)->DevSmear(prt,*prtOut);
          } // for
          
-         if(NIdentifiers not_eq 0) {
-            for(int i=0; i<NIdentifiers; i++) {
-//               std::cout << "\tSmearing with device " << Devices.at(i)->name << std::endl;
-               Identifiers.at(i)->DevSmear(prt,*prtOut);
-            } // for
-         } // if
+         for(int i=0; i<NIdentifiers; i++) {
+            Identifiers.at(i)->DevSmear(prt,*prtOut);
+         } // for
          prtOut->px = prtOut->p*sin(prtOut->theta)*cos(prtOut->phi);
          prtOut->py = prtOut->p*sin(prtOut->theta)*sin(prtOut->phi);
          prtOut->pz = prtOut->p*cos(prtOut->theta);
@@ -260,5 +192,12 @@ namespace Smear {
       
       return prtOut;
    }
-   
+
+   std::vector<Smearer*> Detector::CopyDevices() const {
+      using namespace std;
+      vector<Smearer*> copies;
+      transform(Devices.begin(), Devices.end(), back_inserter(copies),
+                bind2nd(mem_fun(&Smearer::Clone), ""));
+      return copies;
+   }
 } // namespace Smear

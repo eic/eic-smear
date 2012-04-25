@@ -18,7 +18,7 @@ def load():
     to import the eic-smear class library.
     """
     import ROOT
-    ROOT.gSystem.Load('.libs/libeicsmear') # Or whatever your path is
+    ROOT.gSystem.Load('libeicsmear') # Or whatever your path is
 
 
 def build(inputname, outputdir = '.', nevents = -1):
@@ -28,7 +28,7 @@ def build(inputname, outputdir = '.', nevents = -1):
     BuildTree routine as usual.
     """
     import ROOT
-    ROOT.gSystem.Load('.libs/libeicsmear') # Or whatever your path is
+    ROOT.gSystem.Load('libeicsmear') # Or whatever your path is
     
     ROOT.BuildTree(inputname, outputdir, nevents)
 
@@ -39,7 +39,7 @@ def write(outputname, nevents):
     Creating and writing events manually without the use of BuildTree.
     """
     import ROOT
-    ROOT.gSystem.Load('.libs/libeicsmear') # Or whatever your path is
+    ROOT.gSystem.Load('libeicsmear') # Or whatever your path is
 
     file = ROOT.TFile(outputname, 'recreate')
     tree = ROOT.TTree('events', 'A ROOT tree of EIC events')
@@ -62,7 +62,7 @@ def read(inputname, treename):
     """Example of reading back a tree.
     """
     import ROOT
-    ROOT.gSystem.Load('.libs/libeicsmear') # Or whatever your path is
+    ROOT.gSystem.Load('libeicsmear') # Or whatever your path is
 
     file = ROOT.TFile(inputname, 'read')
 

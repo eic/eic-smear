@@ -3,27 +3,20 @@
 
 #include <vector>
 
+#include <TObject.h>
 #include <TString.h>
 
-#include "VirtualParticle.h"
 #include "SmearEvent.h"
-
-// TODO mixture of owned and non-ownded Devices makes memory management hard.
-// TODO Aside from keeping separate "owned" & "non-owned" lists, should be
-// TODO easier to keep a single list and always add a clone (i.e. own all).
-// TODO I think the ParticleID class should inherit from Device and be treated
-// TODO the same as any other device - they essentially just "smear" id.
-// TODO Add consts where possible.
-// TODO Make Detector inherit from TObject (other classes, like Device, will
-// TODO also need this. This will allow the Detector itself to be written to
-// TODO the smeared file, which will be useful for documentation purposes.
+#include "VirtualParticle.h"
+#include "Smearer.h"
+#include "Device.h"
 
 namespace Smear {
 	
-   class Device;
    class ParticleID;
-   
-	/** 
+   class Smearer;
+
+	/**
 	 The detector structure.
     A detector can be equiped with devices, and contains its own
 	 ParticleID instance.  It contains a detector level smearing function which
@@ -35,10 +28,17 @@ namespace Smear {
     function.
     
     \todo Do something about the mix of object ownership with added Devices -
-    they may or may not need to be deleted, and there is no tracking of which
-    is which. Either make all or none owned by the Detector.
+          they may or may not need to be deleted, and there is no tracking of
+          which is which. Either make all or none owned by the Detector.
+    \todo I think the ParticleID class should inherit from Device and be treated
+          the same as any other device - they essentially just "smear" id.
+    \todo Add consts where possible.
+    \todo Make Detector inherit from TObject (other classes, like Device, will
+          also need this. This will allow the Detector itself to be written to
+          the smeared file, which will be useful for documentation purposes.
+    \todo Implement data hiding
 	 */
-	class Detector {
+	class Detector : public TObject {
 		
    public:
       
@@ -51,31 +51,22 @@ namespace Smear {
          Detector(pid, lepton, kinematics)
 		 */
 		Detector();
+      
+      /** Copy constructor */
+      Detector(const Detector&);
 		
+      /** Destructor */
+      virtual ~Detector();
+      
 		/**
 		 Delete all devices referenced by the detector.
 		 */
 		void DeleteAllDevices();
 		
-      /**
-       Clears device list but does not free memory.
-       */
-		void RemoveAllDevices();
-		
 		/**
 		 Delete all particle identifiers referenced by from the detector.
 		 */
 		void DeleteAllIdentifiers();
-		
-      /**
-       Clears particle identifier list but does not free memory.
-       */
-		void RemoveAllIdentifiers();
-		
-      /**
-       Replace this with reference-only version
-       */
-		void AddDevice(Device*);
       
 		/**
 		 Add a device to the detector.
@@ -91,12 +82,7 @@ namespace Smear {
 		 
 		 To add a device you created, and not a clone, use AddDevice(Device*).
 		 */
-		void AddDevice(Device &dev);
-		
-      /**
-       Replace this with reference-only version
-       */
-		void AddDevice(ParticleID*);
+		void AddDevice(Smearer &dev);
 		
 		/**
 		 Add a particle identifier to the detector.  The detector will use all
@@ -111,83 +97,39 @@ namespace Smear {
        This is needed for event kinematic smearing.
        Must use PDG particle codes.
 		 The default is electrons (11).
+       \remark Simply accessing the EventKinematicsComputer may be more
+       straightforward
 		 */
 		void SetPDGLeptonCode(int);
-		
-		/**
-		 Set the acceptance in the variable associated with type of all equiped
-       devices to [min,max].
-		 Useful if you want to quickly set your detector to pick up everything.
-		 */
-		void SetMasterAccept(KinType, double min, double max);
-		
-		/**
-		 Set the parametrization of all equiped devices. 
-       Very useful for troubleshooting.
-		 */
-		void SetMasterParametrization(TString);
-		
-		/**
-		 Set the TRandom3 random number generator seed of all equiped devices.
-       Very useful for troubleshooting.
-		 */
-		void SetMasterRanSeed(int);
-		
-      /**
-		 Set the Root TF1/TF2 parameters for the parametrization of all equiped
-       devices simultaneously.
-		 Useful for advanced troubleshooting.
-		 */
-		void SetMasterParams(int n, double xi);
-		
-		/**
-		 Set the smearing probability distribution function for all member
-       devices.
-       Useful for troubleshooting.
-		 */
-		void SetMasterDistribution(TString);
-		
-		/**
-		 Set the custom smearing probability distribution range for all
-       member devices.
-       Useful for troubleshooting.
-		 */
-		void SetMasterDistributionRange(double min, double max);
-		
+
       /**
        Equivalent to AddDevice().
-       */
-		Detector& operator<< (Device&);
-		
-      /**
-       Equivalent to AddDevice().
-       */
-		Detector& operator<< (Device*);
-		
-      /**
-       Equivalent to AddDevice().
+       \remark I think this syntax is confusing (it's nothing to do with streams)
        */
 		Detector& operator<< (ParticleID&);
 		
       /**
-       Equivalent to AddDevice().
-       */
-		Detector& operator<< (ParticleID*);
-		
-      /**
        Equivalent to SetEventKinematicsCalculator()
+       \remark I think this syntax is confusing (it's nothing to do with streams)
        */
 		Detector& operator << (TString EKCalc);
-		
+
       /**
-       Equivalent to GetDevice()
-       */
-		Device* operator[] (int);
-		
+       \remark Simply accessing the EventKinematicsComputer may be more
+       straightforward
+      */
 		void SetMissingEnergyTolerance(double);
 		
+      /**
+       \remark Simply accessing the EventKinematicsComputer may be more
+       straightforward
+       */
 		void TolerateBadEvents(double);
 		
+      /**
+       \remark Simply accessing the EventKinematicsComputer may be more
+       straightforward
+       */
 		void SetSupressEventWarnings(bool);
 		
 		/** 
@@ -196,6 +138,8 @@ namespace Smear {
        (using scattered lepton), "JB" for Jacquet Blondel method,
 		 or "DA" for double angle method.
        Strings not containing one of these turns the method off.
+       \remark Simply accessing the EventKinematicsComputer may be more
+       straightforward
 		 */
 		void SetEventKinematicsCalculator(TString);
 		
@@ -203,6 +147,7 @@ namespace Smear {
 		 Remove device number n from the detector.
        Devices are labeled in the order in which they are added
 		 minus 1.
+       \remark A Device* argument may make more sense
 		 */
 		void RemoveDevice(int);
 		
@@ -210,6 +155,7 @@ namespace Smear {
 		 Remove particle identifier number n from the detector.
        Identifiers are labeled in the order in 
 		 which they are added minus 1.
+       \remark A Device* argument may make more sense
 		 */
 		void RemoveIdentifier(int);
 		
@@ -218,7 +164,7 @@ namespace Smear {
        Devices are labeled in the order in which
 		 they are added minus 1.
 		 */
-		Device* GetDevice(int);
+		Smearer* GetDevice(int);
 		
 		/** 
 		 Return a pointer to particle identifier number n from the detector.
@@ -226,20 +172,7 @@ namespace Smear {
 		 added minus 1.
 		 */
 		ParticleID* GetIdentifier(int);
-		
-		/**
-		 This returns the device used to smear variable type kin of the provided
-       particle when using detector level smearing.
-		 */
-		Device* GetDeviceUsedFor(Particle, KinType);
-		
-		/**
-		 Returns the number of the device used to smear variable of type kin of
-       the provided particle when using detector
-		 level smearing.
-		 */
-		int WhichDeviceUsedFor(Particle, KinType);
-		
+
 		/**
 		 Calculate event-wise smeared kinematics for an event which has already
        had its particles smeared and stored in eventS.
@@ -270,10 +203,7 @@ namespace Smear {
 		 */
 		ParticleS* DetSmear(const Particle&);
 		
-      // TODO implement data-hiding
-//   protected:
-      
-		std::vector<Device*> Devices;
+		std::vector<Smearer*> Devices;
 		std::vector<ParticleID*> Identifiers;
 		
 		bool useNM;
@@ -283,32 +213,20 @@ namespace Smear {
 		EventKinematicsComputer EventKinComp;
 		
       UInt_t GetNDevices() const { return Devices.size(); }
-//		int NDevices; 
 		int NIdentifiers;
-		
-//		bool bPID; 
-		
+      std::vector<Smear::Smearer*> CopyDevices() const;
    private:
-      
+      Detector& operator=(const Detector&) { return *this; }
+
 		ClassDef(Detector, 1 )
 	}; 
    
-   inline Detector& Detector::operator<< (Device &dev) {
-      AddDevice(dev);
-      return *this;
-   }
-   
-   inline Detector& Detector::operator<< (Device *dev) {
-      AddDevice(dev);
-      return *this;
-   }
+//   inline Detector& Detector::operator<< (Device &dev) {
+//      AddDevice(dev);
+//      return *this;
+//   }
    
    inline Detector& Detector::operator<< (ParticleID &ident) {
-      AddDevice(ident);
-      return *this;
-   }
-   
-   inline Detector& Detector::operator<< (ParticleID *ident) {
       AddDevice(ident);
       return *this;
    }
@@ -318,9 +236,9 @@ namespace Smear {
       return *this;
    }
    
-   inline Device* Detector::operator[] (int n) {
-      return GetDevice(n);
-   }
+//   inline Device* Detector::operator[] (int n) {
+//      return GetDevice(n);
+//   }
 }
 
 #endif

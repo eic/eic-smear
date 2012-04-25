@@ -7,8 +7,6 @@
  \author Michael Savastio
  \date 10/10/11
  \copyright 2011 BNL. All rights reserved.
- 
- \todo Tidy up
  */
 
 #ifndef _ERHIC_EVENT_SMEARED_H_
@@ -26,24 +24,40 @@
 namespace Smear {
    
    /*
-    The smeared events are (currently) generator-independent.
-    \todo Add comments
+    A generator-independent event with smeared kinematics and particles.
     */
    class Event : public ::erhic::VirtualEvent<Smear::ParticleMCS> {
       
    public:
       
-      Event() { }
+      /** Default constructor */
+      Event();
       
+      /** Destructor */
+      virtual ~Event();
+      
+      /** Clear the particle list, sets event properties to default values. */
       virtual void Reset();
       
+      /** Clears particle array, leaves event variables unchanged */
+      virtual void ClearParticles();
+      
+      /** Returns the number of tracks in the event. */
       virtual UInt_t GetNTracks() const;
       
-      virtual const Smear::ParticleMCS* GetTrack(UInt_t u) const;
+      /**
+       Returns the nth track.
+       Returns NULL if the track number is out of the range [0, GetNTracks()).
+       @param [in] The track index, in the range [0, GetNTracks()).
+       */
+      virtual const ParticleMCS* GetTrack(UInt_t) const;
       
-      virtual Smear::ParticleMCS* GetTrack(UInt_t u);
-      
-      virtual void AddTrack(TrackType* track);
+      /**
+       Returns the nth track.
+       Returns NULL if the track number is out of the range [0, GetNTracks()).
+       @param [in] The track index, in the range [0, GetNTracks()).
+       */
+      virtual ParticleMCS* GetTrack(UInt_t);
       
       /**
        Returns Bjorken-x of the event.
@@ -82,14 +96,28 @@ namespace Smear {
        */
       virtual void AddLast(TrackType*);
       
+      /** Returns Bjorken x computed via the double-angle method */
       virtual double GetXDoubleAngle() const;
+
+      /** Returns Q<sup>2</sup> computed via the double-angle method */
       virtual double GetQ2DoubleAngle() const;
+
+      /** Returns inelasticity computed via the double-angle method */
       virtual double GetYDoubleAngle() const;
+
+      /** Returns W<sup>2</sup> computed via the double-angle method */
       virtual double GetW2DoubleAngle() const;
       
+      /** Returns Bjorken x computed via the Jacquet-Blondel method */
       virtual double GetXJacquetBlondel() const;
+
+      /** Returns Q<sup>2</sup> computed via the Jacquet-Blondel method */
       virtual double GetQ2JacquetBlondel() const;
+
+      /** Returns inelasticity computed via the Jacquet-Blondel method */
       virtual double GetYJacquetBlondel() const;
+
+      /** Returns W<sup>2</sup> computed via the Jacquet-Blondel method */
       virtual double GetW2JacquetBlondel() const;
       
 //   protected:
@@ -113,7 +141,7 @@ namespace Smear {
       Double32_t xDA;         ///< x calculated via the double-angle method
       Double32_t WSquaredDA;  ///< W2 calculated via the double-angle method
       
-      std::vector<TrackType*> particles;
+      std::vector<TrackType*> particles; ///< The smeared particle list
       
       ClassDef(Event, 1)
    };
@@ -128,10 +156,6 @@ namespace Smear {
    
    inline Smear::ParticleMCS* Event::GetTrack(UInt_t u) {
       return (u < particles.size() ? particles.at(u) : NULL);
-   }
-   
-   inline void Event::AddTrack(TrackType* track) {
-      particles.push_back(track);
    }
    
    inline Double_t Event::GetX() const {

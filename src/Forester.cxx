@@ -166,11 +166,8 @@ namespace erhic {
          // Allocate memory for the branch buffer and
          // add the branch to the tree
          AllocateEvent();
-         mTree->Bronch(GetBranchName().c_str(),
-                       mEvent->ClassName(), 
-                       &mEvent,
-                       32000,
-                       99);
+         mTree->Branch(GetBranchName().c_str(), mEvent->ClassName(),
+                       &mEvent, 32000, 99);
          
          // Auto-save every 500 MB
          mTree->SetAutoSave(500LL * 1024LL * 1024LL);
