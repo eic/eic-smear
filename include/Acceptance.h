@@ -11,18 +11,14 @@
 #include "Particle.h"
 #include "Smear.h"
 
-/*
- 2011/08/16
- Forced RemoveZone() argument to be with number of zones, which fixed
- erroneous deletion of Zones previously.
- */
-
 namespace Smear {
    
 	/**
 	 Determines acceptance for a Device.
     Every Device contains an instance of this structure called Accept.
     Comprises one or more (potentially non-overlapping) acceptance zones.
+    
+    \todo Implement data hiding
 	 */
    class Acceptance {
 		
@@ -78,6 +74,9 @@ namespace Smear {
 		 */
 		Acceptance(int genre = kAll);
 
+      /** Destructor */
+      virtual ~Acceptance() { }
+
 		/**
 		 Add a new zone with user-specified coverage.
        Particles will be accepted if they fall within any acceptance zone.
@@ -99,14 +98,17 @@ namespace Smear {
 		 Set the acceptance in theta. 
 		 */
 		void SetTheta(double min, double max, int n=0);		
+
 		/**
 		 Set the acceptance in phi.  
 		 */
 		void SetPhi(double min, double max, int n=0);      
+
 		/** 
 		 Set the acceptance in E.  
 		 */
 		void SetE(double min, double max, int n=0);		
+
 		/**
 		 Set the acceptance in p.
 		 */
@@ -116,6 +118,7 @@ namespace Smear {
 		 Set the acceptance in pT.
 		 */
 		void SetPt(double min, double max, int n=0);		
+
 		/**
 		 Set the acceptance int pz.
 		 */
@@ -174,9 +177,13 @@ namespace Smear {
        Must use PDG particle code.
 		 */
 		void RemoveParticle(int);
-      
+
+      /**
+       Returns true if the ParticleMC is accepted by the acceptance defined
+       in the CustomCut.
+      */
       bool IsCustomAccepted(CustomCut&, const erhic::ParticleMC&) const;
-      
+
 		/**
 		 This function determines if the particle provided lies within
        the acceptance of the
@@ -187,14 +194,10 @@ namespace Smear {
 		 */
 		bool Is(const erhic::ParticleMC& prt);
       
-//   protected: TODO implement data hiding
 		std::vector<Zone> mZones;
 		std::set<int> Particles;
-		
 		int Genre;
-      
-   private:
-      
+
 		ClassDef(Acceptance, 1)
    };
    

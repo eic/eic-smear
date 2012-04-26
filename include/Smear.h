@@ -187,10 +187,6 @@ namespace Smear {
 			prt.SetPz(fault);
 		}
 	}
-
-	inline int sgn(int n) { 
-		return (n>0) - (n<0);
-	}
 	
 	//deteremines if a vector contains the obj object, returns position.  if not found, returns -1.
 	template <class Tem> 
@@ -267,7 +263,7 @@ namespace Smear {
       
 		Distributor();
       
-//      virtual ~Distributor();
+      virtual ~Distributor() { }
 		
 		double min;
 		double max;

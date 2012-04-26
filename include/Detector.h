@@ -6,36 +6,30 @@
 #include <TObject.h>
 #include <TString.h>
 
-#include "SmearEvent.h"
-#include "VirtualParticle.h"
-#include "Smearer.h"
-#include "Device.h"
+#include "SmearEvent.h" // For EventKinematicsComputer
+
+namespace erhic {
+
+   class EventMC;
+   class ParticleMC;
+
+} // namespace erhic
 
 namespace Smear {
 	
-   class ParticleID;
+   class Event;
    class Smearer;
 
 	/**
 	 The detector structure.
-    A detector can be equiped with devices, and contains its own
-	 ParticleID instance.  It contains a detector level smearing function which
-    applies smearing of all its devices to the provided ParticleS and
-    generates particle ID. The detector can also generate event-wise smeared
+    A detector posseses a collection of Smearer objects, each smearing
+    some variable(s).
+    It contains a detector-level smearing function which
+    applies smearing of all its devices to the provided ParticleMCS.
+    The detector can also generate event-wise smeared
     kinematics if provided with smeared particles from that event.
-	 
-	 Detector level particle and event smearing is used by the SmearTree
-    function.
     
-    \todo Do something about the mix of object ownership with added Devices -
-          they may or may not need to be deleted, and there is no tracking of
-          which is which. Either make all or none owned by the Detector.
-    \todo I think the ParticleID class should inherit from Device and be treated
-          the same as any other device - they essentially just "smear" id.
     \todo Add consts where possible.
-    \todo Make Detector inherit from TObject (other classes, like Device, will
-          also need this. This will allow the Detector itself to be written to
-          the smeared file, which will be useful for documentation purposes.
     \todo Implement data hiding
 	 */
 	class Detector : public TObject {
@@ -62,36 +56,15 @@ namespace Smear {
 		 Delete all devices referenced by the detector.
 		 */
 		void DeleteAllDevices();
-		
+
 		/**
-		 Delete all particle identifiers referenced by from the detector.
-		 */
-		void DeleteAllIdentifiers();
-      
-		/**
-		 Add a device to the detector.
+		 Adds a copy of the device to this detector.
        The detector will use all its devices when applying smearing. 
 		 Detectors are labeled by integers in the order in which you added them
        minus 1.
-		 
-		 Note that when you add a device, the detector will create a clone of
-       the device you added, and then use it instead of your original device.
-       This is done so that you don't have to worry about including devices in
-       a program that terminates before you are done with your detector.
-       To remove the clone used by the Detector, use RemoveDevice.
-		 
-		 To add a device you created, and not a clone, use AddDevice(Device*).
 		 */
-		void AddDevice(Smearer &dev);
-		
-		/**
-		 Add a particle identifier to the detector.  The detector will use all
-       of its particle identifiers when applying smearing.
-       Particle identifiers are cloned, as with devices, see AddDevice(Device) 
-		 documentation for more information. 
-		 */
-		void AddDevice(ParticleID&);
-		
+		void AddDevice(Smearer& dev);
+
 		/**
 		 Set the beam lepton.
        This is needed for event kinematic smearing.
@@ -103,16 +76,10 @@ namespace Smear {
 		void SetPDGLeptonCode(int);
 
       /**
-       Equivalent to AddDevice().
-       \remark I think this syntax is confusing (it's nothing to do with streams)
-       */
-		Detector& operator<< (ParticleID&);
-		
-      /**
        Equivalent to SetEventKinematicsCalculator()
        \remark I think this syntax is confusing (it's nothing to do with streams)
        */
-		Detector& operator << (TString EKCalc);
+		Detector& operator<<(TString EKCalc);
 
       /**
        \remark Simply accessing the EventKinematicsComputer may be more
@@ -150,28 +117,13 @@ namespace Smear {
        \remark A Device* argument may make more sense
 		 */
 		void RemoveDevice(int);
-		
-		/**
-		 Remove particle identifier number n from the detector.
-       Identifiers are labeled in the order in 
-		 which they are added minus 1.
-       \remark A Device* argument may make more sense
-		 */
-		void RemoveIdentifier(int);
-		
+
 		/**
 		 Return a pointer to device number n from the detector.
-       Devices are labeled in the order in which
-		 they are added minus 1.
+       Devices are labeled in the order in which they are added minus 1.
+       Do not delete the returned pointer.
 		 */
 		Smearer* GetDevice(int);
-		
-		/** 
-		 Return a pointer to particle identifier number n from the detector.
-       Identifiers are labeled in the order in which they are
-		 added minus 1.
-		 */
-		ParticleID* GetIdentifier(int);
 
 		/**
 		 Calculate event-wise smeared kinematics for an event which has already
@@ -186,7 +138,7 @@ namespace Smear {
 		 Also, the smeared lepton momentum (as opposed to energy) is used in
        the assumption that its smearing is less severe.
 		 */
-		void FillEventKinematics(const EventBase*, EventS*);
+		void FillEventKinematics(const erhic::EventMC*, Event*);
 		
 		/**
 		 Detector level particle smearing.  This is intended to be the primary
@@ -201,10 +153,9 @@ namespace Smear {
        state particle, the detector smearing will
 		 return a null ParticleS pointer.  
 		 */
-		ParticleS* DetSmear(const Particle&);
+		ParticleMCS* DetSmear(const erhic::ParticleMC&);
 		
 		std::vector<Smearer*> Devices;
-		std::vector<ParticleID*> Identifiers;
 		
 		bool useNM;
       bool useJB;
@@ -212,33 +163,28 @@ namespace Smear {
       
 		EventKinematicsComputer EventKinComp;
 		
-      UInt_t GetNDevices() const { return Devices.size(); }
-		int NIdentifiers;
+      UInt_t GetNDevices() const;
       std::vector<Smear::Smearer*> CopyDevices() const;
+
    private:
-      Detector& operator=(const Detector&) { return *this; }
+
+      Detector& operator=(const Detector&);
 
 		ClassDef(Detector, 1 )
-	}; 
-   
-//   inline Detector& Detector::operator<< (Device &dev) {
-//      AddDevice(dev);
-//      return *this;
-//   }
-   
-   inline Detector& Detector::operator<< (ParticleID &ident) {
-      AddDevice(ident);
-      return *this;
-   }
-   
+	};
+
    inline Detector& Detector::operator << (TString EKCalc) {
       SetEventKinematicsCalculator(EKCalc);
       return *this;
    }
-   
-//   inline Device* Detector::operator[] (int n) {
-//      return GetDevice(n);
-//   }
+
+   inline UInt_t Detector::GetNDevices() const {
+      return Devices.size();
+   }
+
+   inline Detector& Detector::operator=(const Detector&) {
+      return *this;
+   }
 }
 
 #endif

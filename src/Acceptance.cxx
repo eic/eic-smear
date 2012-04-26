@@ -49,17 +49,24 @@ namespace Smear {
    void Acceptance::Set(KinType type, double min, double max, int n) {
       switch(type) {
          case kE: 
-            SetE(min,max,n); break;
+            SetE(min, max, n);
+            break;
          case kP:
-            SetP(min,max,n); break;
+            SetP(min, max, n);
+            break;
          case kTheta:
-            SetTheta(min,max,n); break;
+            SetTheta(min, max, n);
+            break;
          case kPhi:
-            SetPhi(min,max,n); break;
+            SetPhi(min, max, n);
+            break;
          case kPz:
-            SetPz(min, max, n); break;
+            SetPz(min, max, n);
+            break;
          case kPt:
-            SetPt(min, max, n); break;
+            SetPt(min, max, n);
+            break;
+         default:
             break; // Do nothing
       } // switch
    }

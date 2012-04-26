@@ -32,6 +32,8 @@ namespace Smear {
 	 */
 	struct EventKinematicsComputer {
 		
+      virtual ~EventKinematicsComputer() { }
+      
 		EventKinematicsComputer() {
 			
 			fault = -999.;

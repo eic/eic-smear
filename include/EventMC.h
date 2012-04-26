@@ -400,6 +400,8 @@ namespace erhic {
       
       Reader(const std::string& treeName = "EICTree");
       
+      virtual ~Reader() { }
+      
       EventMC* Read(Long64_t);
       EventMC* operator()(Long64_t i) { return Read(i); }
       

@@ -61,6 +61,7 @@ $(top_srcdir)/src/Forester.cxx \
 $(top_srcdir)/src/functions.cxx \
 $(top_srcdir)/src/Kinematics.cxx \
 $(top_srcdir)/src/ParticleIdentifier.cxx \
+$(top_srcdir)/src/ParticleID.cxx \
 $(top_srcdir)/src/ParticleMC.cxx \
 $(top_srcdir)/src/ParticleMCS.cxx \
 $(top_srcdir)/src/Pid.cxx \

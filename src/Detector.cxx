@@ -10,17 +10,18 @@
 #include <algorithm>
 #include <functional>
 
-#include "Device.h"
-#include "EventBase.h"
-#include "ParticleID.h"
+#include "EventMC.h"
+#include "EventSmear.h"
+#include "ParticleMC.h"
+#include "ParticleMCS.h"
+#include "Smearer.h"
 
 namespace Smear {
 
    Detector::Detector()
    : useNM(false)
    , useJB(false)
-   , useDA(false)
-   , NIdentifiers(0) {
+   , useDA(false) {
    }
 
    Detector::Detector(const Detector& other)
@@ -29,7 +30,6 @@ namespace Smear {
       useJB = other.useJB;
       useDA = other.useDA;
       EventKinComp = other.EventKinComp;
-      NIdentifiers = other.NIdentifiers;
       Devices = other.CopyDevices();
    }
 
@@ -44,22 +44,8 @@ namespace Smear {
       Devices.clear();
    }
 
-   void Detector::DeleteAllIdentifiers() {
-      for(int i(0); i < NIdentifiers; i++) {
-         delete Identifiers.at(i);
-         Identifiers.at(i) = NULL;
-      } // for
-      Identifiers.clear();
-      NIdentifiers=Identifiers.size();
-   }
-
    void Detector::AddDevice(Smearer& dev) {
       Devices.push_back(dev.Clone());
-   }
-
-   void Detector::AddDevice(ParticleID& ident) {
-      Identifiers.push_back(ident.Clone());
-      NIdentifiers = Identifiers.size();
    }
 
    void Detector::SetPDGLeptonCode(int n) {
@@ -79,55 +65,41 @@ namespace Smear {
    }
    
    void Detector::SetEventKinematicsCalculator(TString s) {
-      if(s.Contains("NM") or s.Contains("null momentum") or s.Contains("zero mass")) {
-         useNM = true;
-      } else useNM=false;
-      if(s.Contains("JB") or s.Contains("Jacquet") or s.Contains("Blondel")) {
-         useJB = true;
-      } else useJB=false;
-      if(s.Contains("DA") or s.Contains("double angle")) {
-         useDA = true;
-      } else useDA=false;
+      s.ToLower();
+      useNM = s.Contains("nm") or s.Contains("null");
+      useJB = s.Contains("jb") or s.Contains("jacquet");
+      useDA = s.Contains("da") or s.Contains("double");
    }
    
    void Detector::RemoveDevice(int n) {
-      // TODO Protect against out-of-range
-      delete Devices.at(n);
-      Devices.erase(Devices.begin()+n);
-      //NDevices = Devices.size();
-   }
-   
-   void Detector::RemoveIdentifier(int n) {
-      // TODO Protect against out-of-range
-      delete Identifiers.at(n);
-      Identifiers.erase(Identifiers.begin()+n);
-      NIdentifiers = Identifiers.size();
-   }
-   
-   Smearer* Detector::GetDevice(int n) {
-      // TODO Protect against out-of-range
-      return Devices.at(n);
-   }
-   
-   ParticleID* Detector::GetIdentifier(int n) {
-      // TODO Protect against out-of-range
-      return Identifiers.at(n);
+      if(unsigned(n) < Devices.size()) {
+         delete Devices.at(n);
+         Devices.erase(Devices.begin()+n);
+      } // if
    }
 
-   void Detector::FillEventKinematics(const EventBase *event, EventS *eventS) {
+   Smearer* Detector::GetDevice(int n) {
+      Smearer* smearer(NULL);
+      if(unsigned(n) < Devices.size()) {
+         smearer = Devices.at(n);
+      } // if
+      return smearer;
+   }
+
+   void Detector::FillEventKinematics(const erhic::EventMC* event,
+                                      Event* eventS) {
       if(not (useNM or useJB or useDA)) {
          return;
       } // if
-      
-      if (not (useJB or useDA)) {
-         EventKinComp.SetNeedBackground(false);
+
+      if(useJB or useDA) {
+         EventKinComp.SetNeedBackground(true);
       } // if
       else {
-         EventKinComp.SetNeedBackground(true);
+         EventKinComp.SetNeedBackground(false);
       } // else
-      
-      EventKinComp.ReadEvent(event,eventS);
-      
+      EventKinComp.ReadEvent(event, eventS);
+
       if(useNM) {
          EventKinComp.ComputeUsingNM();
          eventS->QSquared = EventKinComp.QSquared();
@@ -137,7 +109,7 @@ namespace Smear {
       } // if
       
       if(useJB) {
-         EventKinComp.ComputeUsingJB(/*eventS*/);
+         EventKinComp.ComputeUsingJB();
          eventS->QSquaredJB = EventKinComp.QSquared();
          eventS->yJB = EventKinComp.y();
          eventS->xJB = EventKinComp.x();
@@ -154,10 +126,6 @@ namespace Smear {
    }
 
    ParticleS* Detector::DetSmear(const Particle& prt) {
-      ParticleS *prtOut = NULL;
-      //check if particle is stable
-      // TODO Particles should also only be created if they lie within the
-      // detector acceptance.
       bool accept(false);
       for(unsigned i(0); i < Devices.size(); ++i) {
          if(Devices.at(i)->Accept.Is(prt)) {
@@ -165,31 +133,16 @@ namespace Smear {
             break;
          } // if
       } // for
-      if(NIdentifiers not_eq 0 and not accept) {
-         for(unsigned i(0); i < Identifiers.size(); ++i) {
-            if(Identifiers.at(i)->Accept.Is(prt)) {
-               accept = true;
-               break;
-            } // if
-         } // for
-      } // if
-      
+      ParticleS* prtOut(NULL);
       if(prt.GetStatus() == 1 and accept) {
-         
          prtOut = new ParticleS();
-         
          for(unsigned i=0; i<GetNDevices(); i++) {
             Devices.at(i)->DevSmear(prt,*prtOut);
          } // for
-         
-         for(int i=0; i<NIdentifiers; i++) {
-            Identifiers.at(i)->DevSmear(prt,*prtOut);
-         } // for
-         prtOut->px = prtOut->p*sin(prtOut->theta)*cos(prtOut->phi);
-         prtOut->py = prtOut->p*sin(prtOut->theta)*sin(prtOut->phi);
-         prtOut->pz = prtOut->p*cos(prtOut->theta);
+         prtOut->px = prtOut->p * sin(prtOut->theta) * cos(prtOut->phi);
+         prtOut->py = prtOut->p * sin(prtOut->theta) * sin(prtOut->phi);
+         prtOut->pz = prtOut->p * cos(prtOut->theta);
       } // if
-      
       return prtOut;
    }
 
