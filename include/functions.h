@@ -59,8 +59,8 @@ Long64_t BuildTree(const TString& inputFileName,
  */
 int SmearTree(Smear::Detector det,
               TString inFileName,
-              TString outFileName="SAME",
-              Long64_t nEvents=-1);
+              TString outFileName = "",
+              Long64_t nEvents = -1);
 
 /**
  Produces a DOT file describing the particle content of the event.

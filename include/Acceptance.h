@@ -8,8 +8,11 @@
 #include <TF2.h>
 #include <TString.h>
 
-#include "Particle.h"
 #include "Smear.h"
+
+namespace erhic {
+   class ParticleMC;
+} // namespace erhic
 
 namespace Smear {
    
@@ -38,6 +41,8 @@ namespace Smear {
       
       //========================================================================
 		struct Zone {
+         virtual ~Zone() { }
+
 			Zone(double theta = 0., double = pi,
               double phi = 0., double = 2. * pi,
               double E = 0., double = 1.e12,
@@ -62,7 +67,11 @@ namespace Smear {
          double pZMin;
          double pZMax;
 			
-			std::vector<CustomCut> CustomCuts;
+			std::vector<CustomCut> CustomCuts; //!
+
+         // We want to be able to write Acceptance objects to a ROOT file,
+         // so nested classes need a dictionary as well.
+         ClassDef(Smear::Acceptance::Zone, 1)
 		};
       
 		/**
@@ -83,63 +92,21 @@ namespace Smear {
 		 */
       void AddZone(const Zone&);
 
-      /**
-       Returns the number of acceptance zones.
-       */
+      /** Returns the number of acceptance zones. */
       UInt_t GetNZones() const;
 
-		/**
-		 Remove an acceptance zone.
-       The nth zone you added is Zone n, the original zone is Zone 0.
-		 */
-		void RemoveZone(unsigned n);
+      /** Returns the "genre" of the particle (em, hadronic, any) */
+      Int_t GetGenre() const;
 
-		/**
-		 Set the acceptance in theta. 
-		 */
-		void SetTheta(double min, double max, int n=0);		
-
-		/**
-		 Set the acceptance in phi.  
-		 */
-		void SetPhi(double min, double max, int n=0);      
-
-		/** 
-		 Set the acceptance in E.  
-		 */
-		void SetE(double min, double max, int n=0);		
-
-		/**
-		 Set the acceptance in p.
-		 */
-		void SetP(double min, double max, int n=0);		
-
-		/**
-		 Set the acceptance in pT.
-		 */
-		void SetPt(double min, double max, int n=0);		
-
-		/**
-		 Set the acceptance int pz.
-		 */
-		void SetPz(double min, double max, int n=0);
-      
       /** Select the class(es) of particles to accept */
 		void SetGenre(int);
 
-		/**
-		 Set acceptance in the kinematic variable assiciated with type.
-       Only valid for
-		 kE, kP, kTheta, kPhi.
-		 */
-		void Set(KinType type, double min, double max, int n=0);		
-		
 		/**
 		 Allows you to set the acceptance in some function of E,p,theta,phi
        for zone n.  For example, if you want to set the
 		 acceptance in pT to [0.,100.] you can do
 		 
-		 Accept.AddCustomAcceptance("P*sin(theta)",0.,100.);
+		 AddCustomAcceptance("P*sin(theta)", 0., 100.);
 		 
 		 For this you can use up to 2 input variables (must be E,p,theta,phi)
        using the same syntax as for the 
@@ -149,14 +116,7 @@ namespace Smear {
 		 fall within all of the custom acceptances you added.
 		 */
 		void AddCustomAcceptance(TString s, double min, double max, int n=0);		
-      
-		/**
-		 Clear all custom acceptance ranges from zone n.
-       Acceptance will again be determined soley by the E,p,theta,phi
-		 acceptance windows.
-		 */
-		void ClearCustomAcceptance(int n=0);	
-      
+
 		/**
 		 Add a particle type to the list of particles to be smeared.
        If you never add anything, the device will
@@ -178,12 +138,6 @@ namespace Smear {
 		 */
 		void RemoveParticle(int);
 
-      /**
-       Returns true if the ParticleMC is accepted by the acceptance defined
-       in the CustomCut.
-      */
-      bool IsCustomAccepted(CustomCut&, const erhic::ParticleMC&) const;
-
 		/**
 		 This function determines if the particle provided lies within
        the acceptance of the
@@ -193,16 +147,29 @@ namespace Smear {
        which are not within their proper range.
 		 */
 		bool Is(const erhic::ParticleMC& prt);
-      
+
+   protected:
+
+      /**
+       Returns true if the ParticleMC is accepted by the acceptance defined
+       in the CustomCut.
+      */
+      bool IsCustomAccepted(CustomCut&, const erhic::ParticleMC&) const;
+
+		int mGenre;
 		std::vector<Zone> mZones;
-		std::set<int> Particles;
-		int Genre;
+		std::set<int> mParticles;
 
 		ClassDef(Acceptance, 1)
    };
    
-   inline UInt_t Acceptance::GetNZones() const { return mZones.size(); }
+   inline UInt_t Acceptance::GetNZones() const {
+      return mZones.size();
+   }
    
+   inline Int_t Acceptance::GetGenre() const {
+      return mGenre;
+   }
 } // namespace Smear
 
 #endif

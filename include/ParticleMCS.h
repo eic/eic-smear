@@ -11,7 +11,7 @@
 
 #include <cmath>
 
-#include <Rtypes.h>
+#include <TLorentzVector.h>
 
 #include "Pid.h"
 #include "VirtualParticle.h"
@@ -23,11 +23,9 @@ namespace Smear {
    /**
     A smeared Monte Carlo particle.
     */
-   class ParticleMCS : public ::erhic::VirtualParticle {
+   class ParticleMCS : public erhic::VirtualParticle {
       
    public:
-      
-      typedef Event event_type;
       
       virtual ~ParticleMCS();
       
@@ -38,6 +36,9 @@ namespace Smear {
        */
       ParticleMCS();
       
+      /** Construct from an E-p 4-vector, pdg code and status code */
+      ParticleMCS(const TLorentzVector&, int pdg, int status);
+
       /**
        Returns the x component of 3-momentum.
        */
@@ -109,7 +110,13 @@ namespace Smear {
        Returns the pseudorapidity.
        */
       virtual Double_t GetEta() const;
-      
+
+      /** Returns a status code following the PYTHIA defintion, where
+       21 indicates an initial-state particle and 1 indicates a final-
+       state particle
+      */
+      virtual UShort_t GetStatus() const;
+
       /**
        Returns the ID of the particle.
        */
@@ -127,18 +134,19 @@ namespace Smear {
       
       virtual void SetTheta(Double_t);
       
+      virtual UShort_t GetParentIndex() const { return 0; }
 //   protected:
       
+      UShort_t   status;      ///< Status code
       Int_t      id;				///< PDG particle code
-      
-      Double32_t px;           ///< x component of particle momentum
-      Double32_t py;           ///< y component of particle momentum
-      Double32_t pz;           ///< z component of particle momentum
-      Double32_t E;            ///< Energy of particle
-      Double32_t pt;           ///< Transverse momentum of particle
-      Double32_t p;            ///< Total momentum of particle
-      Double32_t theta;          ///< Polar angle
-      Double32_t phi;            ///< Azimuthal angle
+      Double32_t px;          ///< x component of particle momentum
+      Double32_t py;          ///< y component of particle momentum
+      Double32_t pz;          ///< z component of particle momentum
+      Double32_t E;           ///< Energy of particle
+      Double32_t pt;          ///< Transverse momentum of particle
+      Double32_t p;           ///< Total momentum of particle
+      Double32_t theta;       ///< Polar angle
+      Double32_t phi;         ///< Azimuthal angle
       
       ClassDef(ParticleMCS, 1)
    };
@@ -172,7 +180,9 @@ namespace Smear {
    inline Double_t ParticleMCS::GetRapidity() const { return 0.; }
    
    inline Double_t ParticleMCS::GetEta() const { return 0.; }
-   
+ 
+   inline UShort_t ParticleMCS::GetStatus() const { return status; }
+
    inline void ParticleMCS::SetE(Double_t e) { E = e; }
    
    inline void ParticleMCS::SetP(Double_t momentum) { p = momentum; }

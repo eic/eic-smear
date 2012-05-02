@@ -1,5 +1,5 @@
-#ifndef _ERHIC_BUILDTREE_PARTICLEIDENTIFIER_
-#define _ERHIC_BUILDTREE_PARTICLEIDENTIFIER_
+#ifndef _ERHIC_BUILDTREE_ParticleIdentifier_
+#define _ERHIC_BUILDTREE_ParticleIdentifier_
 
 #include <cmath>
 #include <limits>
@@ -26,27 +26,27 @@ struct ParticleIdentifier {
    /**
     Returns whether the particle is the beam lepton.
     */
-   virtual bool isBeamLepton(const Particle& ) const;
+   virtual bool isBeamLepton(const erhic::VirtualParticle& ) const;
    
    /**
     Returns whether the particle is the beam hadron.
     */
-   virtual bool isBeamNucleon(const Particle& ) const;
+   virtual bool isBeamNucleon(const erhic::VirtualParticle& ) const;
    
    /**
     Returns whether the particle is the scattered lepton beam particle.
     */
-   virtual bool isScatteredLepton(const Particle& ) const;
+   virtual bool isScatteredLepton(const erhic::VirtualParticle& ) const;
    
    /**
     Returns whether the particle is a virtual photon.
     */
-   virtual bool IsVirtualPhoton(const Particle& ) const;
+   virtual bool IsVirtualPhoton(const erhic::VirtualParticle& ) const;
    
    /**
     Returns whether the particles should be skipped by the tree building code.
     */
-   virtual bool SkipParticle(const Particle& ) const;
+   virtual bool SkipParticle(const erhic::VirtualParticle& ) const;
    
    /**
     Sets the PDG code to use when identifying the lepton beam.
@@ -65,10 +65,10 @@ struct ParticleIdentifier {
     Returns true if all beams are found, false if not.
     Important: finding the scattered hadron beam is not implemented.
     */
-//   template<typename T>
+//   
 //   static bool IdentifyBeams(const T&, BeamParticles& );
 //   static bool IdentifyBeams(const EventBase&, BeamParticles& );
-   static bool IdentifyBeams(const erhic::EventMC&, BeamParticles&);
+   static bool IdentifyBeams(const erhic::VirtualEvent&, BeamParticles&);
    
    /**
     Identify the beams from an event and store their properties in a
@@ -80,19 +80,22 @@ struct ParticleIdentifier {
     Returns true if all beams are found (i.e. no NULL pointers), false if not.
     Important: finding the scattered hadron beam is not implemented.
     */
-//   template<typename T>
+//   
 //   static bool IdentifyBeams(const T&, std::vector<const Particle*>& );
 //   static bool IdentifyBeams(const EventBase&, std::vector<const Particle*>& );
-   static bool IdentifyBeams(const erhic::EventMC&, std::vector<const Particle*>&);
+   static bool IdentifyBeams(const erhic::VirtualEvent&,
+                             std::vector<const erhic::VirtualParticle*>&);
    
 protected:
    
    Int_t mLeptonBeamPdgCode;
 };
 
+
 inline void ParticleIdentifier::SetLeptonBeamPdgCode(const int pdgCode ) {
    mLeptonBeamPdgCode = pdgCode;
 }
+
 
 inline int ParticleIdentifier::GetLeptonBeamPdgCode() const {
    return mLeptonBeamPdgCode;

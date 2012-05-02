@@ -80,7 +80,7 @@ namespace Smear {
        Automatically calls FixAcceptance, so if you want a custom acceptance
        you should call it AFTER calling this.
 		 */
-		void SetRadii(double inner, double outer);
+//		void SetRadii(double inner, double outer);
 		
 		/**
 		 Set the total length of your tracker (centered at IP) in meters.
@@ -175,10 +175,10 @@ namespace Smear {
       FixAcceptance();
    }
 
-   inline void Tracker::SetDimensions(double inner, double outer, double L) {
-      SetRadii(inner, outer); // Calls FixAcceptance
-      SetLength(L); // Calls FixAcceptance again
-   }
+//   inline void Tracker::SetDimensions(double inner, double outer, double L) {
+//      SetRadii(inner, outer); // Calls FixAcceptance
+//      SetLength(L); // Calls FixAcceptance again
+//   }
 
    inline double Tracker::cosSquaredgamma() {
       if(not P) {
@@ -221,9 +221,9 @@ namespace Smear {
       return atan(2. * R1 / l);
    }
 
-   inline void Tracker::FixAcceptance() {
-      Accept.SetTheta(GetThetaMin(), pi - GetThetaMin());
-   }
+//   inline void Tracker::FixAcceptance() {
+//      Accept.SetTheta(GetThetaMin(), pi - GetThetaMin());
+//   }
 
    inline Tracker* Tracker::Clone(const char*) const {
       return new Tracker(*this);

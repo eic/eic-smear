@@ -14,6 +14,7 @@
 #include <TProcessID.h>
 #include <TPythia6.h>
 
+#include "Kinematics.h"
 #include "ParticleMC.h"
 #include "Pythia6EventBuilder.h"
 #include "Pythia6ParticleBuilder.h"
@@ -97,10 +98,35 @@ namespace erhic {
          particle->SetEvent(event.get());
          event->AddLast(particle.release());
       } // for
-      // We need to calculate any remaining quantities that depend
-      // on the particle list.
-      event->Compute();
-      
+
+      // Compute derived event kinematics
+      DisKinematics* nm = LeptonKinematicsComputer(*event).Calculate();
+      DisKinematics* jb = JacquetBlondelComputer(*event, NULL).Calculate();
+      DisKinematics* da = DoubleAngleComputer(*event, NULL).Calculate();
+      if(nm) {
+         event->SetLeptonKinematics(*nm);
+      } // if
+      if(jb) {
+         event->SetJacquetBlondelKinematics(*jb);
+      } // if
+      if(da) {
+         event->SetDoubleAngleKinematics(*da);
+      } // if
+      // We also have to set the remaining variables not taken care of
+      // by the general DIS event kinematic computations.
+      // Find the beams, exchange boson, scattered lepton.
+      BeamParticles beams;
+      if(ParticleIdentifier::IdentifyBeams(*event, beams)) {
+         const TLorentzVector h = beams.BeamHadron();
+         TLorentzVector l = beams.BeamLepton();
+         TLorentzVector s = beams.ScatteredLepton();
+         TVector3 boost = -h.BoostVector();
+         l.Boost(boost);
+         s.Boost(boost);
+         event->SetELeptonInNuclearFrame(l.E());
+         event->SetEScatteredInNuclearFrame(s.E());
+      } // if
+
       //Restore Object count 
       // See example in $ROOTSYS/test/Event.cxx
       //To save space in the table keeping track of all referenced objects

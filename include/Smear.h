@@ -25,12 +25,13 @@
 
 namespace Smear {
 	
-   //	const double pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170680;
 	const double pi = TMath::Pi();
    
 	/**
-	 Enumerator listing particle wise kinematic variables.  Naming is self explanitory.
-	 These will be used when specifying arguments and outputs for device parametrizations.
+	 Enumerator listing particle wise kinematic variables.
+    Naming is self explanitory.
+	 These will be used when specifying arguments and outputs
+    for device parametrizations.
 	 */
 	enum KinType { 
       kE, kP, kTheta, kPhi, kPz, kPt	

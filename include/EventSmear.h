@@ -17,19 +17,20 @@
 
 #include <TObject.h>
 
+#include "DisEvent.h"
+#include "Kinematics.h"
 #include "ParticleMCS.h"
-#include "VirtualEvent.h"
 #include "VirtualParticle.h"
 
 namespace Smear {
    
    /*
-    A generator-independent event with smeared kinematics and particles.
+    A generator-independent DIS event with smeared kinematics and particles.
     */
-   class Event : public ::erhic::VirtualEvent<Smear::ParticleMCS> {
+   class Event : public erhic::DisEvent {
       
    public:
-      
+
       /** Default constructor */
       Event();
       
@@ -44,7 +45,7 @@ namespace Smear {
       
       /** Returns the number of tracks in the event. */
       virtual UInt_t GetNTracks() const;
-      
+
       /**
        Returns the nth track.
        Returns NULL if the track number is out of the range [0, GetNTracks()).
@@ -58,91 +59,74 @@ namespace Smear {
        @param [in] The track index, in the range [0, GetNTracks()).
        */
       virtual ParticleMCS* GetTrack(UInt_t);
+
+      virtual void SetQ2(double Q2) { QSquared = Q2; }
+      virtual void SetX(double xB) { x = xB; }
+      virtual void SetY(double inelasticity) { y = inelasticity; }
+      virtual void SetW2(double W2) { WSquared = W2; }
+      virtual void SetNu(double Nu) { nu = Nu; }
       
       /**
-       Returns Bjorken-x of the event.
-       x<sub>B</sub> = Q<sup>2</sup>/(2p.q)
+       Returns a pointer to the incident lepton beam particle.
+       Returns a NULL pointer if the particle cannot be located in the event.
+       IMPORTANT - DO NOT DELETE THE POINTER OR BAD THINGS WILL HAPPEN!
+       
+       In the standard eRHIC Monte Carlo format, the incident lepton beam
+       is assumed to be the first particle in the particle list.
+       This is the behaviour implemented here.
+       Derived classes can implement other selection mechanisms depending on
+       their data format.
        */
-      virtual Double_t GetX() const;
+      virtual const ParticleMCS* BeamLepton() const;
       
       /**
-       Returns the four-momentum transfer (exchange boson mass) Q<sup>2</sup>.
-       Q<sup>2</sup> = 2EE`(1+cos(theta)) = (e-e`)<sup>2</sup>
+       Returns a pointer to the incident hadron beam particle.
+       See also notes in BeamLepton().
+       
+       In the standard eRHIC Monte Carlo format, the incident hadron beam
+       is assumed to be the second particle in the particle list.
        */
-      virtual Double_t GetQ2() const;
+      virtual const ParticleMCS* BeamHadron() const;
       
       /**
-       Returns the event inelasticity.
-       y = (p.q)/(p.e)
+       Returns a pointer to the exchanged boson.
+       See also notes in BeamLepton().
+       
+       In the standard eRHIC Monte Carlo format, the exchanged boson
+       is assumed to be the third particle in the particle list.
        */
-      virtual Double_t GetY() const;
+      virtual const ParticleMCS* ExchangeBoson() const;
       
       /**
-       Returns the invariant mass of the hadronic final state.
-       W<sup>2</sup> = M<sup>2</sup> + Q<sup>2</sup>(1-x)/x
+       Returns a pointer to the lepton beam particle after scattering.
+       See also notes in BeamLepton().
+       
+       In the standard eRHIC Monte Carlo format, the scattered lepton beam
+       is assumed to be the first final-state particle in the particle list
+       with the same PDG code as the incident lepton beam.
        */
-      virtual Double_t GetW2() const;
-      
-      /**
-       Returns the exchange boson energy in the beam hadron rest frame.
-       nu = q.p/M
-       */
-      virtual Double_t GetNu() const;
-      
+      virtual const ParticleMCS* ScatteredLepton() const;
+
       /**
        Add a new track to the end of the track list.
        The track must be allocated via new and is subsequently owned
        by the Event.
        */
-      virtual void AddLast(TrackType*);
-      
-      /** Returns Bjorken x computed via the double-angle method */
-      virtual double GetXDoubleAngle() const;
+      virtual void AddLast(ParticleMCS*);
 
-      /** Returns Q<sup>2</sup> computed via the double-angle method */
-      virtual double GetQ2DoubleAngle() const;
+      /**
+       Yields all particles that belong to the hadronic final state.
+       This is the same as the result of FinalState(), minus the scattered
+       beam lepton.
+       */
+      void HadronicFinalState(ParticlePtrList&) const;
 
-      /** Returns inelasticity computed via the double-angle method */
-      virtual double GetYDoubleAngle() const;
-
-      /** Returns W<sup>2</sup> computed via the double-angle method */
-      virtual double GetW2DoubleAngle() const;
-      
-      /** Returns Bjorken x computed via the Jacquet-Blondel method */
-      virtual double GetXJacquetBlondel() const;
-
-      /** Returns Q<sup>2</sup> computed via the Jacquet-Blondel method */
-      virtual double GetQ2JacquetBlondel() const;
-
-      /** Returns inelasticity computed via the Jacquet-Blondel method */
-      virtual double GetYJacquetBlondel() const;
-
-      /** Returns W<sup>2</sup> computed via the Jacquet-Blondel method */
-      virtual double GetW2JacquetBlondel() const;
-      
 //   protected:
       
       Int_t nTracks; ///< Number of particles (intermediate + final)
-      
-      Double32_t x;           ///< Bjorken scaling variable
-      Double32_t QSquared;    ///< Q<sup>2</sup> calculated from
-                              ///< scattered electron
-      Double32_t y;           ///< Inelasticity
-      Double32_t WSquared;    ///< Invariant mass of the hadronic system
-      Double32_t nu;          ///< Energy transfer from the electron
-      
-      Double32_t yJB;         ///< y calculated via the Jacquet-Blondel method
-      Double32_t QSquaredJB;  ///< Q2 calculated via the Jacquet-Blondel method
-      Double32_t xJB;         ///< x calculated via the Jacquet-Blondel method
-      Double32_t WSquaredJB;  ///< W2 calculated via the Jacquet-Blondel method
-      
-      Double32_t yDA;         ///< y calculated via the double-angle method
-      Double32_t QSquaredDA;  ///< Q2 calculated via the double-angle method
-      Double32_t xDA;         ///< x calculated via the double-angle method
-      Double32_t WSquaredDA;  ///< W2 calculated via the double-angle method
-      
-      std::vector<TrackType*> particles; ///< The smeared particle list
-      
+
+      std::vector<ParticleMCS*> particles; ///< The smeared particle list
+      Int_t mScatteredIndex;
       ClassDef(Event, 1)
    };
    
@@ -157,59 +141,15 @@ namespace Smear {
    inline Smear::ParticleMCS* Event::GetTrack(UInt_t u) {
       return (u < particles.size() ? particles.at(u) : NULL);
    }
-   
-   inline Double_t Event::GetX() const {
-      return x;
+   inline const ParticleMCS* Event::BeamLepton() const {
+      return NULL;
    }
-   
-   inline Double_t Event::GetQ2() const {
-      return QSquared;
+   inline const ParticleMCS* Event::BeamHadron() const {
+      return NULL;
    }
-
-   inline Double_t Event::GetY() const {
-      return y;
+   inline const ParticleMCS* Event::ExchangeBoson() const {
+      return NULL;
    }
-   
-   inline Double_t Event::GetW2() const {
-      return WSquared;
-   }
-   
-   inline Double_t Event::GetNu() const {
-      return nu;
-   }
-   
-   inline double Event::GetXDoubleAngle() const {
-      return xDA;
-   }
-   
-   inline double Event::GetQ2DoubleAngle() const {
-      return QSquaredDA;
-   }
-   
-   inline double Event::GetYDoubleAngle() const {
-      return yDA;
-   }
-   
-   inline double Event::GetW2DoubleAngle() const {
-      return WSquaredDA;
-   }
-   
-   inline double Event::GetXJacquetBlondel() const {
-      return xJB;
-   }
-   
-   inline double Event::GetQ2JacquetBlondel() const {
-      return QSquaredJB;
-   }
-   
-   inline double Event::GetYJacquetBlondel() const {
-      return yJB;
-   }
-   
-   inline double Event::GetW2JacquetBlondel() const {
-      return WSquaredJB;
-   }
-   
 } // namespace Smear
 
 typedef Smear::Event EventS;

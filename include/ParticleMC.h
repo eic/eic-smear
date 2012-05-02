@@ -48,7 +48,7 @@ namespace erhic {
       virtual void Print(Option_t* = "") const;
       
       /**
-       Returns the particle index in an event.
+       Returns the particle index in an event, in the range [1, N].
        */
       virtual UInt_t GetIndex() const;
       

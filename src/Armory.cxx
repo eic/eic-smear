@@ -65,7 +65,7 @@ namespace Smear {
          return fault;
       } // else
    }
-
+/*
    void Tracker::SetRadii(double inner, double outer) {
       if(inner < outer) {
          R1 = inner;
@@ -76,7 +76,7 @@ namespace Smear {
          std::cerr << "ERROR! Outer radius must exceed inner." << std::endl;
       } // else
    }
-
+*/
    double Tracker::L() {
       if(not P) {
          return fault;

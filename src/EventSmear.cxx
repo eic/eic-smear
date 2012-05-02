@@ -4,19 +4,7 @@ namespace Smear {
 
    Event::Event()
    : nTracks(0)
-   , x(0.)
-   , QSquared(0.)
-   , y(0.)
-   , WSquared(0.)
-   , nu(0.)
-   , yJB(0.)
-   , QSquaredJB(0.)
-   , xJB(0.)
-   , WSquaredJB(0.)
-   , yDA(0.)
-   , QSquaredDA(0.)
-   , xDA(0.)
-   , WSquaredDA(0.) {
+   , mScatteredIndex(-1) {
    }
 
    Event::~Event() {
@@ -36,8 +24,30 @@ namespace Smear {
       *this = Event();
    }
 
-   void Event::AddLast(TrackType* track) {
+   void Event::AddLast(ParticleMCS* track) {
       particles.push_back(track);
    }
 
+   // The scattered lepton should be the first non-NULL entry in the track list
+   const ParticleMCS* Event::ScatteredLepton() const {
+      if(mScatteredIndex > -1 and mScatteredIndex < int(GetNTracks())) {
+         return GetTrack(mScatteredIndex);
+      } // if
+      return NULL;
+   }
+
+   // Get the particles that belong to the hadronic final state.
+   // The stored Particle* are pointers to the original particles in the event
+   // so don't delete them!
+   void Event::HadronicFinalState(ParticlePtrList& final) const {
+      // Skip the first two entries, as these are the incident beams
+      for(unsigned i(2); i < GetNTracks(); ++i) {
+         if(not GetTrack(i)) {
+            continue;
+         } // if
+         if(GetTrack(i) not_eq ScatteredLepton()) {
+            final.push_back(GetTrack(i));
+         } // if
+      } // for
+   }
 } // namespace erhic

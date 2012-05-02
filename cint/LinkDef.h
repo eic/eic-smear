@@ -28,10 +28,11 @@
 
 // Base event classes
 
-#pragma link C++ class erhic::VirtualEvent<erhic::ParticleMC>+;
+#pragma link C++ class erhic::VirtualEvent+;
 #pragma link C++ class erhic::EventMC+;
-#pragma link C++ class erhic::VirtualEvent<Smear::ParticleMCS>+;
+#pragma link C++ class erhic::VirtualEvent+;
 #pragma link C++ class Smear::Event+;
+#pragma link C++ class erhic::DisEvent+;
 
 // Event classes for individual generators
 
@@ -63,6 +64,7 @@
 // Core smearing components
 
 #pragma link C++ class Smear::Acceptance+;
+#pragma link C++ class Smear::Acceptance::Zone+;
 #pragma link C++ class Smear::Smearer+;
 #pragma link C++ class Smear::Device+;
 #pragma link C++ class Smear::ParamSimple+;
@@ -104,17 +106,17 @@
 #pragma link C++ class std::vector<Particle>+;
 #pragma link C++ class std::vector<Particle*>+;
 #pragma link C++ class std::vector<const Particle*>+;
+#pragma link C++ class std::vector<const erhic::VirtualParticle*>+;
 #pragma link C++ class std::auto_ptr<erhic::Pid>;
 
 // typedefs
-
 #pragma link C++ class EventS;
 #pragma link C++ class ParticleS;
-#pragma link C++ typedef erhic::VirtualEvent<erhic::ParticleMC>::TrackType;
-#pragma link C++ typedef erhic::VirtualEvent<Smear::ParticleMCS>::TrackType;
 
 // Miscellaneous utilities and helper functions/functors
 
+#pragma link C++ class erhic::Kinematics+;
+#pragma link C++ class erhic::DisKinematics+;
 #pragma link C++ class BeamParticles+;
 #pragma link C++ class DoubleAngle+;
 #pragma link C++ class EventToDot;
@@ -122,6 +124,10 @@
 #pragma link C++ class erhic::Reader+;
 #pragma link C++ class KinematicsFromHadrons+;
 #pragma link C++ class JacquetBlondel+;
+#pragma link C++ class erhic::KinematicsComputer+;
+#pragma link C++ class erhic::LeptonKinematicsComputer+;
+#pragma link C++ class erhic::JacquetBlondelComputer+;
+#pragma link C++ class erhic::DoubleAngleComputer+;
 #pragma link C++ class ParticleIdentifier+;
 
 #endif

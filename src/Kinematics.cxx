@@ -13,7 +13,105 @@
 #include <TDatabasePDG.h>
 #include <TVector3.h>
 
+#include "BeamParticles.h"
 #include "Kinematics.h"
+#include "ParticleIdentifier.h"
+
+namespace erhic {
+   DisKinematics::DisKinematics()
+   : mX(0.)
+   , mQ2(0.)
+   , mW2(0.)
+   , mNu(0.)
+   , mY(0) {
+   }
+   DisKinematics::DisKinematics(double x, double y, double nu,
+                                double Q2, double W2)
+   : mX(x)
+   , mQ2(Q2)
+   , mW2(W2)
+   , mNu(nu)
+   , mY(y) {
+   }
+   LeptonKinematicsComputer::LeptonKinematicsComputer(const DisEvent& event) {
+      ParticleIdentifier::IdentifyBeams(event, mBeams);
+   }
+   LeptonKinematicsComputer::LeptonKinematicsComputer(const BeamParticles& b)
+   : mBeams(b) {
+   }
+   DisKinematics* LeptonKinematicsComputer::Calculate() {
+      DisKinematics* kin(NULL);
+      const TLorentzVector& l = mBeams.BeamLepton();
+      const TLorentzVector& h = mBeams.BeamHadron();
+      const TLorentzVector& s = mBeams.ScatteredLepton();
+      kin = new DisKinematics;
+      kin->mQ2 = 2. * l.E() * s.E() * (1. + s.CosTheta());
+      double ELeptonInNucl = h.Gamma() * (l.E() - h.Beta() * l.Pz());
+      double ELeptonOutNucl = h.Gamma() * (s.E() - h.Beta() * s.Pz());
+      kin->mNu = ELeptonInNucl - ELeptonOutNucl;
+      kin->mX = kin->mQ2 / (2. * h.M() * kin->mNu);
+      kin->mY = kin->mNu / ELeptonInNucl;
+      kin->mW2 = h.M2() + (1. - kin->mX) * kin->mQ2 / kin->mX;
+      return kin;
+   }
+   JacquetBlondelComputer::JacquetBlondelComputer(const DisEvent& event,
+                                                  const BeamParticles* beams)
+   : mEvent(event) {
+      if(beams) {
+         mBeams = *beams;
+      } // if
+      else {
+      ParticleIdentifier::IdentifyBeams(event, mBeams);
+      } // else
+   }
+   DisKinematics* JacquetBlondelComputer::Calculate() {
+      DisKinematics* kin(NULL);
+      ::JacquetBlondel jacquetBlondel;
+      jacquetBlondel.setBeamLepton(mBeams.BeamLepton());
+      jacquetBlondel.setBeamHadron(mBeams.BeamHadron());
+      std::vector<const VirtualParticle*> final;
+      mEvent.HadronicFinalState(final);
+      for(unsigned i(0); i < final.size(); ++i ) {
+         jacquetBlondel.addParticle(final.at(i)->Get4Vector() );
+      } // for
+      kin = new DisKinematics;
+      kin->mY = jacquetBlondel.computeY();
+      kin->mQ2 = jacquetBlondel.computeQSquared();
+      kin->mX = jacquetBlondel.computeX();
+      kin->mW2 = mBeams.BeamHadron().M2() + (1. - kin->mX) *
+                 kin->mQ2 / kin->mX;
+      return kin;
+   }
+   DoubleAngleComputer::DoubleAngleComputer(const DisEvent& event,
+                                            const BeamParticles* beams)
+   : mEvent(event) {
+      if(beams) {
+         mBeams = *beams;
+      } // if
+      else {
+      ParticleIdentifier::IdentifyBeams(event, mBeams);
+      } // else
+   }
+   DisKinematics* DoubleAngleComputer::Calculate() {
+      DisKinematics* kin(NULL);
+      ::DoubleAngle doubleAngle;
+      doubleAngle.setBeamLepton(mBeams.BeamLepton());
+      doubleAngle.setBeamHadron(mBeams.BeamHadron());
+      doubleAngle.setLeptonAngle(mBeams.ScatteredLepton().Theta());
+      std::vector<const VirtualParticle*> final;
+      mEvent.HadronicFinalState(final);
+      for(unsigned i(0); i < final.size(); ++i ) {
+         doubleAngle.addParticle(final.at(i)->Get4Vector() );
+      } // for
+      kin = new DisKinematics;
+      kin->mY = doubleAngle.computeY();
+      kin->mQ2 = doubleAngle.computeQSquared();
+      kin->mX = doubleAngle.computeX();
+      kin->mW2 = mBeams.BeamHadron().M2() + (1. - kin->mX) *
+                 kin->mQ2 / kin->mX;
+      return kin;
+   }
+} // namespace erhic
 
 // -------------------------------------------------------------------------------------------------
 // Implementation of the KinematicsFromHadrons class follows

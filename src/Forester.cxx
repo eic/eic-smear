@@ -77,7 +77,7 @@ namespace erhic {
             } // if
             
             // Build the next event
-            VirtualEvent<ParticleMC>* event = mFactory->Create();
+            VirtualEvent* event = mFactory->Create();
             
             // Fill the tree
             if(event) {

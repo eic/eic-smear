@@ -50,7 +50,7 @@ namespace Smear {
    ParamSimple::ParamSimple(KinType type, const TString& formula, EGenre genre)
    : mSmeared(type)
    , mFormula(NULL) {
-      Accept.Genre = genre;
+      Accept.SetGenre(genre);
       TString form(formula);
       std::vector<KinType> types;
       int nVariables = Parse(form, mDimensions);

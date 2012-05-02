@@ -99,6 +99,13 @@ namespace erhic {
        */
       virtual TVector3 GetVertex() const = 0;
       
+      /**
+       A general "status" code for the particle
+       (definition depends on implementation).
+      */
+      virtual UShort_t GetStatus() const = 0;
+
+      virtual UShort_t GetParentIndex() const = 0;
 //      virtual void SetE(Double_t) = 0;
       
 //      virtual void SetP(Double_t) = 0;

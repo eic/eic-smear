@@ -9,33 +9,40 @@
 
 #include <algorithm>
 #include <functional>
+#include <memory>
 
 #include "EventMC.h"
 #include "EventSmear.h"
+#include "Kinematics.h"
 #include "ParticleMC.h"
 #include "ParticleMCS.h"
 #include "Smearer.h"
 
 namespace Smear {
-
    Detector::Detector()
    : useNM(false)
    , useJB(false)
    , useDA(false) {
    }
-
    Detector::Detector(const Detector& other)
    : TObject(other) {
       useNM = other.useNM;
       useJB = other.useJB;
       useDA = other.useDA;
-      EventKinComp = other.EventKinComp;
       Devices = other.CopyDevices();
    }
-
-   Detector::~Detector() {
+   Detector& Detector::operator=(const Detector& that) {
+      if(this not_eq &that) {
+         useNM = that.useNM;
+         useJB = that.useJB;
+         useDA = that.useDA;
+         Devices = that.CopyDevices();
+      } // if
+      return *this;
    }
-
+   Detector::~Detector() {
+      DeleteAllDevices();
+   }
    void Detector::DeleteAllDevices() {
       for(unsigned i(0); i < GetNDevices(); i++) {
          delete Devices.at(i);
@@ -43,41 +50,15 @@ namespace Smear {
       } // for
       Devices.clear();
    }
-
    void Detector::AddDevice(Smearer& dev) {
       Devices.push_back(dev.Clone());
    }
-
-   void Detector::SetPDGLeptonCode(int n) {
-      EventKinComp.SetPDGLeptonCode(n);
-   }
-
-   void Detector::SetMissingEnergyTolerance(double E) {
-      EventKinComp.SetMissingEnergyTolerance(E);
-   }
-   
-   void Detector::TolerateBadEvents(double b) {
-      EventKinComp.TolerateBadEvents(b);
-   }
-   
-   void Detector::SetSupressEventWarnings(bool b) {
-      EventKinComp.SetSupressWarnings(b);
-   }
-   
    void Detector::SetEventKinematicsCalculator(TString s) {
       s.ToLower();
       useNM = s.Contains("nm") or s.Contains("null");
       useJB = s.Contains("jb") or s.Contains("jacquet");
       useDA = s.Contains("da") or s.Contains("double");
    }
-   
-   void Detector::RemoveDevice(int n) {
-      if(unsigned(n) < Devices.size()) {
-         delete Devices.at(n);
-         Devices.erase(Devices.begin()+n);
-      } // if
-   }
-
    Smearer* Detector::GetDevice(int n) {
       Smearer* smearer(NULL);
       if(unsigned(n) < Devices.size()) {
@@ -85,47 +66,45 @@ namespace Smear {
       } // if
       return smearer;
    }
-
-   void Detector::FillEventKinematics(const erhic::EventMC* event,
+   void Detector::FillEventKinematics(const erhic::EventMC& event,
                                       Event* eventS) {
       if(not (useNM or useJB or useDA)) {
          return;
       } // if
-
-      if(useJB or useDA) {
-         EventKinComp.SetNeedBackground(true);
+      // Need a bit of jiggery-pokery here, as the incident beam info isn't
+      // associated with the smeared event.
+      // So, get the beam info from the MC event, but replace the scattered
+      // electron with the smeared version.
+      // Then we can use the standard JB/DA algorithms on the smeared event.
+      BeamParticles beams;
+      ParticleIdentifier::IdentifyBeams(event, beams);
+      const ParticleMCS* scattered = eventS->ScatteredLepton();
+      if(scattered) {
+         beams.SetScatteredLepton(scattered->Get4Vector());
       } // if
-      else {
-         EventKinComp.SetNeedBackground(false);
-      } // else
-      EventKinComp.ReadEvent(event, eventS);
-
+      typedef std::auto_ptr<erhic::DisKinematics> KinPtr;
       if(useNM) {
-         EventKinComp.ComputeUsingNM();
-         eventS->QSquared = EventKinComp.QSquared();
-         eventS->y = EventKinComp.y();
-         eventS->x = EventKinComp.x();;
-         eventS->WSquared = EventKinComp.WSquared();
+         KinPtr kin(erhic::LeptonKinematicsComputer(beams).Calculate()); 
+         if(kin.get()) {
+            eventS->SetLeptonKinematics(*kin);
+         } // if
       } // if
-      
       if(useJB) {
-         EventKinComp.ComputeUsingJB();
-         eventS->QSquaredJB = EventKinComp.QSquared();
-         eventS->yJB = EventKinComp.y();
-         eventS->xJB = EventKinComp.x();
-         eventS->WSquaredJB = EventKinComp.WSquared();
+         KinPtr kin(erhic::JacquetBlondelComputer(*eventS, &beams).Calculate());
+         if(kin.get()) {
+            eventS->SetJacquetBlondelKinematics(*kin);
+         } // if
       } // if
-      
       if(useDA) {
-         EventKinComp.ComputeUsingDA();
-         eventS->QSquaredDA = EventKinComp.QSquared();
-         eventS->yDA = EventKinComp.y();
-         eventS->xDA = EventKinComp.x();
-         eventS->WSquaredDA = EventKinComp.WSquared();
+         KinPtr kin(erhic::DoubleAngleComputer(*eventS, &beams).Calculate());
+         if(kin.get()) {
+            eventS->SetDoubleAngleKinematics(*kin);
+         } // if
       } // if
    }
-
-   ParticleS* Detector::DetSmear(const Particle& prt) {
+   ParticleMCS* Detector::Smear(const Particle& prt) {
+      // Does the particle fall in the acceptance of any device?
+      // If so, we smear it, if not, we skip it (store a NULL pointer).
       bool accept(false);
       for(unsigned i(0); i < Devices.size(); ++i) {
          if(Devices.at(i)->Accept.Is(prt)) {
@@ -135,22 +114,24 @@ namespace Smear {
       } // for
       ParticleS* prtOut(NULL);
       if(prt.GetStatus() == 1 and accept) {
+         // It passes through at least one device, so smear it.
+         // Devices in which it doesn't pass won't smear it.
          prtOut = new ParticleS();
          for(unsigned i=0; i<GetNDevices(); i++) {
             Devices.at(i)->DevSmear(prt,*prtOut);
          } // for
          prtOut->px = prtOut->p * sin(prtOut->theta) * cos(prtOut->phi);
          prtOut->py = prtOut->p * sin(prtOut->theta) * sin(prtOut->phi);
+         prtOut->pt = sqrt(pow(prtOut->px, 2.) + pow(prtOut->py, 2.));
          prtOut->pz = prtOut->p * cos(prtOut->theta);
       } // if
       return prtOut;
    }
-
    std::vector<Smearer*> Detector::CopyDevices() const {
-      using namespace std;
-      vector<Smearer*> copies;
-      transform(Devices.begin(), Devices.end(), back_inserter(copies),
-                bind2nd(mem_fun(&Smearer::Clone), ""));
+      std::vector<Smearer*> copies;
+      std::transform(Devices.begin(), Devices.end(),
+                     std::back_inserter(copies),
+                     std::bind2nd(std::mem_fun(&Smearer::Clone), ""));
       return copies;
    }
 } // namespace Smear

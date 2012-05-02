@@ -26,7 +26,7 @@ namespace erhic {
       
       virtual ~VirtualEventFactory() { }
       
-      virtual VirtualEvent<ParticleMC>* Create() = 0;
+      virtual VirtualEvent* Create() = 0;
       
       
       ClassDef(VirtualEventFactory, 1)

@@ -15,8 +15,109 @@
 
 #include "VirtualParticle.h"
 #include "EventBase.h"
+//#include "EventMC.h"
+#include "ParticleMC.h"
+//class EventBase;
+#include "ParticleIdentifier.h"
+#include "BeamParticles.h"
 
 //class EventBase;
+
+namespace erhic {
+
+   class DisEvent;
+
+   // Needed? Unless there is some functionality or interface associated
+   // with Kinematics, just inherit subclasses directly from TObject
+   struct Kinematics : public TObject {
+      ClassDef(erhic::Kinematics, 1)
+   };
+
+   struct DisKinematics : public Kinematics {
+      DisKinematics();
+      DisKinematics(double x, double y, double nu, double Q2, double W2);
+      Double32_t mX;
+      Double32_t mQ2;
+      Double32_t mW2;
+      Double32_t mNu;
+      Double32_t mY;
+      ClassDef(erhic::DisKinematics, 1)
+   };
+
+   /**
+    Abstract base class for computations of event kinematics.
+   */
+   class KinematicsComputer {
+   public:
+      virtual ~KinematicsComputer() { }
+      virtual Kinematics* Calculate() = 0;
+      ClassDef(KinematicsComputer, 1)
+   };
+
+   /**
+    Computes DIS event kinematics from the scattered lepton.
+   */
+   class LeptonKinematicsComputer : public KinematicsComputer {
+   public:
+      virtual ~LeptonKinematicsComputer() { }
+      /** Initialise with the beam info used to compute the kinematics */
+      LeptonKinematicsComputer(const BeamParticles&);
+      /** Determine the beam info from the input event */
+      LeptonKinematicsComputer(const DisEvent&);
+      virtual DisKinematics* Calculate();
+   protected:
+      BeamParticles mBeams;
+      ClassDef(LeptonKinematicsComputer, 1)
+   };
+
+   /**
+    Computes DIS event kinematics from final-state hadrons using
+    the Jacquet-Blondel method.
+   */
+   class JacquetBlondelComputer : public KinematicsComputer {
+   public:
+      virtual ~JacquetBlondelComputer() { }
+      /**
+       Initialise with the event to compute.
+       If the second argument is non-NULL, use the beam information from it
+       in the computation.
+       If it is NULL, determine the beam information automatically from
+       the event.
+       This allows the same class to be used with smeared calculations, where
+       the beam information isn't associated with the smeared event itself.
+      */
+      JacquetBlondelComputer(const DisEvent& e, const BeamParticles*);
+      virtual DisKinematics* Calculate();
+   protected:
+      const DisEvent& mEvent;
+      BeamParticles mBeams;
+      ClassDef(JacquetBlondelComputer, 1)
+   };
+
+   /**
+    Computes DIS event kinematics from a mixture of hadronic and lepton
+    variables using the double-angle method.
+   */
+   class DoubleAngleComputer : public KinematicsComputer {
+   public:
+      virtual ~DoubleAngleComputer() { }
+      /**
+       Initialise with the event to compute.
+       If the second argument is non-NULL, use the beam information from it
+       in the computation.
+       If it is NULL, determine the beam information automatically from
+       the event.
+       This allows the same class to be used with smeared calculations, where
+       the beam information isn't associated with the smeared event itself.
+      */
+      DoubleAngleComputer(const DisEvent& e, const BeamParticles*);
+      virtual DisKinematics* Calculate();
+   protected:
+      const DisEvent& mEvent;
+      BeamParticles mBeams;
+      ClassDef(DoubleAngleComputer, 1)
+   };
+} // namespace erhic
 
 //	=================================================================================================
 // Base class for calculation of event kinematics from the hadronic final state.

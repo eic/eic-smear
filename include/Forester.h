@@ -310,7 +310,7 @@ namespace erhic {
       Bool_t mVerbose; ///< Verbosity flag
       
       TTree* mTree; //!< Output TTree, owned by mRootFile
-      EventBase* mEvent; //!< Stores event branch address
+      EventMC* mEvent; //!< Stores event branch address
       
       const erhic::FileType* mFile; //!< File type information
       

@@ -6,8 +6,6 @@
 #include <TObject.h>
 #include <TString.h>
 
-#include "SmearEvent.h" // For EventKinematicsComputer
-
 namespace erhic {
 
    class EventMC;
@@ -18,6 +16,7 @@ namespace erhic {
 namespace Smear {
 	
    class Event;
+   class ParticleMCS;
    class Smearer;
 
 	/**
@@ -36,69 +35,24 @@ namespace Smear {
 		
    public:
       
-		/** 
-		 Default contructor.
-       By default particle ID is off, and the detector thinks the beam
-		 lepton is an electron.
-       \todo Add optional arguments to construtor to set PID, lepton species,
-         event kinematics calculations
-         Detector(pid, lepton, kinematics)
-		 */
+		/** Default contructor */
 		Detector();
       
       /** Copy constructor */
       Detector(const Detector&);
-		
+
+      /** Assignment operator */
+      Detector& operator=(const Detector&);
+
       /** Destructor */
       virtual ~Detector();
-      
-		/**
-		 Delete all devices referenced by the detector.
-		 */
-		void DeleteAllDevices();
 
 		/**
-		 Adds a copy of the device to this detector.
+		 Adds a copy of the smearing device to this detector.
        The detector will use all its devices when applying smearing. 
-		 Detectors are labeled by integers in the order in which you added them
-       minus 1.
 		 */
 		void AddDevice(Smearer& dev);
 
-		/**
-		 Set the beam lepton.
-       This is needed for event kinematic smearing.
-       Must use PDG particle codes.
-		 The default is electrons (11).
-       \remark Simply accessing the EventKinematicsComputer may be more
-       straightforward
-		 */
-		void SetPDGLeptonCode(int);
-
-      /**
-       Equivalent to SetEventKinematicsCalculator()
-       \remark I think this syntax is confusing (it's nothing to do with streams)
-       */
-		Detector& operator<<(TString EKCalc);
-
-      /**
-       \remark Simply accessing the EventKinematicsComputer may be more
-       straightforward
-      */
-		void SetMissingEnergyTolerance(double);
-		
-      /**
-       \remark Simply accessing the EventKinematicsComputer may be more
-       straightforward
-       */
-		void TolerateBadEvents(double);
-		
-      /**
-       \remark Simply accessing the EventKinematicsComputer may be more
-       straightforward
-       */
-		void SetSupressEventWarnings(bool);
-		
 		/** 
 		 Set the method for calculating event kinematics if FillEventKinematics
        is used. String must contain "NM" for null momentum approximation
@@ -109,14 +63,11 @@ namespace Smear {
        straightforward
 		 */
 		void SetEventKinematicsCalculator(TString);
-		
+      
 		/**
-		 Remove device number n from the detector.
-       Devices are labeled in the order in which they are added
-		 minus 1.
-       \remark A Device* argument may make more sense
+		 Delete all devices in the detector.
 		 */
-		void RemoveDevice(int);
+		void DeleteAllDevices();
 
 		/**
 		 Return a pointer to device number n from the detector.
@@ -124,6 +75,9 @@ namespace Smear {
        Do not delete the returned pointer.
 		 */
 		Smearer* GetDevice(int);
+
+      /** Returns the number of devices in the detector */
+      UInt_t GetNDevices() const;
 
 		/**
 		 Calculate event-wise smeared kinematics for an event which has already
@@ -138,52 +92,33 @@ namespace Smear {
 		 Also, the smeared lepton momentum (as opposed to energy) is used in
        the assumption that its smearing is less severe.
 		 */
-		void FillEventKinematics(const erhic::EventMC*, Event*);
+		void FillEventKinematics(const erhic::EventMC&, Event*);
 		
 		/**
-		 Detector level particle smearing.  This is intended to be the primary
-       method for smearing particles. The function will output a pointer to a
-       particleS, which is a version of the input Particle which has been
-       smeared by all the detectors devices, and identified with the
-       detector's particle ID (if on). Note that the ParticleS class contains
-       only E,p,theta,phi,pz,pt and id.  This smearing will only be applied
-		 particles which are stable (i.e. in the Pythia sense).
-		 
-		 If the input particle is unstable, an initial state or intermediate
-       state particle, the detector smearing will
-		 return a null ParticleS pointer.  
+		 Detector level particle smearing.
+       Returns a pointer to a new smeared particle, which is a version of
+       the input Particle that has been smeared by all the detector's devices.
+       Smearing is only be applied to final-state particles.
+		 If the input particle is unstable or an initial- or intermediate-
+       state particle, returns a null ParticleS pointer.  
 		 */
-		ParticleMCS* DetSmear(const erhic::ParticleMC&);
+		ParticleMCS* Smear(const erhic::ParticleMC&);
 		
-		std::vector<Smearer*> Devices;
-		
+   protected:
+
+      /** Returns pointers to new copies of all devices */
+      std::vector<Smear::Smearer*> CopyDevices() const;
+
 		bool useNM;
       bool useJB;
       bool useDA;
-      
-		EventKinematicsComputer EventKinComp;
-		
-      UInt_t GetNDevices() const;
-      std::vector<Smear::Smearer*> CopyDevices() const;
-
-   private:
-
-      Detector& operator=(const Detector&);
+		std::vector<Smearer*> Devices;
 
 		ClassDef(Detector, 1 )
 	};
 
-   inline Detector& Detector::operator << (TString EKCalc) {
-      SetEventKinematicsCalculator(EKCalc);
-      return *this;
-   }
-
    inline UInt_t Detector::GetNDevices() const {
       return Devices.size();
-   }
-
-   inline Detector& Detector::operator=(const Detector&) {
-      return *this;
    }
 }
 

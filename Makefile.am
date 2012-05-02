@@ -10,6 +10,7 @@ $(top_srcdir)/include/BeamParticles.h \
 $(top_srcdir)/include/Bremsstrahlung.h \
 $(top_srcdir)/include/Detector.h \
 $(top_srcdir)/include/Device.h \
+$(top_srcdir)/include/DisEvent.h \
 $(top_srcdir)/include/DisKinematics.h \
 $(top_srcdir)/include/EventBase.h \
 $(top_srcdir)/include/EventDjangoh.h \
@@ -33,7 +34,6 @@ $(top_srcdir)/include/ParticleID.h \
 $(top_srcdir)/include/ParticleMC.h \
 $(top_srcdir)/include/ParticleMCS.h \
 $(top_srcdir)/include/Pid.h \
-$(top_srcdir)/include/SmearEvent.h \
 $(top_srcdir)/include/Smear.h \
 $(top_srcdir)/include/Smearer.h \
 $(top_srcdir)/include/VirtualEvent.h \
@@ -47,6 +47,7 @@ $(top_srcdir)/src/Bremsstrahlung.cxx \
 $(top_srcdir)/src/BuildTree.cxx \
 $(top_srcdir)/src/Detector.cxx \
 $(top_srcdir)/src/Device.cxx \
+$(top_srcdir)/src/DisEvent.cxx \
 $(top_srcdir)/src/EventDjangoh.cxx \
 $(top_srcdir)/src/EventDpmjet.cxx \
 $(top_srcdir)/src/EventFactory.cxx \
@@ -126,7 +127,6 @@ endif
 #$(top_srcdir)/include/ParticleMC.h \
 #$(top_srcdir)/include/ParticleMCSmeared.h \
 #$(top_srcdir)/include/Pid.h \
-#$(top_srcdir)/include/SmearEvent.h \
 #$(top_srcdir)/include/Smearer.h \
 #$(top_srcdir)/include/Smear.h \
 #$(top_srcdir)/include/VirtualEvent.h \

@@ -10,91 +10,26 @@
 #include <TLorentzVector.h>
 
 namespace Smear {
-
    Acceptance::Acceptance(int genre)
-   : Genre(genre) {
-      mZones.push_back(Zone());
+   : mGenre(genre) {
    }
-
    void Acceptance::AddZone(const Zone& z) {
       mZones.push_back(z);
    }
-
-   void Acceptance::RemoveZone(unsigned n) {
-      if(n < mZones.size()) {
-         mZones.erase(mZones.begin() + n);
-      } // if
-   }
-
-   void Acceptance::SetTheta(double min, double max, int n) {
-      mZones.at(n).thetaMin = FixTopologyTheta(min);
-      mZones.at(n).thetaMax = FixTopologyTheta(max);
-   }
-
-   void Acceptance::SetPhi(double min, double max, int n) {
-      mZones.at(n).phiMin = FixTopologyPhi(min);
-      mZones.at(n).phiMax = FixTopologyPhi(max);
-   }
-
-   void Acceptance::SetE(double min, double max, int n) {
-      mZones.at(n).EMin = min;
-      mZones.at(n).EMax = max;
-   }
-
-   void Acceptance::SetP(double min, double max, int n) {
-      mZones.at(n).PMin = min;
-      mZones.at(n).PMax = max;	
-   }
-
-   void Acceptance::Set(KinType type, double min, double max, int n) {
-      switch(type) {
-         case kE: 
-            SetE(min, max, n);
-            break;
-         case kP:
-            SetP(min, max, n);
-            break;
-         case kTheta:
-            SetTheta(min, max, n);
-            break;
-         case kPhi:
-            SetPhi(min, max, n);
-            break;
-         case kPz:
-            SetPz(min, max, n);
-            break;
-         case kPt:
-            SetPt(min, max, n);
-            break;
-         default:
-            break; // Do nothing
-      } // switch
-   }
-
-   void Acceptance::SetPt(double min, double max, int n) {
-      mZones.at(n).pTMin = min;
-      mZones.at(n).pTMax = max;
-   }
-
-   void Acceptance::SetPz(double min, double max, int n) {			
-      mZones.at(n).pZMin = min;
-      mZones.at(n).pZMax = max;
-   }
-
    void Acceptance::SetGenre(int n) {
       if(n > 0 and n < 3) {
-         Genre = n;
+         mGenre = n;
       } // if
       else {
-         Genre = 0;
+         mGenre = 0;
       } // else
    }
-
    void Acceptance::AddCustomAcceptance(TString s, double min, double max, int n) {
-      KinType kin1=kP;
-      KinType kin2=kTheta;
+      KinType kin1 = kP;
+      KinType kin2 = kTheta;
       CustomCut C;
       C.dim = ParseInputFunction(s, kin1, kin2);
+      std::cout << "Added custom cut " << s << std::endl;
       if(not IsCoreType(kin1) or not IsCoreType(kin2)) {
          std::cerr <<
          "ERROR! Custom acceptance is not a function of E, p, theta, phi"
@@ -142,26 +77,15 @@ namespace Smear {
       
       mZones.at(n).CustomCuts.push_back(C);
    }
-
-   void Acceptance::ClearCustomAcceptance(int n) {
-      for(unsigned i(0); i < mZones.at(n).CustomCuts.size(); ++i) {
-         delete &(mZones.at(n).CustomCuts.at(i));
-      } // for
-      mZones.at(n).CustomCuts.clear();
-   }
-
    void Acceptance::AddParticle(int n) {
-      Particles.insert(n);
+      mParticles.insert(n);
    }
-
    void Acceptance::ClearParticles() {
-      Particles.clear();
+      mParticles.clear();
    }
-
    void Acceptance::RemoveParticle(int n) {
-      Particles.erase(n);
+      mParticles.erase(n);
    }
-
    bool Acceptance::IsCustomAccepted(CustomCut& C, const erhic::ParticleMC& prt) const {
       bool accept(false);
       
@@ -184,59 +108,18 @@ namespace Smear {
       
       return accept;
    }
-
-   bool Acceptance::Zone::IsCustomAccepted(Acceptance::CustomCut C, const erhic::ParticleMC& prt) const {
-      bool accept(false);
-      double x = SwitchKinGetFromParticle(prt, C.Kin1);
-      double y(NAN), z(NAN);
-      switch(C.dim) {
-         case 1:
-            z = C.F1.Eval(x);
-            accept = z > C.Min and z < C.Max;
-            break;
-         case 2:
-            y = SwitchKinGetFromParticle(prt, C.Kin2);
-            z = C.F2.Eval(x,y);
-            accept = z > C.Min and z < C.Max;
-            break;
-         default:
-            break;
-      } // switch
-      
-      return accept;
-   }
-
-   Bool_t Acceptance::Zone::Contains(erhic::ParticleMC& prt) const {
-      bool accept(true);
-      
-      const double theta = FixTopologyTheta(prt.GetTheta());
-      const double phi = FixTopologyPhi(prt.GetPhi());
-      
-      if(theta < thetaMin or theta > thetaMax) {
-         accept = false;
-      } // if...
-      else if(phi < phiMin or phi > phiMax) {
-         accept = false;
-      } // else if...
-      else if(prt.GetE() < EMin or prt.GetE() > EMax) {
-         accept = false;
-      } // else if...
-      else if(prt.GetP() < PMin or prt.GetP() > PMax) {
-         accept = false;
-      } // else if
-      
-      for(unsigned j(0); j < CustomCuts.size(); ++j) {
-         if(not IsCustomAccepted(CustomCuts.at(j), prt)) {
-            accept = false;
-            break;
-         } // if
-      } // for
-      
-      return accept;
-   }
-
    bool Acceptance::Is(const erhic::ParticleMC& prt) {
       bool b = false;
+      // Check for genre first (em, hadronic, any)
+      if(PGenre(prt) == 0 or (mGenre not_eq 0 and PGenre(prt) not_eq mGenre)) {
+         return b;
+      } // if
+      // If there are no Zones, accept everything that passed genre check
+      if(mZones.empty()) {
+         return true;
+      } // if
+      // We have zones to check, so look at each in turn.
+      // Accept particles if they fall in any zone.
       bool intheta;
       bool inphi;
       bool inE;
@@ -244,9 +127,6 @@ namespace Smear {
       bool inpt;
       bool inpz;
       bool inCustom=true;
-      if(PGenre(prt)==0 or (Genre not_eq 0 and PGenre(prt) not_eq Genre)) {
-         return b;
-      } // if
       for(unsigned i(0); i < mZones.size(); i++) {
          double theta = prt.GetTheta();
          double phi = prt.GetPhi();
@@ -272,18 +152,22 @@ namespace Smear {
          } // if
       } // for
       // Check against exclusive particle list
-      if(not Particles.empty()) {
-         b = b and Particles.count(prt.Id()) > 0;
+      if(not mParticles.empty()) {
+         b = b and mParticles.count(prt.Id()) > 0;
       } // if
       return b;
    }
-
+   //
+   // class Acceptance::CustomCut
+   //
    Acceptance::CustomCut::CustomCut()
    : dim(0)
    , Kin1(kP)
    , Kin2(kTheta) {
    }
-
+   //
+   // class Acceptance::Zone
+   //
    Acceptance::Zone::Zone(double thMin, double thMax,
                           double phMin, double phMax,
                           double eMin, double eMax,
@@ -302,5 +186,49 @@ namespace Smear {
    , pTMax(ptmax)
    , pZMin(pzmin)
    , pZMax(pzmax) {
+   }
+   bool Acceptance::Zone::IsCustomAccepted(Acceptance::CustomCut C, const erhic::ParticleMC& prt) const {
+      bool accept(false);
+      double x = SwitchKinGetFromParticle(prt, C.Kin1);
+      double y(NAN), z(NAN);
+      switch(C.dim) {
+         case 1:
+            z = C.F1.Eval(x);
+            accept = z > C.Min and z < C.Max;
+            break;
+         case 2:
+            y = SwitchKinGetFromParticle(prt, C.Kin2);
+            z = C.F2.Eval(x,y);
+            accept = z > C.Min and z < C.Max;
+            break;
+         default:
+            break;
+      } // switch
+      
+      return accept;
+   }
+   Bool_t Acceptance::Zone::Contains(erhic::ParticleMC& prt) const {
+      bool accept(true);
+      const double theta = FixTopologyTheta(prt.GetTheta());
+      const double phi = FixTopologyPhi(prt.GetPhi());
+      if(theta < thetaMin or theta > thetaMax) {
+         accept = false;
+      } // if...
+      else if(phi < phiMin or phi > phiMax) {
+         accept = false;
+      } // else if...
+      else if(prt.GetE() < EMin or prt.GetE() > EMax) {
+         accept = false;
+      } // else if...
+      else if(prt.GetP() < PMin or prt.GetP() > PMax) {
+         accept = false;
+      } // else if
+      for(unsigned j(0); j < CustomCuts.size(); ++j) {
+         if(not IsCustomAccepted(CustomCuts.at(j), prt)) {
+            accept = false;
+            break;
+         } // if
+      } // for
+      return accept;
    }
 }

@@ -10,23 +10,33 @@
 #include "ParticleMCS.h"
 
 namespace Smear {
-   
    ParticleMCS::ParticleMCS()
-   : id(std::numeric_limits<Int_t>::max())
+   : status(0)
+   , id(std::numeric_limits<Int_t>::max())
+   , px(NAN)
+   , py(NAN)
    , pz(NAN)
    , E(NAN)
    , pt(NAN)
    , p(NAN)
    , theta(NAN)
-   , phi(NAN)
-   {
+   , phi(NAN) {
    }
-   
+   ParticleMCS::ParticleMCS(const TLorentzVector& ep, int pdg, int stat)
+   : status(stat)
+   , id(pdg)
+   , px(ep.Px())
+   , py(ep.Py())
+   , pz(ep.Pz())
+   , E(ep.E())
+   , pt(ep.Pt())
+   , p(ep.P())
+   , theta(ep.Theta())
+   , phi(ep.Phi()) {
+   }
    ParticleMCS::~ParticleMCS() {
    }
-   
    TLorentzVector ParticleMCS::Get4Vector() const {
       return TLorentzVector(px, py, pz, E);
    }
-   
 } // namespace Smear

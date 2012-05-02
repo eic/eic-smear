@@ -10,9 +10,13 @@
 #include "EventMC.h"
 #include "ParticleIdentifier.h"
 
+//ClassImp(ParticleIdentifier<erhic::EventMC>)
+
+
 //	================================================================================================
 // Constructor
 //	================================================================================================
+
 ParticleIdentifier::ParticleIdentifier(
                                        const int leptonBeamPdgCode
                                        )
@@ -22,23 +26,25 @@ ParticleIdentifier::ParticleIdentifier(
 //	================================================================================================
 // Identify the lepton beam particle
 //	================================================================================================
+
 bool
-ParticleIdentifier::isBeamLepton(const Particle& particle )
+ParticleIdentifier::isBeamLepton(const erhic::VirtualParticle& particle )
 const
 {
    // Test against status 201 for SOPHIA events
    return
-   (21 == particle.KS or 201 == particle.KS) and
-   GetLeptonBeamPdgCode() == particle.id and
+   (21 == particle.GetStatus() or 201 == particle.GetStatus()) and
+   GetLeptonBeamPdgCode() == particle.Id() and
    //   particle.I < 3;
-   particle.orig == 0;
+   particle.GetParentIndex() == 0;
 }
 
 //	================================================================================================
 // Identify the scattered lepton
 //	================================================================================================
+
 bool
-ParticleIdentifier::isScatteredLepton(const Particle& particle )
+ParticleIdentifier::isScatteredLepton(const erhic::VirtualParticle& particle )
 const
 {
    return 1 == particle.GetStatus() and GetLeptonBeamPdgCode() == particle.Id();
@@ -51,8 +57,9 @@ const
 //    Intermediate gluon.
 //    Intermediate quark.
 //	=================================================================================================
+
 bool
-ParticleIdentifier::SkipParticle(const Particle& particle )
+ParticleIdentifier::SkipParticle(const erhic::VirtualParticle& particle )
 const
 {
    int kI1 = particle.GetStatus();
@@ -84,8 +91,9 @@ const
 //	================================================================================================
 // Identify the virtual photon based on its PDG code and PYTHIA K(I,1)
 //	================================================================================================
+
 bool
-ParticleIdentifier::IsVirtualPhoton(const Particle& particle )
+ParticleIdentifier::IsVirtualPhoton(const erhic::VirtualParticle& particle )
 const
 {
    return (22 == particle.Id() or 23 == particle.Id() ) and
@@ -95,14 +103,15 @@ const
 //	================================================================================================
 // Identify the nucleon beam particle
 //	================================================================================================
+
 bool
-ParticleIdentifier::isBeamNucleon(const Particle& particle )
+ParticleIdentifier::isBeamNucleon(const erhic::VirtualParticle& particle )
 const
 {
    // Test against status 201 for SOPHIA events
-   return (21  == particle.KS or 201 == particle.KS) and
-   (2112 == particle.id or 2212 == particle.id) and// particle.I < 3;
-   particle.orig == 0;
+   return (21  == particle.GetStatus() or 201 == particle.GetStatus()) and
+   (2112 == particle.Id() or 2212 == particle.Id()) and
+   particle.GetParentIndex() == 0;
 }
 
 
@@ -112,9 +121,10 @@ const
  See BeamParticles.h for the quantities stored.
  Returns true if all beams are found, false if not.
  */
+
 bool
 ParticleIdentifier::IdentifyBeams(
-                                  const erhic::EventMC& event,
+                                  const erhic::VirtualEvent& event,
                                   BeamParticles& beams
                                   ) {
    beams.Reset();
@@ -133,12 +143,12 @@ ParticleIdentifier::IdentifyBeams(
    
    for(unsigned n(0); n < nParticles; ++n ) {
       
-      const Particle* ptr = event.GetTrack(n);
+      const erhic::VirtualParticle* ptr = event.GetTrack(n);
       if(not ptr) {
          continue;
       } // if
       
-      const Particle& particle = *ptr;
+      const erhic::VirtualParticle& particle = *ptr;
       
       // The first particle is the beam lepton, so set this value in the
       // ParticleIdentifier
@@ -175,10 +185,11 @@ ParticleIdentifier::IdentifyBeams(
    return true;
 }
 
+
 bool
 ParticleIdentifier::IdentifyBeams(
-                                  const erhic::EventMC& event,
-                                  std::vector<const Particle*>& beams
+                                  const erhic::VirtualEvent& event,
+                                  std::vector<const erhic::VirtualParticle*>& beams
                                   ) {
    //   std::cout << "ParticleIdentifier::IdentifyBeams"<<std::endl;
    const Particle* const null(NULL);
@@ -200,12 +211,12 @@ ParticleIdentifier::IdentifyBeams(
    
    for(unsigned n(0); n < nParticles; ++n ) {
       //      std::cout<<"particle "<<n<<std::endl;
-      const Particle* ptr = event.GetTrack(n);
+      const erhic::VirtualParticle* ptr = event.GetTrack(n);
       if(not ptr) {
          continue;
       } // if
       
-      const Particle& particle = *ptr;
+      const erhic::VirtualParticle& particle = *ptr;
       //      particle.Dump();
       // The first particle is the beam lepton, so set this value in the
       // ParticleIdentifier
