@@ -32,16 +32,16 @@
 #pragma link C++ class erhic::EventMC+;
 #pragma link C++ class erhic::VirtualEvent+;
 #pragma link C++ class Smear::Event+;
-#pragma link C++ class erhic::DisEvent+;
+#pragma link C++ class erhic::EventDis+;
 
 // Event classes for individual generators
 
 #pragma link C++ class erhic::EventPythia+;
-#pragma link C++ class EventRapgap+;
-#pragma link C++ class EventPepsi+;
-#pragma link C++ class EventDjangoh+;
-#pragma link C++ class EventDpmjet+;
-#pragma link C++ class EventMilou+;
+#pragma link C++ class erhic::EventRapgap+;
+#pragma link C++ class erhic::EventPepsi+;
+#pragma link C++ class erhic::EventDjangoh+;
+#pragma link C++ class erhic::EventDpmjet+;
+#pragma link C++ class erhic::EventMilou+;
 
 // Event building
 
@@ -68,7 +68,6 @@
 #pragma link C++ class Smear::ParamSimple+;
 #pragma link C++ class Smear::Detector+;
 #pragma link C++ class Smear::Distributor+;
-#pragma link C++ class Smear::EventKinematicsComputer+;
 #pragma link C++ class Smear::ParticleID+;
 
 // Specialized smearing devices

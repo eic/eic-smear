@@ -16,9 +16,9 @@
 #include <TVector2.h>
 #include <TVector3.h>
 
-#include "EventMC.h"
-#include "functions.h"
-#include "ParticleMC.h"
+#include "eicsmear/erhic/EventMC.h"
+#include "eicsmear/functions.h"
+#include "eicsmear/erhic/ParticleMC.h"
 
 /**
  Returns the first non-blank character in a line.

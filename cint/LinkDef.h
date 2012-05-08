@@ -32,25 +32,25 @@
 #pragma link C++ class erhic::EventMC+;
 #pragma link C++ class erhic::VirtualEvent+;
 #pragma link C++ class Smear::Event+;
-#pragma link C++ class erhic::DisEvent+;
+#pragma link C++ class erhic::EventDis+;
 
 // Event classes for individual generators
 
 #pragma link C++ class erhic::EventPythia+;
-#pragma link C++ class EventRapgap+;
-#pragma link C++ class EventPepsi+;
-#pragma link C++ class EventDjangoh+;
-#pragma link C++ class EventDpmjet+;
-#pragma link C++ class EventMilou+;
+#pragma link C++ class erhic::EventRapgap+;
+#pragma link C++ class erhic::EventPepsi+;
+#pragma link C++ class erhic::EventDjangoh+;
+#pragma link C++ class erhic::EventDpmjet+;
+#pragma link C++ class erhic::EventMilou+;
 
 // Event building
 
 #pragma link C++ class erhic::VirtualEventFactory+;
-#pragma link C++ class erhic::EventFromAsciiFactory<EventPepsi>+;
-#pragma link C++ class erhic::EventFromAsciiFactory<EventMilou>+;
-#pragma link C++ class erhic::EventFromAsciiFactory<EventRapgap>+;
-#pragma link C++ class erhic::EventFromAsciiFactory<EventDjangoh>+;
-#pragma link C++ class erhic::EventFromAsciiFactory<EventDpmjet>+;
+#pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventPepsi>+;
+#pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventMilou>+;
+#pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventRapgap>+;
+#pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventDjangoh>+;
+#pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventDpmjet>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventPythia>+;
 #pragma link C++ class erhic::Pythia6EventBuilder+;
 #pragma link C++ class erhic::EventMCFilterABC+;
@@ -70,7 +70,6 @@
 #pragma link C++ class Smear::ParamSimple+;
 #pragma link C++ class Smear::Detector+;
 #pragma link C++ class Smear::Distributor+;
-#pragma link C++ class Smear::EventKinematicsComputer+;
 #pragma link C++ class Smear::ParticleID+;
 
 // Specialized smearing devices
@@ -94,11 +93,11 @@
 
 #pragma link C++ class erhic::FileType+;
 #pragma link C++ class erhic::File<erhic::EventPythia>+;
-#pragma link C++ class erhic::File<EventMilou>+;
-#pragma link C++ class erhic::File<EventPepsi>+;
-#pragma link C++ class erhic::File<EventRapgap>+;
-#pragma link C++ class erhic::File<EventDjangoh>+;
-#pragma link C++ class erhic::File<EventDpmjet>+;
+#pragma link C++ class erhic::File<erhic::EventMilou>+;
+#pragma link C++ class erhic::File<erhic::EventPepsi>+;
+#pragma link C++ class erhic::File<erhic::EventRapgap>+;
+#pragma link C++ class erhic::File<erhic::EventDjangoh>+;
+#pragma link C++ class erhic::File<erhic::EventDpmjet>+;
 #pragma link C++ class erhic::FileFactory;
 
 // Specialised stl templates

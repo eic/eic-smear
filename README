@@ -61,3 +61,7 @@ instead do
 /path/to/eic-smear/configure --prefix=/path/to/install-dir
 make
 make install
+
+If you want to build PYTHIA6-dependent components, pass the location
+of libPythia6 to configure via
+/path/to/eic-smear/configure --with-pythia6-libdir=/path/to/pythia6/lib
