@@ -9,8 +9,8 @@
  \copyright 2011 BNL. All rights reserved.
  */
 
-#ifndef _ERHIC_BUILDTREE_Pid_H_
-#define _ERHIC_BUILDTREE_Pid_H_
+#ifndef _EICSMEAR_Pid_H_
+#define _EICSMEAR_Pid_H_
 
 #include <Rtypes.h>
 

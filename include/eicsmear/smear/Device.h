@@ -1,5 +1,5 @@
-#ifndef _ERHIC_BUILDTREE_DEVICE_
-#define _ERHIC_BUILDTREE_DEVICE_
+#ifndef _EICSMEAR_DEVICE_
+#define _EICSMEAR_DEVICE_
 
 /*
  Change log

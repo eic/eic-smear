@@ -1,5 +1,5 @@
-#ifndef _ERHIC_BUILDTREE_ParticleIdentifier_
-#define _ERHIC_BUILDTREE_ParticleIdentifier_
+#ifndef _EICSMEAR_ParticleIdentifier_
+#define _EICSMEAR_ParticleIdentifier_
 
 #include <cmath>
 #include <limits>

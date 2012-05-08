@@ -6,16 +6,15 @@
  \author Michael Savastio
  */
 
-#ifndef _ERHIC_BUILDTREE_BREMSSTRAHLUNG_
-#define _ERHIC_BUILDTREE_BREMSSTRAHLUNG_
+#ifndef _EICSMEAR_BREMSSTRAHLUNG_
+#define _EICSMEAR_BREMSSTRAHLUNG_
 
 #include <memory>
 
 #include <TF1.h>
 
-#include "eicsmear/erhic/ParticleMC.h"
 #include "eicsmear/smear/Device.h"
-//#include "eicsmear/smear/EventS.h" // For ParticleS
+#include "eicsmear/erhic/ParticleMC.h"
 #include "eicsmear/smear/ParticleMCS.h"
 
 namespace erhic {

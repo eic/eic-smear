@@ -1,5 +1,5 @@
-#ifndef _ERHIC_BUILDTREE_EVENTPEPSI_
-#define _ERHIC_BUILDTREE_EVENTPEPSI_
+#ifndef _EICSMEAR_EVENTPEPSI_
+#define _EICSMEAR_EVENTPEPSI_
 
 #include <string>
 

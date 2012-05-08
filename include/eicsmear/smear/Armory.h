@@ -1,5 +1,5 @@
-#ifndef _ERHIC_BUILDTREE_ARMORY_
-#define _ERHIC_BUILDTREE_ARMORY_
+#ifndef _EICSMEAR_ARMORY_
+#define _EICSMEAR_ARMORY_
 
 // This file contains a list of specialized Device classes.
 
@@ -188,7 +188,7 @@ namespace Smear {
       if(not P) {
          return fault;
       } // if
-      return cos(pi / 2. - P->GetTheta()) * cos(pi / 2. - P->GetTheta());
+      return cos(TMath::Pi() / 2. - P->GetTheta()) * cos(TMath::Pi() / 2. - P->GetTheta());
    }
 
    inline double Tracker::tanTheta() {
@@ -224,11 +224,6 @@ namespace Smear {
    inline double Tracker::GetThetaMin() {
       return atan(2. * R1 / l);
    }
-
-//   inline void Tracker::FixAcceptance() {
-//      Accept.SetTheta(GetThetaMin(), pi - GetThetaMin());
-//   }
-
    inline Tracker* Tracker::Clone(const char*) const {
       return new Tracker(*this);
    }

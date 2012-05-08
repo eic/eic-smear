@@ -9,8 +9,8 @@
  \copyright 2011 BNL. All rights reserved.
 */
 
-#ifndef _ERHIC_BUILDTREE_FORESTER_
-#define _ERHIC_BUILDTREE_FORESTER_
+#ifndef _EICSMEAR_FORESTER_
+#define _EICSMEAR_FORESTER_
 
 //	C(++) headers
 #include <cmath>

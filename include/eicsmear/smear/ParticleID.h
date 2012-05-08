@@ -9,8 +9,8 @@
  \copyright 2011 BNL. All rights reserved.
  */
 
-#ifndef _ERHIC_BUILDTREE_PARTICLEID_
-#define _ERHIC_BUILDTREE_PARTICLEID_
+#ifndef _EICSMEAR_PARTICLEID_
+#define _EICSMEAR_PARTICLEID_
 
 #include <cmath>
 #include <fstream>

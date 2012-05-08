@@ -1,5 +1,5 @@
-#ifndef _ERHIC_BUILDTREE_EVENTMILOU_
-#define _ERHIC_BUILDTREE_EVENTMILOU_
+#ifndef _EICSMEAR_EVENTMILOU_
+#define _EICSMEAR_EVENTMILOU_
 
 #include <string>
 

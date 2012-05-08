@@ -1,5 +1,5 @@
-#ifndef _ERHIC_BUILDTREE_PARTICLE_
-#define _ERHIC_BUILDTREE_PARTICLE_
+#ifndef _EICSMEAR_PARTICLE_
+#define _EICSMEAR_PARTICLE_
 
 // For backward compatibility with old-style classes,
 // in which the base (and only) particle class was named Particle.

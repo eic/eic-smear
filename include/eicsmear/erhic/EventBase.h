@@ -1,5 +1,5 @@
-#ifndef _ERHIC_BUILDTREE_EVENTBASE_
-#define _ERHIC_BUILDTREE_EVENTBASE_
+#ifndef _EICSMEAR_EVENTBASE_
+#define _EICSMEAR_EVENTBASE_
 
 #include "eicsmear/erhic/EventMC.h"
 

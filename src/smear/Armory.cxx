@@ -103,7 +103,7 @@ namespace Smear {
 
    void Tracker::SetParticle(const erhic::VirtualParticle& prt) {
       P = &prt;
-      if(P->GetTheta() >= ThetaCrit() and P->GetTheta() < pi-ThetaCrit()) {
+      if(P->GetTheta() >= ThetaCrit() and P->GetTheta() < TMath::Pi()-ThetaCrit()) {
          bMoreCrit = true;
       } // if
       else {

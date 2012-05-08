@@ -1,8 +1,8 @@
 // For Doxygen documentation:
 /*! \file */ 
 
-#ifndef _ERHIC_BUILDTREE_FUNCTIONS_
-#define _ERHIC_BUILDTREE_FUNCTIONS_
+#ifndef _EICSMEAR_FUNCTIONS_
+#define _EICSMEAR_FUNCTIONS_
 
 #include <string>
 

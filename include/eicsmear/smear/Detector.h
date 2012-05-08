@@ -1,5 +1,5 @@
-#ifndef _ERHIC_BUILDTREE_DETECTOR_
-#define _ERHIC_BUILDTREE_DETECTOR_
+#ifndef _EICSMEAR_DETECTOR_
+#define _EICSMEAR_DETECTOR_
 
 #include <vector>
 

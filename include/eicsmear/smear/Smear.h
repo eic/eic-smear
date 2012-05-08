@@ -1,5 +1,5 @@
-#ifndef _ERHIC_BUILDTREE_SMEAR_
-#define _ERHIC_BUILDTREE_SMEAR_
+#ifndef _EICSMEAR_SMEAR_
+#define _EICSMEAR_SMEAR_
 
 #include <TROOT.h>
 #include <TSystem.h>
@@ -26,7 +26,7 @@
 
 namespace Smear {
 	
-	const double pi = TMath::Pi();
+//	const double pi = TMath::Pi();
    
 	/**
 	 Enumerator listing particle wise kinematic variables.
@@ -71,12 +71,12 @@ namespace Smear {
     TODO Nothing Smear-specific here - move to general functions file.
 	 */
 	inline double FixTopologyTheta(double theta) {
-		while (theta < 0. || theta > pi) {
+		while (theta < 0. || theta > TMath::Pi()) {
 			if (theta<0.) {
 				theta = -theta;
 			}
-			if (theta>pi) {
-				theta = 2.*pi - theta;
+			if (theta > TMath::Pi()) {
+				theta = TMath::TwoPi() - theta;
 			} 
 		}
 		return theta;
@@ -93,7 +93,7 @@ namespace Smear {
        phi = -phi;
        }
        if (phi >= 2.*pi) {
-       phi = phi - 2.*pi;
+       phi = phi - TMath::TwoPi();
        }
        }
        return phi;
@@ -237,9 +237,9 @@ namespace Smear {
     */
 	inline void SetupRange(KinType kin, double &min, double &max) {
 		if (kin==kTheta) {
-			min = 0.; max = pi;
+			min = 0.; max = TMath::Pi();
 		} else if (kin==kPhi) {
-			min = 0.; max = 2.*pi;
+			min = 0.; max = TMath::TwoPi();
 		} else {
 			min = 0.; max = 1.e6;
 		}

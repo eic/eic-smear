@@ -6,8 +6,8 @@
  *  \copyright 2011 BNL. All rights reserved.
  */
 
-#ifndef _ERHIC_BUILDTREE_EVENTPYTHIA_
-#define _ERHIC_BUILDTREE_EVENTPYTHIA_
+#ifndef _EICSMEAR_EVENTPYTHIA_
+#define _EICSMEAR_EVENTPYTHIA_
 
 #include <string>
 

@@ -64,6 +64,7 @@
 // Core smearing components
 
 #pragma link C++ class Smear::Acceptance+;
+#pragma link C++ class Smear::Acceptance::CustomCut+;
 #pragma link C++ class Smear::Acceptance::Zone+;
 #pragma link C++ class Smear::Smearer+;
 #pragma link C++ class Smear::Device+;
