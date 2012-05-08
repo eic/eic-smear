@@ -1,6 +1,6 @@
 lib_LTLIBRARIES = libeicsmear.la
 
-include_HEADERS = \
+erhic_headers = \
 include/eicsmear/functions.h \
 include/eicsmear/erhic/BeamParticles.h \
 include/eicsmear/erhic/DisKinematics.h \
@@ -23,7 +23,9 @@ include/eicsmear/erhic/ParticleIdentifier.h \
 include/eicsmear/erhic/ParticleMC.h \
 include/eicsmear/erhic/Pid.h \
 include/eicsmear/erhic/VirtualEvent.h \
-include/eicsmear/erhic/VirtualParticle.h \
+include/eicsmear/erhic/VirtualParticle.h
+
+smear_headers = \
 include/eicsmear/smear/Acceptance.h \
 include/eicsmear/smear/Armory.h \
 include/eicsmear/smear/Bremsstrahlung.h \
@@ -35,7 +37,8 @@ include/eicsmear/smear/functions.h \
 include/eicsmear/smear/ParticleID.h \
 include/eicsmear/smear/ParticleMCS.h \
 include/eicsmear/smear/Smear.h \
-include/eicsmear/smear/Smearer.h
+include/eicsmear/smear/Smearer.h \
+include/eicsmear/smear/Tracker.h
 
 hadronic_headers = \
 include/eicsmear/hadronic/EventMC.h \
@@ -64,7 +67,6 @@ src/erhic/ParticleMC.cxx \
 src/erhic/Pid.cxx \
 src/functions.cxx \
 src/smear/Acceptance.cxx \
-src/smear/Armory.cxx \
 src/smear/Bremsstrahlung.cxx \
 src/smear/Detector.cxx \
 src/smear/Device.cxx \
@@ -73,12 +75,14 @@ src/smear/ParticleID.cxx \
 src/smear/ParticleMCS.cxx \
 src/smear/Smear.cxx \
 src/smear/SmearTree.cxx \
+src/smear/Tracker.cxx \
 src/hadronic/EventMC.cxx \
 src/hadronic/EventPythia.cxx \
 src/hadronic/EventSmear.cxx \
 src/hadronic/ParticleMC.cxx \
 src/hadronic/Pythia6EventFactory.cxx \
 cint/BuildTreeDict.cxx \
+cint/smearDict.cxx \
 cint/hadronicDict.cxx
 
 libeicsmear_la_CPPFLAGS = -I$(top_srcdir)/include
@@ -92,7 +96,7 @@ libeicsmear_la_LDFLAGS = -version-info 0:1:0
 # If the user passed a PYTHIA6 library directory,
 # build the PYTHIA6-dependent code.
 if ENABLE_PYTHIA6_SUPPORT
-include_HEADERS += \
+erhic_headers += \
 include/eicsmear/erhic/Pythia6EventBuilder.h \
 include/eicsmear/erhic/Pythia6.h \
 include/eicsmear/erhic/Pythia6ParticleBuilder.h
@@ -112,7 +116,10 @@ endif # ENABLE_PYTHIA6_SUPPORT
 cint/hadronicDict.cxx: $(hadronic_headers) cint/hadronicLinkDef.h
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) -I$(top_srcdir)/include $^
 
-cint/BuildTreeDict.cxx: $(include_HEADERS) $(LINKDEF)
+cint/smearDict.cxx: $(smear_headers) cint/smearLinkDef.h
+	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) -I$(top_srcdir)/include $^
+
+cint/BuildTreeDict.cxx: $(erhic_headers) $(LINKDEF)
 	rootcint -f $@ -c $(DEFAULT_INCLUDES) $(INCLUDES) -I$(top_srcdir)/include $^
 
 clean-local:

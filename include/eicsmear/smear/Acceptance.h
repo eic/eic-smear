@@ -1,5 +1,5 @@
-#ifndef _EICSMEAR_ACCEPTANCE_
-#define _EICSMEAR_ACCEPTANCE_
+#ifndef _EICSMEAR_SMEAR_ACCEPTANCE_H_
+#define _EICSMEAR_SMEAR_ACCEPTANCE_H_
 
 #include <set>
 #include <vector>
@@ -159,4 +159,4 @@ namespace Smear {
    }
 } // namespace Smear
 
-#endif
+#endif // _EICSMEAR_SMEAR_ACCEPTANCE_H_

@@ -1,5 +1,5 @@
-#ifndef _BUILDTREE_EVENTS_
-#define _BUILDTREE_EVENTS_
+#ifndef _EICSMEAR_SMEAR_EVENTS_H_
+#define _EICSMEAR_SMEAR_EVENTS_H_
 
 // For backward compatibility with version 1
 // of the code, where the EventS and ParticleS
@@ -11,4 +11,4 @@
 //typedef Smear::Event::TrackType ParticleS;
 typedef Smear::ParticleMCS ParticleS;
 
-#endif
+#endif // _EICSMEAR_SMEAR_EVENTS_H_

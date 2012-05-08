@@ -1,5 +1,5 @@
-#ifndef _EICSMEAR_SMEAR_
-#define _EICSMEAR_SMEAR_
+#ifndef _EICSMEAR_SMEAR_SMEAR_H_
+#define _EICSMEAR_SMEAR_SMEAR_H_
 
 #include <TROOT.h>
 #include <TSystem.h>
@@ -312,4 +312,4 @@ namespace Smear {
    
 }
 
-#endif
+#endif // _EICSMEAR_SMEAR_SMEAR_H_

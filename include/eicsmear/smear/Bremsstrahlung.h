@@ -6,8 +6,8 @@
  \author Michael Savastio
  */
 
-#ifndef _EICSMEAR_BREMSSTRAHLUNG_
-#define _EICSMEAR_BREMSSTRAHLUNG_
+#ifndef _EICSMEAR_SMEAR_BREMSSTRAHLUNG_H_
+#define _EICSMEAR_SMEAR_BREMSSTRAHLUNG_H_
 
 #include <memory>
 
@@ -86,4 +86,4 @@ namespace Smear {
    
 }
 
-#endif
+#endif // _EICSMEAR_SMEAR_BREMSSTRAHLUNG_H_

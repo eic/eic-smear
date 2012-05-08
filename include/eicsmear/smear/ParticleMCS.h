@@ -6,8 +6,8 @@
 // Copyright 2011 BNL. All rights reserved.
 //
 
-#ifndef _ERHIC_PARTICLE_MC_SMEARED_H_
-#define _ERHIC_PARTICLE_MC_SMEARED_H_
+#ifndef _EICSMEAR_SMEAR_PARTICLEMCS_H_
+#define _EICSMEAR_SMEAR_PARTICLEMCS_H_
 
 #include <cmath>
 
@@ -199,4 +199,4 @@ namespace Smear {
    
 } // namespace erhic
 
-#endif
+#endif // _EICSMEAR_SMEAR_PARTICLEMCS_H_

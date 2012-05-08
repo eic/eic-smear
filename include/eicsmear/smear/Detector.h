@@ -1,5 +1,5 @@
-#ifndef _EICSMEAR_DETECTOR_
-#define _EICSMEAR_DETECTOR_
+#ifndef _EICSMEAR_SMEAR_DETECTOR_H_
+#define _EICSMEAR_SMEAR_DETECTOR_H_
 
 #include <vector>
 
@@ -122,4 +122,4 @@ namespace Smear {
    }
 }
 
-#endif
+#endif // _EICSMEAR_SMEAR_DETECTOR_H_

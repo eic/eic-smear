@@ -9,8 +9,8 @@
  \copyright 2011 BNL. All rights reserved.
  */
 
-#ifndef _ERHIC_EVENT_SMEARED_H_
-#define _ERHIC_EVENT_SMEARED_H_
+#ifndef _EICSMEAR_SMEAR_EVENTSMEAR_H_
+#define _EICSMEAR_SMEAR_EVENTSMEAR_H_
 
 #include <cmath>
 #include <list>
@@ -154,4 +154,4 @@ namespace Smear {
 
 typedef Smear::Event EventS;
 
-#endif
+#endif // _EICSMEAR_SMEAR_EVENTSMEAR_H_

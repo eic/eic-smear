@@ -9,8 +9,8 @@
  \copyright 2012 BNL. All rights reserved.
 */
 
-#ifndef _Smearer_H_
-#define _Smearer_H_
+#ifndef _EICSMEAR_SMEAR_SMEARER_H_
+#define _EICSMEAR_SMEAR_SMEARER_H_
 
 #include <TObject.h>
 
@@ -51,4 +51,4 @@ namespace Smear {
 
 } // namespace Smear
 
-#endif
+#endif // _EICSMEAR_SMEAR_SMEARER_H_

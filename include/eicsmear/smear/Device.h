@@ -1,5 +1,5 @@
-#ifndef _EICSMEAR_DEVICE_
-#define _EICSMEAR_DEVICE_
+#ifndef _EICSMEAR_SMEAR_DEVICE_H_
+#define _EICSMEAR_SMEAR_DEVICE_H_
 
 /*
  Change log
@@ -430,4 +430,4 @@ namespace Smear {
 	}; // class Device
 } // namespace Smear
 
-#endif
+#endif // _EICSMEAR_SMEAR_DEVICE_H_

@@ -9,8 +9,8 @@
  \copyright 2011 BNL. All rights reserved.
  */
 
-#ifndef _EICSMEAR_PARTICLEID_
-#define _EICSMEAR_PARTICLEID_
+#ifndef _EICSMEAR_SMEAR_PARTICLEID_H_
+#define _EICSMEAR_SMEAR_PARTICLEID_H_
 
 #include <cmath>
 #include <fstream>
@@ -219,4 +219,4 @@ namespace Smear {
    }
 }
 
-#endif
+#endif // _EICSMEAR_SMEAR_PARTICLEID_H_
