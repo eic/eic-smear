@@ -218,7 +218,7 @@ namespace Smear {
       SetupProbabilityArray();
    }
 
-   void ParticleID::DevSmear(const erhic::VirtualParticle& prt,
+   void ParticleID::Smear(const erhic::VirtualParticle& prt,
                              ParticleMCS& prtOut) {
       double momentum(0.);
       if(bUseMC) {

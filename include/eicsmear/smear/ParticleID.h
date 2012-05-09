@@ -159,7 +159,7 @@ namespace Smear {
        determination, but you can set it to use the values stored in prt
        instead using SetPIDUseMC(true).
 		 */
-		void DevSmear(const erhic::VirtualParticle&, ParticleMCS&);
+		void Smear(const erhic::VirtualParticle&, ParticleMCS&);
 
       /** Dump the contents of the table to the screen */
       void Speak();

@@ -41,11 +41,7 @@
 // Specialized smearing devices
 #pragma link C++ class Smear::Bremsstrahlung+;
 #pragma link C++ class Smear::Device+;
-#pragma link C++ class Smear::Devious+;
 #pragma link C++ class Smear::Tracker+;
-#pragma link C++ Class Smear::EMCalorimeter+;
-#pragma link C++ class Smear::HCalorimeter+;
-#pragma link C++ class Smear::ParamSimple+;
 
 // typedefs
 #pragma link C++ class EventS;

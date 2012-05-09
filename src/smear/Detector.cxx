@@ -118,7 +118,7 @@ namespace Smear {
          // Devices in which it doesn't pass won't smear it.
          prtOut = new ParticleMCS();
          for(unsigned i=0; i<GetNDevices(); i++) {
-            Devices.at(i)->DevSmear(prt,*prtOut);
+            Devices.at(i)->Smear(prt,*prtOut);
          } // for
          prtOut->px = prtOut->p * sin(prtOut->theta) * cos(prtOut->phi);
          prtOut->py = prtOut->p * sin(prtOut->theta) * sin(prtOut->phi);

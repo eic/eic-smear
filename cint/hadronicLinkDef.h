@@ -22,6 +22,5 @@
 #pragma link C++ class erhic::hadronic::EventSmear+;
 #pragma link C++ class erhic::hadronic::ParticleMC+;
 #pragma link C++ class erhic::hadronic::Pythia6EventFactory+;
-//#pragma link C++ defined_in "../eic-smear/include/eicsmear/hadronic/EventMC.h"
 
 #endif // __CINT__

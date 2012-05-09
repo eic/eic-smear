@@ -35,7 +35,7 @@ namespace Smear {
     for device parametrizations.
 	 */
 	enum KinType { 
-      kE, kP, kTheta, kPhi, kPz, kPt	
+      kE, kP, kTheta, kPhi, kPz, kPt, kInvalidKinType
 	};
 
    /** Classes of particles */

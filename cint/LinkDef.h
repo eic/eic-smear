@@ -24,7 +24,6 @@
 
 // Base event classes
 
-#pragma link C++ class erhic::VirtualEvent+;
 #pragma link C++ class erhic::EventMC+;
 #pragma link C++ class erhic::VirtualEvent+;
 #pragma link C++ class erhic::EventDis+;

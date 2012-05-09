@@ -64,7 +64,7 @@ namespace Smear {
       /**
        Smear the kinematics of prt and store the result in prtOut.
        */
-      void DevSmear(const erhic::VirtualParticle&, ParticleMCS&);
+      void Smear(const erhic::VirtualParticle&, ParticleMCS&);
 
       /**
        Polar angle of the end of the outer surface.
@@ -116,4 +116,5 @@ namespace Smear {
       return new Tracker(*this);
    }
 } // namespace Smear
+
 #endif // _EICSMEAR_SMEAR_TRACKER_H_

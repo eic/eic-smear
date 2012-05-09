@@ -84,7 +84,7 @@ namespace Smear {
       } // else
    }
 
-   void Tracker::DevSmear(const erhic::VirtualParticle& prt,
+   void Tracker::Smear(const erhic::VirtualParticle& prt,
                           ParticleMCS& prtOut) {
       if(Accept.Is(prt)) {
          double y = SwitchKinGetFromParticle(prt, kP);

@@ -96,7 +96,7 @@ namespace Smear {
    }
    
    
-   void Bremsstrahlung::DevSmear(const Particle &prt, ParticleMCS& prtOut) {
+   void Bremsstrahlung::Smear(const Particle &prt, ParticleMCS& prtOut) {
       
       SetParticle(prt);
       

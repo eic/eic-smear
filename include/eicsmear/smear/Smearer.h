@@ -42,7 +42,7 @@ namespace Smear {
       /**
        Smears the input ParticleMC and stores the result(s) in the ParticleMCS
        */
-      virtual void DevSmear(const erhic::VirtualParticle&, ParticleMCS&) = 0;
+      virtual void Smear(const erhic::VirtualParticle&, ParticleMCS&) = 0;
       
       Acceptance Accept;
 

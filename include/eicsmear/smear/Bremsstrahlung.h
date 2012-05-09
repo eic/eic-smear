@@ -52,7 +52,7 @@ namespace Smear {
 		virtual Bremsstrahlung* Clone();
 		
       /** Smear the properties of a Particle and assign them to a ParticleS */
-      virtual void DevSmear(const Particle&, ParticleMCS&);
+      virtual void Smear(const Particle&, ParticleMCS&);
       
 //   protected:
       
