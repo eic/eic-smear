@@ -23,7 +23,6 @@
 
 // Functions
 #pragma link C++ function SmearTree;
-//#pragma link C++ function Smear::ParseInputFunction;
 
 // Event structures
 #pragma link C++ class Smear::Event+;

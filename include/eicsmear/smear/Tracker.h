@@ -14,7 +14,8 @@
 
 #include <Rtypes.h> // For ClassDef
 
-#include "eicsmear/smear/Smear.h" // For Distributor, KinType
+#include "eicsmear/smear/Distributor.h"
+#include "eicsmear/smear/Smear.h" // KinType
 #include "eicsmear/smear/Smearer.h"
 
 namespace erhic {

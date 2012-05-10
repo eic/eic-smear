@@ -13,6 +13,7 @@
 #include <TString.h>
 
 #include "eicsmear/smear/Acceptance.h"
+#include "eicsmear/smear/Distributor.h"
 #include "eicsmear/smear/Smear.h"
 #include "eicsmear/smear/Smearer.h"
 

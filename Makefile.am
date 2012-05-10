@@ -27,10 +27,10 @@ include/eicsmear/erhic/VirtualParticle.h
 
 smear_headers = \
 include/eicsmear/smear/Acceptance.h \
-include/eicsmear/smear/Armory.h \
 include/eicsmear/smear/Bremsstrahlung.h \
 include/eicsmear/smear/Detector.h \
 include/eicsmear/smear/Device.h \
+include/eicsmear/smear/Distributor.h \
 include/eicsmear/smear/EventS.h \
 include/eicsmear/smear/EventSmear.h \
 include/eicsmear/smear/functions.h \
@@ -70,6 +70,7 @@ src/smear/Acceptance.cxx \
 src/smear/Bremsstrahlung.cxx \
 src/smear/Detector.cxx \
 src/smear/Device.cxx \
+src/smear/Distributor.cxx \
 src/smear/EventSmear.cxx \
 src/smear/ParticleID.cxx \
 src/smear/ParticleMCS.cxx \
