@@ -177,8 +177,8 @@ namespace Smear {
       /**
        Create a smeared event corresponding to the current DIS Monte Carlo
        event in the input branch passed to the constructor.
-       The user should call TTree::GetEntry() themselves between calls to
-       Create().
+       The user should call TTree::GetEntry() on the tree with the
+       input branch between calls to Create().
       */
       virtual Event* Create() {
          Event* event = new Event;
@@ -190,7 +190,7 @@ namespace Smear {
             } // if
             // It's convenient to keep the initial beams, unsmeared, in the
             // smeared event record, so copy their properties exactly
-            if(event->BeamLepton() == ptr or event->BeamHadron() == ptr) {
+            if(mMcEvent->BeamLepton() == ptr or mMcEvent->BeamHadron() == ptr) {
                event->AddLast(mcToSmear(*ptr));
             } // if
             else {

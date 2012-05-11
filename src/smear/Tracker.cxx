@@ -23,8 +23,8 @@ namespace Smear {
    , mInnerRadius(0.1)
    , mOuterRadius(1.)
    , mLength(6.) {
-      Accept.AddZone(Acceptance::Zone(GetThetaMin(),
-                                      TMath::Pi() - GetThetaMin()));
+//      Accept.AddZone(Acceptance::Zone(GetThetaMin(),
+//                                      TMath::Pi() - GetThetaMin()));
    }
 
    Tracker::Tracker(double inner, double outer, double L, double Bb,
@@ -36,8 +36,8 @@ namespace Smear {
    , mInnerRadius(inner)
    , mOuterRadius(outer)
    , mLength(L) {
-      Accept.AddZone(Acceptance::Zone(GetThetaMin(),
-                                      TMath::Pi() - GetThetaMin()));
+//      Accept.AddZone(Acceptance::Zone(GetThetaMin(),
+//                                      TMath::Pi() - GetThetaMin()));
    }
 
    Tracker::~Tracker() {
@@ -86,7 +86,12 @@ namespace Smear {
 
    void Tracker::Smear(const erhic::VirtualParticle& prt,
                           ParticleMCS& prtOut) {
-      if(Accept.Is(prt)) {
+      bool accept = prt.GetTheta() > GetThetaMin() and 
+                    prt.GetTheta() < TMath::Pi() - GetThetaMin();
+      if(Accept.GetNZones() > 0) {
+         accept = accept and Accept.Is(prt);
+      } // if
+      if(accept) {
          double y = GetVariable(prt, kP);
          y = Distribution.Generate(y, EvaluateRes(prt));
          SetVariable(prtOut, y, kP);

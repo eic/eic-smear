@@ -13,14 +13,14 @@ namespace Smear {
    ParticleMCS::ParticleMCS()
    : status(0)
    , id(std::numeric_limits<Int_t>::max())
-   , px(NAN)
-   , py(NAN)
-   , pz(NAN)
-   , E(NAN)
-   , pt(NAN)
-   , p(NAN)
-   , theta(NAN)
-   , phi(NAN) {
+   , px(0.)
+   , py(0.)
+   , pz(0.)
+   , E(0.)
+   , pt(0.)
+   , p(0.)
+   , theta(0.)
+   , phi(0.) {
    }
    ParticleMCS::ParticleMCS(const TLorentzVector& ep, int pdg, int stat)
    : status(stat)

@@ -51,6 +51,8 @@ namespace erhic {
 
    /**
     Computes DIS event kinematics from the scattered lepton.
+    Uses lepton momentum in place of energy, as this is typically
+    measured more precisely for EIC kinematics.
    */
    class LeptonKinematicsComputer : public KinematicsComputer {
    public:
@@ -68,6 +70,9 @@ namespace erhic {
    /**
     Computes DIS event kinematics from final-state hadrons using
     the Jacquet-Blondel method.
+    \todo Revisit implementation, giving option for using particle energy
+    or momentum when computing "energy", and think how to handle mass for
+    smeared particles.
    */
    class JacquetBlondelComputer : public KinematicsComputer {
    public:

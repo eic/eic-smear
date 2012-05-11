@@ -45,13 +45,14 @@ namespace erhic {
       const TLorentzVector& l = mBeams.BeamLepton();
       const TLorentzVector& h = mBeams.BeamHadron();
       const TLorentzVector& s = mBeams.ScatteredLepton();
+      double cme = 4. * l.E() * h.E();
+      double ELeptonInNucl = h.Gamma() * (l.P() - h.Beta() * l.Pz());
+      double ELeptonOutNucl = h.Gamma() * (s.P() - h.Beta() * s.Pz());
       kin = new DisKinematics;
-      kin->mQ2 = 2. * l.E() * s.E() * (1. + s.CosTheta());
-      double ELeptonInNucl = h.Gamma() * (l.E() - h.Beta() * l.Pz());
-      double ELeptonOutNucl = h.Gamma() * (s.E() - h.Beta() * s.Pz());
+      kin->mQ2 = 2. * l.P() * s.P() * (1. + s.CosTheta());
       kin->mNu = ELeptonInNucl - ELeptonOutNucl;
-      kin->mX = kin->mQ2 / (2. * h.M() * kin->mNu);
-      kin->mY = kin->mNu / ELeptonInNucl;
+      kin->mY = kin->mNu * 2. * h.M() / cme;
+      kin->mX = kin->mQ2 / kin->mY / cme;
       kin->mW2 = h.M2() + (1. - kin->mX) * kin->mQ2 / kin->mX;
       return kin;
    }
@@ -178,10 +179,9 @@ Double_t JacquetBlondel::computeYExact() const {
    transform(mParticles.begin(),
              mParticles.end(),
              back_inserter(E),
-             mem_fun_ref(&TLorentzVector::E));
+             mem_fun_ref(&TLorentzVector::P));
              //             mem_fun_ref(&TLorentzVector::P));
    const double sumEh = accumulate(E.begin(), E.end(), 0.);
-   
    // Sum the pz of the hadrons
    list<double> pz;
    transform(mParticles.begin(),

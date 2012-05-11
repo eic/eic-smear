@@ -70,7 +70,13 @@ namespace Smear {
       virtual TLorentzVector PxPyPzE() const { return Get4Vector(); }
       
       /**
-       Returns invariant mass (GeV/c<sup>2</sup>).
+       Returns the apparent mass of the smeared particle.
+       \todo Consider the implementation here.
+       If the particle is identified (either correctly or incorrectly),
+       it could return the PDG mass of that particle.
+       If the particle is not identified, should it return sqrt(E^2 - p^2)?
+       What about if p or E are not known? Return E or p? Or zero (e.g.
+       that would work for photons, E known, p not).
        */
       virtual Double_t GetM() const;
       
@@ -138,7 +144,7 @@ namespace Smear {
 //   protected:
       
       UShort_t   status;      ///< Status code
-      Int_t      id;				///< PDG particle code
+      Int_t      id;		  ///< PDG particle code
       Double32_t px;          ///< x component of particle momentum
       Double32_t py;          ///< y component of particle momentum
       Double32_t pz;          ///< z component of particle momentum

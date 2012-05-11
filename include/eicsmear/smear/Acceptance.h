@@ -79,13 +79,13 @@ namespace Smear {
          virtual Bool_t Contains(const erhic::VirtualParticle&) const;
 
       protected:
-			double thetaMin;
+         double thetaMin;
          double thetaMax;
-			double phiMin;
+         double phiMin;
          double phiMax;
-			double EMin;
+         double EMin;
          double EMax;
-			double PMin;
+         double PMin;
          double PMax;
          double pTMin;
          double pTMax;
