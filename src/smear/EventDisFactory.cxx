@@ -35,10 +35,21 @@ namespace Smear {
    Event* EventDisFactory::Create() {
       Event* event = new Event;
       ParticleIdentifier pid(mMcEvent->BeamLepton()->Id());
+      bool foundScattered(false);
       for(unsigned j(0); j < mMcEvent->GetNTracks(); j++) {
          const erhic::VirtualParticle* ptr = mMcEvent->GetTrack(j);
          if(not ptr) {
             continue;
+         } // if
+         // If this is the scattered lepton, record the index.
+         // Check that the scattered lepton hasn't been set yet so we
+         // don't replace it with a subsequent match.
+         // Set the index even if the particle turns out to be outside the
+         // acceptance, so we don't accidentally use another electron that is
+         // in the acceptance later.
+         if(pid.isScatteredLepton(*ptr) and not foundScattered) {
+            event->mScatteredIndex = j;
+            foundScattered = true;
          } // if
          // It's convenient to keep the initial beams, unsmeared, in the
          // smeared event record, so copy their properties exactly
@@ -46,16 +57,11 @@ namespace Smear {
             event->AddLast(mcToSmear(*ptr));
          } // if
          else {
-            event->AddLast(mDetector.Smear(*ptr));
-            // If this is the scattered lepton, record the index.
-            // Check that the scattered lepton hasn't been set yet so we
-            // don't replace it with a subsequent match.
-            if(pid.isScatteredLepton(*ptr) and not event->ScatteredLepton()) {
-               event->mScatteredIndex = j;
-            } // if
+            ParticleMCS* p = mDetector.Smear(*ptr);
+            event->AddLast(p);
          } // else
       } // for
-        // Fill the event-wise kinematic variables.
+      // Fill the event-wise kinematic variables.
       mDetector.FillEventKinematics(*mMcEvent, event);
       return event;
    }

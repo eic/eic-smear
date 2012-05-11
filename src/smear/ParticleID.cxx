@@ -220,7 +220,7 @@ namespace Smear {
    }
 
    void ParticleID::Smear(const erhic::VirtualParticle& prt,
-                             ParticleMCS& prtOut) {
+                          ParticleMCS& prtOut) {
       double momentum(0.);
       if(bUseMC) {
          momentum = prt.GetP();

@@ -182,7 +182,7 @@ namespace Smear {
 		std::vector< std::vector<std::vector<double> > > PMatrix;
       // Range is the cumulative probability distribution of PMatrix.
 		std::vector< std::vector<std::vector<double> > > Range;
-		Acceptance Accept;
+//		Acceptance Accept;
 		bool bUseMC;
 
 		ClassDef(ParticleID, 1)

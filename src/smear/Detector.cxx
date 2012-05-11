@@ -83,19 +83,23 @@ namespace Smear {
          beams.SetScatteredLepton(scattered->Get4Vector());
       } // if
       typedef std::auto_ptr<erhic::DisKinematics> KinPtr;
-      if(useNM) {
+      if(useNM and scattered) {
          KinPtr kin(erhic::LeptonKinematicsComputer(beams).Calculate()); 
          if(kin.get()) {
             eventS->SetLeptonKinematics(*kin);
          } // if
       } // if
+      else {
+        eventS->SetLeptonKinematics(
+           erhic::DisKinematics(-1., -1., -1., -1., -1.));
+      } // else
       if(useJB) {
          KinPtr kin(erhic::JacquetBlondelComputer(*eventS, &beams).Calculate());
          if(kin.get()) {
             eventS->SetJacquetBlondelKinematics(*kin);
          } // if
       } // if
-      if(useDA) {
+      if(useDA and scattered) {
          KinPtr kin(erhic::DoubleAngleComputer(*eventS, &beams).Calculate());
          if(kin.get()) {
             eventS->SetDoubleAngleKinematics(*kin);

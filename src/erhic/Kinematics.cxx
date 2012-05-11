@@ -41,19 +41,25 @@ namespace erhic {
    : mBeams(b) {
    }
    DisKinematics* LeptonKinematicsComputer::Calculate() {
-      DisKinematics* kin(NULL);
-      const TLorentzVector& l = mBeams.BeamLepton();
-      const TLorentzVector& h = mBeams.BeamHadron();
+      DisKinematics* kin = new DisKinematics(-1., -1., -1., -1., -1.);
       const TLorentzVector& s = mBeams.ScatteredLepton();
-      double cme = 4. * l.E() * h.E();
-      double ELeptonInNucl = h.Gamma() * (l.P() - h.Beta() * l.Pz());
-      double ELeptonOutNucl = h.Gamma() * (s.P() - h.Beta() * s.Pz());
-      kin = new DisKinematics;
-      kin->mQ2 = 2. * l.P() * s.P() * (1. + s.CosTheta());
-      kin->mNu = ELeptonInNucl - ELeptonOutNucl;
-      kin->mY = kin->mNu * 2. * h.M() / cme;
-      kin->mX = kin->mQ2 / kin->mY / cme;
-      kin->mW2 = h.M2() + (1. - kin->mX) * kin->mQ2 / kin->mX;
+      // We can end up calling this function even if the particle was outside
+      // the momentum/theta device, if it was found by some device.
+      // In that case there is no momentum or theta information.
+      // In that case, we use the default values for all kinematic quantities.
+      if(s.P() > 0. and s.Theta() > 0.) {
+         const TLorentzVector& l = mBeams.BeamLepton();
+         const TLorentzVector& h = mBeams.BeamHadron();
+         double cme = 4. * l.E() * h.E();
+         double ELeptonInNucl = h.Gamma() * (l.P() - h.Beta() * l.Pz());
+         double ELeptonOutNucl = h.Gamma() * (s.P() - h.Beta() * s.Pz());
+         double theta = s.Theta();
+         kin->mQ2 = 2. * l.P() * s.P() * (1. + cos(theta));
+         kin->mNu = ELeptonInNucl - ELeptonOutNucl;
+         kin->mY = kin->mNu * 2. * h.M() / cme;
+         kin->mX = kin->mQ2 / kin->mY / cme;
+         kin->mW2 = h.M2() + (1. - kin->mX) * kin->mQ2 / kin->mX;
+      } // if
       return kin;
    }
    JacquetBlondelComputer::JacquetBlondelComputer(const EventDis& event,
