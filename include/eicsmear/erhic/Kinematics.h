@@ -13,15 +13,10 @@
 #include <Rtypes.h>
 #include <TLorentzVector.h>
 
-#include "eicsmear/erhic/VirtualParticle.h"
-#include "eicsmear/erhic/EventBase.h"
-//#include "eicsmear/erhic/EventMC.h"
-#include "eicsmear/erhic/ParticleMC.h"
-//class EventBase;
-#include "eicsmear/erhic/ParticleIdentifier.h"
 #include "eicsmear/erhic/BeamParticles.h"
-
-//class EventBase;
+#include "eicsmear/erhic/ParticleMC.h"
+#include "eicsmear/erhic/ParticleIdentifier.h"
+#include "eicsmear/erhic/VirtualParticle.h"
 
 namespace erhic {
 

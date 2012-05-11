@@ -14,6 +14,7 @@
 #include <TVector3.h>
 
 #include "eicsmear/erhic/BeamParticles.h"
+#include "eicsmear/erhic/EventDis.h"
 #include "eicsmear/erhic/Kinematics.h"
 #include "eicsmear/erhic/ParticleIdentifier.h"
 

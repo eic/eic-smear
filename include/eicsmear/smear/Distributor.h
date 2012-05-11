@@ -63,7 +63,7 @@ namespace Smear {
        Generate a random value based on a given midpoint and width.
       */
       virtual double Generate(double midpoint, double width);
-//   protected:
+   protected:
 		double mPlus;
 		double mMinus;
 		TF1* mDistribution;

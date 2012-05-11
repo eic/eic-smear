@@ -65,7 +65,7 @@ namespace Smear {
 	 Fix a polar angle so that it lies within [0,pi].
     TODO Nothing Smear-specific here - move to general functions file.
 	 */
-	inline double FixTopologyTheta(double theta) {
+	inline double FixTheta(double theta) {
 		while (theta < 0. || theta > TMath::Pi()) {
 			if (theta<0.) {
 				theta = -theta;
@@ -81,14 +81,14 @@ namespace Smear {
 	 Fix an azimuthal angle so that it lies within [0,2*pi).
     TODO Nothing Smear-specific here - move to general functions file.
 	 */
-	inline double FixTopologyPhi(double phi) {
+	inline double FixPhi(double phi) {
       return TVector2::Phi_0_2pi(phi);
 	}
 	
 	/**
 	 Returns the kinematic variable associated with kin from the input particle.
 	 */
-	inline double SwitchKinGetFromParticle(const erhic::VirtualParticle& prt, KinType kin) {
+	inline double GetVariable(const erhic::VirtualParticle& prt, KinType kin) {
 		double z(0.);
 		switch (kin) {
 			case kE:
@@ -112,7 +112,7 @@ namespace Smear {
 	/**
 	 Stores z in the ParticleS.K where K is the kinematic variable associated with kin.
 	 */
-	inline void SwitchKinStoreToParticle(ParticleMCS &prt, double z, KinType kin) {
+	inline void SetVariable(ParticleMCS &prt, double z, KinType kin) {
 		switch (kin) {
 			case kE:
 				prt.SetE(z); break;

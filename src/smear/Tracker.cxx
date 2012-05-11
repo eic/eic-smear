@@ -87,9 +87,9 @@ namespace Smear {
    void Tracker::Smear(const erhic::VirtualParticle& prt,
                           ParticleMCS& prtOut) {
       if(Accept.Is(prt)) {
-         double y = SwitchKinGetFromParticle(prt, kP);
+         double y = GetVariable(prt, kP);
          y = Distribution.Generate(y, EvaluateRes(prt));
-         SwitchKinStoreToParticle(prtOut, y, kP);
+         SetVariable(prtOut, y, kP);
          //make sure E, p are positive definite
          HandleBogusValues(prtOut, kP);
       } //if

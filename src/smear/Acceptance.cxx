@@ -83,13 +83,13 @@ namespace Smear {
    , Kin2(kTheta)
    , Min(min)
    , Max(max) {
+      TString s(formula);
+      dim = ParseInputFunction(s, Kin1, Kin2);
       if(not IsCoreType(Kin1) or not IsCoreType(Kin2)) {
          std::cerr <<
          "ERROR! Custom acceptance is not a function of E, p, theta, phi"
          << std::endl;
       } // if
-      TString s(formula);
-      dim = ParseInputFunction(s, Kin1, Kin2);
       if(1 == dim or 2 == dim) {
          mFormula = TFormula("CustomCutFormula", s);
       } // if
@@ -104,10 +104,10 @@ namespace Smear {
 
    bool Acceptance::CustomCut::Contains(
                                  const erhic::VirtualParticle& prt) const {
-      double x = SwitchKinGetFromParticle(prt, Kin1);
+      double x = GetVariable(prt, Kin1);
       double y(0.);
       if(2 == dim) {
-         y = SwitchKinGetFromParticle(prt, Kin2);
+         y = GetVariable(prt, Kin2);
       } // if
       double z = mFormula.Eval(x, y);
       return z >= Min and z < Max;
@@ -146,8 +146,8 @@ namespace Smear {
 
    Bool_t Acceptance::Zone::Contains(const erhic::VirtualParticle& prt) const {
       bool accept(true);
-      const double theta = FixTopologyTheta(prt.GetTheta());
-      const double phi = FixTopologyPhi(prt.GetPhi());
+      const double theta = FixTheta(prt.GetTheta());
+      const double phi = FixPhi(prt.GetPhi());
       if(theta < thetaMin or theta > thetaMax) {
          accept = false;
       } // if...

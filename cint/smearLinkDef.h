@@ -34,6 +34,7 @@
 #pragma link C++ class Smear::Acceptance::Zone+;
 #pragma link C++ class Smear::Detector+;
 #pragma link C++ class Smear::Distributor+;
+#pragma link C++ class Smear::FormulaString+;
 #pragma link C++ class Smear::ParticleID+;
 #pragma link C++ class Smear::Smearer+;
 
@@ -45,5 +46,7 @@
 // typedefs
 #pragma link C++ class EventS;
 #pragma link C++ class ParticleS;
+
+#pragma link C++ class std::vector<Smear::KinType>;
 
 #endif // __CINT__

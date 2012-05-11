@@ -17,7 +17,7 @@ namespace Smear {
 
    ParticleID::ParticleID()
    : Ran(0)
-   , PMatPath("/afs/rhic.bnl.gov/eic/MACROS/BuildTree/PIDMatrix.dat")
+   , PMatPath("PIDMatrix.dat")
    , bUseMC(false) {
       ReadP(PMatPath);
    }
@@ -135,7 +135,6 @@ namespace Smear {
             << filename << std::endl;
          return;
       } // if
-
       // Returns true if s begins with pattern.
       struct StartsWith {
          bool operator()(const std::string& s,
@@ -150,7 +149,7 @@ namespace Smear {
       bool gotTrue(false), gotFalse(false), gotBins(false);
       while(std::getline(Qfile, line).good()) {
          // Strip leading whitespace
-         line.erase(0, line.find_first_not_of(" \n\r\t"));
+         line.erase(0, line.find_first_not_of(" \t"));
          // Feed the line to the stringstream, clearing existing contents first
          ss.str(""); // Remove contents
          ss.clear(); // Clear flags
@@ -159,7 +158,8 @@ namespace Smear {
          // Read true particle IDs
          if(starts(line, "!T")) {
             ss >> dummy;
-            while((ss >> tmpint).good()) {
+            while(ss.good()) {
+               ss >> tmpint;
                TrueIdent.push_back(tmpint);
             } // while
             gotTrue = not TrueIdent.empty();
@@ -167,7 +167,8 @@ namespace Smear {
          // Read misidentified particle IDs
          else if(starts(line, "!F")) {
             ss >> dummy;
-            while((ss >> tmpint).good()) {
+            while(ss.good()) {
+               ss >> tmpint;
                FalseIdent.push_back(tmpint);
             } // while
             gotFalse = not FalseIdent.empty();

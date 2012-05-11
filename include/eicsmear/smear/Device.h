@@ -2,12 +2,10 @@
 #define _EICSMEAR_SMEAR_DEVICE_H_
 
 #include <cmath>
-#include <map>
 #include <vector>
 
 #include <TF1.h>
 #include <TF2.h>
-#include <TFormula.h>
 #include <Math/ParamFunctor.h> // For ROOT::TMath::ParamFunctor
 #include <TRandom3.h>
 #include <TString.h>
@@ -25,6 +23,7 @@ namespace erhic {
 
 namespace Smear {
 
+   class FormulaString;
    class ParticleMCS;
    
    /**
@@ -94,33 +93,16 @@ namespace Smear {
       */
       virtual void SetDistribution(const Distributor&);
 
-      /**
-       Process a formula, replacing patterns such as "E", "p" with variables
-       recognised by ROOT::TFormula (i.e. "x", "y", "z" and "t").
-       Populate types with the Smear::KinType corresponding to each pattern.
-       e.g. "0.3/sqrt(E)" would yield "0.3/sqrt(x)" and store Smear::kE.
-      */
-      static int Parse(TString& formula,
-                       std::vector<Smear::KinType>& types);
-
    protected:
 
       bool Init(const TString&, const TString&, int);
 
-      static KinType GetKinType(const TString&);
-      static TString GetKinName(KinType);
-
       KinType mSmeared;   ///< Smeared variable
       TF1* mKinematicFunction;
-      TFormula* mFormula; ///< Expression for resolution standard deviation
+      FormulaString* mFormula; ///< Expression for resolution standard deviation
       std::vector<Smear::KinType> mDimensions; ///< Variables on which smearing
                                                ///< is dependent (up to 4)
 		Distributor mDistribution; ///< Random distribution
-
-      /** Fills pattern-KinType map. */
-      static void FillKinTypeTable();
-      static const std::vector<TString> smPatterns; ///< Valid variable names
-      static std::map<TString, KinType> smKinTypes; ///< Keyed by pattern string
 
    private:
 

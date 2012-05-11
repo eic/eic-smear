@@ -12,11 +12,11 @@
 #ifndef _EventDis_H_
 #define _EventDis_H_
 
-#include "eicsmear/erhic/VirtualEvent.h"
-
 #include <cmath> // For pow
 
 #include <Rtypes.h> // For ClassDef
+
+#include "eicsmear/erhic/VirtualEvent.h"
 
 namespace erhic {
    

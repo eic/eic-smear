@@ -12,6 +12,7 @@
 #include "eicsmear/smear/Distributor.h"
 
 #include <TF1.h>
+#include <TRandom.h>
 #include <TUUID.h>
 
 namespace Smear {
@@ -19,9 +20,7 @@ namespace Smear {
    Distributor::Distributor()
    : mPlus(0.)
    , mMinus(0.)
-   , mDistribution(new TF1(TUUID().AsString(),
-                   "exp(-pow(x-[0],2)/pow([1],2))", -1.e6, 1.e6)) {
-      mDistribution->SetParameters(0., 1.);
+   , mDistribution(NULL) {
    }
 
    Distributor::Distributor(const TString& formula, double lower, double upper,
@@ -46,7 +45,19 @@ namespace Smear {
    }
 
    double Distributor::Generate(double mean, double sigma) {
-      mDistribution->SetParameters(mean, sigma);
-      return mDistribution->GetRandom(mean - mMinus, mean + mPlus);
+      double random(0.);
+      if(not mDistribution) {
+         random = gRandom->Gaus(mean, sigma);
+      } // if
+      else {
+         mDistribution->SetParameters(mean, sigma);
+         if(mMinus > 0. or mPlus > 0.) {
+            random = mDistribution->GetRandom(mean - mMinus, mean + mPlus);
+         } // if
+         else {
+            random = mDistribution->GetRandom();
+         } // else
+      } // else
+      return random;
    }
 } // namespace Smear
