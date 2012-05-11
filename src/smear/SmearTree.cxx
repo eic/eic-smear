@@ -25,11 +25,11 @@
 #include <TStopwatch.h>
 #include <TH1D.h>
 
-#include "eicsmear/erhic/EventFactory.h"
+#include "eicsmear/erhic/VirtualParticle.h"
 #include "eicsmear/smear/Detector.h"
+#include "eicsmear/smear/EventDisFactory.h"
 #include "eicsmear/smear/ParticleMCS.h"
 #include "eicsmear/smear/Smear.h"
-#include "eicsmear/erhic/VirtualParticle.h"
 #include "eicsmear/hadronic/EventSmear.h"
 
 /**
@@ -58,7 +58,7 @@ int SmearTree(const Smear::Detector& detector, const TString& inFileName,
    // the correct smeared event builder.
    TClass branchClass(mcTree->GetBranch("event")->GetClassName());
    if(branchClass.InheritsFrom("erhic::EventDis")) {
-      builder = new Smear::EventDisBuilder(detector, *(mcTree->GetBranch("event")));
+      builder = new Smear::EventDisFactory(detector, *(mcTree->GetBranch("event")));
    } // if
    else if(branchClass.InheritsFrom("erhic::hadronic::EventMC")) {
       builder = new Smear::HadronicEventBuilder(detector, *(mcTree->GetBranch("event")));

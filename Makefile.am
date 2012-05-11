@@ -33,6 +33,7 @@ include/eicsmear/smear/Device.h \
 include/eicsmear/smear/Distributor.h \
 include/eicsmear/smear/EventS.h \
 include/eicsmear/smear/EventSmear.h \
+include/eicsmear/smear/EventDisFactory.h \
 include/eicsmear/smear/FormulaString.h \
 include/eicsmear/smear/functions.h \
 include/eicsmear/smear/ParticleID.h \
@@ -72,6 +73,7 @@ src/smear/Bremsstrahlung.cxx \
 src/smear/Detector.cxx \
 src/smear/Device.cxx \
 src/smear/Distributor.cxx \
+src/smear/EventDisFactory.cxx \
 src/smear/EventSmear.cxx \
 src/smear/FormulaString.cxx \
 src/smear/ParticleID.cxx \

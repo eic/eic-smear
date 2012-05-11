@@ -15,10 +15,10 @@
 
 #include <Rtypes.h> // For ClassDef macro
 
-#include <eicsmear/hadronic/EventMC.h>
-#include "eicsmear/smear/ParticleMCS.h"
 #include "eicsmear/erhic/VirtualEvent.h"
-#include "eicsmear/erhic/EventFactory.h"
+#include <eicsmear/hadronic/EventMC.h>
+#include "eicsmear/smear/EventFactory.h"
+#include "eicsmear/smear/ParticleMCS.h"
 
 #include <TBranch.h>
 
