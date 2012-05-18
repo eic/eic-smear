@@ -70,7 +70,7 @@ namespace Smear {
       /**
        Polar angle of the end of the outer surface.
       */
-      double ThetaCrit();
+//      double ThetaCrit();
 
       /**
        Returns the minimum theta of particle accepted by a tracker with
@@ -80,14 +80,27 @@ namespace Smear {
        */
       double GetThetaMin();
 
+      /**
+       Print information about this device to standard output.
+      */
+      virtual void Print(Option_t* = "") const;
+
+      /**
+       Returns the resolution at the kinematics of this particle.
+      */
+      double Evaluate(const erhic::VirtualParticle&) const;
    protected:
 
-      double MultipleScatteringContribution(const erhic::VirtualParticle&);
-      double IntrinsicContribution(const erhic::VirtualParticle&);
-      double EvaluateRes(const erhic::VirtualParticle&);
-      double L(const erhic::VirtualParticle&);
-      double LPrime(const erhic::VirtualParticle&);
-      double tanTheta(const erhic::VirtualParticle&);
+      /**
+       Multiple scattering contribution, given by
+       delta(p)/p = 0.0136 * z * sqrt(NRL) / (0.3 * B * L * beta * cos^2(gamma)
+       z = charge, NRL = # radiation lengths, B = mag field, L = track length,
+       beta = particle velocity, gamma = angle of incidence wrt detector plane.
+      */
+      double MultipleScatteringContribution(const erhic::VirtualParticle&) const;
+      double IntrinsicContribution(const erhic::VirtualParticle&) const;
+      double L(const erhic::VirtualParticle&) const;
+      double LPrime(const erhic::VirtualParticle&) const;
 
       double mMagField; ///< Magnetic field strength in Tesla
       double mNRadLengths; ///< Number of radiation lengths (dimensionless)
@@ -100,14 +113,6 @@ namespace Smear {
 
       ClassDef(Smear::Tracker, 1)
    };
-
-   inline double Tracker::tanTheta(const erhic::VirtualParticle& p) {
-      return fabs(tan(p.GetTheta()));
-   }
-
-   inline double Tracker::ThetaCrit() {
-      return atan(2. * mOuterRadius / mLength);
-   }
 
    inline double Tracker::GetThetaMin() {
       return atan(2. * mInnerRadius / mLength);

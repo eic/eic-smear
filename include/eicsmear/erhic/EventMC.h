@@ -170,7 +170,13 @@ namespace erhic {
       /** Returns the total charge of the final state in units of e */
       Double_t FinalStateCharge() const;
       
-      //   protected:
+      /**
+       Returns pointers to all tracks in the event.
+       Do not delete the pointers.
+      */
+      std::vector<const VirtualParticle*> GetTracks() const;
+
+   protected:
       Int_t number; ///< Event number
       Int_t process; ///< PYTHIA code for the physics process producing the event
       Int_t nTracks; ///< Number of Particles in the event (intermediate + final)
@@ -179,9 +185,7 @@ namespace erhic {
       Double32_t ELeptonOutNucl; ///< Scattered lepton energy in the nuclear rest frame
       
       std::vector<ParticleMC*> particles; ///< Particle list
-      
-   private:
-      
+
       ClassDef(EventMC, 1)
    };
    

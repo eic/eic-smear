@@ -112,4 +112,10 @@ namespace Smear {
    Device* Device::Clone(const char* /** Unused */) const {
       return new Device(*this);
    }
+
+   void Device::Print(Option_t*) const {
+      const std::string name = FormulaString::GetKinName(mSmeared);
+      std::cout << "Device smearing " << name << " with sigma(" << name <<
+      ") = " << mFormula->GetInputString() << std::endl;
+   }
 } // namespace Smear

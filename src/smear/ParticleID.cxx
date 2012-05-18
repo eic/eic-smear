@@ -245,4 +245,7 @@ namespace Smear {
          } //for 
       } //if 
    }
+   void ParticleID::Print(Option_t*) const {
+      std::cout << "ParticleID using " << PMatPath << std::endl;
+   }
 } // namespace Smear

@@ -11,6 +11,8 @@
 
 #include "eicsmear/smear/Tracker.h"
 
+#include <algorithm>
+
 #include <TMath.h>
 
 namespace Smear {
@@ -44,44 +46,42 @@ namespace Smear {
    }
 
    double Tracker::MultipleScatteringContribution(
-                                       const erhic::VirtualParticle& p) {
-      double theta = p.GetTheta();
-      double c1 = 0.0136 / 0.3;
+                                       const erhic::VirtualParticle& p) const {
+      // Technically should be a factor of particle charge in the numerator
+      // but this is effectively always one.
+      double c1 = 0.0136 / 0.3; // * z
       double beta = p.Get4Vector().Beta();
-      double cos2gamma = pow(cos(TMath::PiOver2() - theta), 2.);
-      return c1 * p.GetP() * sqrt(mNRadLengths) /
-             (L(p) * beta * mMagField * cos2gamma);
+      // gamma is the angle to the vertical, theta is angle to the horizontal.
+      return c1 * p.GetP() * sqrt(mNRadLengths) / (L(p) * beta * mMagField);
    }
 
-   double Tracker::IntrinsicContribution(const erhic::VirtualParticle& p) {
+   double Tracker::IntrinsicContribution(
+                      const erhic::VirtualParticle& p) const {
       double c1 = sqrt(720.) / 0.3;
       double over = c1 * p.GetP() * p.GetP() * mSigmaRPhi;
       return over / (mMagField * pow(LPrime(p), 2.) * sqrt(mNFitPoints + 4.));
    }
 
-   double Tracker::EvaluateRes(const erhic::VirtualParticle& p) {
-         return MultipleScatteringContribution(p) + IntrinsicContribution(p);
+   double Tracker::Evaluate(const erhic::VirtualParticle& p) const {
+      return sqrt(pow(MultipleScatteringContribution(p), 2.) +
+                  pow(IntrinsicContribution(p), 2.));
    }
 
-   double Tracker::L(const erhic::VirtualParticle& p) {
-      if(p.GetTheta() >= ThetaCrit() and
-         p.GetTheta() < TMath::Pi() - ThetaCrit()) {
-         return LPrime(p) / sin(p.GetTheta());
+   double Tracker::L(const erhic::VirtualParticle& p) const {
+      double l(0.);
+      if(sin(p.GetTheta()) > 0.) {
+         l = LPrime(p) / sin(p.GetTheta());
       } // if
-      else {
-         return sqrt(pow(LPrime(p), 2.) +
-                     pow((mLength / 2.) - (mInnerRadius / tanTheta(p)), .2));
-      } // else
+      return l;
    }
 
-   double Tracker::LPrime(const erhic::VirtualParticle& p) {
-      if(p.GetTheta() >= ThetaCrit() and
-         p.GetTheta() < TMath::Pi() - ThetaCrit()) {
-         return mOuterRadius - mInnerRadius;
-      } // if
-      else {
-         return (mLength / 2.) * tanTheta(p) - mInnerRadius;
-      } // else
+   double Tracker::LPrime(const erhic::VirtualParticle& p) const {
+      // Compute the transverse track length.
+      // Use abs(tan(theta)) as we don't distinguish forward and backward angles
+      double l = mLength / 2. * fabs(tan(p.GetTheta())) - mInnerRadius;
+      // Make sure to cap it at both min and max values
+      // so it lies in the range [0, outer radius - inner radius]
+      return std::min(std::max(l, 0.), mOuterRadius - mInnerRadius);
    }
 
    void Tracker::Smear(const erhic::VirtualParticle& prt,
@@ -93,10 +93,20 @@ namespace Smear {
       } // if
       if(accept) {
          double y = GetVariable(prt, kP);
-         y = Distribution.Generate(y, EvaluateRes(prt));
+         y = Distribution.Generate(y, Evaluate(prt));
          SetVariable(prtOut, y, kP);
          //make sure E, p are positive definite
          HandleBogusValues(prtOut, kP);
       } //if
+   }
+   void Tracker::Print(Option_t*) const {
+      std::cout << "Tracker with:" << std::endl <<
+      "\tinner radius " << mInnerRadius << " m\n" <<
+      "\touter radius " << mOuterRadius << " m\n" <<
+      "\tlenth " << mLength << " m\n" <<
+      "\tmagnetic field " << mMagField << " Tesla\n" <<
+      "\t" << mNRadLengths << " radiation lengths\n" <<
+      "\tpoint resolution " << mSigmaRPhi * 1.e6 << " microns\n" <<
+      "\t" << mNFitPoints << " fit points" << std::endl;
    }
 } // namespace Smear

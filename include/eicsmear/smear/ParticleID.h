@@ -169,6 +169,11 @@ namespace Smear {
       */
       virtual void Clear(Option_t* = "");
 
+      /**
+       Print information about this device to standard output.
+      */
+      virtual void Print(Option_t* = "") const;
+
 		TRandom3 Ran;
 		TString PMatPath;
 		std::vector<int> TrueIdent;

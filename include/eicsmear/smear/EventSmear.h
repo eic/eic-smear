@@ -14,6 +14,7 @@
 
 #include <cmath>
 #include <list>
+#include <vector>
 
 #include <TObject.h>
 
@@ -120,8 +121,19 @@ namespace Smear {
        beam lepton.
        */
       void HadronicFinalState(ParticlePtrList&) const;
+        
+      /**
+       Returns a vector of pointers to all tracks in the event.
+       Note that this includes NULL pointers to tracks that were not detected.
+       Do not delete the pointers.
+      */
+      std::vector<const erhic::VirtualParticle*> GetTracks() const;
 
-//   protected:
+      /**
+       Set which particle is the scattered lepton.
+      */
+      virtual void SetScattered(int);
+   protected:
       
       Int_t nTracks; ///< Number of particles (intermediate + final)
 

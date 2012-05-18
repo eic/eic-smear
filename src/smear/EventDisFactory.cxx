@@ -48,12 +48,17 @@ namespace Smear {
          // acceptance, so we don't accidentally use another electron that is
          // in the acceptance later.
          if(pid.isScatteredLepton(*ptr) and not foundScattered) {
-            event->mScatteredIndex = j;
             foundScattered = true;
+            ParticleMCS* p = mDetector.Smear(*ptr);
+            event->AddLast(p);
+            // Only set the index if the scattered electron is detected
+            if(p) {
+                event->SetScattered(j);
+            } // if
          } // if
          // It's convenient to keep the initial beams, unsmeared, in the
          // smeared event record, so copy their properties exactly
-         if(mMcEvent->BeamLepton() == ptr or mMcEvent->BeamHadron() == ptr) {
+         else if(mMcEvent->BeamLepton() == ptr or mMcEvent->BeamHadron() == ptr) {
             event->AddLast(mcToSmear(*ptr));
          } // if
          else {

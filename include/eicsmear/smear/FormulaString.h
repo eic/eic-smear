@@ -83,6 +83,11 @@ namespace Smear {
       virtual std::string GetString() const;
 
       /**
+       Returns the unprocessed input formula string.
+      */
+      virtual std::string GetInputString() const;
+
+      /**
        Returns the name corresponding the a Smear::KinType.
       */
       static std::string GetKinName(KinType);
@@ -102,6 +107,7 @@ namespace Smear {
       std::string Parse(const std::string&);
 
       TFormula* mFormula;
+      std::string mInput; ///< Original formula (before parsing)
       std::vector<Smear::KinType> mVariables;
 
       ClassDef(Smear::FormulaString, 1)

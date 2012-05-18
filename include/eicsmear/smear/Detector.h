@@ -103,7 +103,11 @@ namespace Smear {
        state particle, returns a null ParticleS pointer.  
 		 */
 		ParticleMCS* Smear(const erhic::VirtualParticle&) const;
-		
+
+      /**
+       Print information about all smearers to standard output.
+      */
+      virtual void Print(Option_t* = "") const;
    protected:
 
       /** Returns pointers to new copies of all devices */

@@ -138,4 +138,9 @@ namespace Smear {
                      std::bind2nd(std::mem_fun(&Smearer::Clone), ""));
       return copies;
    }
+   void Detector::Print(Option_t* o) const {
+      for(unsigned i(0); i < GetNDevices(); ++i) {
+         Devices.at(i)->Print(o);
+      } // for
+   }
 } // namespace Smear

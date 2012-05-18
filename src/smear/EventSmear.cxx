@@ -50,4 +50,18 @@ namespace Smear {
          } // if
       } // for
    }
+
+   std::vector<const erhic::VirtualParticle*> Event::GetTracks() const {
+      std::vector<const erhic::VirtualParticle*> tracks;
+      for(unsigned i(0); i < GetNTracks(); ++i) {
+         tracks.push_back(GetTrack(i));
+      } // for
+      return tracks;
+   }
+
+   void Event::SetScattered(int index) {
+      if(index >= 0) {
+         mScatteredIndex = index;
+      } // if
+   }
 } // namespace erhic

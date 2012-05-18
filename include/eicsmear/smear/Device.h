@@ -93,6 +93,10 @@ namespace Smear {
       */
       virtual void SetDistribution(const Distributor&);
 
+      /**
+       Print information about this device to standard output.
+      */
+      virtual void Print(Option_t* = "") const;
    protected:
 
       bool Init(const TString&, const TString&, int);

@@ -36,6 +36,14 @@ namespace erhic {
       particles.clear();
    }
 
+   std::vector<const VirtualParticle*> EventMC::GetTracks() const {
+      std::vector<const VirtualParticle*> tracks;
+      for(unsigned i(0); i < GetNTracks(); ++i) {
+         tracks.push_back(GetTrack(i));
+      } // for
+      return tracks;
+   }
+
    // Get the particles that belong to the hadronic final state.
    // The stored Particle* are pointers to the original particles in the event
    // so don't delete them!

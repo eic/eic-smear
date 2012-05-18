@@ -76,7 +76,8 @@ namespace Smear {
    }
 
    FormulaString::FormulaString(const std::string& formula)
-   : mFormula(NULL) {
+   : mFormula(NULL)
+   , mInput(formula) {
       std::string f = Parse(formula);
       mFormula = new TFormula(TUUID().AsString(), f.c_str());
    }
@@ -134,6 +135,10 @@ namespace Smear {
          str = mFormula->GetTitle();
       } // if
       return str;
+   }
+
+   std::string FormulaString::GetInputString() const {
+      return mInput;
    }
 
    KinType FormulaString::GetKinType(const std::string& name) {
