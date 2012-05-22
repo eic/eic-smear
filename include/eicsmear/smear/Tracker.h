@@ -4,7 +4,7 @@
  \file
  Declaration of class Tracker.
  
- \author Thomas Burton 
+ \author Thomas Burton
  \date 5/8/12
  \copyright 2012 BNL. All rights reserved.
  */
@@ -27,12 +27,8 @@ namespace Smear {
    class ParticleMCS;
 
    /**
-    Specialized smearing class for simulating tracking detectors.
-    Implements both intrinsic and multiple-scattering resolution
-    based on specified detector dimensions and properties.
-    \todo Remove SetParticle(), P and bMoreCrit - can pass Particle as function
-    argument when required, as have a ComputePathLength(Particle) method
-    serving bMoreCrit's function.
+    A cylindrical tracking detector.
+    Implements both intrinsic and multiple-scattering resolution.
     */
    class Tracker : public Smearer {
    public:
@@ -45,11 +41,19 @@ namespace Smear {
       Tracker();
 
       /**
-       Constructor.
+       Constructor for a tracker symetrically positioned around z = 0.
        Initialise with all detector characteristics.
        Lengths are in metres.
        */
       Tracker(double innerRadius, double outerRadius, double length,
+              double magneticField, double numberOfRadiationLengths,
+              double sigmaRPhi, double numberOfPoints);
+
+      /**
+       Constructor for a tracker with arbitrary positioning along z.
+      */
+      Tracker(double innerRadius, double outerRadius,
+              double zMin, double zMax,
               double magneticField, double numberOfRadiationLengths,
               double sigmaRPhi, double numberOfPoints);
 
@@ -68,17 +72,14 @@ namespace Smear {
       void Smear(const erhic::VirtualParticle&, ParticleMCS&);
 
       /**
-       Polar angle of the end of the outer surface.
-      */
-//      double ThetaCrit();
-
-      /**
-       Returns the minimum theta of particle accepted by a tracker with
-       the length and radii you specified.
-       If you must set a different acceptance in theta, it is recomended
-       that you allow it no closer to the beam line than this.
+       Returns the minimum theta of particles accepted by the tracker (radians).
        */
       double GetThetaMin();
+
+      /**
+       Returns the maximum theta of particles accepted by the tracker (radians).
+      */
+      double GetThetaMax();
 
       /**
        Print information about this device to standard output.
@@ -88,19 +89,72 @@ namespace Smear {
       /**
        Returns the resolution at the kinematics of this particle.
       */
-      double Evaluate(const erhic::VirtualParticle&) const;
+      double Resolution(const erhic::VirtualParticle&) const;
+
+      /**
+       Returns the path length of the particle through the tracker in metres.
+      */
+      double L(const erhic::VirtualParticle&) const;
+
+      /**
+       Returns the transverse path length of the particle through the
+       tracker in metres.
+      */
+      double LPrime(const erhic::VirtualParticle&) const;
+
+      /**
+       Returns true if the particle falls within the angular acceptance
+       defined via the input parameters.
+       This is defined as the particle's transverse path length being
+       greater than half of (outer radius - inner radius) / number of fit points
+       i.e. the particle has to pass through enough of the detector to cause
+       at least one measureable point.
+      */
+      bool Accepts(const erhic::VirtualParticle&) const;
+
    protected:
 
       /**
        Multiple scattering contribution, given by
-       delta(p)/p = 0.0136 * z * sqrt(NRL) / (0.3 * B * L * beta * cos^2(gamma)
+       delta(p)/p = 0.0136 * z * sqrt(NRL) / (0.3 * B * L * beta)
        z = charge, NRL = # radiation lengths, B = mag field, L = track length,
-       beta = particle velocity, gamma = angle of incidence wrt detector plane.
+       beta = particle velocity.
       */
       double MultipleScatteringContribution(const erhic::VirtualParticle&) const;
+
+      /**
+       The intrinsic resolution of the detector, depending on momentum,
+       magnetic field, the detector dimensions, the number of fit points
+       and the point resolution.
+      */
       double IntrinsicContribution(const erhic::VirtualParticle&) const;
-      double L(const erhic::VirtualParticle&) const;
-      double LPrime(const erhic::VirtualParticle&) const;
+
+      /**
+       Compute the intersection point of the particle with a radial surface.
+       Returns the 3-vector of the intersection point if the z of the
+       intersection is within (zmin, zmax) of this detector,
+       or (0, 0, NaN) if not.
+      */
+      TVector3 ComputeIntersectionWithRadius(
+         const erhic::VirtualParticle&, double radius) const;
+
+      /**
+       Compute the intersection point of the particle with an x-y plane at z.
+       Returns the 3-vector of the intersetion point if the radius of the
+       intersection is within (inner radius, outer radius), or
+       (0, 0, NaN) if not.
+      */
+      TVector3 ComputeIntersectionWithPlane(
+         const erhic::VirtualParticle&, double z) const;
+
+      /**
+       Computes the path vector, defined as (v2 - v1), where v1 and v2
+       are the position vectors of the particle's intersections with
+       the cylinder's surface.
+       Returns (0, 0, 0) for particles that don't intersect, or if
+       something goes wrong.
+      */
+      TVector3 ComputePath(const erhic::VirtualParticle&) const;
 
       double mMagField; ///< Magnetic field strength in Tesla
       double mNRadLengths; ///< Number of radiation lengths (dimensionless)
@@ -108,15 +162,12 @@ namespace Smear {
       double mNFitPoints; ///< Number of fit points
       double mInnerRadius; ///< Inner radius (m)
       double mOuterRadius; ///< Outer radius (m)
-      double mLength; ///< Total tracker length (m)
+      double mZMin; ///< Lower (most negative) z face
+      double mZMax; ///< Upper (most positive) z face
       Distributor Distribution; ///< Random distribution
 
       ClassDef(Smear::Tracker, 1)
    };
-
-   inline double Tracker::GetThetaMin() {
-      return atan(2. * mInnerRadius / mLength);
-   }
 
    inline Tracker* Tracker::Clone(const char*) const {
       return new Tracker(*this);
