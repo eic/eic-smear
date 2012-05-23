@@ -72,14 +72,22 @@ namespace Smear {
                                        const erhic::VirtualParticle& p) const {
       // Technically should be a factor of particle charge in the numerator
       // but this is effectively always one.
-      return 0.0136 / 0.3 * p.GetP() * sqrt(mNRadLengths) / L(p) /
+      double val = 0.0136 / 0.3 * p.GetP() * sqrt(mNRadLengths) / L(p) /
              p.Get4Vector().Beta() / mMagField;
+             if(TMath::IsNaN(val)) {
+             std::cerr << "MS nan!" << std::endl;
+             } // if
+             return val;
    }
 
    double Tracker::IntrinsicContribution(
                       const erhic::VirtualParticle& p) const {
-      return sqrt(720.) / 0.3 * pow(p.GetP(), 2.) * mSigmaRPhi /
+      double val = sqrt(720.) / 0.3 * pow(p.GetP(), 2.) * mSigmaRPhi /
              mMagField / pow(LPrime(p), 2.) / sqrt(mNFitPoints + 4.);
+             if(TMath::IsNaN(val)) {
+             std::cerr << "Intrinsic nan!" << std::endl;
+             } // if
+             return val;
    }
 
    double Tracker::Resolution(const erhic::VirtualParticle& p) const {
@@ -173,13 +181,19 @@ namespace Smear {
 
    void Tracker::Smear(const erhic::VirtualParticle& pIn,
                        ParticleMCS& pOut) {
-      if(Accept.Is(pIn)) {
+      if(Accepts(pIn) and Accept.Is(pIn)) {
          double y = GetVariable(pIn, kP);
          // Randomly generate a smeared value from the resolution
          // and set it in the smeared particle.
          SetVariable(pOut, Distribution.Generate(y, Resolution(pIn)), kP);
          // Ensure E, p are positive definite
          HandleBogusValues(pOut, kP);
+         if(pOut.GetP() < 0.) {
+            std::cerr << "p " << pOut.GetP() << std::endl;
+         } // if
+         if(TMath::IsNaN(pOut.GetP())) {
+            std::cerr << "p nan" << std::endl;
+         } // if
       } //if
    }
 

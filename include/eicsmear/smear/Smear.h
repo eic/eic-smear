@@ -134,28 +134,24 @@ namespace Smear {
 	/**
 	 This dictates how the namespace deals with positive definite variables
     which have been smeared to negative values.
-    Currently they are set to -999.
-    TODO Provide static 'bogus value' for the user to specify.
 	 */
 	inline void HandleBogusValues(ParticleMCS &prt, KinType kin) {
-		double fault = NAN;//-999.; 
-      // TODO replace with switch statement
-		if (prt.GetE() < 0. && kin==kE) {
+		double fault(0.);
+		if(kE == kin and prt.GetE() < 0.) {
 			prt.SetE(fault);
-		}
-		if (prt.GetP() < 0. && kin==kP) {
+		} // if
+		else if(kP == kin and prt.GetP() < 0.) {
 			prt.SetP(fault);
-		}
-		if (prt.GetPt() < 0. && kin==kPt) {
+		} // else if
+		else if(kPt == kin and prt.GetPt() < 0.) {
 			prt.SetPt(fault);
-		}
-		if (prt.GetPz() < 0. && kin==kPz) {
+		} // else if
+		else if(kPz == kin and prt.GetPz() < 0.) {
 			prt.SetPz(fault);
-		}	
+      } // else if
 	}
 	
    /*
-    TODO Make the "bogus value" static and settable
     */
 	inline void HandleBogusValues(ParticleMCS& prt) {
 		double fault = NAN;//-999.;
