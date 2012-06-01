@@ -90,7 +90,9 @@ namespace erhic {
          mNTrials += trials;
          
          if(mFilter and not mFilter->Accept(*mEvent)) {
-            delete mEvent;
+            if(mEvent) {
+               delete mEvent;
+            } // if
             mEvent = NULL;
             continue;
          } // if
