@@ -42,6 +42,8 @@
 #pragma link C++ class Smear::Bremsstrahlung+;
 #pragma link C++ class Smear::Device+;
 #pragma link C++ class Smear::Tracker+;
+#pragma link C++ class Smear::PlanarTracker+;
+#pragma link C++ class Smear::RadialTracker+;
 
 // typedefs
 #pragma link C++ class EventS;
