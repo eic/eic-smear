@@ -71,6 +71,9 @@ namespace erhic {
       if(nm) {
          mEvent->SetLeptonKinematics(*nm);
       } // if
+      for(unsigned n(0); n < mEvent->GetNTracks(); ++n) {
+         mEvent->GetTrack(n)->ComputeEventDependentQuantities(*mEvent);
+      } // for
       if(jb) {
          mEvent->SetJacquetBlondelKinematics(*jb);
       } // if
