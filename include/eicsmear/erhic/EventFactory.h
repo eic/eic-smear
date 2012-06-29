@@ -22,7 +22,6 @@
 #include <TBranch.h>
 #include <TTree.h>
 namespace erhic {
-   
    class ParticleMC;
 
    /**

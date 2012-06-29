@@ -34,6 +34,7 @@ namespace erhic {
       particle->SetParentIndex(mc.GetParent());
       particle->SetChild1Index(mc.GetFirstChild());
       particle->SetChildNIndex(mc.GetLastChild());
+      std::cout << "ChildN index " << mc.GetLastChild()<<" " <<particle->GetChildNIndex() << std::endl;
       particle->Set4Vector(p);
       particle->SetVertex(v);
       

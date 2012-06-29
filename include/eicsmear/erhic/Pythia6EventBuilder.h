@@ -18,7 +18,8 @@
 #include "eicsmear/erhic/EventFactory.h"
 
 namespace erhic {
-   
+
+   class EventMCFilterABC;
    class EventPythia;
    
    /**
@@ -33,8 +34,14 @@ namespace erhic {
 
    public:
       
-      /** Constructor */
-      Pythia6EventBuilder();
+      /**
+       Constructor.
+       If a filter is provided, it will be applied so that all events
+       yielded by Create() pass the filter.
+       The filter should be allocated via new and is subsequently
+       owned and deleted by the Pythia6EventBuilder.
+       */
+      Pythia6EventBuilder(EventMCFilterABC* = NULL);
       
       /** Destructor */
       virtual ~Pythia6EventBuilder();
@@ -51,8 +58,11 @@ namespace erhic {
       virtual TBranch* Branch(TTree&, const std::string&);
       virtual void Fill(TBranch&);
    protected:
+      EventPythia* BuildEvent();
       Long64_t mNGenerated;
       Long64_t mNTrials;
+      EventMCFilterABC* mFilter;
+      EventPythia* mEvent;
       ClassDef(erhic::Pythia6EventBuilder, 1)
    };
    

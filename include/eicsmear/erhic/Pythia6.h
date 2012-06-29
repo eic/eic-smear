@@ -60,7 +60,7 @@ namespace erhic {
        Events failing this filter will not be stored.
        By default no filtering is applied.
        The passed filter object is not deleted by Pythia6. */
-      virtual void SetFilter(EventMCFilterABC*);
+//      virtual void SetFilter(EventMCFilterABC*);
       
       /**
        Runs PYTHIA and writes output
@@ -75,18 +75,18 @@ namespace erhic {
       int mPrintInterval;
       TFile* mFile;           //!< Pointer to the output file
       TTree* mTree;           ///< Pointer to the generated tree
-      VirtualEvent* mEvent;    ///< Pointer to the event buffer
+//      VirtualEvent* mEvent;    ///< Pointer to the event buffer
       const int mNEvents;     ///< Number of events to produce
       int mNGenerated;        ///< Number of events passing PYTHIA selection
       int mNTrials;           ///< Number of events thrown by PYTHIA
-      EventMCFilterABC* mFilter; ///< Event filter
+//      EventMCFilterABC* mFilter; ///< Event filter
       std::auto_ptr<VirtualEventFactory> mFactory; //!< Event factory.
       ClassDef(Pythia6, 1)
    };
    
-   inline void Pythia6::SetFilter(EventMCFilterABC* filter) {
-      mFilter = filter;
-   }
+//   inline void Pythia6::SetFilter(EventMCFilterABC* filter) {
+//      mFilter = filter;
+//   }
    
 } // namespace erhic
 

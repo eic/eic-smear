@@ -17,6 +17,7 @@
 #include <TPythia6.h>
 #include <TTree.h>
 
+#include "eicsmear/erhic/EventMCFilterABC.h"
 #include "eicsmear/erhic/EventPythia.h"
 #include "eicsmear/erhic/Kinematics.h"
 #include "eicsmear/erhic/ParticleMC.h"
@@ -24,29 +25,36 @@
 #include "eicsmear/erhic/Pythia6ParticleBuilder.h"
 
 namespace erhic {
-
-   Pythia6EventBuilder::Pythia6EventBuilder()
+   Pythia6EventBuilder::Pythia6EventBuilder(EventMCFilterABC* filter)
    : mNGenerated(0)
-   , mNTrials(0) {
+   , mNTrials(0)
+   , mFilter(filter)
+   , mEvent(NULL) {
    }
-
    Pythia6EventBuilder::~Pythia6EventBuilder() {
+      delete mFilter;
+      mFilter = NULL;
    }
-
    EventPythia* Pythia6EventBuilder::Create() {
-      
+      std::auto_ptr<EventPythia> event(BuildEvent());
+      if(mFilter) {
+         while(not mFilter->Accept(*event)) {
+            event.reset(BuildEvent());
+         } // while
+      } // if
+      return event.release();
+   }
+   EventPythia* Pythia6EventBuilder::BuildEvent() {
       // Save current object count
       int objectNumber = TProcessID::GetObjectCount();
-      
+      // Generate a new PYTHIA event
       TPythia6* pythia = TPythia6::Instance();
-      
+      pythia->GenerateEvent();
       // Import all particles (not just final-state)
       TObjArray* particles = pythia->ImportParticles("All");
-      
       // Construct the EventPythia object from the current
       // state of TPythia6.
       std::auto_ptr<EventPythia> event(new EventPythia);
-      
       // Extract the event-wise quantities:
       event->SetNucleon(pythia->GetMSTI(12));
       event->SetTargetParton(pythia->GetMSTI(16));
@@ -63,7 +71,6 @@ namespace erhic {
       event->SetHardPt2(pythia->GetPARI(18));
       event->SetPhotonFlux(pythia->GetVINT(319));
       event->SetProcess(pythia->GetMSTI(1));
-      
       // We need the beam energies to compute the true x, W2 and nu.
       // The beam lepton should be the first particle
       // and the beam hadron the second particle.
@@ -73,30 +80,24 @@ namespace erhic {
          dynamic_cast<TMCParticle*>(particles->At(1))->GetEnergy();
       const double mHadron =
          dynamic_cast<TMCParticle*>(particles->At(1))->GetMass();
-      
       // x, W2 and nu are calculated from y, Q2 and the beam energies.
       // y and Q2 come from PYTHIA.
       // Use (approximate expression) Q2 = sxy, where s = 4.E_e.E_h
-      
       double y = pythia->GetVINT(309);
       double Q2 = pythia->GetVINT(307);
       double x = Q2 / y / 4. / eLepton / eHadron;
       double W2 = pow(mHadron, 2.) + Q2 * (1. / x - 1.);
       double nu = (W2 + Q2 - pow(mHadron, 2.)) / 2. / mHadron;
-      
       event->SetTrueY(y);
       event->SetTrueQ2(Q2);
       event->SetTrueX(x);
       event->SetTrueW2(W2);
       event->SetTrueNu(nu);
-      
       // Set the number of event generation trials taken since the last call
       event->SetN(pythia->GetMSTI(5));
       event->SetGenEvent(pythia->GetPyint5()->NGEN[2][0] - mNTrials);
       mNTrials = pythia->GetPyint5()->NGEN[2][0];
-
       // Now populate the particle list.
-
       Pythia6ParticleBuilder builder;
       for(int i(0); i < particles->GetEntries(); ++i) {
          TMCParticle* p =
@@ -106,7 +107,6 @@ namespace erhic {
          particle->SetEvent(event.get());
          event->AddLast(particle.release());
       } // for
-
       // Compute derived event kinematics
       DisKinematics* nm = LeptonKinematicsComputer(*event).Calculate();
       DisKinematics* jb = JacquetBlondelComputer(*event, NULL).Calculate();
@@ -134,14 +134,15 @@ namespace erhic {
          event->SetELeptonInNuclearFrame(l.E());
          event->SetEScatteredInNuclearFrame(s.E());
       } // if
-
+      for(unsigned i(0); i < event->GetNTracks(); ++i) {
+         event->GetTrack(i)->ComputeEventDependentQuantities(*event);
+      } // for
       //Restore Object count 
       // See example in $ROOTSYS/test/Event.cxx
       //To save space in the table keeping track of all referenced objects
       //we assume that our events do not address each other. We reset the 
       //object count to what it was at the beginning of the event.
       TProcessID::SetObjectCount(objectNumber);
-      
       
       return event.release();
    }
@@ -156,10 +157,12 @@ namespace erhic {
       return branch;
    }
    void Pythia6EventBuilder::Fill(TBranch& branch) {
-      EventPythia* event = Create();
-      branch.SetAddress(&event);
-      branch.GetTree()->Fill();
-      branch.ResetAddress();
-      delete event;
+      if(mEvent) {
+         branch.ResetAddress();
+         delete mEvent;
+         mEvent = NULL;
+      } // if
+      mEvent = Create();
+      branch.SetAddress(&mEvent);
    }
 } // namespace erhic
