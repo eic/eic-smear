@@ -74,6 +74,7 @@ namespace Smear {
 
       /**
        Returns the number of measurement points for the particle.
+       This is the number of planes hit in the planar tracker for the particle.
       */
       virtual int NPoints(const erhic::VirtualParticle&) const;
 
@@ -90,14 +91,28 @@ namespace Smear {
       /**
        Returns the minimum theta of particles accepted by the tracker (radians).
        */
-      virtual double GetThetaMin();
+      virtual double GetThetaMin() const;
 
       /**
        Returns the maximum theta of particles accepted by the tracker (radians).
       */
-      virtual double GetThetaMax();
+      virtual double GetThetaMax() const;
 
    protected:
+
+   protected: 
+      
+      /** 
+       Compute the intersection point of the particle with a radial surface. 
+       Returns the 3-vector of the intersection point if the z of the 
+       intersection is within (zmin, zmax) of this detector, 
+       or (0, 0, NaN) if not. 
+       */ 
+      TVector3 ComputeIntersectionWithRadius(const erhic::VirtualParticle&,
+                                             double radius) const; 
+      TVector3 ComputeIntersectionWithPlane(const erhic::VirtualParticle&,
+                                            double z) const; 
+      TVector3 ComputePath(const erhic::VirtualParticle&) const;
 
       double mNPlanes; ///< Number of planes
       double mInnerRadius; ///< Inner radius (m)

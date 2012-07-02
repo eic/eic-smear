@@ -90,12 +90,12 @@ namespace Smear {
       /**
        Returns the minimum theta of particles accepted by the tracker (radians).
        */
-      virtual double GetThetaMin();
+      virtual double GetThetaMin() const;
 
       /**
        Returns the maximum theta of particles accepted by the tracker (radians).
       */
-      virtual double GetThetaMax();
+      virtual double GetThetaMax() const;
 
    protected:
 

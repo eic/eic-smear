@@ -53,8 +53,9 @@ namespace Smear {
 
    double Tracker::IntrinsicContribution(
                       const erhic::VirtualParticle& p) const {
-      double val = sqrt(720.) / 0.3 * pow(p.GetP(), 2.) * mSigmaRPhi /
-             mMagField / pow(LPrime(p), 2.) / sqrt(NPoints(p) + 4.);
+      double val = sqrt( 720.*pow(NPoints(p), 3.) ) * 0.3 * pow(p.GetP(), 2.) 
+             * mSigmaRPhi / mMagField / pow(LPrime(p), 2.) 
+             / sqrt( (NPoints(p)-1)*(NPoints(p)+1)*(NPoints(p)+2)*(NPoints(p)+3));
              if(TMath::IsNaN(val)) {
              std::cerr << "Intrinsic nan!" << std::endl;
              } // if

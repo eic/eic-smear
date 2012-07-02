@@ -130,26 +130,41 @@ namespace Smear {
    }
 
    double RadialTracker::L(const erhic::VirtualParticle& p) const {
-      return ComputePath(p).Mag();
+      double Length = ComputePath(p).Mag();
+      return Length;
+
    }
 
    double RadialTracker::LPrime(const erhic::VirtualParticle& p) const {
       return ComputePath(p).Perp();
    }
 
-   int RadialTracker::NPoints(const erhic::VirtualParticle&) const {
-      return mNFitPoints;
+   int RadialTracker::NPoints(const erhic::VirtualParticle& p) const {
+      int n;
+      float n_float;
+      if( LPrime(p)==(mOuterRadius - mInnerRadius) )
+      {
+        n = mNFitPoints;
+      } else 
+      {
+        n_float = mNFitPoints*ComputePath(p).Perp()/(mOuterRadius-mInnerRadius);
+        n = floor(n_float+0.5);
+      }
+      return n;
    }
+
 
    bool RadialTracker::Accepts(const erhic::VirtualParticle& p) const {
       // Require the transverse path length to exceed half of the
       // radial width per fit point, otherwise the detector essentially
       // doesn't "see" the particle.
-      const double l = LPrime(p);
-      return l > 0.5 * (mOuterRadius - mInnerRadius) / mNFitPoints;
+      //const double l = LPrime(p);
+      if( NPoints(p)>2 ) return true;
+      if( NPoints(p)<=2) return false;
+      //return l > 0.5 * (mOuterRadius - mInnerRadius) / mNFitPoints;
    }
 
-   double RadialTracker::GetThetaMin() {
+   double RadialTracker::GetThetaMin() const {
       if(mZMax > 0.) {
          return atan2(mInnerRadius, mZMax);
       } // if
@@ -158,7 +173,7 @@ namespace Smear {
       } // else
    }
 
-   double RadialTracker::GetThetaMax() {
+   double RadialTracker::GetThetaMax() const {
       if(mZMin > 0.) {
          return atan2(mOuterRadius, mZMin);
       } // if
