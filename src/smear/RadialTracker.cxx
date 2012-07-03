@@ -153,15 +153,14 @@ namespace Smear {
       return n;
    }
 
-
    bool RadialTracker::Accepts(const erhic::VirtualParticle& p) const {
       // Require the transverse path length to exceed half of the
       // radial width per fit point, otherwise the detector essentially
       // doesn't "see" the particle.
-      //const double l = LPrime(p);
-      if( NPoints(p)>2 ) return true;
-      if( NPoints(p)<=2) return false;
-      //return l > 0.5 * (mOuterRadius - mInnerRadius) / mNFitPoints;
+      if(NPoints(p) > 2) {
+         return true;
+      } // if
+      return false;
    }
 
    double RadialTracker::GetThetaMin() const {
