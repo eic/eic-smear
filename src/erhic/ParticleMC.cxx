@@ -14,8 +14,33 @@
 #include "eicsmear/erhic/EventBase.h"
 #include "eicsmear/functions.h"
 
+namespace {
+   /*
+    Returns the boost to transform to the rest frame of the vector "rest".
+    If z is non-NULL, rotate the frame so that z AFTER BOOSTING
+    defines the positive z direction of that frame.
+    e.g. To boost a gamma-p interaction from the lab frame to the
+    proton rest frame with the virtual photon defining z:
+       computeBoost(protonLab, photonLab);
+   */
+   TLorentzRotation computeBoost(const TLorentzVector& rest,
+                                 const TLorentzVector* z) {
+      TLorentzRotation toRest(-(rest.BoostVector()));
+      if(z) {
+         TRotation rotate;
+         TLorentzVector boostedZ(*z);
+         boostedZ *= toRest;
+         rotate.SetZAxis(boostedZ.Vect());
+         // We need the rotation of the frame, so take the inverse.
+         // See the TRotation documentation for more explanation.
+         rotate = rotate.Inverse();
+         toRest.Transform(rotate);
+      } // if
+      return toRest;
+   }
+} // anonymous namespace
+
 namespace erhic {
-   
    
    ParticleMC::ParticleMC(const std::string& line)
    : I(-1)
@@ -45,26 +70,20 @@ namespace erhic {
    , ptVsGamma(0.)
    , phiPrf(0.) {
       // Initialise to nonsense values to make input errors easy to spot
-      
       static std::stringstream ss;
       ss.str("");
       ss.clear();
-      
       ss << line;
-      
       ss >>
       I >> KS >> id >> orig >> daughter >> ldaughter >>
       px >> py >> pz >> E >> m >> xv >> yv >> zv;
-      
       if(not line.empty()) {
          ComputeDerivedQuantities();
       } // if
    }
    
-   
    ParticleMC::~ParticleMC() {
    }
-   
    
    void ParticleMC::Print(Option_t*) const {
       std::cout << I << '\t' << KS << '\t' << id << '\t' << orig << '\t' <<
@@ -73,14 +92,10 @@ namespace erhic {
       std::endl;
    }
    
-   
-   void
-   ParticleMC::ComputeDerivedQuantities() {
-      
-      // We calculate quantities that depend only on the properties already read.
+   void ParticleMC::ComputeDerivedQuantities() {
+      // Calculate quantities that depend only on the properties already read.
       pt = sqrt(pow(px, 2.) + pow(py, 2.));
       p = sqrt(pow(pt, 2.) + pow(pz, 2.));
-      
       // Rapidity and pseudorapidity
       Double_t Epluspz = E + pz;
       Double_t Eminuspz = E - pz;
@@ -96,64 +111,38 @@ namespace erhic {
          rapidity = 0.5 * log(Epluspz / Eminuspz);
          eta = 0.5 * log(Ppluspz / Pminuspz); 
       }	//	else
-      
       theta = atan2(pt, pz);
       phi = TVector2::Phi_0_2pi(atan2(py, px));
    }
    
-   
-   void
-   ParticleMC::ComputeEventDependentQuantities(
-                                               EventMC& event
-                                               ) {
+   void ParticleMC::ComputeEventDependentQuantities(EventMC& event) {
       try {
-         
+         // Get the beam hadon, beam lepton and exchange boson.
          const TLorentzVector& hadron = event.GetTrack(1)->Get4Vector();
          const TLorentzVector& lepton = event.GetTrack(2)->Get4Vector();
          const TLorentzVector& boson = event.GetTrack(3)->Get4Vector();
-         
-         TLorentzVector pHadronBoson = Get4Vector();
-         
-         z = hadron.Dot(pHadronBoson) / hadron.Dot(boson);
-         
-         double sqrts = ::sqrt(4. * lepton.Energy() * hadron.Energy());
-         xFeynman = 2. * pz / sqrts;
-         
-         // Not the most efficient thing recalculating this boost for
-         // each particle...
-         TLorentzRotation boostToHadronRest(-(hadron.BoostVector()));
-         // Boost the particle to the proton rest frame and calculate its
-         // pT with respect to the virtual photon:
-         TLorentzVector bosonInRf =
-            (TLorentzVector(boson) *= boostToHadronRest);
-         pHadronBoson *= boostToHadronRest;
-         
-         thetaGamma =      pHadronBoson.Angle(bosonInRf.Vect());
-         ptVsGamma =      pHadronBoson.Pt(bosonInRf.Vect());
-         
-         TLorentzVector leptonInPrf(lepton);
-         leptonInPrf *= boostToHadronRest;
-         
-         phiPrf = computeHermesPhiH(pHadronBoson, leptonInPrf, bosonInRf);
-         
-         // Rotate the frame of reference so that the virtual photon momentum
-         // defines the positive z direction.
-         // gamma*-p coordinates are:
-         // ( (q x e`) x q, q x e`, q )
-         TVector3 gammaProtonZ = bosonInRf.Vect();
-         TVector3 gammaProtonY = gammaProtonZ.Cross(leptonInPrf.Vect());
-         TRotation rotation;
-         // First argument defines the y direction, the second defines the
-         // yz plane:
-         rotation.SetYAxis(gammaProtonY,gammaProtonZ );
-         // Inverse --> rotate coordinate system to give new object
-         // coordinates, not rotate object in fixed coordinates
-         rotation = rotation.Inverse();
-         pHadronBoson = Get4Vector();
-         TLorentzRotation boost = boostToHadronRest;
-         boost.Transform(rotation);
-         pHadronBoson *= boost;
-         
+         // Calculate z using the 4-vector definition,
+         // so we don't care about frame of reference.
+         z = hadron.Dot(Get4Vector()) / hadron.Dot(boson);
+         // Calculate properties in the proton rest frame.
+         // We want pT and angle with respect to the virtual photon,
+         // so use that to define the z axis.
+         TLorentzRotation toHadronRest = computeBoost(hadron, &boson);
+         // Boost this particle to the proton rest frame and calculate its
+         // pT and angle with respect to the virtual photon:
+         TLorentzVector p = (Get4Vector() *= toHadronRest);
+         thetaGamma = p.Theta();
+         ptVsGamma =  p.Pt();
+         // Calculate phi angle around virtual photon according
+         // to the HERMES convention.
+         TLorentzVector bosonPrf = (TLorentzVector(boson) *= toHadronRest);
+         TLorentzVector leptonPrf = (TLorentzVector(lepton) *= toHadronRest);
+         phiPrf = computeHermesPhiH(p, leptonPrf, bosonPrf);
+         // Feynman x with xF = 2 * pz / W in the boson-hadron CM frame.
+         // First boost to boson-hadron centre-of-mass frame.
+         // Use the photon to define the z direction.
+         TLorentzRotation boost = computeBoost(boson + hadron, &boson);
+         xFeynman = 2. * (Get4Vector() *= boost).Pz() / sqrt(event.GetW2());
          // Determine the PDG code of the parent particle, if the particle
          // has a parent and the parent is present in the particle array.
          // The index of the particles from the Monte Carlo runs from [1,N]
@@ -170,31 +159,26 @@ namespace erhic {
       } // catch
    }
    
-   
    TLorentzVector ParticleMC::Get4Vector() const {
       return TLorentzVector(px, py, pz, E);
    }
-   
    
    const EventMC* ParticleMC::GetEvent() const {
       return dynamic_cast<EventMC*>(event.GetObject());
    }
    
-   
    const ParticleMC* ParticleMC::GetChild(UShort_t u) const {
-      
       // Look up this particle's child via the event
       // containing it and the index of the child in that event.
-      
-      if(not GetEvent()) return NULL;
-      
+      if(not GetEvent()) {
+         return NULL;
+      } // if
       // index is in the range [1,N]
       unsigned idx = daughter + u;
       if(daughter < 1 or // If first daughter index = 0, it has no children
          u >= GetNChildren()) { // Insufficient children
          return NULL;
       } // if
-      
       --idx; // Convert [1,N] --> [0,N)
       const ParticleMC* p(NULL);
       // Check this index is within the # of particles in the event
@@ -204,32 +188,29 @@ namespace erhic {
       return p;
    }
    
-   
    const ParticleMC* ParticleMC::GetParent() const {
-      
       // Look up this particle's parent via the event
       // containing it and the index of the parent in that event.
-      
       const ParticleMC* p(NULL);
-      
       if(GetEvent()) {
          if(GetEvent()->GetNTracks() >= GetParentIndex()) {
             p = GetEvent()->GetTrack(GetParentIndex() - 1);
          } // if
       } // if
-      
       return p;
    }
    
-   
    Bool_t ParticleMC::HasChild(Int_t pdg) const {
       for(UInt_t i(0); i < GetNChildren(); ++i) {
-         if(not GetChild(i)) continue;
-         if(pdg == GetChild(i)->Id()) return true;
+         if(not GetChild(i)) {
+            continue;
+         } // if
+         if(pdg == GetChild(i)->Id()) {
+            return true;
+         } // if
       } // for
       return false;
    }
-   
    
    TLorentzVector
    ParticleMC::Get4VectorInHadronBosonFrame() const {
@@ -241,11 +222,9 @@ namespace erhic {
       return TLorentzVector(px_, py_, pz_, e_);
    }
    
-   
    void ParticleMC::SetEvent(EventMC* e) {
       event = e;
    }
-   
    
    void ParticleMC::Set4Vector(const TLorentzVector& v) {
       E = v.Energy();
@@ -255,12 +234,9 @@ namespace erhic {
       ComputeDerivedQuantities(); // Rapidity etc
    }
    
-   
    void ParticleMC::SetVertex(const TVector3& v) {
       xv = v.X();
       yv = v.Y();
       zv = v.Z();
    }
-
-   
 } // namespace erhic
