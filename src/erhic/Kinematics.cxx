@@ -185,8 +185,7 @@ Double_t JacquetBlondel::computeYExact() const {
    transform(mParticles.begin(),
              mParticles.end(),
              back_inserter(E),
-             mem_fun_ref(&TLorentzVector::P));
-             //             mem_fun_ref(&TLorentzVector::P));
+             mem_fun_ref(&TLorentzVector::E));
    const double sumEh = accumulate(E.begin(), E.end(), 0.);
    // Sum the pz of the hadrons
    list<double> pz;
