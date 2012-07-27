@@ -109,7 +109,6 @@ namespace Smear {
       for (int i=0; i<mNPlanes; i++){
         zPlane1 = mZMin + i*(mZMax - mZMin)/(mNPlanes-1);
         r1 = fabs(tan(p.GetTheta())*zPlane1);
-        std::cout << r1 << " " << ComputeIntersectionWithPlane(p, zPlane1).Perp() << std::endl;
         if( (r1>mInnerRadius)&&(r1<mOuterRadius) ) {
           if(
             ((p.GetTheta()<pi/2.)&&(zPlane1>0.))||
