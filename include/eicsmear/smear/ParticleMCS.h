@@ -140,6 +140,10 @@ namespace Smear {
       
       virtual void SetTheta(Double_t);
       
+      virtual void SetId(Int_t);
+      
+      virtual void SetStatus(Int_t);
+      
       virtual UShort_t GetParentIndex() const { return 0; }
 //   protected:
       
@@ -200,6 +204,10 @@ namespace Smear {
    inline void ParticleMCS::SetPhi(Double_t value) { phi = value; }
    
    inline void ParticleMCS::SetTheta(Double_t value) { theta = value; }
+
+   inline void ParticleMCS::SetId(Int_t i) { id = i; }
+
+   inline void ParticleMCS::SetStatus(Int_t i) { status = i; }
    
    inline erhic::Pid ParticleMCS::Id() const { return ::erhic::Pid(id); }
    

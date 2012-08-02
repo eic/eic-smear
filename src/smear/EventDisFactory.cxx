@@ -20,7 +20,10 @@
 
 namespace {
    Smear::ParticleMCS* mcToSmear(const erhic::VirtualParticle& mc) {
-      return new Smear::ParticleMCS(mc.Get4Vector(), mc.Id(), mc.GetStatus());
+      Smear::ParticleMCS* p = new Smear::ParticleMCS(mc.Get4Vector(),
+                                                     mc.Id(), mc.GetStatus());
+      p->SetStatus(mc.GetStatus());
+      return p;
    }
 }
 
@@ -50,19 +53,24 @@ namespace Smear {
          if(pid.isScatteredLepton(*ptr) and not foundScattered) {
             foundScattered = true;
             ParticleMCS* p = mDetector.Smear(*ptr);
+            if(p) {
+               p->SetStatus(ptr->GetStatus());
+               event->SetScattered(j);
+            } // if
             event->AddLast(p);
             // Only set the index if the scattered electron is detected
-            if(p) {
-                event->SetScattered(j);
-            } // if
          } // if
          // It's convenient to keep the initial beams, unsmeared, in the
          // smeared event record, so copy their properties exactly
-         else if(mMcEvent->BeamLepton() == ptr or mMcEvent->BeamHadron() == ptr) {
+         else if(mMcEvent->BeamLepton() == ptr or
+                 mMcEvent->BeamHadron() == ptr) {
             event->AddLast(mcToSmear(*ptr));
          } // if
          else {
             ParticleMCS* p = mDetector.Smear(*ptr);
+            if(p) {
+               p->SetStatus(ptr->GetStatus());
+            } // if
             event->AddLast(p);
          } // else
       } // for
