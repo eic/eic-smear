@@ -154,10 +154,10 @@ namespace Smear {
       return (u < particles.size() ? particles.at(u) : NULL);
    }
    inline const ParticleMCS* Event::BeamLepton() const {
-      return NULL;
+      return (particles.empty() ? NULL : particles.front());
    }
    inline const ParticleMCS* Event::BeamHadron() const {
-      return NULL;
+      return (particles.size() > 1 ? particles.at(1) : NULL);
    }
    inline const ParticleMCS* Event::ExchangeBoson() const {
       return NULL;
