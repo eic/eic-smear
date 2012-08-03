@@ -36,6 +36,7 @@
 #pragma link C++ class Smear::Distributor+;
 #pragma link C++ class Smear::FormulaString+;
 #pragma link C++ class Smear::ParticleID+;
+#pragma link C++ class Smear::PerfectID+;
 #pragma link C++ class Smear::Smearer+;
 
 // Specialized smearing devices
@@ -50,5 +51,6 @@
 #pragma link C++ class ParticleS;
 
 #pragma link C++ class std::vector<Smear::KinType>;
+#pragma link C++ class std::vector<Int_t>;
 
 #endif // __CINT__

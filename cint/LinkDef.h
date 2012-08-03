@@ -85,15 +85,11 @@
 
 // Miscellaneous utilities and helper functions/functors
 
-#pragma link C++ class erhic::Kinematics+;
 #pragma link C++ class erhic::DisKinematics+;
 #pragma link C++ class BeamParticles+;
-#pragma link C++ class DoubleAngle+;
 #pragma link C++ class EventToDot;
 #pragma link C++ class erhic::Pid+;
 #pragma link C++ class erhic::Reader+;
-#pragma link C++ class KinematicsFromHadrons+;
-#pragma link C++ class JacquetBlondel+;
 #pragma link C++ class erhic::KinematicsComputer+;
 #pragma link C++ class erhic::LeptonKinematicsComputer+;
 #pragma link C++ class erhic::JacquetBlondelComputer+;
