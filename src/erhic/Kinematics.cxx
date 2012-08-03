@@ -9,7 +9,7 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
-#include <numeric>
+#include <numeric> // For std::accumulate
 
 #include <TDatabasePDG.h>
 #include <TParticlePDG.h>
@@ -27,6 +27,12 @@ namespace {
    //	==========================================================================
    double computeW2FromXQ2M(double x, double Q2, double m) {
       return std::pow(m, 2.) + (1. - x) * Q2 / x;
+   }
+   //	==========================================================================
+   // Returns the value x bounded by [minimum, maximum].
+   //	==========================================================================
+   double bounded(double x, double minimum, double maximum) {
+      return std::max(minimum, std::min(x, maximum));
    }
    //	==========================================================================
    // Returns the energy of a particle based on either its stored energy or
@@ -63,18 +69,6 @@ namespace {
       }
    };
    //	==========================================================================
-   // Helper functor for calculating E - p_z of a particle.
-   //	==========================================================================
-   struct EMinusPz : public std::unary_function<const Particle*, double> {
-      double operator()(const Particle* p) const {
-         TLorentzVector fourMomentum(0., 0., 0., 0.);
-         if(p) {
-            fourMomentum = p->Get4Vector();
-         } // if
-         return fourMomentum.E() - fourMomentum.Pz();
-      }
-   };
-   //	==========================================================================
    // Returns the energy-momentum 4-vector of a particle.
    // The returned energy is that computed using EnergyFromMomentumAndId, not
    // the stored energy of the particle.
@@ -90,6 +84,18 @@ namespace {
             ep.SetE(EnergyFromMomentumAndId()(p));
          } // if
          return ep;
+      }
+   };
+   //	==========================================================================
+   // Helper functor for calculating E - p_z of a particle.
+   //	==========================================================================
+   struct EMinusPz : public std::unary_function<const Particle*, double> {
+      double operator()(const Particle* p) const {
+         TLorentzVector fourMomentum(0., 0., 0., 0.);
+         if(p) {
+            fourMomentum = EnergyMomentum4Vector()(p);
+         } // if
+         return fourMomentum.E() - fourMomentum.Pz();
       }
    };
 } // anonymous namespace
@@ -196,7 +202,7 @@ namespace erhic {
          (lepton->GetE() * hadron->GetE() - lepton->GetPz() * hadron->GetPz());
       } // if
       // Return y, bounding it by the range [0, 1]
-      return std::max(0., std::min(y, 1.));
+      return bounded(y, 0., 1.);
    }
    //	==========================================================================
    // We use the following exact expression:
@@ -223,7 +229,7 @@ namespace erhic {
          double sumPy = std::accumulate(py.begin(), py.end(), 0.);
          Q2 = (pow(sumPx, 2.) + pow(sumPy, 2.)) / (1. - ComputeY());
       } // if
-      return Q2;
+      return std::max(0., Q2);
    }
    //	==========================================================================
    // x_JB = Q2_JB / (y_JB * s)
@@ -241,7 +247,7 @@ namespace erhic {
             x = ComputeQSquared() / y / s;
          } // if
       } // if
-      return x;
+      return bounded(x, 0., 1.);
    }
    //	==========================================================================
    //	==========================================================================
@@ -250,14 +256,17 @@ namespace erhic {
    DoubleAngleComputer::DoubleAngleComputer(const EventDis& event)
    : mEvent(event) {
    }
+   //	==========================================================================
+   // Formulae used are from F.D. Aaron et al., JHEP01 (2010) 109.
+   //	==========================================================================
    DisKinematics* DoubleAngleComputer::Calculate() {
       mParticles.clear();
       mEvent.HadronicFinalState(mParticles);
       mHasChanged = true;
       DisKinematics* kin = new DisKinematics;
-      kin->mY = computeY();
-      kin->mQ2 = computeQSquared();
-      kin->mX = computeX();
+      kin->mQ2 = ComputeQSquared();
+      kin->mX = ComputeX();
+      kin->mY = ComputeY();
       // Calculate W^2 from M^2 + (1 - x) * Q^2 / x
       kin->mW2 = computeW2FromXQ2M(kin->mX, kin->mQ2,
                                    mEvent.BeamHadron()->GetM());
@@ -271,91 +280,71 @@ namespace erhic {
    // This is a computationally expensive operation that is called a lot,
    // so cashe the result until the particle list changes.
    //	==========================================================================
-   Double_t DoubleAngleComputer::computeQuarkAngle() const {
-      using namespace std;
+   Double_t DoubleAngleComputer::ComputeQuarkAngle() const {
       // Return the cached value if no changes have occurred since
       // the last call to computeQuarkAngle().
       if(not mHasChanged) {
          return mAngle;
       } // if
-      list<double> px, py, eMinusPZ;
-      // Get the px of each particle:
-      transform(mParticles.begin(), mParticles.end(), back_inserter(px),
-                mem_fun(&VirtualParticle::GetPx));
-      // Get the py of each particle:
-      transform(mParticles.begin(), mParticles.end(), back_inserter(py),
-                mem_fun(&VirtualParticle::GetPy));
-      // Get the (E-pz) of each particle:
-      transform(mParticles.begin(), mParticles.end(), back_inserter(eMinusPZ),
-                EMinusPz());
-      // Square the sum of each momentum component
-      struct SquareOfSum {
-         double operator()(const list<double>& l) const {
-            return pow(accumulate(l.begin(), l.end(), 0.0), 2.0);
-         }
-      } squareOfSum;
-      double sumOfPx2 = squareOfSum(px);
-      double sumOfPy2 = squareOfSum(py);
-      double sumOfEMinusPz = squareOfSum(eMinusPZ);
-      // Calculate the angle:
-      double denominator = (sumOfPx2 + sumOfPy2 + sumOfEMinusPz);
-      // Set cos(angle) to 1 by default. If denominator is zero or less,
-      // angle will then evaluate to acos(1) = 0.
-      double cosAngle(1.0);
-      if(denominator > 0.0) {
-         cosAngle = (sumOfPx2 + sumOfPy2 - sumOfEMinusPz)
-         / denominator;
-      } // if
-      mAngle = TMath::ACos(cosAngle);
+      std::list<TLorentzVector> hadrons;
+      std::transform(mParticles.begin(),
+                     mParticles.end(),
+                     std::back_inserter(hadrons),
+                     EnergyMomentum4Vector());
+      TLorentzVector h = std::accumulate(hadrons.begin(),
+                                         hadrons.end(),
+                                         TLorentzVector(0., 0., 0., 0.));
+      mAngle = 2. * TMath::ATan((h.E() - h.Pz()) / h.Pt());
       mHasChanged = false;
       return mAngle;
    }
    //	==========================================================================
-   // y_DA = Q2_DA / (x_DA * s)
    //	==========================================================================
-   Double_t DoubleAngleComputer::computeY() const {
-      double x = computeX();
-      double s = 4. * mEvent.BeamLepton()->GetE() * mEvent.BeamHadron()->GetE();
-      if(x > 0.0) {
-         return computeQSquared() / x / s;
+   Double_t DoubleAngleComputer::ComputeY() const {
+      double y(0.);
+      const VirtualParticle* scattered = mEvent.ScatteredLepton();
+      if(scattered) {
+         double theta = scattered->GetTheta();
+         double gamma = ComputeQuarkAngle();
+         double denominator = tan(theta / 2.) + tan(gamma / 2.);
+         if(denominator > 0.) {
+            y = tan(gamma / 2.) / denominator;
+         } // if
       } // if
-      return 0.0;
+      // Return y bounded by the range [0, 1].
+      return bounded(y, 0., 1.);
    }
    //	==========================================================================
-   // a_q = quark scattering angle, a_e = electron scattering angle
-   // Q2_DA = 4 * E_e^2 * sin(a_q) (1 + cos(a_e)) /
-   //         [ sin(a_q) + sin(a_e) - sin(a_q + a_e) ]
    //	==========================================================================
-   Double_t DoubleAngleComputer::computeQSquared() const {
-      double theta = mEvent.ScatteredLepton()->GetTheta();
-      double numerator = 4.0
-      * pow(mEvent.BeamLepton()->GetE(), 2.0)
-      * sin(computeQuarkAngle())
-      * (1.0 + cos(theta));
-      double denominator = sin(computeQuarkAngle())
-      + sin(theta)
-      - sin(computeQuarkAngle() + theta);
-      if(denominator > 0.0) {
-         return numerator / denominator;
+   Double_t DoubleAngleComputer::ComputeQSquared() const {
+      double Q2(0.);
+      const VirtualParticle* lepton = mEvent.BeamLepton();
+      const VirtualParticle* scattered = mEvent.ScatteredLepton();
+      if(lepton and scattered) {
+         double theta = scattered->GetTheta();
+         double gamma = ComputeQuarkAngle();
+         double denominator = tan(theta / 2.) + tan(gamma / 2.);
+         if(denominator > 0.) {
+            Q2 = 4. * pow(lepton->GetE(), 2.) / tan(theta / 2.) / denominator;
+         } // if
       } // if
-      return 0.0;
+      // Return Q^2, requiring it to be positive.
+      return std::max(0., Q2);
    }
    //	==========================================================================
-   // x_DA = (E_e/E_p)[sin(a_q)+sin(a_e)+sin(a_q+a_e)]/
-   //        [sin(a_q)+sin(a_e)-sin(a_q+a_e)]
    //	==========================================================================
-   Double_t DoubleAngleComputer::computeX() const {
-      double theta = mEvent.ScatteredLepton()->GetTheta();
-      double numerator = sin(computeQuarkAngle())
-      + sin(theta)
-      + sin(computeQuarkAngle() + theta);
-      double denominator = sin(computeQuarkAngle())
-      + sin(theta)
-      - sin(computeQuarkAngle() + theta);
-      if(denominator > 0.0) {
-         return mEvent.BeamLepton()->GetE() / mEvent.BeamHadron()->GetE() *
-         numerator / denominator;
+   Double_t DoubleAngleComputer::ComputeX() const {
+      double x(0.);
+      const VirtualParticle* lepton = mEvent.BeamLepton();
+      const VirtualParticle* hadron = mEvent.BeamHadron();
+      if(lepton and hadron) {
+         double s = (lepton->Get4Vector() + hadron->Get4Vector()).M2();
+         double y = ComputeY();
+         if(s > 0. and y > 0.) {
+            x = ComputeQSquared() / y / s;
+         } // if
       } // if
-      return 0.0;
+      // Return x bounded by the range [0, 1].
+      return bounded(x, 0., 1.);
    }
 } // namespace erhic

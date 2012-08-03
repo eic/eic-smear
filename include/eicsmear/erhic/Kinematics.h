@@ -121,14 +121,15 @@ namespace erhic {
       virtual DisKinematics* Calculate();
    protected:
       const EventDis& mEvent;
-      BeamParticles mBeams;
-      virtual Double_t computeQuarkAngle() const; // Scattering angle of struck quark
-      virtual Double_t computeY() const;
-      virtual Double_t computeQSquared() const;
-      virtual Double_t computeX() const;
+      virtual Double_t ComputeQuarkAngle() const; // Scattering angle of struck quark
+      virtual Double_t ComputeY() const;
+      virtual Double_t ComputeQSquared() const;
+      virtual Double_t ComputeX() const;
+      /// Stores whether the particle list has changed since the last
+      /// computation of the quark angle.
       mutable Bool_t mHasChanged;
+      /// Caches the quark angle
       mutable Double_t mAngle;
-      Double_t mElectronAngle;
       std::vector<const VirtualParticle*> mParticles;
       ClassDef(erhic::DoubleAngleComputer, 1)
    };
