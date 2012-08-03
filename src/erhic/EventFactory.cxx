@@ -66,8 +66,8 @@ namespace erhic {
    Int_t
    EventFromAsciiFactory<T>::FinishEvent() {
       DisKinematics* nm = LeptonKinematicsComputer(*mEvent).Calculate();
-      DisKinematics* jb = JacquetBlondelComputer(*mEvent, NULL).Calculate();
-      DisKinematics* da = DoubleAngleComputer(*mEvent, NULL).Calculate();
+      DisKinematics* jb = JacquetBlondelComputer(*mEvent).Calculate();
+      DisKinematics* da = DoubleAngleComputer(*mEvent).Calculate();
       if(nm) {
          mEvent->SetLeptonKinematics(*nm);
       } // if

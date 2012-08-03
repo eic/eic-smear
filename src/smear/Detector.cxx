@@ -94,13 +94,13 @@ namespace Smear {
            erhic::DisKinematics(-1., -1., -1., -1., -1.));
       } // else
       if(useJB) {
-         KinPtr kin(erhic::JacquetBlondelComputer(*eventS, &beams).Calculate());
+         KinPtr kin(erhic::JacquetBlondelComputer(*eventS).Calculate());
          if(kin.get()) {
             eventS->SetJacquetBlondelKinematics(*kin);
          } // if
       } // if
       if(useDA and scattered) {
-         KinPtr kin(erhic::DoubleAngleComputer(*eventS, &beams).Calculate());
+         KinPtr kin(erhic::DoubleAngleComputer(*eventS).Calculate());
          if(kin.get()) {
             eventS->SetDoubleAngleKinematics(*kin);
          } // if

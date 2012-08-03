@@ -109,8 +109,8 @@ namespace erhic {
       } // for
       // Compute derived event kinematics
       DisKinematics* nm = LeptonKinematicsComputer(*event).Calculate();
-      DisKinematics* jb = JacquetBlondelComputer(*event, NULL).Calculate();
-      DisKinematics* da = DoubleAngleComputer(*event, NULL).Calculate();
+      DisKinematics* jb = JacquetBlondelComputer(*event).Calculate();
+      DisKinematics* da = DoubleAngleComputer(*event).Calculate();
       if(nm) {
          event->SetLeptonKinematics(*nm);
       } // if
