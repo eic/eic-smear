@@ -58,9 +58,9 @@ namespace Smear {
 
    void PerfectID::Print(Option_t*) const {
       std::stringstream stream;
-      stream << "Copies PDG ID for";
+      stream << "Copies PDG ID for ";
       if(mPdg.empty()) {
-         stream << " all particles";
+         stream << "all particles";
       } // if
       else {
          // List the PDG codes. Insert the first one into the stream,

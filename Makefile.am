@@ -38,6 +38,7 @@ include/eicsmear/smear/FormulaString.h \
 include/eicsmear/smear/functions.h \
 include/eicsmear/smear/ParticleID.h \
 include/eicsmear/smear/ParticleMCS.h \
+include/eicsmear/smear/PerfectID.h \
 include/eicsmear/smear/PlanarTracker.h \
 include/eicsmear/smear/RadialTracker.h \
 include/eicsmear/smear/Smear.h \
@@ -80,6 +81,7 @@ src/smear/EventSmear.cxx \
 src/smear/FormulaString.cxx \
 src/smear/ParticleID.cxx \
 src/smear/ParticleMCS.cxx \
+src/smear/PerfectID.cxx \
 src/smear/PlanarTracker.cxx \
 src/smear/RadialTracker.cxx \
 src/smear/Smear.cxx \
