@@ -145,6 +145,12 @@ namespace Smear {
       virtual void SetStatus(Int_t);
       
       virtual UShort_t GetParentIndex() const { return 0; }
+      
+      /**
+       Prints the attributes of this particle to standard output.
+       The output format is "status id px py pz E".
+      */
+      virtual void Print(Option_t* = "") const;
 //   protected:
       
       UShort_t   status;      ///< Status code
@@ -187,10 +193,6 @@ namespace Smear {
    
    inline Double_t ParticleMCS::GetPhi() const { return phi; }
    
-   inline Double_t ParticleMCS::GetRapidity() const { return 0.; }
-   
-   inline Double_t ParticleMCS::GetEta() const { return 0.; }
- 
    inline UShort_t ParticleMCS::GetStatus() const { return status; }
 
    inline void ParticleMCS::SetE(Double_t e) { E = e; }

@@ -133,6 +133,12 @@ namespace Smear {
        Set which particle is the scattered lepton.
       */
       virtual void SetScattered(int);
+      
+      /**
+       Prints the attributes of this event to standard output.
+       Prints event-wise kinematic values, and all tracks in the event.
+      */
+      virtual void Print(Option_t* = "") const;
    protected:
       
       Int_t nTracks; ///< Number of particles (intermediate + final)
