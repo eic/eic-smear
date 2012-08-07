@@ -26,7 +26,10 @@ namespace {
    // Helper function returning W^2 from x, Q^2 and mass.
    //	==========================================================================
    double computeW2FromXQ2M(double x, double Q2, double m) {
-      return std::pow(m, 2.) + (1. - x) * Q2 / x;
+      if(x > 0.) {
+         return std::pow(m, 2.) + (1. - x) * Q2 / x;
+      } // if
+      return 0.;
    }
    //	==========================================================================
    // Returns the value x bounded by [minimum, maximum].
@@ -127,7 +130,7 @@ namespace erhic {
    : mBeams(b) {
    }
    DisKinematics* LeptonKinematicsComputer::Calculate() {
-      DisKinematics* kin = new DisKinematics(-1., -1., -1., -1., -1.);
+      DisKinematics* kin = new DisKinematics(0., 0., 0., 0., 0.);
       const TLorentzVector& s = mBeams.ScatteredLepton();
       // If there is no measurement of theta of the scattered lepton we
       // cannot calculate kinematics. If we have theta, we can calculate
@@ -144,10 +147,15 @@ namespace erhic {
          double theta = s.Theta();
          // Use momentum if available, energy if not.
          double energy = (s.P() > 0. ? s.P() : s.E());
-         kin->mQ2 = 2. * l.P() * energy * (1. + cos(theta));
-         kin->mNu = ELeptonInNucl - ELeptonOutNucl;
-         kin->mY = kin->mNu * 2. * h.M() / cme;
-         kin->mX = kin->mQ2 / kin->mY / cme;
+         // Calculate kinematic quantities, making sure to bound
+         // the results by physical limits.
+         double Q2 = 2. * l.P() * energy * (1. + cos(theta));
+         kin->mQ2 = std::max(0., Q2);
+         kin->mNu = std::max(0., ELeptonInNucl - ELeptonOutNucl);
+         double y = kin->mNu * 2. * h.M() / cme;
+         kin->mY = bounded(y, 0., 1.);
+         double x = kin->mQ2 / kin->mY / cme;
+         kin->mX = bounded(x, 0., 1.);
          kin->mW2 = computeW2FromXQ2M(kin->mX, kin->mQ2, h.M());
       } // if
       return kin;
@@ -227,7 +235,10 @@ namespace erhic {
                         std::mem_fun(&VirtualParticle::GetPy));
          double sumPx = std::accumulate(px.begin(), px.end(), 0.);
          double sumPy = std::accumulate(py.begin(), py.end(), 0.);
-         Q2 = (pow(sumPx, 2.) + pow(sumPy, 2.)) / (1. - ComputeY());
+         double y = ComputeY();
+         if(y < 1.) {
+             Q2 = (pow(sumPx, 2.) + pow(sumPy, 2.)) / (1. - y);
+         } // if
       } // if
       return std::max(0., Q2);
    }
