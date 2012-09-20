@@ -275,8 +275,39 @@ namespace erhic {
    inline Double_t LogReaderMilou::GetCrossSectionError() const {
       return crossSectionError_.GetString().Atof();
    }
-   
-   
+   /**
+    Processes gmc_trans log files.
+    
+    Reads a log file and finds the total cross section and the number
+    of generated events.
+   */
+   class LogReaderGmcTrans : public LogReader {
+      public:
+         /** Constructor */
+         LogReaderGmcTrans();
+         /** Destructor */
+         virtual ~LogReaderGmcTrans();
+         LogReaderGmcTrans* Create() const;
+         /**
+          Search the named file.
+          Store the total cross section and number of generated events
+          if they can be found.
+         */
+         bool Extract(const std::string& filename);
+         /**
+          Write the stored cross section and number of events to
+          the active ROOT directory.
+          Returns the total number of bytes written, or a value <= 0
+          in the case of an error.
+         */
+         Int_t Save() const;
+         Int_t GetNEvents() const;
+         Double_t GetCrossSection() const;
+      protected:
+         TObjString mNEvents; ///< Number of generated events.
+         TObjString mCrossSection; ///< Total cross section in microbarns.
+      ClassDef(erhic::LogReaderGmcTrans, 1)
+   };
    /**
     Factory class for LogReaders.
     

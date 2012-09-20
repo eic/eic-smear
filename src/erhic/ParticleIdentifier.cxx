@@ -177,8 +177,8 @@ ParticleIdentifier::IdentifyBeams(
    
    if(isnan(beams.BeamHadron().E() ) or
       isnan(beams.BeamLepton().E() ) or
-      isnan(beams.ScatteredLepton().E() ) or
-      isnan(beams.GetBoson().E() ) ) {
+      isnan(beams.ScatteredLepton().E())) {
+//      isnan(beams.GetBoson().E() ) ) {
       return false;
    } // if
    

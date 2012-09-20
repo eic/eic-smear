@@ -36,6 +36,7 @@
 #pragma link C++ class erhic::EventDjangoh+;
 #pragma link C++ class erhic::EventDpmjet+;
 #pragma link C++ class erhic::EventMilou+;
+#pragma link C++ class erhic::EventGmcTrans+;
 
 // Event building
 
@@ -46,6 +47,7 @@
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventDjangoh>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventDpmjet>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventPythia>+;
+#pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventGmcTrans>+;
 #pragma link C++ class erhic::Pythia6EventBuilder+;
 #pragma link C++ class erhic::EventMCFilterABC+;
 #pragma link C++ class erhic::Pythia6+;
@@ -62,6 +64,7 @@
 #pragma link C++ class erhic::LogReaderPepsi+;
 #pragma link C++ class erhic::LogReaderDjangoh+;
 #pragma link C++ class erhic::LogReaderMilou+;
+#pragma link C++ class erhic::LogReaderGmcTrans+;
 #pragma link C++ class erhic::LogReaderFactory;
 
 // Monte carlo file type information
@@ -73,6 +76,7 @@
 #pragma link C++ class erhic::File<erhic::EventRapgap>+;
 #pragma link C++ class erhic::File<erhic::EventDjangoh>+;
 #pragma link C++ class erhic::File<erhic::EventDpmjet>+;
+#pragma link C++ class erhic::File<erhic::EventGmcTrans>+;
 #pragma link C++ class erhic::FileFactory;
 
 // Specialised stl templates

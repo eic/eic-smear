@@ -9,6 +9,7 @@ include/eicsmear/erhic/EventDis.h \
 include/eicsmear/erhic/EventDjangoh.h \
 include/eicsmear/erhic/EventDpmjet.h \
 include/eicsmear/erhic/EventFactory.h \
+include/eicsmear/erhic/EventGmcTrans.h \
 include/eicsmear/erhic/EventMCFilterABC.h \
 include/eicsmear/erhic/EventMC.h \
 include/eicsmear/erhic/EventMilou.h \
@@ -59,6 +60,7 @@ src/erhic/EventDis.cxx \
 src/erhic/EventDjangoh.cxx \
 src/erhic/EventDpmjet.cxx \
 src/erhic/EventFactory.cxx \
+src/erhic/EventGmcTrans.cxx \
 src/erhic/EventMC.cxx \
 src/erhic/EventMilou.cxx \
 src/erhic/EventPepsi.cxx \

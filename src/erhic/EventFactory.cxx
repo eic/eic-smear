@@ -18,6 +18,7 @@
 #include "eicsmear/erhic/EventDpmjet.h"
 #include "eicsmear/erhic/EventRapgap.h"
 #include "eicsmear/erhic/EventPepsi.h"
+#include "eicsmear/erhic/EventGmcTrans.h"
 #include "eicsmear/functions.h" // For getFirstNonBlank()
 #include "eicsmear/erhic/Kinematics.h"
 #include "eicsmear/erhic/ParticleIdentifier.h"
@@ -124,4 +125,5 @@ namespace {
    erhic::EventFromAsciiFactory<erhic::EventMilou> em;
    erhic::EventFromAsciiFactory<erhic::EventRapgap> er;
    erhic::EventFromAsciiFactory<erhic::EventPythia> ep;
+   erhic::EventFromAsciiFactory<erhic::EventGmcTrans> eg;
 }

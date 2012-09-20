@@ -49,7 +49,7 @@ namespace erhic {
    // so don't delete them!
    void
    EventMC::HadronicFinalState(std::vector<const VirtualParticle*>& final) const {
-      
+      #if 0
       std::vector<const VirtualParticle*> vp;
       ParticleIdentifier pi;
       if(not pi.IdentifyBeams(*this, vp)) {
@@ -57,7 +57,7 @@ namespace erhic {
          "EventMC::HadronicFinalState(): failed to find all beams"
          << std::endl;
       } // if
-      
+      #endif
       FinalState(final);
 //      std::cout << "\t" << final.size() << std::endl;
       
@@ -71,7 +71,8 @@ namespace erhic {
             std::cerr << "NULL particle in array?!" << std::endl;
             continue;
          } // if
-         if(*i == vp.at(3)) {
+//         if(*i == vp.at(3)) {
+         if(*i == ScatteredLepton()) {
             final.erase(i);
 //            std::cout << "erased" << std::endl;
             break;
