@@ -98,6 +98,15 @@ cint/BuildTreeDict.cxx \
 cint/smearDict.cxx \
 cint/hadronicDict.cxx
 
+erhicincludedir = $(includedir)/eicsmear/erhic
+erhicinclude_HEADERS = $(erhic_headers)
+smearincludedir = $(includedir)/eicsmear/smear
+smearinclude_HEADERS = $(smear_headers)
+hadronicincludedir = $(includedir)/eicsmear/hadronic
+hadronicinclude_HEADERS = $(hadronic_headers)
+
+include_HEADERS = $(erhic_headers) $(smear_headers) $(hadronic_headers)
+
 libeicsmear_la_CPPFLAGS = -I$(top_srcdir)/include
 
 libeicsmear_la_LIBADD = \

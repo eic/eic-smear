@@ -33,6 +33,7 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+AM_PROG_AR
 
 # Enable support for --enable-shared and --disable-shared configure flags.
 AC_PROG_LIBTOOL
