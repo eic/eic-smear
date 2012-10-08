@@ -4,7 +4,7 @@ AC_INIT([The EIC smearing package], [2.0], [tpb@bnl.gov], [eic-smear])
 # Runs many macros required for proper operation of the generated Makefiles.
 # Report automake warnings as errors.
 # Use foreign to ignore absent ChangeLog, AUTHORS etc.
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall foreign])
 
 # Test for the existence of this file as
 # a check against incorrect --srcdir.
@@ -33,6 +33,7 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
 
 # Enable support for --enable-shared and --disable-shared configure flags.

@@ -98,6 +98,8 @@ cint/BuildTreeDict.cxx \
 cint/smearDict.cxx \
 cint/hadronicDict.cxx
 
+eicsmearincludedir = $(includedir)/eicsmear
+eicsmearinclude_HEADERS = include/eicsmear/functions.h
 erhicincludedir = $(includedir)/eicsmear/erhic
 erhicinclude_HEADERS = $(erhic_headers)
 smearincludedir = $(includedir)/eicsmear/smear
