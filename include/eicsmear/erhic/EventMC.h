@@ -118,9 +118,16 @@ namespace erhic {
       
       /**
        Resets event properties to defaults.
-       Clears particle list (freeing any allocated memory).
+       Does not clear particle list - use Clear() for that.
        */
       virtual void Reset();
+      
+      /**
+       Clears event contents.
+       Event properties are reset to defaults and track list
+       is deleted.
+       */
+      virtual void Clear(Option_t* = "");
       
       /**
        Sets the code describing the production process of this event.

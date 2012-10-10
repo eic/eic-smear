@@ -28,12 +28,7 @@ namespace erhic {
    }
 
    EventMC::~EventMC() {
-      for(unsigned i(0); i < particles.size(); ++i) {
-         if(GetTrack(i)) {
-            delete GetTrack(i);
-         } // if
-      } // for
-      particles.clear();
+      Clear();
    }
 
    std::vector<const VirtualParticle*> EventMC::GetTracks() const {
@@ -180,9 +175,17 @@ namespace erhic {
       process = -1;
       nTracks = -1;
       x = QSquared = y = WSquared = nu = ELeptonInNucl = ELeptonOutNucl = NAN;
-      particles.clear();
    }
    
+   void EventMC::Clear(Option_t*) {
+      Reset();
+      for(unsigned i(0); i < particles.size(); ++i) {
+         if(GetTrack(i)) {
+            delete GetTrack(i);
+         } // if
+      } // for
+      particles.clear();
+   }
    
    //
    // class Reader
