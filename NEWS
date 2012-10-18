@@ -1,0 +1,12 @@
+Changes from 1.0.0 to 1.0.1
+---------------------------
+
+* Improved handling of Jacquet-Blondel and double-angle kinematic calculations
+  for smeared data. Calculations now use momentum to compute energy if a
+  measurement of momentum is available, and only use energy if there is no
+  momentum measurement. This operates on the assumption that momentum
+  resolution will generally be superior to energy resolution.
+* Added an event class for the gmc_trans event generator.
+* Added some extra methods to event and particle classes related to interface
+  with eRHIC PYTHIA code and for propagation of information through smearing.
+* Minor changes to configure/make files.

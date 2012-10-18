@@ -1,0 +1,361 @@
+2012-10-10 19:03  tpb@RHIC.BNL.GOV
+
+	* [r101] include/eicsmear/erhic/EventMC.h, src/erhic/EventMC.cxx:
+	  Added EventMC::Clear() to delete track list
+
+2012-10-10 18:51  tpb@RHIC.BNL.GOV
+
+	* [r100] include/eicsmear/erhic/ParticleMC.h: Added extra 'Set...'
+	  methods to erhic::ParticleMC
+
+2012-10-08 18:40  tpb@RHIC.BNL.GOV
+
+	* [r99] Makefile.am, configure.ac: Further changes to allow
+	  configure to work with autotools versions prior to 1.12 and to
+	  correctly install eicsmear/function.h
+
+2012-10-05 22:36  tpb@RHIC.BNL.GOV
+
+	* [r98] Makefile.am, configure.ac: Fixed warning related to
+	  autotools 1.12 and fixed Makefile.am so headers are installed
+	  with the correct subdirectory structure
+
+2012-09-20 21:33  tpb@RHIC.BNL.GOV
+
+	* [r94] Makefile.am, cint/LinkDef.h,
+	  include/eicsmear/erhic/EventGmcTrans.h,
+	  include/eicsmear/erhic/File.h, src/erhic/EventFactory.cxx,
+	  src/erhic/EventGmcTrans.cxx, src/erhic/EventMC.cxx,
+	  src/erhic/File.cxx, src/erhic/Kinematics.cxx,
+	  src/erhic/ParticleIdentifier.cxx: Added support for gmc_trans,
+	  including event structure and log file processing
+
+2012-08-07 17:40  tpb@RHIC.BNL.GOV
+
+	* [r93] src/erhic/Kinematics.cxx: Enforced physical limits in
+	  calculation of kinematic quantities via the electron method
+
+2012-08-06 22:24  tpb@RHIC.BNL.GOV
+
+	* [r92] include/eicsmear/smear/EventSmear.h,
+	  include/eicsmear/smear/ParticleMCS.h, src/smear/EventSmear.cxx,
+	  src/smear/ParticleMCS.cxx: Implemented GetEta() and GetRapidity()
+	  for Smear::ParticleMCS; added Print() methods to
+	  Smear::ParticleMCS and Smear::Event
+
+2012-08-03 22:01  tpb@RHIC.BNL.GOV
+
+	* [r91] Makefile.am, src/smear/PerfectID.cxx: Updated Makefile for
+	  Smear::PerfectID
+
+2012-08-03 22:00  tpb@RHIC.BNL.GOV
+
+	* [r90] include/eicsmear/erhic/Kinematics.h,
+	  src/erhic/Kinematics.cxx: Updated double-angle kinematic
+	  calculations with more succinct versions from HERA combined paper
+
+2012-08-03 17:45  tpb@RHIC.BNL.GOV
+
+	* [r89] src/erhic/EventFactory.cxx,
+	  src/erhic/Pythia6EventBuilder.cxx, src/smear/Detector.cxx:
+	  Updates related to changes in Kinematics.h
+
+2012-08-03 17:40  tpb@RHIC.BNL.GOV
+
+	* [r88] cint/LinkDef.h, cint/LinkDefNoPythia.h,
+	  cint/smearLinkDef.h: Updated LinkDef files to reflect addition of
+	  Smear::PerfectID and changes to Kinematics.h
+
+2012-08-03 17:38  tpb@RHIC.BNL.GOV
+
+	* [r87] include/eicsmear/erhic/Kinematics.h,
+	  src/erhic/Kinematics.cxx: Fixed Jacquet-Blondel calculation of
+	  Q-squared, and improved handling of energy vs. momentum so
+	  calculations work better with smeared data
+
+2012-08-03 15:21  tpb@RHIC.BNL.GOV
+
+	* [r86] include/eicsmear/smear/PerfectID.h,
+	  src/smear/PerfectID.cxx: Added class for copying PDG code to
+	  smeared particles
+
+2012-08-02 18:48  tpb@RHIC.BNL.GOV
+
+	* [r85] include/eicsmear/smear/EventSmear.h: Smeared events now
+	  correctly return pointers to beam lepton and beam hadron
+
+2012-08-02 18:44  tpb@RHIC.BNL.GOV
+
+	* [r84] include/eicsmear/smear/ParticleMCS.h,
+	  src/smear/EventDisFactory.cxx: Status information now propagated
+	  to smeared particles
+
+2012-07-27 22:11  tpb@RHIC.BNL.GOV
+
+	* [r83] src/erhic/Kinematics.cxx: Replaced use of P with E in
+	  Jacquet-Blondel calculation of y. Need to think of a smarter way
+	  of implementing a more 'experimental' definition of the values
+	  used for compatibility with smearing code.
+
+2012-07-27 18:59  tpb@RHIC.BNL.GOV
+
+	* [r81] src/smear/PlanarTracker.cxx: Removed cout from L()
+
+2012-07-17 14:43  jhover@RHIC.BNL.GOV
+
+	* [r76] .: Fixing path for added content.
+
+2012-07-05 20:12  tom_burton83@hotmail.com
+
+	* [r73] Fixed calculation of Feynman x so it is performed in the
+	  gamma-proton centre-of-mass frame, not the lab frame.
+
+2012-07-03 17:59  tom_burton83@hotmail.com
+
+	* [r70] Fixed 'control reaches end of non-void function' warning
+
+2012-07-02 18:08  tom_burton83@hotmail.com
+
+	* [r68] Updated tracker code for smearing, including new
+	  PlanarTracker class by Will Foreman
+
+2012-06-29 20:30  tom_burton83@hotmail.com
+
+	* [r67] Added tppmc2smear utility to convert TPPMC output to
+	  eic-smear format and do smearing on it
+
+2012-06-28 20:54  tom_burton83@hotmail.com
+
+	* [r66] Added a Python module to generate basic plots for QAing
+	  tree output
+
+2012-06-26 21:51  tom_burton83@hotmail.com
+
+	* [r65] Reintroduced calculation of event-dependent properties of
+	  particles, which was accidentally removed when EventFactory was
+	  modified
+
+2012-06-01 20:24  tom_burton83@hotmail.com
+
+	* [r64] Smear::Tracker is now an abstract base class, with
+	  Smear::RadialTracker performing its old function. Added
+	  Smear::PlanarTracker to do GEM-like tracking, but has incomplete
+	  implementation.
+
+2012-06-01 14:16  tom_burton83@hotmail.com
+
+	* [r63] Protected against deleting NULL event in
+	  erhic::Pythia6::Run()
+
+2012-05-23 19:33  tom_burton83@hotmail.com
+
+	* [r62] Fixed Tracker smearing particles outside acceptance, and
+	  when values get smeared negative they are now replaced with zero,
+	  not NaN
+
+2012-05-22 20:36  tom_burton83@hotmail.com
+
+	* [r61] Extended Smear::Tracker to allow arbitrary positioning
+	  along z. Changed default ParticleMC field values from NaN to zero
+	  (NaNs were interfering with some calculations)
+
+2012-05-18 14:51  tom_burton83@hotmail.com
+
+	* [r60] Fixed calculation of Smear::Tracker resolution. Added
+	  missing src/hadronic files. Fixed scattered lepton finding in
+	  smeared events, which were occasionally missed.
+
+2012-05-11 23:56  tom_burton83@hotmail.com
+
+	* [r59] Fixed error in smear/EventDisFactory.cxx causing occasional
+	  misidentification of scattered lepton. Also imposed default
+	  values of -1 for all DIS variables in the case that the scattered
+	  lepton is not detected, or lacks required momentum information
+	  for calculations.
+
+2012-05-11 20:18  tom_burton83@hotmail.com
+
+	* [r58] Added PerfectPIDMatrix.dat (always identifies pi, K, p
+	  properly)
+
+2012-05-11 20:17  tom_burton83@hotmail.com
+
+	* [r57] Renamed Smear::EventDisBuilder to Smear::EventDisFactory
+	  and moved it and Smear::EventFactory to their own files
+
+2012-05-11 19:53  tom_burton83@hotmail.com
+
+	* [r56] Fixed Smear::Tracker to allow user-defined acceptance.
+	  Modified DIS kinematic computation to better reflect an
+	  experimental determination. Fixed Smear::EventDisBuilder so beams
+	  are stored in smeared particle list. Smear::ParticleMCS fields
+	  now default to 0 not NaN to avoid interfering with kinematic
+	  computations.
+
+2012-05-11 16:23  tom_burton83@hotmail.com
+
+	* [r55] Fixed Distributor::Generate() behaviour. Broke off
+	  formula-parsing functionality of Smear::Device into
+	  Smear::FormulaString
+
+2012-05-10 15:53  tom_burton83@hotmail.com
+
+	* [r54] Streamlined Smear::Distributor and moved to its own files
+
+2012-05-09 19:17  tom_burton83@hotmail.com
+
+	* [r53] Streamlined Smear::Device interface and removed
+	  Smear::Devious class (rolled implementation into Smear::Device
+	  via alternate constructor)
+
+2012-05-08 23:23  tom_burton83@hotmail.com
+
+	* [r52] Streamlined Smear::Tracker code and moved to its own files.
+
+2012-05-08 21:07  tom_burton83@hotmail.com
+
+	* [r51] Streamlined Smear::Acceptance
+
+2012-05-08 18:35  tom_burton83@hotmail.com
+
+	* [r50]
+
+2012-05-02 18:38  tom_burton83@hotmail.com
+
+	* [r49] Reorganisation of some class structure in preparation for
+	  addition of p+p code, cleanup of some of smearing code
+
+2012-04-26 22:09  tom_burton83@hotmail.com
+
+	* [r48] Cleaned up ParticleID, now inherits from Smearer. Removed
+	  different handling of Device and ParticleID from Detector - all
+	  Smearers are now treated equally
+
+2012-04-25 22:20  tom_burton83@hotmail.com
+
+	* [r47] Began cleanup of Smear code, and adding more comments
+	  generally
+
+2012-03-22 20:56  tom_burton83@hotmail.com
+
+	* [r46] Wrote a basic README, fixed a couple of compilation
+	  warnings in Armory.h and addressed some todo items
+
+2012-03-19 19:37  tom_burton83@hotmail.com
+
+	* [r45] Pythia6 print interval now settable in constructor
+
+2012-03-08 00:05  tom_burton83@hotmail.com
+
+	* [r44] Fixed slowdown in event building due to increasing object
+	  reference count
+
+2012-02-23 23:01  tom_burton83@hotmail.com
+
+	* [r43] Various bits of cleaning, including renaming smear_event.h
+	  and ParticleMCSmeared.h,.cxx
+
+2012-02-23 22:40  tom_burton83@hotmail.com
+
+	* [r42] Fixed bug in determining LogReader based on class name
+
+2012-02-15 22:02  tom_burton83@hotmail.com
+
+	* [r41] Added a scripts directory with some examples
+
+2012-02-15 18:56  tom_burton83@hotmail.com
+
+	* [r40] libEGPythia6 now only included in lib list if user passes
+	  --with-pythia6-libdir. Corrected lib version to 0.
+
+2012-02-15 03:33  tom_burton83@hotmail.com
+
+	* [r39] Removed inclusion of GeneratorType.h from Makefile.am
+
+2012-02-15 03:18  tom_burton83@hotmail.com
+
+	* [r38] Removed GeneratorType.h
+
+2012-02-15 03:11  tom_burton83@hotmail.com
+
+	* [r37] Can now handle neutron beam. Replaced some references to
+	  EventBase with EventMC
+
+2012-02-15 02:35  tom_burton83@hotmail.com
+
+	* [r36] Fixed pythia6 option in configure
+
+2012-02-15 02:15  tom_burton83@hotmail.com
+
+	* [r35] Replaced standard Makefile with configure
+
+2012-01-25 19:02  tom_burton83@hotmail.com
+
+	* [r34] Added class Pythia6, giving interface to PYTHIA
+
+2012-01-25 19:00  tom_burton83@hotmail.com
+
+	* [r33] Added DPMJET event class, log file readers for PEPSI and
+	  DJANGOH
+
+2012-01-18 21:30  tom_burton83@hotmail.com
+
+	* [r32] Moved class File from namespace erhic::monte_carlo to erhic
+	  (nothing else in monte_carlo, so removed it entirely)
+
+2012-01-18 21:28  tom_burton83@hotmail.com
+
+	* [r31] Added PYTHIA event builder and filtering code
+
+2012-01-18 20:38  tom_burton83@hotmail.com
+
+	* [r30] Added setter methods and automatic update of ntracks when
+	  AddLast is called in EventMC
+
+2012-01-18 20:36  tom_burton83@hotmail.com
+
+	* [r29] Added setter methods to ParticleMC
+
+2012-01-18 20:35  tom_burton83@hotmail.com
+
+	* [r28] Added setter methods for pythia-specific variables in
+	  EventPythia
+
+2012-01-17 17:28  tom_burton83@hotmail.com
+
+	* [r27] Added leading \'Get\' to various Event and Particle method
+	  names for compatibility with older code
+
+2012-01-13 19:46  tom_burton83@hotmail.com
+
+	* [r26] Renamed class Dubious to Bremsstrahlung, split into .h and
+	  .cxx, cleaned code
+
+2012-01-13 18:01  tom_burton83@hotmail.com
+
+	* [r25] Cleaned up Forester::Plant() and fixed total event/particle
+	  counts not being accumulated
+
+2012-01-13 17:57  tom_burton83@hotmail.com
+
+	* [r24] LogReaderPythia now correctly extracts number of events
+	  from log file
+
+2012-01-13 17:51  tom_burton83@hotmail.com
+
+	* [r23] Added accessor methods for double-angle and Jacquet-Blondel
+	  variables
+
+2012-01-13 17:49  tom_burton83@hotmail.com
+
+	* [r22] Added accessor methods for double-angle and Jacquet-Blondel
+	  variables
+
+2012-01-12 17:00  tom_burton83@hotmail.com
+
+	* [r21] Initial import
+
+2012-01-11 23:04  
+
+	* [r20] Initial directory structure.
+
