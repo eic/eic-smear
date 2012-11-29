@@ -31,7 +31,8 @@ namespace Smear {
 
    Tracker::Tracker(double magneticField, double nRadiationLengths,
                     double resolution)
-   : mMagField(magneticField)
+   : mFactor(720) // Assume no vertex constraint.
+   , mMagField(magneticField)
    , mNRadLengths(nRadiationLengths)
    , mSigmaRPhi(resolution) {
    }
@@ -57,8 +58,10 @@ namespace Smear {
       //    sqrt(720 * N^3 / ((N-1)(N+1)(N+2)(N+3)))
       // is a more exact version of the factor
       //    sqrt(720 / (N+5))
-      double val = sqrt(720. * pow(NPoints(p), 3.)) / 0.3 * pow(p.GetP(), 2.) 
-         * mSigmaRPhi / mMagField / pow(LPrime(p), 2.) 
+      // The constant factor in the sqrt depends on whether there is
+      // a vertex constraint assumed.
+      double val = sqrt(mFactor * pow(NPoints(p), 3.)) / 0.3 * pow(p.GetP(), 2.)
+         * mSigmaRPhi / mMagField / pow(LPrime(p), 2.)
          / sqrt((NPoints(p)-1)*(NPoints(p)+1)*(NPoints(p)+2)*(NPoints(p)+3));
       if(TMath::IsNaN(val)) {
          std::cerr << "Intrinsic nan!" << std::endl;
@@ -92,5 +95,14 @@ namespace Smear {
             std::cerr << "p nan" << std::endl;
          } // if
       } //if
+   }
+
+   void Tracker::SetVertexConstraint(bool constrain) {
+      if(constrain) {
+         mFactor = 320;
+      } // if
+      else {
+         mFactor = 720;
+      } // else
    }
 } // namespace Smear
