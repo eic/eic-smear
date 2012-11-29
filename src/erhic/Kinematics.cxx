@@ -68,10 +68,6 @@ namespace {
             // Compute energy from p and m
             energy = sqrt(pow(p->GetP(), 2.) + pow(mass, 2.));
          } // if
-         else {
-            std::cout << "Using stored E for particle energy" << std::endl;
-            p->Print();
-         }
          return energy;
       }
    };
