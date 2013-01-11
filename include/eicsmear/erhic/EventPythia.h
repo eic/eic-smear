@@ -211,8 +211,16 @@ namespace erhic {
 
       /** Used for radiative corrections */
       virtual double GetR() const;
-
-//   protected:
+      
+      /**
+       Returns the scattered lepton.
+       This is the first final state particle with the same species
+       as the beam lepton and parent index equal to three
+       (counting index from 1).
+       */
+      virtual const ParticleMC* ScatteredLepton() const;
+      
+   protected:
       
       // Inline comments after field names will appear in ROOT
       // when EventPythia::Dump() is called.

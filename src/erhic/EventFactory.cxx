@@ -104,10 +104,9 @@ namespace erhic {
 
    template<typename T>
    bool EventFromAsciiFactory<T>::AddParticle() {
-      std::auto_ptr<ParticleMC> particle(new ParticleMC(mLine));
-      // That's a keeper!
-      particle->SetEvent(mEvent.get());
-      mEvent->AddLast(particle.release());
+      ParticleMC particle(mLine);
+      particle.SetEvent(mEvent.get());
+      mEvent->AddLast(&particle);
       return true;
    }
 

@@ -8,6 +8,7 @@
 #include <cmath>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "eicsmear/erhic/EventPythia.h"
 
@@ -42,12 +43,9 @@ namespace erhic {
    {
    }
    
-   
    EventPythia::~EventPythia() { }
    
-   
-   bool
-   EventPythia::Parse(const std::string& line ) {
+   bool EventPythia::Parse(const std::string& line ) {
       
       static std::stringstream ss;
       
@@ -67,4 +65,35 @@ namespace erhic {
       return not ss.fail();
    }
    
+   // Look for the scattered lepton in the event record.
+   // This is the first (only?) particle that matches the following:
+   //  1) pdg code equals that of incident lepton beam.
+   //  2) status code is 1 i.e. it's a stable/final-state particle.
+   //  3) the parent is track three (counting from 1).
+   const ParticleMC* EventPythia::ScatteredLepton() const {
+      // Look for the lepton beam to get the species.
+      // If we don't get it we can't find the scattered
+      // lepton so return NULL.
+      const VirtualParticle* beam = BeamLepton();
+      if(not beam) {
+         return NULL;
+      } // if
+      const int species = beam->Id().Code();
+      // Get the final state particles and search them for
+      // the scattered lepton.
+      std::vector<const VirtualParticle*> final;
+      FinalState(final);
+      std::vector<const VirtualParticle*>::const_iterator iter;
+      for(iter = final.begin(); iter not_eq final.end(); ++iter) {
+         // We already know the particle is final state, so
+         // check its species and parent index.
+         if((*iter)->GetParentIndex() == 3 and
+            (*iter)->Id().Code() == species) {
+            // Found it, cast to required particle type and return.
+            return dynamic_cast<const ParticleMC*>(*iter);
+         } // if
+      } // for
+      // No luck, couldn't find the scattered lepton.
+      return NULL;
+   }
 } // namespace erhic
