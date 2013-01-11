@@ -194,7 +194,7 @@ namespace erhic {
       
       TClonesArray particles; ///< Particle list
       
-      ClassDef(EventMC, 1)
+      ClassDef(EventMC, 2)
    };
    
    inline ULong64_t EventMC::GetN() const {
