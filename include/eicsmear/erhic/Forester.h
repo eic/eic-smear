@@ -28,11 +28,13 @@
 
 // Other headers
 #include "eicsmear/erhic/BeamParticles.h"
-#include "eicsmear/erhic/EventBase.h"
-#include "eicsmear/erhic/File.h"
+#include "eicsmear/erhic/EventMC.h"
 
 namespace erhic {
    
+   class FileType;
+   class VirtualEventFactory;
+
    /**
     Manages the creation of trees from plain-text Monte Carlo files.
     Bad pun, I know, but the ROOT guys started it.
@@ -209,7 +211,6 @@ namespace erhic {
       
       // End of class Status
       
-      
       /**
        Prints a summary of the last call to Plant()
        to the requested output stream.
@@ -250,39 +251,6 @@ namespace erhic {
        If unsuccessful, mLine is blank and false is returned.
        */
       bool FindFirstEvent();
-      
-      /**
-       Read the next line from mTextFile into mLine.
-       Returns true if the input stream is good after the read operation,
-       false if it is not.
-       */
-      bool ReadNextLine();
-      
-      /**
-       Process the current contents of mLine and update mEvent as appropriate.
-       */
-      Int_t ProcessLine();
-      
-      /**
-       Adds a particle to the current event record using the current
-       contents of mLine.
-       Returns true if the particle is added or false if it is skipped.
-       */
-      bool AddParticle();
-      
-      /**
-       Returns true if mLine equals the 'end-of-event' string, false if not.
-       */
-      bool AtEndOfEvent() const;
-      
-      /**
-       Performs end-of-event tasks; completes the event record,
-       fills the tree, prints status.
-       Returns the number of tracks read in the event.
-       If the end of file or the max number of events is reached,
-       sets mQuit to true.
-       */
-      Int_t FinishEvent();
       
       /**
        Prints the status of the current Plant() call to the standard output.
@@ -379,14 +347,6 @@ namespace erhic {
    
    inline void Forester::SetMessageInterval(Long64_t number) {
       mInterval = number;
-   }
-   
-   inline bool Forester::AtEndOfEvent() const {
-      return " =============== Event finished ===============" == mLine;
-   }
-   
-   inline bool Forester::ReadNextLine() {
-      return std::getline(mTextFile, mLine).good();
    }
    
    inline bool Forester::MustQuit() const {
