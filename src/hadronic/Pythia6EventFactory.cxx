@@ -48,10 +48,9 @@ namespace hadronic {
       // Populate particle list
       while((mc = dynamic_cast<TMCParticle*>(iter.Next()))) {
          if(mc) {
-            ParticleMC* p = new ParticleMC(*mc);
+            std::auto_ptr<ParticleMC> p(new ParticleMC(*mc));
             p->SetParentIndex(mc->GetParent());
-            //            p->SetXFeynman(2. * p->GetPz() / event->GetCentreOfMassEnergy());
-            event->Add(p);
+            event->Add(p.get());
          } // if
       } // while
         // Test against filter and exit loop if the event passes the filter.

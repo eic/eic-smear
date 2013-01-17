@@ -269,7 +269,7 @@ namespace erhic {
       
       // That's a keeper!
       particle->SetEvent(mEvent);
-      mEvent->AddLast(particle.release());
+      mEvent->AddLast(particle.get());
       
       return true;
    }
