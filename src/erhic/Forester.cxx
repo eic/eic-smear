@@ -40,7 +40,14 @@ namespace erhic {
          delete mFile;
          mFile = NULL;
       } // if
-      
+      if(mEvent) {
+         delete mEvent;
+         mEvent = NULL;
+      } // if
+      if(mFactory) {
+         delete mFactory;
+         mFactory = NULL;
+      } // if
       // We don't delete the output file as ROOT keeps track of all files.
       // We don't delete the mTree pointer because mRootFile
       // has ownership of it.
@@ -81,7 +88,7 @@ namespace erhic {
             
             // Fill the tree
             if(event) {
-               mTree->SetBranchAddress("event", &event);
+               mTree->SetBranchAddress(GetBranchName().c_str(), &event);
                mTree->Fill();
                if(GetMaxNEvents() > 0 and i >= GetMaxNEvents()) {
                   SetMustQuit(true); // Hit max number of events, so quit
@@ -91,7 +98,7 @@ namespace erhic {
                mStatus.ModifyParticleCount(event->GetNTracks());
                
                // We must ResetBranchAddress before deleting the event.
-               mTree->ResetBranchAddress(mTree->GetBranch("event"));
+               mTree->ResetBranchAddress(mTree->GetBranch(GetBranchName().c_str()));
                delete event;
             } // if
             else break;

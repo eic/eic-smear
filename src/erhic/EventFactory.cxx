@@ -66,19 +66,22 @@ namespace erhic {
    template<typename T>
    Int_t
    EventFromAsciiFactory<T>::FinishEvent() {
-      DisKinematics* nm = LeptonKinematicsComputer(*mEvent).Calculate();
-      DisKinematics* jb = JacquetBlondelComputer(*mEvent).Calculate();
-      DisKinematics* da = DoubleAngleComputer(*mEvent).Calculate();
-      if(nm) {
+      std::auto_ptr<DisKinematics> nm(
+         LeptonKinematicsComputer(*mEvent).Calculate());
+      std::auto_ptr<DisKinematics> jb(
+         JacquetBlondelComputer(*mEvent).Calculate());
+      std::auto_ptr<DisKinematics> da(
+         DoubleAngleComputer(*mEvent).Calculate());
+      if(nm.get()) {
          mEvent->SetLeptonKinematics(*nm);
       } // if
       for(unsigned n(0); n < mEvent->GetNTracks(); ++n) {
          mEvent->GetTrack(n)->ComputeEventDependentQuantities(*mEvent);
       } // for
-      if(jb) {
+      if(jb.get()) {
          mEvent->SetJacquetBlondelKinematics(*jb);
       } // if
-      if(da) {
+      if(da.get()) {
          mEvent->SetDoubleAngleKinematics(*da);
       } // if
       // We also have to set the remaining variables not taken care of
