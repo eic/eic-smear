@@ -14,6 +14,7 @@ namespace erhic {
     */
    class EventDjangoh : public EventMC {
    public:
+      EventDjangoh() { }
       virtual bool Parse(const std::string& );
       
       Int_t nucleon;
@@ -31,6 +32,18 @@ namespace erhic {
       Double32_t dtrueX;
       Double32_t dtrueW2;
       Double32_t dtrueNu;   
+      Double32_t sigTot;
+      Double32_t sigTotErr;
+      Double32_t D;
+      Double32_t F1NC;
+      Double32_t F3NC;
+      Double32_t G1NC;
+      Double32_t G3NC;
+      Double32_t A1NC;
+      Double32_t F1CC;
+      Double32_t F3CC;
+      Double32_t G1CC;
+      Double32_t G5CC;
       
       ClassDef(erhic::EventDjangoh, 1 )
    };

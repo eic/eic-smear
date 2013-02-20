@@ -74,19 +74,19 @@ namespace erhic {
                std::cout << std::endl;
             } // if
             // Build the next event
-            VirtualEvent* event = mFactory->Create();
+            if(mEvent) {
+               delete mEvent;
+            } // if
+            mEvent = mFactory->Create();
             // Fill the tree
-            if(event) {
-               mTree->SetBranchAddress(GetBranchName().c_str(), &event);
+            if(mEvent) {
                mTree->Fill();
                if(GetMaxNEvents() > 0 and i >= GetMaxNEvents()) {
                   SetMustQuit(true); // Hit max number of events, so quit
                } // if
                mStatus.ModifyEventCount(1);
-               mStatus.ModifyParticleCount(event->GetNTracks());
+               mStatus.ModifyParticleCount(mEvent->GetNTracks());
                // We must ResetBranchAddress before deleting the event.
-               mTree->ResetBranchAddress(mTree->GetBranch(GetBranchName().c_str()));
-               delete event;
             } // if
             else {
                break;
@@ -163,18 +163,9 @@ namespace erhic {
    void Forester::Finish() {
       if(BeVerbose()) {
          std::cout << "\nProcessed " << GetInputFileName() << std::endl;
-         // If we received the quit signal, then we *should* have
-         // completed an event.
-         // If not, there will be particles in the event buffer:
-         // the file must have terminated mid-event, which is a problem
-         if(mEvent->GetNTracks() not_eq 0) {
-            std::cerr <<
-            "Warning: may have terminated mid-event - check input file"
-            << std::endl;
-         } // if
       } // if
-      
       // Write the TTree to the file.
+      mRootFile = mTree->GetCurrentFile();
       mRootFile->cd();
       mTree->Write();
       mRootFile->ls();
