@@ -64,6 +64,9 @@ T* EventFromAsciiFactory<T>::Create() {
       mEvent.reset(NULL);
       throw std::runtime_error("Ended mid-event");
    } // if
+   if(mInput->eof()) {
+      mEvent.reset(NULL);
+   } // if
    // Restore Object count 
    // See example in $ROOTSYS/test/Event.cxx
    // To save space in the table keeping track of all referenced objects
@@ -102,7 +105,7 @@ EventFromAsciiFactory<T>::FinishEvent() {
       std::cerr <<
       "EventFromAsciiFactory::FinishEvent(): failed to find beams"
       << std::endl;
-      return 1;
+      return 0;
    } // if
    const TLorentzVector h = beams.BeamHadron();
    TLorentzVector l = beams.BeamLepton();

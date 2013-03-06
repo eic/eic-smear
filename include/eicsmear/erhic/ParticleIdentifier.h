@@ -19,7 +19,7 @@ struct ParticleIdentifier {
     Initialise with the PDG code of the lepton beam.
     The default is an invalid value.
     */
-   ParticleIdentifier(const int leptonPdg = ~unsigned(0)/2 );
+   ParticleIdentifier(const int leptonPdg = ~unsigned(0)/2);
    
    virtual ~ParticleIdentifier() { }
    
@@ -59,6 +59,15 @@ struct ParticleIdentifier {
    virtual int GetLeptonBeamPdgCode() const;
    
    /**
+    Look for charged current events.
+    
+    In this case, the scattered lepton searched for will be the neutrino
+    corresponding to the incident lepton beam type (e.g. W- for electron,
+    W+ for proton).
+    */
+   virtual bool SetChargedCurrent(bool);
+   
+   /**
     Identify the beams from an event and store their properties in a
     BeamParticles object.
     See BeamParticles.h for the quantities stored.
@@ -88,14 +97,23 @@ struct ParticleIdentifier {
    
 protected:
    
+   /**
+    Determine the scattered lepton type from an incident lepton type.
+    
+    For neutral current events these are equal.
+    For charged current events the scattered lepton will be a neutrino, the
+    type of which depends on the incident lepton type e.g.
+      beam electron (11) --> scattered nu_e (12)
+      beam positron (-11) --> scattered nu_e_bar (-12)
+    Even though we would not envisage mu or tau beams (!) the algorithm is
+    still robust for these inputs.
+    */
+   Int_t DetermineScatteredType(Int_t);
+   
+   Bool_t mChargedCurrent;
    Int_t mLeptonBeamPdgCode;
+   Int_t mScatteredPdgCode;
 };
-
-
-inline void ParticleIdentifier::SetLeptonBeamPdgCode(const int pdgCode ) {
-   mLeptonBeamPdgCode = pdgCode;
-}
-
 
 inline int ParticleIdentifier::GetLeptonBeamPdgCode() const {
    return mLeptonBeamPdgCode;
