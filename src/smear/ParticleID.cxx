@@ -158,8 +158,7 @@ namespace Smear {
          // Read true particle IDs
          if(starts(line, "!T")) {
             ss >> dummy;
-            while(ss.good()) {
-               ss >> tmpint;
+            while((ss >> tmpint).good()) {
                TrueIdent.push_back(tmpint);
             } // while
             gotTrue = not TrueIdent.empty();
@@ -167,8 +166,7 @@ namespace Smear {
          // Read misidentified particle IDs
          else if(starts(line, "!F")) {
             ss >> dummy;
-            while(ss.good()) {
-               ss >> tmpint;
+            while((ss >> tmpint).good()) {
                FalseIdent.push_back(tmpint);
             } // while
             gotFalse = not FalseIdent.empty();

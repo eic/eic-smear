@@ -9,14 +9,13 @@
 
 #include <iomanip>
 #include <iostream>
-#include <limits>
 
 #include <TMath.h>
 
 namespace Smear {
    ParticleMCS::ParticleMCS()
    : status(0)
-   , id(std::numeric_limits<Int_t>::max())
+   , id(0)
    , px(0.)
    , py(0.)
    , pz(0.)
