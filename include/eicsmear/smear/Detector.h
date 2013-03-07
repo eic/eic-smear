@@ -1,6 +1,7 @@
 #ifndef _EICSMEAR_SMEAR_DETECTOR_H_
 #define _EICSMEAR_SMEAR_DETECTOR_H_
 
+#include <list>
 #include <vector>
 
 #include <TObject.h>
@@ -108,6 +109,11 @@ namespace Smear {
        Print information about all smearers to standard output.
       */
       virtual void Print(Option_t* = "") const;
+      
+      /**
+       Returns the list of devices in this detector that accept a particle.
+       */
+      std::list<Smear::Smearer*> Accept(const erhic::VirtualParticle&) const;
    protected:
 
       /** Returns pointers to new copies of all devices */

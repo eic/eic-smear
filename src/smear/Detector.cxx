@@ -106,24 +106,35 @@ namespace Smear {
          } // if
       } // if
    }
+   std::list<Smearer*> Detector::Accept(const erhic::VirtualParticle& p) const {
+      std::list<Smearer*> devices;
+      // Only accept final-state particles, so skip the check against each
+      // devices for non-final-state particles.
+      if(p.GetStatus() == 1) {
+         std::vector<Smearer*>::const_iterator iter;
+         for(iter = Devices.begin(); iter not_eq Devices.end(); ++iter) {
+            // Store each device that accepts the particle.
+            if((*iter)->Accept.Is(p)) {
+               devices.push_back(*iter);
+            } // if
+         } // for
+      } // if
+      return devices;
+   }
    ParticleMCS* Detector::Smear(const erhic::VirtualParticle& prt) const {
       // Does the particle fall in the acceptance of any device?
       // If so, we smear it, if not, we skip it (store a NULL pointer).
-      bool accept(false);
-      for(unsigned i(0); i < Devices.size(); ++i) {
-         if(Devices.at(i)->Accept.Is(prt)) {
-            accept = true;
-            break;
-         } // if
-      } // for
+      std::list<Smearer*> devices = Accept(prt);
       ParticleMCS* prtOut(NULL);
-      if(prt.GetStatus() == 1 and accept) {
+      if(not devices.empty()) {
          // It passes through at least one device, so smear it.
          // Devices in which it doesn't pass won't smear it.
          prtOut = new ParticleMCS();
-         for(unsigned i=0; i<GetNDevices(); i++) {
-            Devices.at(i)->Smear(prt,*prtOut);
+         std::list<Smearer*>::iterator iter;
+         for(iter = devices.begin(); iter not_eq devices.end(); ++iter) {
+            (*iter)->Smear(prt, *prtOut);
          } // for
+         // Compute derived momentum components.
          prtOut->px = prtOut->p * sin(prtOut->theta) * cos(prtOut->phi);
          prtOut->py = prtOut->p * sin(prtOut->theta) * sin(prtOut->phi);
          prtOut->pt = sqrt(pow(prtOut->px, 2.) + pow(prtOut->py, 2.));
