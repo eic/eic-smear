@@ -40,6 +40,11 @@ namespace Smear {
       kAll = 0, kElectromagnetic = 1, kHadronic = 2
    };
    
+   /** Particle charged **/
+   enum ECharge {
+      kNeutral, kCharged, kAllCharges
+   };
+   
 	/**
 	 This determines whether the particle in the argument is
 	 

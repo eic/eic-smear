@@ -78,7 +78,7 @@ namespace erhic {
    */
    class JacquetBlondelComputer : public KinematicsComputer {
    public:
-      virtual ~JacquetBlondelComputer() { }
+      virtual ~JacquetBlondelComputer();
       /**
        Initialise with the event to compute.
        If the second argument is non-NULL, use the beam information from it
@@ -107,7 +107,7 @@ namespace erhic {
    */
    class DoubleAngleComputer : public KinematicsComputer {
    public:
-      virtual ~DoubleAngleComputer() { }
+      virtual ~DoubleAngleComputer();
       /**
        Initialise with the event to compute.
        If the second argument is non-NULL, use the beam information from it
