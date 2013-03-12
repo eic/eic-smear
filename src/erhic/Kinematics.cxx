@@ -275,7 +275,7 @@ DisKinematics* LeptonKinematicsComputer::Calculate() {
 // ==========================================================================
 JacquetBlondelComputer::~JacquetBlondelComputer() {
    // Delete all "measureable" particles.
-   typedef typename std::vector<const VirtualParticle*>::iterator Iter;
+   typedef std::vector<const VirtualParticle*>::iterator Iter;
    for(Iter i = mParticles.begin(); i not_eq mParticles.end(); ++i) {
       if(*i) {
          delete *i;
@@ -389,7 +389,7 @@ Double_t JacquetBlondelComputer::ComputeX() const {
 // ==========================================================================
 DoubleAngleComputer::~DoubleAngleComputer() {
    // Delete all "measureable" particles.
-   typedef typename std::vector<const VirtualParticle*>::iterator Iter;
+   typedef std::vector<const VirtualParticle*>::iterator Iter;
    for(Iter i = mParticles.begin(); i not_eq mParticles.end(); ++i) {
       if(*i) {
          delete *i;
