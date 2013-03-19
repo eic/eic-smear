@@ -9,13 +9,14 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <numeric> // For std::accumulate
+#include <stdexcept>
 
 #include <TDatabasePDG.h>
 #include <TParticlePDG.h>
 #include <TVector3.h>
 
-#include "eicsmear/erhic/BeamParticles.h"
 #include "eicsmear/erhic/EventDis.h"
 #include "eicsmear/erhic/Kinematics.h"
 #include "eicsmear/erhic/ParticleIdentifier.h"
@@ -96,6 +97,9 @@ using erhic::VirtualParticle;
 class MeasuredParticle {
 public:
    static ParticleMC* Create(const erhic::VirtualParticle* particle) {
+      if(not particle) {
+         throw std::invalid_argument("MeasuredParticle given NULL pointer");
+      } // if
       ParticleMC* measured = new ParticleMC;
       // Copy ID from the input particle or guess it if not known.
       measured->SetId(CalculateId(particle));
@@ -232,43 +236,51 @@ DisKinematics::DisKinematics(double x, double y, double nu,
 LeptonKinematicsComputer::LeptonKinematicsComputer(const EventDis& event) {
    ParticleIdentifier::IdentifyBeams(event, mBeams);
 }
-LeptonKinematicsComputer::LeptonKinematicsComputer(const BeamParticles& b)
-: mBeams(b) {
-}
 DisKinematics* LeptonKinematicsComputer::Calculate() {
-   DisKinematics* kin = new DisKinematics(0., 0., 0., 0., 0.);
-   const TLorentzVector& s = mBeams.ScatteredLepton();
-   // If there is no measurement of theta of the scattered lepton we
-   // cannot calculate kinematics. If we have theta, we can calculate
-   // using either energy or momentum (effectively energy, but generally
-   // has better resolution), so use momentum if possible, energy if not.
-   if(s.Theta() > 0. and (s.E() > 0 or s.P() > 0.)) {
-      const TLorentzVector& l = mBeams.BeamLepton();
-      const TLorentzVector& h = mBeams.BeamHadron();
-      double cme = (l + h).M2();
-      // Find scattered lepton energy boosted to the rest
-      // frame of the hadron beam.
-      double ELeptonInNucl = h.Gamma() * (l.P() - h.Beta() * l.Pz());
-      double ELeptonOutNucl = h.Gamma() * (s.P() - h.Beta() * s.Pz());
-      double theta = s.Theta();
-      // Use momentum if available, energy if not.
-      double energy = (s.P() > 0. ? s.P() : s.E());
-      // Calculate kinematic quantities, making sure to bound
-      // the results by physical limits.
-      double Q2 = 2. * l.P() * energy * (1. + cos(theta));
-      kin->mQ2 = std::max(0., Q2);
-      kin->mNu = std::max(0., ELeptonInNucl - ELeptonOutNucl);
-      // Calculate y using the exchange boson.
-      // Determine the exchange boson 4-vector from the scattered lepton, as
-      // this will then be valid for smeared event input also (where the
-      // exchange boson is not recorded in the BeamParticles object).
-      const TLorentzVector q = l - s;
-      double y = (q.Dot(h)) / (l.Dot(h));
-      kin->mY = bounded(y, 0., 1.);
-      double x = kin->mQ2 / kin->mY / cme;
-      kin->mX = bounded(x, 0., 1.);
-      kin->mW2 = computeW2FromXQ2M(kin->mX, kin->mQ2, h.M());
-   } // if
+   // Create kinematics with default values.
+   DisKinematics* kin = new DisKinematics;
+   try {
+      // Use E, p and ID of scattered lepton to create "best-guess" kinematics.
+      // MeasuredParticle::Create will throw an exception in case of a NULL
+      // pointer argument.
+      std::auto_ptr<const VirtualParticle> scattered(
+                                    MeasuredParticle::Create(mBeams.at(3)));
+      // If there is no measurement of theta of the scattered lepton we
+      // cannot calculate kinematics. Note that via MeasuredParticle the momentum
+      // may actually be derived from measured energy instead of momentum.
+      if(scattered->GetTheta() > 0. and scattered->GetP() > 0.) {
+         const TLorentzVector& l = mBeams.at(0)->Get4Vector();
+         const TLorentzVector& h = mBeams.at(1)->Get4Vector();
+         // Calculate kinematic quantities, making sure to bound
+         // the results by physical limits.
+         // First, Q-squared.
+         double Q2 = 2. * l.E() * scattered->GetE() *
+            (1. + cos(scattered->GetTheta()));
+         kin->mQ2 = std::max(0., Q2);
+         // Find scattered lepton energy boosted to the rest
+         // frame of the hadron beam. Calculate nu from this.
+         double ELeptonInNucl = h.Gamma() * (l.P() - h.Beta() * l.Pz());
+         double ELeptonOutNucl = h.Gamma() *
+            (scattered->GetP() - h.Beta() * scattered->GetPz());
+         kin->mNu = std::max(0., ELeptonInNucl - ELeptonOutNucl);
+         // Calculate y using the exchange boson.
+         // Determine the exchange boson 4-vector from the scattered lepton, as
+         // this will then be valid for smeared event input also (where the
+         // exchange boson is not recorded).
+         const TLorentzVector q = l - scattered->Get4Vector();
+         double y = (q.Dot(h)) / (l.Dot(h));
+         kin->mY = bounded(y, 0., 1.);
+         // Calculate x from Q^2 = sxy
+         double cme = (l + h).M2();
+         double x = kin->mQ2 / kin->mY / cme;
+         kin->mX = bounded(x, 0., 1.);
+         kin->mW2 = computeW2FromXQ2M(kin->mX, kin->mQ2, h.M());
+      } // if
+   } // try
+   catch(std::invalid_argument& except) {
+      // In case of no scattered lepton return default values.
+      std::cerr << "No lepton for kinematic calculations" << std::endl;
+   } // catch
    return kin;
 }
 // ==========================================================================

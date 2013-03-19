@@ -66,8 +66,7 @@ namespace Smear {
       } // if
       return smearer;
    }
-   void Detector::FillEventKinematics(const erhic::EventDis& event,
-                                      Event* eventS) {
+   void Detector::FillEventKinematics(Event* eventS) {
       if(not (useNM or useJB or useDA)) {
          return;
       } // if
@@ -76,15 +75,10 @@ namespace Smear {
       // So, get the beam info from the MC event, but replace the scattered
       // electron with the smeared version.
       // Then we can use the standard JB/DA algorithms on the smeared event.
-      BeamParticles beams;
-      ParticleIdentifier::IdentifyBeams(event, beams);
       const ParticleMCS* scattered = eventS->ScatteredLepton();
-      if(scattered) {
-         beams.SetScatteredLepton(scattered->Get4Vector());
-      } // if
       typedef std::auto_ptr<erhic::DisKinematics> KinPtr;
       if(useNM and scattered) {
-         KinPtr kin(erhic::LeptonKinematicsComputer(beams).Calculate()); 
+         KinPtr kin(erhic::LeptonKinematicsComputer(*eventS).Calculate()); 
          if(kin.get()) {
             eventS->SetLeptonKinematics(*kin);
          } // if

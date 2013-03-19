@@ -75,7 +75,7 @@ namespace Smear {
          } // else
       } // for
       // Fill the event-wise kinematic variables.
-      mDetector.FillEventKinematics(*mMcEvent, event);
+      mDetector.FillEventKinematics(event);
       return event;
    }
 } // namespace Smear

@@ -93,7 +93,7 @@ namespace Smear {
 		 Also, the smeared lepton momentum (as opposed to energy) is used in
        the assumption that its smearing is less severe.
 		 */
-		void FillEventKinematics(const erhic::EventDis&, Event*);
+		void FillEventKinematics(Event*);
 		
 		/**
 		 Detector level particle smearing.

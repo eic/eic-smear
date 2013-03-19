@@ -14,7 +14,6 @@
 #include <Rtypes.h>
 #include <TLorentzVector.h>
 
-#include "eicsmear/erhic/BeamParticles.h"
 #include "eicsmear/erhic/ParticleMC.h"
 #include "eicsmear/erhic/ParticleIdentifier.h"
 #include "eicsmear/erhic/VirtualParticle.h"
@@ -59,13 +58,11 @@ namespace erhic {
    class LeptonKinematicsComputer : public KinematicsComputer {
    public:
       virtual ~LeptonKinematicsComputer() { }
-      /** Initialise with the beam info used to compute the kinematics */
-      LeptonKinematicsComputer(const BeamParticles&);
       /** Determine the beam info from the input event */
       LeptonKinematicsComputer(const EventDis&);
       virtual DisKinematics* Calculate();
    protected:
-      BeamParticles mBeams;
+      std::vector<const VirtualParticle*> mBeams;
       ClassDef(erhic::LeptonKinematicsComputer, 1)
    };
 
