@@ -83,7 +83,8 @@ public std::unary_function<const Particle*, double> {
       return energy;
    }
 };
-/**
+
+/*
  Calculates kinematic information that is knowable by a detector.
  
  This takes account whether p, E and particle id are known or not, and
@@ -179,6 +180,7 @@ public:
       return ep;
    }
 };
+
 // ==========================================================================
 // Returns the energy-momentum 4-vector of a particle.
 // The returned energy is that computed using EnergyFromMomentumAndId, not
@@ -197,6 +199,7 @@ public std::unary_function<const Particle*, TLorentzVector> {
       return ep;
    }
 };
+
 // ==========================================================================
 // Helper functor for calculating E - p_z of a particle.
 // ==========================================================================
@@ -221,6 +224,7 @@ DisKinematics::DisKinematics()
 , mNu(0.)
 , mY(0) {
 }
+
 DisKinematics::DisKinematics(double x, double y, double nu,
                              double Q2, double W2)
 : mX(x)
@@ -229,13 +233,15 @@ DisKinematics::DisKinematics(double x, double y, double nu,
 , mNu(nu)
 , mY(y) {
 }
-// ==========================================================================
-// ==========================================================================
+
 // ==========================================================================
 // ==========================================================================
 LeptonKinematicsComputer::LeptonKinematicsComputer(const EventDis& event) {
    ParticleIdentifier::IdentifyBeams(event, mBeams);
 }
+
+// ==========================================================================
+// ==========================================================================
 DisKinematics* LeptonKinematicsComputer::Calculate() {
    // Create kinematics with default values.
    DisKinematics* kin = new DisKinematics;
@@ -283,6 +289,7 @@ DisKinematics* LeptonKinematicsComputer::Calculate() {
    } // catch
    return kin;
 }
+
 // ==========================================================================
 // ==========================================================================
 JacquetBlondelComputer::~JacquetBlondelComputer() {
@@ -296,6 +303,7 @@ JacquetBlondelComputer::~JacquetBlondelComputer() {
    } // for
    mParticles.clear();
 }
+
 // ==========================================================================
 // ==========================================================================
 JacquetBlondelComputer::JacquetBlondelComputer(const EventDis& event)
@@ -308,6 +316,9 @@ JacquetBlondelComputer::JacquetBlondelComputer(const EventDis& event)
    std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
                   std::ptr_fun(&MeasuredParticle::Create));
 }
+
+// ==========================================================================
+// ==========================================================================
 DisKinematics* JacquetBlondelComputer::Calculate() {
    // Get all the final-state particles except the scattered lepton.
    DisKinematics* kin = new DisKinematics;
@@ -318,6 +329,7 @@ DisKinematics* JacquetBlondelComputer::Calculate() {
                                 mEvent.BeamHadron()->GetM());
    return kin;
 }
+
 // ==========================================================================
 // ==========================================================================
 Double_t JacquetBlondelComputer::ComputeY() const {
@@ -349,6 +361,7 @@ Double_t JacquetBlondelComputer::ComputeY() const {
    // Return y, bounding it by the range [0, 1]
    return bounded(y, 0., 1.);
 }
+
 // ==========================================================================
 // We use the following exact expression:
 // 2(E_p * sum(E_h) - pz_p * sum(pz_h)) - sum(E_h)^2 + sum(p_h)^2 - M_p^2
@@ -379,6 +392,7 @@ Double_t JacquetBlondelComputer::ComputeQSquared() const {
    } // if
    return std::max(0., Q2);
 }
+
 // ==========================================================================
 // x_JB = Q2_JB / (y_JB * s)
 // ==========================================================================
@@ -397,6 +411,7 @@ Double_t JacquetBlondelComputer::ComputeX() const {
    } // if
    return bounded(x, 0., 1.);
 }
+
 // ==========================================================================
 // ==========================================================================
 DoubleAngleComputer::~DoubleAngleComputer() {
@@ -410,6 +425,7 @@ DoubleAngleComputer::~DoubleAngleComputer() {
    } // for
    mParticles.clear();
 }
+
 // ==========================================================================
 // ==========================================================================
 DoubleAngleComputer::DoubleAngleComputer(const EventDis& event)
@@ -422,6 +438,7 @@ DoubleAngleComputer::DoubleAngleComputer(const EventDis& event)
    std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
                   std::ptr_fun(&MeasuredParticle::Create));
 }
+
 // ==========================================================================
 // Formulae used are from F.D. Aaron et al., JHEP01 (2010) 109.
 // ==========================================================================
@@ -436,6 +453,7 @@ DisKinematics* DoubleAngleComputer::Calculate() {
                                 mEvent.BeamHadron()->GetM());
    return kin;
 }
+
 // ==========================================================================
 // Scattering angle of struck quark
 // cos(angle) = A / B
@@ -462,6 +480,7 @@ Double_t DoubleAngleComputer::ComputeQuarkAngle() const {
    mHasChanged = false;
    return mAngle;
 }
+
 // ==========================================================================
 // ==========================================================================
 Double_t DoubleAngleComputer::ComputeY() const {
@@ -478,6 +497,7 @@ Double_t DoubleAngleComputer::ComputeY() const {
    // Return y bounded by the range [0, 1].
    return bounded(y, 0., 1.);
 }
+
 // ==========================================================================
 // ==========================================================================
 Double_t DoubleAngleComputer::ComputeQSquared() const {
@@ -495,6 +515,7 @@ Double_t DoubleAngleComputer::ComputeQSquared() const {
    // Return Q^2, requiring it to be positive.
    return std::max(0., Q2);
 }
+
 // ==========================================================================
 // ==========================================================================
 Double_t DoubleAngleComputer::ComputeX() const {

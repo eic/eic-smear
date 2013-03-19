@@ -12,8 +12,8 @@
  Implements methods to identify particles based on their species and status
  codes.
  */
-struct ParticleIdentifier {
-   
+class ParticleIdentifier {
+public:
    /**
     Default constructor.
     Initialise with the PDG code of the lepton beam.
@@ -74,9 +74,6 @@ struct ParticleIdentifier {
     Returns true if all beams are found, false if not.
     Important: finding the scattered hadron beam is not implemented.
     */
-//   
-//   static bool IdentifyBeams(const T&, BeamParticles& );
-//   static bool IdentifyBeams(const EventBase&, BeamParticles& );
    static bool IdentifyBeams(const erhic::VirtualEvent&, BeamParticles&);
    
    /**
@@ -89,9 +86,6 @@ struct ParticleIdentifier {
     Returns true if all beams are found (i.e. no NULL pointers), false if not.
     Important: finding the scattered hadron beam is not implemented.
     */
-//   
-//   static bool IdentifyBeams(const T&, std::vector<const Particle*>& );
-//   static bool IdentifyBeams(const EventBase&, std::vector<const Particle*>& );
    static bool IdentifyBeams(const erhic::VirtualEvent&,
                              std::vector<const erhic::VirtualParticle*>&);
    
@@ -120,6 +114,3 @@ inline int ParticleIdentifier::GetLeptonBeamPdgCode() const {
 }
 
 #endif
-
-// 2011.07.29: Fixed bug in SkipParticle() causing particles with
-//    id<10 to be skipped instead of abs(id)<10.

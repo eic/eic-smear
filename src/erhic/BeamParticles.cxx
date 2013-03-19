@@ -9,8 +9,6 @@
 
 #include "eicsmear/erhic/BeamParticles.h"
 
-//ClassImp(BeamParticles )
-
 BeamParticles::BeamParticles() {
    Reset();
 }
