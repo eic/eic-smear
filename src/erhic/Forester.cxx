@@ -24,12 +24,16 @@ Forester::Forester()
 , mVerbose(false)
 , mTree(NULL)
 , mEvent(NULL)
+, mFile(NULL)
+, mRootFile(NULL)
 , mMaxNEvents(0)
 , mInterval(1)
+, mTextFile(NULL)
 , mInputName("default.txt")
 , mOutputName("default.root")
 , mTreeName("EICTree")
-, mBranchName("event") {
+, mBranchName("event")
+, mFactory(NULL) {
 }
 
 Forester::~Forester() {
@@ -45,7 +49,14 @@ Forester::~Forester() {
       delete mFactory;
       mFactory = NULL;
    } // if
-   // We don't delete the output file as ROOT keeps track of all files.
+   if(mRootFile) {
+      delete mRootFile;
+      mRootFile = NULL;
+   } // if
+   if(mTextFile) {
+      delete mTextFile;
+      mTextFile = NULL;
+   } // if
    // We don't delete the mTree pointer because mRootFile
    // has ownership of it.
 }
@@ -106,20 +117,23 @@ Long64_t Forester::Plant() {
 bool Forester::OpenInput() {
    try {
       //	Open the input file for reading.
-      mTextFile.open(GetInputFileName().c_str());
+      if(not mTextFile) {
+         mTextFile = new std::ifstream;
+      } // if
+      mTextFile->open(GetInputFileName().c_str());
       // Throw a runtime_error if the file could not be opened.
-      if(not mTextFile.good()) {
+      if(not mTextFile->good()) {
          std::string message("Unable to open file ");
          throw std::runtime_error(message.append(GetInputFileName()));
       }	//	if
       // Determine which Monte Carlo generator produced the file.
       mFile =
-      erhic::FileFactory::GetInstance().GetFile(mTextFile);
+      erhic::FileFactory::GetInstance().GetFile(*mTextFile);
       if(not mFile) {
          throw std::runtime_error(GetInputFileName() +
                                   " is not from a supported generator");
       } // for
-      mFactory = mFile->CreateEventFactory(mTextFile);
+      mFactory = mFile->CreateEventFactory(*mTextFile);
       return true;
    } // try...
    // Pass the exception on to be dealt with higher up the food chain.
@@ -203,11 +217,11 @@ bool Forester::FindFirstEvent() {
    // The first line was already read to determine the generator.
    // The header in the text files is six lines, so
    // read the remaining five lines of header.
-   std::getline(mTextFile, mLine);
-   std::getline(mTextFile, mLine);
-   std::getline(mTextFile, mLine);
-   std::getline(mTextFile, mLine);
-   std::getline(mTextFile, mLine);
+   std::getline(*mTextFile, mLine);
+   std::getline(*mTextFile, mLine);
+   std::getline(*mTextFile, mLine);
+   std::getline(*mTextFile, mLine);
+   std::getline(*mTextFile, mLine);
    return true;
 }
 

@@ -240,7 +240,7 @@ protected:
    // Those with comment //!< will be treated as transient members by ROOT
    // and won't be written to a file.
    
-   Bool_t mQuit; //!< Quit status. Set to true once EoF or max events reached
+   Bool_t mQuit; ///< Quit status. Set to true once EoF or max events reached
    Bool_t mVerbose; ///< Verbosity flag
    TTree* mTree; //!< Output TTree, owned by mRootFile
    VirtualEvent* mEvent; //!< Stores event branch address
@@ -248,13 +248,13 @@ protected:
    TFile* mRootFile; //!< Pointer to output ROOT file
    Long64_t mMaxNEvents; ///< Maximum number of events to process
    Long64_t mInterval; ///< Event interval between printing status messages
-   std::ifstream mTextFile; //!< Input text file
+   std::ifstream* mTextFile; //!< Input text file
    std::string mInputName; ///< Name of the input text file
    std::string mOutputName; ///< Name of the output ROOT file
    std::string mTreeName; ///< Name of the output TTree
    std::string mBranchName; ///< Name of the event TBranch
-   std::string mLine; //!< Stores the latest text line read from the input file
-   Status mStatus;   //!< Forester status information
+   std::string mLine; ///< Stores the latest text line read from the input file
+   Status mStatus;   ///< Forester status information
    VirtualEventFactory* mFactory; //!< Pointer to the event-builder object
 
    ClassDef(Forester, 1)
