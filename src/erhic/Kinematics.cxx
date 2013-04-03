@@ -237,7 +237,11 @@ DisKinematics::DisKinematics(double x, double y, double nu,
 // ==========================================================================
 // ==========================================================================
 LeptonKinematicsComputer::LeptonKinematicsComputer(const EventDis& event) {
-   ParticleIdentifier::IdentifyBeams(event, mBeams);
+//   ParticleIdentifier::IdentifyBeams(event, mBeams);
+   mBeams.push_back(event.BeamLepton());
+   mBeams.push_back(event.BeamHadron());
+   mBeams.push_back(event.ExchangeBoson());
+   mBeams.push_back(event.ScatteredLepton());
 }
 
 // ==========================================================================

@@ -11,6 +11,8 @@
 
 #include "eicsmear/smear/EventDisFactory.h"
 
+#include <vector>
+
 #include <TBranch.h>
 
 #include "eicsmear/erhic/EventDis.h"
@@ -37,21 +39,21 @@ namespace Smear {
    }
    Event* EventDisFactory::Create() {
       Event* event = new Event;
-      ParticleIdentifier pid(mMcEvent->BeamLepton()->Id());
-      bool foundScattered(false);
+//      ParticleIdentifier pid(mMcEvent->BeamLepton()->Id());
+//      std::vector<erhic::VirtualParticle*> beams;
+//      bool foundScattered(false);
+//      pid.IdentifyBeams(*event, beams);
       for(unsigned j(0); j < mMcEvent->GetNTracks(); j++) {
          const erhic::VirtualParticle* ptr = mMcEvent->GetTrack(j);
          if(not ptr) {
             continue;
          } // if
          // If this is the scattered lepton, record the index.
-         // Check that the scattered lepton hasn't been set yet so we
-         // don't replace it with a subsequent match.
          // Set the index even if the particle turns out to be outside the
-         // acceptance, so we don't accidentally use another electron that is
-         // in the acceptance later.
-         if(pid.isScatteredLepton(*ptr) and not foundScattered) {
-            foundScattered = true;
+         // acceptance (in which case it will just point to a NULL anyway).
+//         if(pid.isScatteredLepton(*ptr) and not foundScattered) {
+//            foundScattered = true;
+         if(mMcEvent->ScatteredLepton() == ptr) {
             ParticleMCS* p = mDetector.Smear(*ptr);
             if(p) {
                p->SetStatus(ptr->GetStatus());

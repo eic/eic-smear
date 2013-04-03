@@ -46,24 +46,28 @@ namespace Smear {
    };
    
 	/**
-	 This determines whether the particle in the argument is
-	 
-	 0: Not 1 or 2
-	 1: Stable (i.e. in the Pythia sense) and a photon or lepton
-	 2: Stable and a hadron.
+    Determine particle "genre".
+
+	 This refers to whether the particle in the argument is
+	 "electromagnetic" or "hadronic" from the perspective of calorimetry.
+
+    Returns one of the following (see enum EGenre):
+	  kElectromagnetic: photon or electron/positron.
+	  kHadronic:        stable hadron.
+	  kAll:             neither of the above.
 	 */
 	inline int PGenre(const erhic::VirtualParticle& prt) {
-		int o;
-      if (prt.GetStatus()==1 && abs(prt.Id())>10 && abs(prt.Id())<23 && abs(prt.Id())!=21) {
-			o=1;
-		}
-		else if (prt.GetStatus() == 1 && abs(prt.Id())>110) {
-			o=2;
-		}
-		else {
-			o=0;
-		}
-		return o;
+		int genre(kAll);
+      const int id = abs(prt.Id()); // Sign doesn't matter
+      if(1 == prt.GetStatus()) { // Only check stable particles.
+         if(id == 11 or id == 22) {
+			   genre = kElectromagnetic;
+		   } // if
+		   else if(id >110) {
+			   genre = kHadronic;
+		   } // else if
+      } // if
+		return genre;
 	}
    
 	/**
