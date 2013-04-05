@@ -48,9 +48,7 @@
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventDpmjet>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventPythia>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventGmcTrans>+;
-#pragma link C++ class erhic::Pythia6EventBuilder+;
 #pragma link C++ class erhic::EventMCFilterABC+;
-#pragma link C++ class erhic::Pythia6+;
 
 // Tree and file building
 

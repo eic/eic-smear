@@ -43,7 +43,6 @@ namespace erhic {
          } // if
          file->cd();
          mTree = new TTree(treeName.c_str(), "PYTHIA 6 events");
-         std::cout << factory->EventName().c_str() << std::endl;
          mFactory->Branch(*mTree, branchName);
       } // try
       catch(std::exception& e) {

@@ -67,7 +67,6 @@ namespace hadronic {
    }
    TBranch* Pythia6EventFactory::Branch(TTree& tree, const std::string& name) {
       EventPythiaPP* event(NULL);
-      std::cout << EventName() << std::endl;
       TBranch* branch =
          tree.Branch(name.c_str(), EventName().c_str(), &event, 32000, 99);
       tree.ResetBranchAddress(branch);
