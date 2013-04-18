@@ -133,6 +133,12 @@ namespace Smear {
        Set which particle is the scattered lepton.
       */
       virtual void SetScattered(int);
+      
+      /**
+       Prints the attributes of this event to standard output.
+       Prints event-wise kinematic values, and all tracks in the event.
+      */
+      virtual void Print(Option_t* = "") const;
    protected:
       
       Int_t nTracks; ///< Number of particles (intermediate + final)
@@ -154,10 +160,10 @@ namespace Smear {
       return (u < particles.size() ? particles.at(u) : NULL);
    }
    inline const ParticleMCS* Event::BeamLepton() const {
-      return NULL;
+      return (particles.empty() ? NULL : particles.front());
    }
    inline const ParticleMCS* Event::BeamHadron() const {
-      return NULL;
+      return (particles.size() > 1 ? particles.at(1) : NULL);
    }
    inline const ParticleMCS* Event::ExchangeBoson() const {
       return NULL;

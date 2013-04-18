@@ -15,6 +15,7 @@
 #include "eicsmear/erhic/EventDjangoh.h"
 #include "eicsmear/erhic/EventDpmjet.h"
 #include "eicsmear/erhic/EventRapgap.h"
+#include "eicsmear/erhic/EventGmcTrans.h"
 #include "eicsmear/erhic/File.h"
 
 // All eRHIC code goes in the erhic namespace
@@ -284,8 +285,62 @@ namespace erhic {
       bytes += crossSectionError_.Write("crossSectionError");
       return bytes;
    }
-   
-   
+   LogReaderGmcTrans::LogReaderGmcTrans()
+   : mNEvents("")
+   , mCrossSection("") {
+   }
+   LogReaderGmcTrans::~LogReaderGmcTrans() {
+   }
+   LogReaderGmcTrans* LogReaderGmcTrans::Create() const {
+      return new LogReaderGmcTrans;
+   }
+   bool LogReaderGmcTrans::Extract(const std::string& filename) {
+      // Open the file, check for errors.
+      std::ifstream file(filename.c_str(), std::ios::in);
+      if(not file.is_open()) {
+         return false;
+      } // if
+      // The line with the number of generated events ends with this:
+      const std::string eventPattern("generated events (IEVGEN)");
+      // Thw line with the total cross section ends with this:
+      const std::string xsecPattern("total xsec in microbarns after selector");
+      // Read the file line-by-line, looking for the patterns.
+      std::stringstream sstream; // For splitting the string
+      std::string line;
+      while(file.good()) {
+         std::getline(file, line);
+         // Check for number-of-events pattern.
+         if(line.find(eventPattern) not_eq std::string::npos) {
+            // Found it, the number of events is the first word in the line.
+            std::string tmp;
+            sstream.str("");
+            sstream.clear();
+            sstream << line;
+            sstream >> tmp;
+            mNEvents.SetString(tmp.c_str());
+         } // if
+         // Check for total cross section pattern.
+         if(line.find(xsecPattern) not_eq std::string::npos) {
+            std::string tmp;
+            sstream.str("");
+            sstream.clear();
+            sstream << line;
+            sstream >> tmp;
+            mCrossSection.SetString(tmp.c_str());
+         } // if
+      } // while
+      return not(mNEvents.GetString().IsNull() or
+                 mCrossSection.GetString().IsNull());
+   }
+   Int_t LogReaderGmcTrans::Save() const {
+      return mNEvents.Write("nEvents") + mCrossSection.Write("crossSection");
+   }
+   Int_t LogReaderGmcTrans::GetNEvents() const {
+      return mNEvents.GetString().Atoi();
+   }
+   Double_t LogReaderGmcTrans::GetCrossSection() const {
+      return mCrossSection.GetString().Atof();
+   }
    LogReaderFactory& LogReaderFactory::GetInstance() {
       static LogReaderFactory theInstance;
       return theInstance;
@@ -422,6 +477,7 @@ namespace erhic {
                                         new LogReaderPepsi));
       prototypes_.insert(std::make_pair("djangoh",
                                         new LogReaderDjangoh));
+      prototypes_.insert(std::make_pair("gmctrans", new LogReaderGmcTrans));
    }
    
    LogReaderFactory::~LogReaderFactory() {
@@ -495,6 +551,9 @@ namespace erhic {
       else if(str.Contains("milou")) {
          file = GetFile("milou");
       } // ...else if
+      else if(str.Contains("gmctrans")) {
+         file = GetFile("gmctrans");
+      } // else if
       return file;
    }
    
@@ -511,6 +570,8 @@ namespace erhic {
                                         new File<EventPythia>()));
       prototypes_.insert(std::make_pair("rapgap",
                                         new File<EventRapgap>()));
+      prototypes_.insert(std::make_pair("gmctrans",
+                                        new File<EventGmcTrans>()));
    }
    
    FileFactory::~FileFactory() {

@@ -12,6 +12,9 @@
 #ifndef _ERHIC_EVENTMC_H_
 #define _ERHIC_EVENTMC_H_
 
+#include <vector>
+
+#include <TClonesArray.h>
 #include <TLorentzVector.h>
 
 #include "eicsmear/erhic/EventDis.h"
@@ -109,18 +112,23 @@ namespace erhic {
       virtual bool Parse(const std::string&) = 0;
       
       /**
-       Add a new track to the end of the track list.
-       The track must be allocated via new.
-       It is subsequently owned and deleted by the Event.
+       Add a copy of a track argument to the end of the track list.
        @param [in] Pointer to the track to add.
        */
       virtual void AddLast(ParticleMC* track);
       
       /**
        Resets event properties to defaults.
-       Clears particle list (freeing any allocated memory).
+       Does not clear particle list - use Clear() for that.
        */
       virtual void Reset();
+      
+      /**
+       Clears event contents.
+       Event properties are reset to defaults and track list
+       is deleted.
+       */
+      virtual void Clear(Option_t* = "");
       
       /**
        Sets the code describing the production process of this event.
@@ -184,9 +192,9 @@ namespace erhic {
       Double32_t ELeptonInNucl; ///< Incident lepton energy in the nuclear rest frame
       Double32_t ELeptonOutNucl; ///< Scattered lepton energy in the nuclear rest frame
       
-      std::vector<ParticleMC*> particles; ///< Particle list
-
-      ClassDef(EventMC, 1)
+      TClonesArray particles; ///< Particle list
+      
+      ClassDef(EventMC, 2)
    };
    
    inline ULong64_t EventMC::GetN() const {
@@ -198,15 +206,25 @@ namespace erhic {
    }
    
    inline UInt_t EventMC::GetNTracks() const {
-      return particles.size();
+      return particles.GetEntries();
    }
    
    inline const ParticleMC* EventMC::GetTrack(UInt_t u) const {
-      return (u < particles.size() ? particles.at(u) : NULL);
+      if(u < (UInt_t)particles.GetEntries()) {
+         return dynamic_cast<ParticleMC*>(particles.At(u));
+      } // if
+      else {
+         return NULL;
+      } // else
    }
    
    inline ParticleMC* EventMC::GetTrack(UInt_t u) {
-      return (u < particles.size() ? particles.at(u) : NULL);
+      if(u < (UInt_t)particles.GetEntries()) {
+         return dynamic_cast<ParticleMC*>(particles.At(u));
+      } // if
+      else {
+         return NULL;
+      } // else
    }
    
    inline void EventMC::SetProcess(int code) {
@@ -220,56 +238,6 @@ namespace erhic {
    inline void EventMC::SetNTracks(int n) {
       nTracks = n;
    }
-   
-#if 0
-   /**
-    Utiltiy methods for analysing the final-state particles of an event.
-    */
-   template<class T>
-   class EventMCFinalState {
-      
-   public:
-      
-      typedef T Type;
-      typedef std::vector<const T*> ParticlePtrList;
-      
-      /**
-       Returns all the final state particles of this event
-       i.e. those with status == 1.
-       The returned pointers are those from the event (i.e. not copies)
-       so the event must remain in existence while the particles are
-       required.
-       */
-      ParticlePtrList FinalState(const ::erhic::VirtualEvent<Type>&) const;
-      
-      /**
-       Yields all particles that belong to the hadronic final state.
-       This is the same as the result of FinalState(), minus the scattered
-       beam lepton.
-       The returned pointers are those from the event (i.e. not copies)
-       so the event must remain in existence while the particles are
-       required.
-       */
-      ParticlePtrList HadronicFinalState(const ::erhic::VirtualEvent<Type>&) const;
-      
-      /**
-       Returns the total momentum of the final state.
-       */
-      TLorentzVector FinalStateMomentum(const ::erhic::VirtualEvent<Type>&) const;
-      
-      /**
-       Returns the total momentum of the hadronic final state.
-       */
-      TLorentzVector HadronicFinalStateMomentum(const ::erhic::VirtualEvent<Type>&) const;
-      
-      /**
-       Returns the total charge of the final state in units of e
-       */
-      Double_t FinalStateCharge(const ::erhic::VirtualEvent<Type>&) const;
-      
-   };
-#endif
-   
    
    /**
     Wrapper for getting tree from file and event from tree.

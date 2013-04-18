@@ -234,30 +234,25 @@ namespace erhic {
       virtual TLorentzVector Get4VectorInHadronBosonFrame() const;
       
       /**
-       Returns the invariant mass of the particle.
-       */
-      virtual Double_t GetGetM() const;
-      
-      /**
        Returns the energy of the particle in the lab frame.
        */
       virtual Double_t GetE() const;
       
-//      virtual void SetE(Double_t);
+      virtual void SetE(Double_t);
       
-//      virtual void SetP(Double_t);
+      virtual void SetM(Double_t);
       
-//      virtual void SetPt(Double_t);
+      virtual void SetP(Double_t);
       
-//      virtual void SetPz(Double_t);
+      virtual void SetPt(Double_t);
       
-//      virtual void SetPhi(Double_t);
+      virtual void SetPz(Double_t);
       
-//      virtual void SetTheta(Double_t);
+      virtual void SetPhi(Double_t);
       
-//      virtual void SetId(Int_t);
+      virtual void SetTheta(Double_t);
       
-//      virtual void SetStatus(UShort_t);
+      virtual void SetStatus(UShort_t);
       
       /**
        Returns the ID of the particle.
@@ -496,45 +491,41 @@ namespace erhic {
       return ldaughter - daughter + 1;
    }
    
-   inline Double_t ParticleMC::GetGetM() const {
-      return GetM();
-   }
-   
    inline Double_t ParticleMC::GetE() const {
       return E;
    }
    
-//   inline void ParticleMC::SetE(Double_t e) {
-//      E = e;
-//   }
+   inline void ParticleMC::SetE(Double_t e) {
+      E = e;
+   }
    
-//   inline void ParticleMC::SetP(Double_t momentum) {
-//      p = momentum;
-//   }
+   inline void ParticleMC::SetM(Double_t mass) {
+      m = mass;
+   }
    
-//   inline void ParticleMC::SetPt(Double_t momentum) {
-//      pt = momentum;
-//   }
+   inline void ParticleMC::SetP(Double_t momentum) {
+      p = momentum;
+   }
    
-//   inline void ParticleMC::SetPz(Double_t momentum) {
-//      pz = momentum;
-//   }
+   inline void ParticleMC::SetPt(Double_t momentum) {
+      pt = momentum;
+   }
    
-//   inline void ParticleMC::SetPhi(Double_t value) {
-//      phi = value;
-//   }
+   inline void ParticleMC::SetPz(Double_t momentum) {
+      pz = momentum;
+   }
    
-//   inline void ParticleMC::SetTheta(Double_t value) {
-//      theta = value;
-//   }
+   inline void ParticleMC::SetPhi(Double_t value) {
+      phi = value;
+   }
    
-//   inline void ParticleMC::SetId(Int_t theId) {
-//      id = theId;
-//   }
+   inline void ParticleMC::SetTheta(Double_t value) {
+      theta = value;
+   }
    
-//   inline void ParticleMC::SetStatus(UShort_t status) {
-//      KS = status;
-//   }
+   inline void ParticleMC::SetStatus(UShort_t status) {
+      KS = status;
+   }
    
 } // namespace erhic
 

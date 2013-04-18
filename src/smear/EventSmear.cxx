@@ -1,5 +1,7 @@
 #include "eicsmear/smear/EventSmear.h"
 
+#include <iostream>
+
 namespace Smear {
 
    Event::Event()
@@ -63,5 +65,17 @@ namespace Smear {
       if(index >= 0) {
          mScatteredIndex = index;
       } // if
+   }
+   void Event::Print(Option_t* /* unused */) const {
+      using namespace std;
+      cout <<
+      "x:  " << GetX() << endl <<
+      "Q2: " << GetQ2() << endl <<
+      "y:  " << GetY() << endl;
+      for(unsigned i(0); i < GetNTracks(); ++i) {
+         if(GetTrack(i)) {
+            GetTrack(i)->Print();
+         } // if
+      } // for
    }
 } // namespace erhic

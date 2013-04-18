@@ -30,8 +30,9 @@
 #include "eicsmear/smear/EventDisFactory.h"
 #include "eicsmear/smear/ParticleMCS.h"
 #include "eicsmear/smear/Smear.h"
+#ifdef WITH_PYTHIA6
 #include "eicsmear/hadronic/EventSmear.h"
-
+#endif
 /**
  Smear nEvents events from the TTree named EICTree in the named input file,
  using the smearing definitions in the Detector.
@@ -60,9 +61,11 @@ int SmearTree(const Smear::Detector& detector, const TString& inFileName,
    if(branchClass.InheritsFrom("erhic::EventDis")) {
       builder = new Smear::EventDisFactory(detector, *(mcTree->GetBranch("event")));
    } // if
+#ifdef WITH_PYTHIA6
    else if(branchClass.InheritsFrom("erhic::hadronic::EventMC")) {
       builder = new Smear::HadronicEventBuilder(detector, *(mcTree->GetBranch("event")));
    } // else if
+#endif
    else {
       std::cerr << branchClass.GetName() << " is not supported for smearing" <<
       std::endl;

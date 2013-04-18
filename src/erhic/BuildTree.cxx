@@ -54,8 +54,13 @@ BuildTree(const TString& inputFileName,
    forester.SetMaxNEvents(maxEvent);
    forester.SetMessageInterval(10000);
    forester.SetBeVerbose(true);
+   forester.SetBranchName("event");
    
    Long64_t result = forester.Plant(); // Plant that tree!
+   if(result not_eq 0) {
+      std::cerr << "Tree building failed" << std::endl;
+      return result;
+   } // if
    
    // Search the log file for information.
    // Use the provided log file name if there is one, otherwise attempt
@@ -73,9 +78,12 @@ BuildTree(const TString& inputFileName,
       TFile rootFile(outName, "UPDATE");
       erhic::LogReader* reader =
          forester.GetFileType()->CreateLogReader();
-      bool wasRead = (reader ? reader->Extract(logFile) : false);
-      if(wasRead) {
-         reader->Save();
+      if(reader) {
+         bool wasRead = (reader ? reader->Extract(logFile) : false);
+         if(wasRead) {
+            reader->Save();
+         } // if
+         delete reader;
       } // if
    } // if
    

@@ -140,7 +140,17 @@ namespace Smear {
       
       virtual void SetTheta(Double_t);
       
+      virtual void SetId(Int_t);
+      
+      virtual void SetStatus(Int_t);
+      
       virtual UShort_t GetParentIndex() const { return 0; }
+      
+      /**
+       Prints the attributes of this particle to standard output.
+       The output format is "status id px py pz E".
+      */
+      virtual void Print(Option_t* = "") const;
 //   protected:
       
       UShort_t   status;      ///< Status code
@@ -183,10 +193,6 @@ namespace Smear {
    
    inline Double_t ParticleMCS::GetPhi() const { return phi; }
    
-   inline Double_t ParticleMCS::GetRapidity() const { return 0.; }
-   
-   inline Double_t ParticleMCS::GetEta() const { return 0.; }
- 
    inline UShort_t ParticleMCS::GetStatus() const { return status; }
 
    inline void ParticleMCS::SetE(Double_t e) { E = e; }
@@ -200,6 +206,10 @@ namespace Smear {
    inline void ParticleMCS::SetPhi(Double_t value) { phi = value; }
    
    inline void ParticleMCS::SetTheta(Double_t value) { theta = value; }
+
+   inline void ParticleMCS::SetId(Int_t i) { id = i; }
+
+   inline void ParticleMCS::SetStatus(Int_t i) { status = i; }
    
    inline erhic::Pid ParticleMCS::Id() const { return ::erhic::Pid(id); }
    

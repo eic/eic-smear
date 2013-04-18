@@ -105,12 +105,12 @@ namespace erhic {
          std::auto_ptr<ParticleMC> particle = builder.Create(*p);
          particle->SetIndex(i + 1);
          particle->SetEvent(event.get());
-         event->AddLast(particle.release());
+         event->AddLast(particle.get());
       } // for
       // Compute derived event kinematics
       DisKinematics* nm = LeptonKinematicsComputer(*event).Calculate();
-      DisKinematics* jb = JacquetBlondelComputer(*event, NULL).Calculate();
-      DisKinematics* da = DoubleAngleComputer(*event, NULL).Calculate();
+      DisKinematics* jb = JacquetBlondelComputer(*event).Calculate();
+      DisKinematics* da = DoubleAngleComputer(*event).Calculate();
       if(nm) {
          event->SetLeptonKinematics(*nm);
       } // if

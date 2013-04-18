@@ -122,7 +122,13 @@ namespace Smear {
 
       /** Select the class(es) of particles to accept */
 		void SetGenre(int);
-
+      
+      /** Select the charges of particles to accept. */
+      void SetCharge(ECharge);
+      
+      /** Returns the charge of particles to accept. */
+      ECharge GetCharge() const;
+      
 		/**
 		 Add a particle type to the list of particles to be smeared.
        If you never add anything, the device will
@@ -144,6 +150,7 @@ namespace Smear {
    protected:
 
 		int mGenre;
+      ECharge mCharge; // Particle charges accepted (neutral, charged or all)
 		std::vector<Zone> mZones;
 		std::set<int> mParticles;
 
@@ -156,6 +163,10 @@ namespace Smear {
 
    inline Int_t Acceptance::GetGenre() const {
       return mGenre;
+   }
+   
+   inline ECharge Acceptance::GetCharge() const {
+      return mCharge;
    }
 } // namespace Smear
 

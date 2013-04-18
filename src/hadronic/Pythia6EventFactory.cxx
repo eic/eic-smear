@@ -48,10 +48,9 @@ namespace hadronic {
       // Populate particle list
       while((mc = dynamic_cast<TMCParticle*>(iter.Next()))) {
          if(mc) {
-            ParticleMC* p = new ParticleMC(*mc);
+            std::auto_ptr<ParticleMC> p(new ParticleMC(*mc));
             p->SetParentIndex(mc->GetParent());
-            //            p->SetXFeynman(2. * p->GetPz() / event->GetCentreOfMassEnergy());
-            event->Add(p);
+            event->Add(p.get());
          } // if
       } // while
         // Test against filter and exit loop if the event passes the filter.
@@ -68,7 +67,6 @@ namespace hadronic {
    }
    TBranch* Pythia6EventFactory::Branch(TTree& tree, const std::string& name) {
       EventPythiaPP* event(NULL);
-      std::cout << EventName() << std::endl;
       TBranch* branch =
          tree.Branch(name.c_str(), EventName().c_str(), &event, 32000, 99);
       tree.ResetBranchAddress(branch);

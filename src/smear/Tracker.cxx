@@ -31,7 +31,8 @@ namespace Smear {
 
    Tracker::Tracker(double magneticField, double nRadiationLengths,
                     double resolution)
-   : mMagField(magneticField)
+   : mFactor(720) // Assume no vertex constraint.
+   , mMagField(magneticField)
    , mNRadLengths(nRadiationLengths)
    , mSigmaRPhi(resolution) {
    }
@@ -43,23 +44,29 @@ namespace Smear {
                                        const erhic::VirtualParticle& p) const {
       // Technically should be a factor of particle charge in the numerator
       // but this is effectively always one.
-      double val = 0.0136 / 0.3 * p.GetP() * sqrt(mNRadLengths) / L(p) /
-             p.Get4Vector().Beta() / mMagField;
-             if(TMath::IsNaN(val)) {
-             std::cerr << "MS nan!" << std::endl;
-             } // if
-             return val;
+      double val = 0.016 / 0.3 * p.GetP() * sqrt(mNRadLengths) / LPrime(p) /
+         p.Get4Vector().Beta() / mMagField;
+      if(TMath::IsNaN(val)) {
+         std::cerr << "MS nan!" << std::endl;
+      } // if
+      return val;
    }
 
    double Tracker::IntrinsicContribution(
                       const erhic::VirtualParticle& p) const {
-      double val = sqrt( 720.*pow(NPoints(p), 3.) ) * 0.3 * pow(p.GetP(), 2.) 
-             * mSigmaRPhi / mMagField / pow(LPrime(p), 2.) 
-             / sqrt( (NPoints(p)-1)*(NPoints(p)+1)*(NPoints(p)+2)*(NPoints(p)+3));
-             if(TMath::IsNaN(val)) {
-             std::cerr << "Intrinsic nan!" << std::endl;
-             } // if
-             return val;
+      // The factor
+      //    sqrt(720 * N^3 / ((N-1)(N+1)(N+2)(N+3)))
+      // is a more exact version of the factor
+      //    sqrt(720 / (N+5))
+      // The constant factor in the sqrt depends on whether there is
+      // a vertex constraint assumed.
+      double val = sqrt(mFactor * pow(NPoints(p), 3.)) / 0.3 * pow(p.GetP(), 2.)
+         * mSigmaRPhi / mMagField / pow(LPrime(p), 2.)
+         / sqrt((NPoints(p)-1)*(NPoints(p)+1)*(NPoints(p)+2)*(NPoints(p)+3));
+      if(TMath::IsNaN(val)) {
+         std::cerr << "Intrinsic nan!" << std::endl;
+      } // if
+      return val;
    }
 
    double Tracker::Resolution(const erhic::VirtualParticle& p) const {
@@ -88,5 +95,14 @@ namespace Smear {
             std::cerr << "p nan" << std::endl;
          } // if
       } //if
+   }
+
+   void Tracker::SetVertexConstraint(bool constrain) {
+      if(constrain) {
+         mFactor = 320;
+      } // if
+      else {
+         mFactor = 720;
+      } // else
    }
 } // namespace Smear

@@ -85,6 +85,14 @@ namespace Smear {
       */
       virtual double GetThetaMax() const = 0;
 
+      /**
+       Set whether a vertex constraint should be used when calculating the
+       intrinsic resolution. Without it a factor of sqrt(720) is included in
+       the resolution; with it the factor is sqrt(320). By defuault no
+       constraint is assumed.
+      */
+      void SetVertexConstraint(bool);
+
    protected:
 
       /**
@@ -102,6 +110,8 @@ namespace Smear {
       */
       virtual double IntrinsicContribution(const erhic::VirtualParticle&) const;
 
+      Int_t mFactor; ///< Factor in intrinsic resolution calculation
+                     ///< dependent on vertex constraint.
       double mMagField; ///< Magnetic field strength in Tesla
       double mNRadLengths; ///< Number of radiation lengths (dimensionless)
       double mSigmaRPhi; ///< Point resolution

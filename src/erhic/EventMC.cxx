@@ -8,7 +8,9 @@
 #include "eicsmear/erhic/EventMC.h"
 
 #include <iostream>
+#include <list>
 
+#include <TCollection.h>
 #include <TDatabasePDG.h>
 #include <TDirectory.h>
 #include <TParticlePDG.h>
@@ -18,130 +20,91 @@
 #include "eicsmear/erhic/ParticleMC.h"
 
 namespace erhic {
-
+   
+   // We use these vectors/iterators a lot, so define
+   // some typedefs for convenience.
+   typedef std::vector<const VirtualParticle*> TrackVector;
+   typedef TrackVector::iterator TrackVectorIter;
+   typedef TrackVector::const_iterator TrackVectorCIter;
+   
    EventMC::EventMC()
    : number(-1)
    , process(-1)
    , nTracks(-1)
    , ELeptonInNucl(NAN)
-   , ELeptonOutNucl(NAN) {
+   , ELeptonOutNucl(NAN)
+   , particles("erhic::ParticleMC", 100) {
    }
 
    EventMC::~EventMC() {
-      for(unsigned i(0); i < particles.size(); ++i) {
-         if(GetTrack(i)) {
-            delete GetTrack(i);
-         } // if
-      } // for
-      particles.clear();
+      // No memory to clear. The TClonesArray takes care of the
+      // particles when it is destroyed.
    }
 
-   std::vector<const VirtualParticle*> EventMC::GetTracks() const {
-      std::vector<const VirtualParticle*> tracks;
-      for(unsigned i(0); i < GetNTracks(); ++i) {
-         tracks.push_back(GetTrack(i));
-      } // for
+   TrackVector EventMC::GetTracks() const {
+      TrackVector tracks;
+      TObject* object(NULL);
+      TIter next(&particles);
+      while((object = next())) {
+         tracks.push_back(dynamic_cast<ParticleMC*>(object));
+      } // while
       return tracks;
    }
 
-   // Get the particles that belong to the hadronic final state.
-   // The stored Particle* are pointers to the original particles in the event
-   // so don't delete them!
-   void
-   EventMC::HadronicFinalState(std::vector<const VirtualParticle*>& final) const {
-      
-      std::vector<const VirtualParticle*> vp;
-      ParticleIdentifier pi;
-      if(not pi.IdentifyBeams(*this, vp)) {
-         std::cerr <<
-         "EventMC::HadronicFinalState(): failed to find all beams"
-         << std::endl;
-      } // if
-      
-      FinalState(final);
-//      std::cout << "\t" << final.size() << std::endl;
-      
-      typedef std::vector<const VirtualParticle*>::iterator Iter;
-      
-      // Find the scattered lepton, which we define as the first particle with
-      // the same species as the lepton beam
-      // TODO figure out a better way to specify the lepton pdg code
-      for(Iter i = final.begin(); i not_eq final.end(); ++i ) {
-         if(not *i) {
-            std::cerr << "NULL particle in array?!" << std::endl;
-            continue;
-         } // if
-         if(*i == vp.at(3)) {
-            final.erase(i);
-//            std::cout << "erased" << std::endl;
-            break;
-         } // if
-      } // for
-//      std::cout << "\t" << final.size() << std::endl;
+   void EventMC::HadronicFinalState(TrackVector& final_) const {
+      // This is simple but not very efficient.
+      // Copy vector to a list and use list::remove to get rid
+      // of the scattered lepton. Then copy this list back to
+      // the vector.
+      FinalState(final_);
+      std::list<const VirtualParticle*> plist(final_.begin(),
+                                              final_.end());
+      plist.remove(ScatteredLepton());
+      final_ = TrackVector(plist.begin(), plist.end());
    }
    
-   
    // Get the particles that belong to the hadronic final state.
    // The stored Particle* are pointers to the original particles in the event
    // so don't delete them!
-   void
-   EventMC::FinalState(std::vector<const VirtualParticle*>& final_ ) const {
-      
+   void EventMC::FinalState(TrackVector& final_ ) const {
       final_.clear();
-      
-      typedef std::vector<ParticleMC*>::const_iterator Iter;
-      
-      for(Iter i_ = particles.begin(); i_ not_eq particles.end(); ++i_ ) {
-         if(1 == (*i_)->GetStatus() ) {
-            final_.push_back(*i_);
+      TIter next(&particles);
+      ParticleMC* p(NULL);
+      while((p = dynamic_cast<ParticleMC*>(next()))) {
+         if(1 == p->GetStatus()) {
+            final_.push_back(p);
          } // if
-      } // for
+      } // while
    }
    
-   
-   TLorentzVector
-   EventMC::FinalStateMomentum() const {
-      
-      std::vector<const VirtualParticle*> final_;
+   TLorentzVector EventMC::FinalStateMomentum() const {
+      TrackVector final_;
       FinalState(final_ );
-      
-      typedef std::vector<const VirtualParticle*>::const_iterator Iter;
-      
       TLorentzVector mom;
-      
-      for(Iter i = final_.begin(); i not_eq final_.end(); ++i ) {
+      for(TrackVectorCIter i = final_.begin(); i not_eq final_.end(); ++i ) {
          mom += (*i)->Get4Vector();
       } // for
       
       return mom;
    }
    
-   
-   TLorentzVector
-   EventMC::HadronicFinalStateMomentum() const {
-      
-      std::vector<const VirtualParticle*> final_;
+   TLorentzVector EventMC::HadronicFinalStateMomentum() const {
+      TrackVector final_;
       HadronicFinalState(final_ );
-      
-      typedef std::vector<const VirtualParticle*>::const_iterator Iter;
-      
       TLorentzVector mom;
-      
-      for(Iter i = final_.begin(); i not_eq final_.end(); ++i ) {
+      for(TrackVectorCIter i = final_.begin(); i not_eq final_.end(); ++i ) {
          mom += (*i)->Get4Vector();
       } // for
       
       return mom;
    }
-   
    
    Double_t EventMC::FinalStateCharge() const {
-      std::vector<const VirtualParticle*> final_;
+      TrackVector final_;
       FinalState(final_);
-      typedef std::vector<const VirtualParticle*>::const_iterator Iter;
       Double_t charge(0);
       TDatabasePDG* pdg = TDatabasePDG::Instance();
-      for(Iter i = final_.begin(); i not_eq final_.end(); ++i) {
+      for(TrackVectorCIter i = final_.begin(); i not_eq final_.end(); ++i) {
          TParticlePDG* part = pdg->GetParticle((*i)->Id());
          if(part) {
             charge += part->Charge() / 3.;
@@ -153,40 +116,42 @@ namespace erhic {
       return charge;
    }
    
-   
    const ParticleMC* EventMC::BeamLepton() const {
-      return (particles.empty() ? NULL : GetTrack(0));
+      return GetTrack(0);
    }
-   
    
    const ParticleMC* EventMC::BeamHadron() const {
-      return (particles.size() > 1 ? GetTrack(1) : NULL);
+      return GetTrack(1);
    }
-   
    
    const ParticleMC* EventMC::ExchangeBoson() const {
-      return (particles.size() > 3 ? GetTrack(3) : NULL);
+      return GetTrack(3);
    }
-   
    
    const ParticleMC* EventMC::ScatteredLepton() const {
-      return (particles.size() > 2 ? GetTrack(2) : NULL);
+      return GetTrack(2);
    }
-   
    
    void EventMC::Reset() {
       number = -1;
       process = -1;
       nTracks = -1;
       x = QSquared = y = WSquared = nu = ELeptonInNucl = ELeptonOutNucl = NAN;
-      particles.clear();
    }
    
+   void EventMC::Clear(Option_t*) {
+      Reset();
+      particles.Clear();
+   }
+   
+   void EventMC::AddLast(ParticleMC* track) {
+      new(particles[particles.GetEntries()]) ParticleMC(*track);
+      nTracks = particles.GetEntries();
+   }
    
    //
    // class Reader
    //
-   
    
    Reader::Reader(const std::string& treeName)
    : mEvent(NULL)
@@ -194,7 +159,6 @@ namespace erhic {
       if(gDirectory) gDirectory->GetObject(treeName.c_str(), mTree);
       if(mTree) mTree->SetBranchAddress("event", &mEvent);
    }
-   
    
    EventMC* Reader::Read(Long64_t i) {
       EventMC* event(NULL);
@@ -204,11 +168,4 @@ namespace erhic {
       } // if
       return event;
    }
-   
-   
-   void EventMC::AddLast(ParticleMC* track) {
-      particles.push_back(track);
-      nTracks = particles.size();
-   }
-   
 } // namespace erhic
