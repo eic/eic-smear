@@ -1,0 +1,14 @@
+Changes for 1.0.2:
+
+* Monte Carlo events now store tracks in a TClonesArray instead of vector.
+  This change requires old trees to be reproduced.
+* No longer attempts to build PYTHIA-dependent components if a PYTHIA library
+  is not provided to configure.
+* Bug fixes for some compilation and stability issues.
+* Improvements to kinematic calculations, including support for
+  charged-current events in Jacquet-Blondel method.
+* Modification to intrinsic resolution function used in generic tracking
+  formula.
+* Support for polarised Djangoh events.
+* Additional checks on integrity of ASCII input.
+* Other minor code cleanups and textual improvements.

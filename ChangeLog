@@ -1,0 +1,136 @@
+2013-04-18 21:12  tpb@RHIC.BNL.GOV
+
+	* [r129] README: Update to README
+
+2013-04-05 22:20  tpb@RHIC.BNL.GOV
+
+	* [r128] Makefile.am, cint/LinkDef.h, cint/LinkDefNoPythia.h,
+	  cint/LinkDefPythia.h, configure.ac,
+	  include/eicsmear/hadronic/EventMC.h, src/erhic/Pythia6.cxx,
+	  src/hadronic/EventMC.cxx, src/hadronic/Pythia6EventFactory.cxx,
+	  src/smear/SmearTree.cxx: Change makefile to properly skip
+	  pythia-dependent parts if no pythia
+	  library is provided.
+	  
+	  Fix crashes with hadronic event class by using TClonesArray.
+
+2013-04-03 22:26  tpb@RHIC.BNL.GOV
+
+	* [r127] include/eicsmear/smear/Smear.h, src/erhic/Kinematics.cxx,
+	  src/smear/EventDisFactory.cxx: Fixes to smearing for charged
+	  current events
+
+2013-03-25 20:31  tpb@RHIC.BNL.GOV
+
+	* [r126] cint/LinkDefNoPythia.h: Fixed namespace resolution for
+	  templated classes in LinkDefNoPythia.h
+
+2013-03-25 19:04  tpb@RHIC.BNL.GOV
+
+	* [r125] include/eicsmear/erhic/Forester.h, src/erhic/Forester.cxx:
+	  Fixed bug in Forester causing crashes when looking at files with
+	  TBrowser
+
+2013-03-19 16:18  tpb@RHIC.BNL.GOV
+
+	* [r124] include/eicsmear/erhic/Forester.h,
+	  include/eicsmear/erhic/Kinematics.h,
+	  include/eicsmear/erhic/ParticleIdentifier.h,
+	  src/erhic/BeamParticles.cxx, src/erhic/Kinematics.cxx: Code
+	  cleanup
+
+2013-03-19 16:18  tpb@RHIC.BNL.GOV
+
+	* [r123] include/eicsmear/erhic/Kinematics.h,
+	  include/eicsmear/smear/Detector.h, src/erhic/Kinematics.cxx,
+	  src/smear/Detector.cxx, src/smear/EventDisFactory.cxx: Fixed
+	  leptonic calculations in case of no smeared momentum
+
+2013-03-12 18:59  tpb@RHIC.BNL.GOV
+
+	* [r122] src/erhic/Kinematics.cxx: Fixed bug causing compilation
+	  error with some versions of g++
+
+2013-03-11 22:22  tpb@RHIC.BNL.GOV
+
+	* [r121] include/eicsmear/erhic/Kinematics.h,
+	  include/eicsmear/smear/Acceptance.h,
+	  include/eicsmear/smear/Smear.h, src/erhic/Kinematics.cxx,
+	  src/smear/Acceptance.cxx: Made improvements to hadronic kinematic
+	  calculations to make more
+	  realistic use of information in smeared events.
+
+2013-03-07 22:25  tpb@RHIC.BNL.GOV
+
+	* [r120] include/eicsmear/smear/Detector.h, src/smear/Detector.cxx:
+	  Clean up Detector smearing function and add a separate Detector
+	  acceptance function
+
+2013-03-06 21:23  tpb@RHIC.BNL.GOV
+
+	* [r119] src/smear/ParticleID.cxx, src/smear/ParticleMCS.cxx: Fixed
+	  bug in parsing text file for ParticleID
+
+2013-03-06 20:40  tpb@RHIC.BNL.GOV
+
+	* [r118] include/eicsmear/erhic/EventDjangoh.h,
+	  include/eicsmear/erhic/ParticleIdentifier.h,
+	  src/erhic/EventFactory.cxx, src/erhic/ParticleIdentifier.cxx:
+	  Fixed identification of scattered lepton for charged current
+	  events and refined file processing
+
+2013-02-25 15:41  tpb@RHIC.BNL.GOV
+
+	* [r117] src/erhic/BuildTree.cxx, src/erhic/EventFactory.cxx,
+	  src/erhic/Forester.cxx, src/erhic/ParticleMC.cxx: Added checks
+	  for bad input when parsing text files
+
+2013-02-20 01:18  tpb@RHIC.BNL.GOV
+
+	* [r116] include/eicsmear/erhic/EventDjangoh.h,
+	  include/eicsmear/erhic/Forester.h, src/erhic/EventDjangoh.cxx,
+	  src/erhic/Forester.cxx: Added code for polarised Djangoh events
+
+2013-01-17 23:44  tpb@RHIC.BNL.GOV
+
+	* [r115] include/eicsmear/erhic/Forester.h, src/erhic/Forester.cxx:
+	  Deleted obselete code from Forester
+
+2013-01-17 23:22  tpb@RHIC.BNL.GOV
+
+	* [r114] src/erhic/Forester.cxx, src/erhic/Pythia6EventBuilder.cxx,
+	  src/hadronic/Pythia6EventFactory.cxx: Updated PYTHIA event
+	  factories to reflect use of TClonesArray for event track list
+
+2013-01-17 23:07  tpb@RHIC.BNL.GOV
+
+	* [r113] src/erhic/BuildTree.cxx, src/erhic/EventFactory.cxx,
+	  src/erhic/Forester.cxx: Found and fixed some memory leaks during
+	  tree-building, and fixed hard-coded output branch name in
+	  Forester
+
+2013-01-11 19:31  tpb@RHIC.BNL.GOV
+
+	* [r112] include/eicsmear/erhic/EventMC.h: Incremented EventMC
+	  class version in ClassDef
+
+2013-01-11 19:24  tpb@RHIC.BNL.GOV
+
+	* [r111] include/eicsmear/erhic/EventMC.h,
+	  include/eicsmear/erhic/EventPythia.h, src/erhic/EventFactory.cxx,
+	  src/erhic/EventMC.cxx, src/erhic/EventPythia.cxx: Changed Monte
+	  Carlo event track list from a vector to TClonesArray to allow
+	  easier browsing in ROOT. Updated PYTHIA event to correctly locate
+	  scattered lepton.
+
+2012-11-29 21:05  tpb@RHIC.BNL.GOV
+
+	* [r108] include/eicsmear/smear/Tracker.h, src/smear/Tracker.cxx:
+	  Added option for vertex contraint to generic tracking formula
+
+2012-11-29 17:16  tpb@RHIC.BNL.GOV
+
+	* [r107] src/erhic/Kinematics.cxx, src/smear/Tracker.cxx: In
+	  generic tracking formulae, fixed error in intrinsic resolution
+	  and added 1/cos(angle) dependence to multiple scattering term
+
