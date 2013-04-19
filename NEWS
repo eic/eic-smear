@@ -1,0 +1,35 @@
+Changes for 1.0.2:
+
+* Monte Carlo events now store tracks in a TClonesArray instead of vector.
+  This change requires old trees to be reproduced.
+* No longer attempts to build PYTHIA-dependent components if a PYTHIA library
+  is not provided to configure.
+* Bug fixes for some compilation and stability issues.
+* Improvements to kinematic calculations, including support for
+  charged-current events in Jacquet-Blondel method.
+* Modification to intrinsic resolution function used in generic tracking
+  formula.
+* Support for polarised Djangoh events.
+* Additional checks on integrity of ASCII input.
+* Other minor code cleanups and textual improvements.
+
+Changes for 1.0.1:
+
+* Support for gmc_trans events.
+* Support for DPMJet events.
+* Support for hadronic events (p + p etc.).
+* Added PerfectID class to smearing code allowing exact duplication of
+  particle ID.
+* Added external utility to convert tppmc output to eic-smear format
+  compatible with smearing.
+* Added specialised PlanerTracker and RadialTracker classes implementing
+  generic momentum resolution functions.
+* Modifications to hadronic kinematic calculations.
+* Improvements to configure/make, including corrections to configure options.
+* Significant code restructuring, especially in smearing portions, including
+  file structure, class names and additional methods.
+* Other bug fixes, stability improvements and code cleanup.
+
+Changes for 1.0.0:
+
+* Initial release.
