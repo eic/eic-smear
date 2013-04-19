@@ -43,6 +43,8 @@ namespace Smear {
        input branch between calls to Create().
       */
       virtual Event* Create();
+
+      erhic::VirtualEvent* GetEvBufferPtr() { return mMcEvent;} ;
    protected:
       Detector mDetector;
       erhic::EventDis* mMcEvent;

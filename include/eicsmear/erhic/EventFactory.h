@@ -38,6 +38,8 @@ namespace erhic {
       
       virtual VirtualEvent* Create() = 0;
       
+      virtual VirtualEvent* GetEvBufferPtr() { return 0;} ;
+
       /**
        Returns a string with the full (including namespace) class name
        of the event type produced.

@@ -131,6 +131,13 @@ namespace erhic {
           Sets the Feynman-x
           */
           virtual void SetXFeynman(double);
+         
+         /**
+          Sets the four-momentum of the particle.
+          Changes are propagated to derived quantities.
+          */
+         virtual void Set4Vector(const TLorentzVector&);
+         
       protected:
          UShort_t    KS;				///< Status code: see PYTHIA manual
          UShort_t    orig;          ///< I of parent particle

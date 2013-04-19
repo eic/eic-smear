@@ -118,6 +118,12 @@ namespace erhic {
       
 //      virtual void SetTheta(Double_t) = 0;
       
+      /**
+       Sets the four-momentum of the particle.
+       Changes are propagated to derived quantities.
+       */
+      virtual void Set4Vector(const TLorentzVector&) = 0;
+
       ClassDef(VirtualParticle, 1)
    };
    

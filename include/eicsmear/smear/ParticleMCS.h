@@ -140,6 +140,9 @@ namespace Smear {
       
       virtual void SetTheta(Double_t);
       
+      // Dummy one; just need to compile;
+      void Set4Vector(const TLorentzVector&) {};
+
       virtual void SetId(Int_t);
       
       virtual void SetStatus(Int_t);

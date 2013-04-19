@@ -73,7 +73,7 @@ namespace hadronic {
    , m(ep.M())
    , pt(ep.Pt())
    , theta(ep.Theta())
-   , phi(ep.Phi())
+   , phi(TVector2::Phi_0_2pi(ep.Phi()))
    , rapidity(ep.Rapidity())
    , eta(ep.PseudoRapidity())
    , xFeynman(NAN)
@@ -81,8 +81,23 @@ namespace hadronic {
    , yv(v.Y())
    , zv(v.Z()) {
    }
+   
    void ParticleMC::SetParentIndex(UShort_t i) {
       orig = i;
+   }
+
+   void ParticleMC::Set4Vector(const TLorentzVector& v) {
+      E = v.Energy();
+      px = v.Px();
+      py = v.Py();
+      pz = v.Pz();
+      p = v.P();
+      m = v.M();
+      pt = v.Pt();
+      theta = v.Theta();
+      phi = TVector2::Phi_0_2pi(v.Phi());
+      rapidity = v.Rapidity();
+      eta = v.PseudoRapidity();
    }
 } // namespace hadronic
 } // namespace erhic

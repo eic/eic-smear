@@ -323,8 +323,10 @@ namespace erhic {
        By default this is zero, indication zero or one children. */
       virtual void SetChildNIndex(int i) { ldaughter = i; }
       
-      /** Sets the four-momentum of the particle.
-       Changes are propagated to derived quantities. */
+      /**
+       Sets the four-momentum of the particle.
+       Changes are propagated to derived quantities.
+       */
       virtual void Set4Vector(const TLorentzVector&);
       
       /** Sets the origin coordinates */
