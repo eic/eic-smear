@@ -138,6 +138,9 @@ namespace erhic {
           */
          virtual void Set4Vector(const TLorentzVector&);
          
+         /** Sets the origin coordinates */
+         virtual void SetVertex(const TVector3&);
+         
       protected:
          UShort_t    KS;				///< Status code: see PYTHIA manual
          UShort_t    orig;          ///< I of parent particle
@@ -215,6 +218,11 @@ namespace erhic {
       }
       inline void ParticleMC::SetXFeynman(double xf) {
          xFeynman = xf;
+      }
+      inline void ParticleMC::SetVertex(const TVector3& v) {
+         xv = v.x();
+         yv = v.y();
+         zv = v.z();
       }
    } // namespace hadronic
 } // namespace erhic

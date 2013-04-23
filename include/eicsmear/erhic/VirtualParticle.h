@@ -106,6 +106,10 @@ namespace erhic {
       virtual UShort_t GetStatus() const = 0;
 
       virtual UShort_t GetParentIndex() const = 0;
+      
+      /** Sets the origin coordinates */
+      virtual void SetVertex(const TVector3&) = 0;
+      
 //      virtual void SetE(Double_t) = 0;
       
 //      virtual void SetP(Double_t) = 0;
