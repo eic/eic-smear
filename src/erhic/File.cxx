@@ -170,20 +170,46 @@ namespace erhic {
       if(not ifs.is_open()) return false;
       
       std::string line;
-      const std::string searchPattern("Total cross section is now    SIGTOT =");
+      // There are two places we need to look for cross sections.
+      // As standard, look for the line starting with
+      //   Cross-section from HERACLES
+      // Sometimes there will be an additional line starting
+      //   Total cross section is now    SIGTOT =
+      // *If* this line is present we take the cross section from there,
+      // otherwise use the 'HERACLES' line, which is always present.
+      // Both lines give cross section in pb.
+      const std::string xsecPattern("Cross-section from HERACLES =");
+      const std::string xsecAltPattern("Total cross section is now    SIGTOT =");
       std::string normalisation;
       std::string nEvents;
       
       while(ifs.good()) {
          std::getline(ifs, line);
-         size_t position = line.find(searchPattern);
+         // Look for normal cross section line, unless the cross section
+         // was already set (via the alternative line, see below).
+         size_t position = line.find(xsecPattern);
+         if(position not_eq std::string::npos and normalisation.empty()) {
+            // We found the line.
+            // Erase the text preceding the cross section.
+            std::stringstream ss;
+            line.erase(0, position + xsecPattern.length());
+            ss << line;
+            double value;
+            // Divide by 1,000,000 to go from pb to microbarn
+            ss >> value;
+            value /= 1.e6;
+            ss.str("");
+            ss.clear();
+            ss << value;
+            ss >> normalisation;
+         } // if
+         position = line.find(xsecAltPattern);
+         // Look for alternative cross section.
          if(position not_eq std::string::npos) {
             // We found the line.
             // Erase the text preceding the cross section.
             std::stringstream ss;
-            line.erase(0, position + searchPattern.length());
-            ss.str("");
-            ss.clear();
+            line.erase(0, position + xsecAltPattern.length());
             ss << line;
             double value;
             // Divide by 1,000,000 to go from pb to microbarn
