@@ -27,7 +27,8 @@ namespace erhic {
        false in case of an error.
        */
       virtual bool Parse(const std::string&);
-      
+      virtual const ParticleMC* ExchangeBoson() const;
+      virtual const ParticleMC* ScatteredLepton() const;
       Int_t nucleon; ///< PDG code of the hadron beam
       Int_t struckparton; ///< Parton hit in the target LST(25)
       Int_t partontrck; ///< Number of parton track LST(26)
@@ -70,6 +71,19 @@ namespace erhic {
       
       ClassDef(erhic::EventPepsi, 1 )
    };
+
+// DJANGOH gives particle output according to the LEPTO convention, whereby
+// the exchange boson comes before the scattered lepton. This is different
+// to the PYTHIA convention (lepton then boson), which is the default from
+// EventMC.
+inline const ParticleMC* EventPepsi::ExchangeBoson() const {
+   return GetTrack(2);
+}
+
+inline const ParticleMC* EventPepsi::ScatteredLepton() const {
+   return GetTrack(3);
+}
+
 } // namespace erhic
 
 #endif
