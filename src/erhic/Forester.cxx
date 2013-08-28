@@ -89,20 +89,29 @@ Long64_t Forester::Plant() {
             delete mEvent;
             mEvent = NULL;
          } // if
-         mEvent = mFactory->Create();
-         // Fill the tree
-         if(mEvent) {
-            mTree->Fill();
-            if(GetMaxNEvents() > 0 and i >= GetMaxNEvents()) {
-               SetMustQuit(true); // Hit max number of events, so quit
+         // Catch exceptions from event builder here so we don't break
+         // out of the whole tree building loop for a single bad event.
+         try {
+            mEvent = mFactory->Create();
+            // Fill the tree
+            if(mEvent) {
+               mTree->Fill();
+               if(GetMaxNEvents() > 0 and i >= GetMaxNEvents()) {
+                  SetMustQuit(true); // Hit max number of events, so quit
+               } // if
+               mStatus.ModifyEventCount(1);
+               mStatus.ModifyParticleCount(mEvent->GetNTracks());
+               // We must ResetBranchAddress before deleting the event.
             } // if
-            mStatus.ModifyEventCount(1);
-            mStatus.ModifyParticleCount(mEvent->GetNTracks());
-            // We must ResetBranchAddress before deleting the event.
-         } // if
-         else {
-            break;
-         } // else
+            else {
+               break;
+            } // else
+         } // try
+         catch(std::exception& e) {
+            std::cerr << "Caught exception in Forester::Plant(): "
+            << e.what() << std::endl;
+            std::cerr << "Event will be skipped..." << std::endl;
+         } // catch
       } // while
       Finish();
       return 0;

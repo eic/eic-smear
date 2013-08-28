@@ -33,37 +33,79 @@ bool EventFromAsciiFactory<T>::AtEndOfEvent() const {
           and mLine.find("finished") not_eq std::string::npos;
 }
 
+// Use this struct to automatically reset TProcessID object count.
+struct TProcessIdObjectCount {
+   // Initialse object with current TProcessID object count.
+   TProcessIdObjectCount() {
+      count = TProcessID::GetObjectCount();
+   }
+   // Restore object count to the value at initialisation.
+   // See example in $ROOTSYS/test/Event.cxx
+   // To save space in the table keeping track of all referenced objects
+   // we assume that our events do not address each other.
+   ~TProcessIdObjectCount() {
+      TProcessID::SetObjectCount(count);
+   }
+   int count;
+};
+
 template<typename T>
 T* EventFromAsciiFactory<T>::Create() {
-   // Save current object count
-   int objectNumber = TProcessID::GetObjectCount();
+   // Save current object count. Will reset it when this function returns.
+   TProcessIdObjectCount objectCount;
    mEvent.reset(new T);
    // We use this flag to check input doesn't end mid-event.
    // Initialised finished flag to "success" in case of no input.
    int finished(0);
+   std::string error;
+   // Read line-by-line until the stream is not good or we break out.
    while(std::getline(*mInput, mLine).good()) {
+      // Reached end-of-event marker
       if(AtEndOfEvent()) {
-         finished = FinishEvent(); // Zero upon success
-         break;
+         // If we built a good event (i.e. no errors reading strings)
+         // perform end-of-event calculations.
+         if(not error.empty()) {
+            throw std::runtime_error(error);
+         } // if
+         else {
+            finished = FinishEvent(); // 0 upon success
+            break;
+         } // else
       } // if
+      // '0' indicates the event header line
       else if('0' == getFirstNonBlank(mLine)) {
          // An event started, set finished flag to "unfinished".
          finished = -1;
          // Parse string and check for validity.
          if(not mEvent->Parse(mLine)) {
-            mEvent.reset(NULL);
-            throw std::runtime_error("Bad event input: " + mLine);
+            // Set error message based on bad event input.
+            // Don't break out of the loop yet, so that we continue reading
+            // lines until the end-of-event marker. That way we stay
+            // "aligned" with the input data ready for the next event.
+            error = "Bad event input: " + mLine;
+            //mEvent.reset(NULL);
          } // if
       } // else if
+      // Anything remaining other than a line of '=' is a particle line
       else if('=' not_eq getFirstNonBlank(mLine)) {
-         AddParticle(); // Will throw upon bad input
+         // Don't raise an exception for a failed track, as the event in
+         // general may be OK. AddParticle will print a message though.
+         if(not AddParticle()) {
+            error = "Bad particle input in event";
+         } // if
       } // else if
    } // if
    // Check for events that started but did not finish.
+   // We should have ended with an end-of-event marker, meaning the finished
+   // flag is set to zero. If not, the finished flag will be non-zero.
    if(finished not_eq 0) {
       mEvent.reset(NULL);
       throw std::runtime_error("Ended mid-event");
    } // if
+   // Return a NULL event *without* throwing an exception to indicate
+   // end-of-file. We shouldn't have hit eof if we have read a good event,
+   // as we won't have yet tried to read past the end (mLine will still be
+   // at the end-of-file marker line).
    if(mInput->eof()) {
       mEvent.reset(NULL);
    } // if
@@ -72,13 +114,12 @@ T* EventFromAsciiFactory<T>::Create() {
    // To save space in the table keeping track of all referenced objects
    // we assume that our events do not address each other. We reset the 
    // object count to what it was at the beginning of the event.
-   TProcessID::SetObjectCount(objectNumber);
+   //TProcessID::SetObjectCount(objectNumber);
    return mEvent.release();
 }
 
 template<typename T>
-Int_t
-EventFromAsciiFactory<T>::FinishEvent() {
+Int_t EventFromAsciiFactory<T>::FinishEvent() {
    std::auto_ptr<DisKinematics> nm(
       LeptonKinematicsComputer(*mEvent).Calculate());
    std::auto_ptr<DisKinematics> jb(
@@ -120,10 +161,18 @@ EventFromAsciiFactory<T>::FinishEvent() {
 
 template<typename T>
 bool EventFromAsciiFactory<T>::AddParticle() {
-   ParticleMC particle(mLine); // Throws if the string is bad
-   particle.SetEvent(mEvent.get());
-   mEvent->AddLast(&particle);
-   return true;
+   try {
+      if(mEvent.get()) {
+         ParticleMC particle(mLine); // Throws if the string is bad
+         particle.SetEvent(mEvent.get());
+         mEvent->AddLast(&particle);
+      } // if
+      return true;
+   } // try
+   catch(std::exception& error) {
+      std::cerr << "Exception building particle: " << error.what() << std::endl;
+      return false;
+   }
 }
 
 template<typename T>
