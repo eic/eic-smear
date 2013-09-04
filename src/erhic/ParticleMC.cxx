@@ -220,13 +220,49 @@ Bool_t ParticleMC::HasChild(Int_t pdg) const {
    return false;
 }
 
-TLorentzVector
-ParticleMC::Get4VectorInHadronBosonFrame() const {
-   double p_ = ptVsGamma / ::sin(ptVsGamma);
-   double e_ = ::sqrt(::pow(p_, 2.) + ::pow(m, 2.));
-   double px_ = ptVsGamma * ::cos(phiPrf);
-   double py_ = ptVsGamma * ::sin(phiPrf);
-   double pz_ = ptVsGamma / ::tan(thetaGamma);
+TLorentzVector ParticleMC::Get4VectorInHadronBosonFrame() const {
+   double p_(0.), e_(0.), px_(ptVsGamma), py_(0.), pz_(0.);
+   // Calculate mangitude of momentum from pT and polar angle in
+   // hadron-boson frame. If theta is ~parallel to the beam just set
+   // p to whatever pT is (not that it makes all that much sense).
+   if(thetaGamma > 1.e-6) {
+      p_ = ptVsGamma / sin(thetaGamma);
+   } // if
+   // Deal with virtual particles later
+   if(not (m < 0.)) {
+      e_ = sqrt(pow(p_, 2.) + pow(m, 2.));
+   } // else
+   // Calculate pZ from pT and theta, unless it's very close to the beam,
+   // in which case set it to p.
+   if(thetaGamma > 1.e-6) {
+      pz_ = ptVsGamma / tan(thetaGamma);
+   } // if
+   // Calculate px and py, unless a dummy phi value is present.
+   if(phiPrf > -100.) {
+      px_ = ptVsGamma * cos(phiPrf);
+      py_ = ptVsGamma * sin(phiPrf);
+   } // if
+   // If we ended up with no energy, it's likely ths is the exchange boson,
+   // as nothing will have happened above. If so, try to reference the event
+   // record to get the necessary information, as we don't have enough
+   // in the particle itself.
+   // Note that this appears not to work in a TTree as ROOT doesn't read
+   // the event when it reads the particle, though I'm not certain of the
+   // exact cause.
+   if(m < 0. and GetEvent()) {
+      if(GetEvent()->ExchangeBoson()) {
+         // Don't check if GetEvent()->ExchangeBoson() == this, in case this
+         // particle is a copy of the event track that isn't part of a copied
+         // event.
+         if(GetEvent()->ExchangeBoson()->GetIndex() == GetIndex()) {
+            // If it's the exchange boson just set E == nu.
+            e_ = GetEvent()->GetNu();
+            // Calculate p, careful about negative mass.
+               p_ = sqrt(pow(e_, 2.) + pow(m, 2.));
+               pz_ = p_;
+         } // if
+      } // if
+   } // if
    return TLorentzVector(px_, py_, pz_, e_);
 }
 

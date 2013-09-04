@@ -230,6 +230,12 @@ namespace erhic {
        e` is the scattered lepton momentum </LI>
        <LI> x is defined to complete the right-handed coordinate system </LI>
        </UL>
+       
+       \note Due to details of the implementation and how ROOT handles reading
+             events in a TTree, this function will not work for the exchange
+             boson when using a TTree::Draw (or similar) statement. It does
+             work for the exchange boson if reading events manually via
+             TTree::GetEntry.
        */
       virtual TLorentzVector Get4VectorInHadronBosonFrame() const;
       
