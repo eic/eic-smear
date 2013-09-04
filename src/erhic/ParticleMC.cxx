@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 #include <TLorentzRotation.h>
+#include <TParticlePDG.h>
 #include <TRotation.h>
 
 #include "eicsmear/erhic/EventBase.h"
@@ -126,9 +127,9 @@ void ParticleMC::ComputeDerivedQuantities() {
 void ParticleMC::ComputeEventDependentQuantities(EventMC& event) {
    try {
       // Get the beam hadon, beam lepton and exchange boson.
-      const TLorentzVector& hadron = event.GetTrack(1)->Get4Vector();
-      const TLorentzVector& lepton = event.GetTrack(2)->Get4Vector();
-      const TLorentzVector& boson = event.GetTrack(3)->Get4Vector();
+      const TLorentzVector& hadron = event.BeamHadron()->Get4Vector();
+      const TLorentzVector& lepton = event.ScatteredLepton()->Get4Vector();
+      const TLorentzVector& boson = event.ExchangeBoson()->Get4Vector();
       // Calculate z using the 4-vector definition,
       // so we don't care about frame of reference.
       z = hadron.Dot(Get4Vector()) / hadron.Dot(boson);
@@ -228,9 +229,15 @@ TLorentzVector ParticleMC::Get4VectorInHadronBosonFrame() const {
    if(thetaGamma > 1.e-6) {
       p_ = ptVsGamma / sin(thetaGamma);
    } // if
-   // Deal with virtual particles later
-   if(not (m < 0.)) {
+   // Deal with virtual particles later, so check if particle is off mass-shell
+   if(not(m < 0.)) {
       e_ = sqrt(pow(p_, 2.) + pow(m, 2.));
+   } // if
+   else {
+      e_ = sqrt(pow(p_, 2.) - pow(m, 2.));
+      if(TMath::IsNaN(e_)) {
+         e_ = 0.;
+      } // if
    } // else
    // Calculate pZ from pT and theta, unless it's very close to the beam,
    // in which case set it to p.
@@ -258,8 +265,8 @@ TLorentzVector ParticleMC::Get4VectorInHadronBosonFrame() const {
             // If it's the exchange boson just set E == nu.
             e_ = GetEvent()->GetNu();
             // Calculate p, careful about negative mass.
-               p_ = sqrt(pow(e_, 2.) + pow(m, 2.));
-               pz_ = p_;
+            p_ = sqrt(pow(e_, 2.) + pow(m, 2.));
+            pz_ = p_ * cos(thetaGamma);
          } // if
       } // if
    } // if
