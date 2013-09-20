@@ -1,57 +1,64 @@
 /**
- VirtualEvent.h
- 
  \file
- Declaration of class VirtualEvent.
+ Declaration of class erhic::VirtualEvent.
  
- \author TB
- \date 8/19/11
- \copyright 2011 BNL. All rights reserved.
+ \author    Thomas Burton
+ \date      2011-08-19
+ \copyright 2011 Brookhaven National Lab
  */
 
-#ifndef _ERHIC_EVENT_H_
-#define _ERHIC_EVENT_H_
-
-#include <vector>
+#ifndef INCLUDE_EICSMEAR_ERHIC_VIRTUALEVENT_H_
+#define INCLUDE_EICSMEAR_ERHIC_VIRTUALEVENT_H_
 
 #include <TObject.h>
 
+#include <vector>
+
 namespace erhic {
 
-   class VirtualParticle;
+class VirtualParticle;
 
-   /**
-    Abstract base class for a lepton-hadron event.
-    An "event" is defined here as a collection of tracks.
-    */
-   class VirtualEvent : public TObject {
-      
-   public:
+/**
+ \brief   Abstract base class for a physics event.
+ \details Defines an "event" simply as a collection of tracks.
+ */
+class VirtualEvent : public TObject {
+ public:
+  /**
+   Destructor
+   */
+  virtual ~VirtualEvent() { }
 
-      virtual ~VirtualEvent() { }
+  /**
+   Returns the nth track from the event.
+   
+   Indices run from 0 to (n-1).
+   */
+  virtual const VirtualParticle* GetTrack(UInt_t /* number */) const = 0;
 
-      /**
-       Returns the nth track from the event.
-       Indices run from 0 to (n-1).
-       */
-      virtual const VirtualParticle* GetTrack(UInt_t) const = 0;
-      
-      /**
-       Returns the nth track from the event.
-       Indices run from 0 to (n-1).
-       */
-      virtual VirtualParticle* GetTrack(UInt_t) = 0;
-      
-      /**
-       Returns the number of tracks in the event.
-       */
-      virtual UInt_t GetNTracks() const = 0;
+  /**
+   \overload
+   */
+  virtual VirtualParticle* GetTrack(UInt_t /*number*/) = 0;
 
-      typedef std::vector<const erhic::VirtualParticle*> ParticlePtrList;
-      virtual void HadronicFinalState(ParticlePtrList&) const { }
+  /**
+   Returns the number of tracks in the event.
+   */
+  virtual UInt_t GetNTracks() const = 0;
 
-      ClassDef(VirtualEvent, 1)
-   };
-} // namespace erhic
+  /**
+   typedef for a track pointer collection.
+   */
+  typedef std::vector<const erhic::VirtualParticle*> ParticlePtrList;
 
-#endif
+  /**
+   Populate a track list with the hadronic final-state.
+   */
+  virtual void HadronicFinalState(ParticlePtrList&) const { }
+
+  ClassDef(erhic::VirtualEvent, 1)
+};
+
+}  // namespace erhic
+
+#endif  // INCLUDE_EICSMEAR_ERHIC_VIRTUALEVENT_H_

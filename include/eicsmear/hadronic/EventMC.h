@@ -1,16 +1,14 @@
 /**
- Event.h
- 
  \file
- Declaration of class Event.
+ Declaration of class erhic::hadronic::Event.
  
- \author Thomas Burton 
- \date 5/2/12
- \copyright 2012 BNL. All rights reserved.
+ \author    Thomas Burton
+ \date      2012-05-02
+ \copyright 2012 Brookhaven National Lab
  */
 
-#ifndef _EICSMEAR_HADRONIC_EventMC_H_
-#define _EICSMEAR_HADRONIC_EventMC_H_
+#ifndef INCLUDE_EICSMEAR_HADRONIC_EVENTMC_H_
+#define INCLUDE_EICSMEAR_HADRONIC_EVENTMC_H_
 
 #include <vector>
 
@@ -20,7 +18,6 @@
 #include "eicsmear/erhic/VirtualEvent.h"
 
 namespace erhic {
-
 namespace hadronic {
 
 class ParticleMC;
@@ -30,54 +27,58 @@ class ParticleMC;
  Monte Carlo event.
  */
 class EventMC : public erhic::VirtualEvent {
-public:
-
-   /** Destructor */
-   virtual ~EventMC();
-
-   /** Constructor */
-   EventMC();
-
-   /**
-    Returns the nth track from the event.
-    Indices run from 0 to (n-1).
-    */
-   virtual const ParticleMC* GetTrack(UInt_t) const;
-
-   /**
-    Returns the nth track from the event.
-    Indices run from 0 to (n-1).
-    */
-   virtual ParticleMC* GetTrack(UInt_t);
-
-   /**
-    Returns the number of tracks in the event.
-    */
-   virtual UInt_t GetNTracks() const;
-
-   /**
-    Add a track to the list.
-    The track must be dynamically allocated and is owned by the event.
-    Returns the new list size.
+ public:
+  /**
+   Destructor.
    */
-   virtual UInt_t Add(ParticleMC*);
+  virtual ~EventMC();
 
-   /**
-    Returns the centre-of-mass energy of the event (GeV)
-    */
-   virtual Double_t GetCentreOfMassEnergy() const;
+  /**
+   Constructor.
+   */
+  EventMC();
 
-   virtual void Clear(Option_t* = "");
+  /**
+   Returns the nth track from the event.
+   Indices run from 0 to (n-1).
+   */
+  virtual const ParticleMC* GetTrack(UInt_t) const;
 
-protected:
+  /**
+   Returns the nth track from the event.
+   Indices run from 0 to (n-1).
+   */
+  virtual ParticleMC* GetTrack(UInt_t);
 
-   TClonesArray mTracks;
+  /**
+   Returns the number of tracks in the event.
+   */
+  virtual UInt_t GetNTracks() const;
 
-   ClassDef(erhic::hadronic::EventMC, 1)
+  /**
+   Add a track to the list.
+   The track must be dynamically allocated and is owned by the event.
+   Returns the new list size.
+   */
+  virtual UInt_t Add(ParticleMC* particle);
+
+  /**
+   Returns the centre-of-mass energy of the event (GeV)
+   */
+  virtual Double_t GetCentreOfMassEnergy() const;
+
+  /**
+   Clear the track list.
+   */
+  virtual void Clear(Option_t* = "");
+
+ protected:
+  TClonesArray mTracks;
+
+  ClassDef(erhic::hadronic::EventMC, 1)
 };
 
-} // namespace hadronic
+}  // namespace hadronic
+}  // namespace erhic
 
-} // namespace erhic
-
-#endif
+#endif  // INCLUDE_EICSMEAR_HADRONIC_EVENTMC_H_

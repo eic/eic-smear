@@ -1,8 +1,15 @@
-//
-// DisKinematics.h
-//
-// Created by TB on 7/8/11.
-// Copyright 2011 BNL. All rights reserved.
-//
+/**
+ \file
+ For backward compatibility with old code.
+ 
+ \author    Thomas Burton
+ \date      2011-07-08
+ \copyright 2011 Brookhaven National Lab
+ */
+
+#ifndef INCLUDE_EICSMEAR_ERHIC_DISKINEMATICS_H_
+#define INCLUDE_EICSMEAR_ERHIC_DISKINEMATICS_H_
 
 #include "eicsmear/erhic/Kinematics.h"
+
+#endif  // INCLUDE_EICSMEAR_ERHIC_DISKINEMATICS_H_

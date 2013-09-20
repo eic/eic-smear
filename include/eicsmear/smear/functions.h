@@ -1,24 +1,23 @@
 /**
- functions.h
-
  \file
- Forward declarations of functions in namespace Smear that require CINT
- dictionaries.
+ Declaration of smearing global functions.
+ 
+ \author    Michael Savastio
+ \date      2011-08-19
+ \copyright 2011 Brookhaven National Lab
+ */
 
- \author Thomas Burton 
- \date 5/8/12
- \copyright 2012 BNL. All rights reserved.
-*/
+#ifndef INCLUDE_EICSMEAR_SMEAR_FUNCTIONS_H_
+#define INCLUDE_EICSMEAR_SMEAR_FUNCTIONS_H_
 
-#ifndef _EICSMEAR_SMEAR_FUNCTIONS_H_
-#define _EICSMEAR_SMEAR_FUNCTIONS_H_
-
-#include <Rtypes.h> // For Long64_t
+#include <Rtypes.h>  // For Long64_t
 #include <TString.h>
 
 namespace Smear {
-   class Detector;
-} // namespace Smear
+
+  class Detector;
+
+}  // namespace Smear
 
 /**
  \fn
@@ -28,4 +27,4 @@ namespace Smear {
 int SmearTree(const Smear::Detector&, const TString& inFileName,
               const TString& outFileName = "", Long64_t nEvents = -1);
 
-#endif // _EICSMEAR_SMEAR_FUNCTIONS_H_
+#endif  // INCLUDE_EICSMEAR_SMEAR_FUNCTIONS_H_

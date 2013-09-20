@@ -1,9 +1,11 @@
-//
-// Acceptance.cxx
-//
-// Created by TB on 8/15/11.
-// Copyright 2011 BNL. All rights reserved.
-//
+/**
+ \file
+ Implementation of class Smear::Acceptance.
+ 
+ \author    Michael Savastio
+ \date      2011-08-19
+ \copyright 2011 Brookhaven National Lab
+ */
 
 #include "eicsmear/smear/Acceptance.h"
 
@@ -22,66 +24,64 @@ Acceptance::Acceptance(int genre)
 }
 
 void Acceptance::AddZone(const Zone& z) {
-   mZones.push_back(z);
+  mZones.push_back(z);
 }
 
 void Acceptance::SetGenre(int n) {
-   if(n > 0 and n < 3) {
-      mGenre = n;
-   } // if
-   else {
-      mGenre = 0;
-   } // else
+  if (n > 0 && n < 3) {
+    mGenre = n;
+  } else {
+    mGenre = 0;
+  }  // if
 }
 
 void Acceptance::SetCharge(ECharge charge) {
-   mCharge = charge;
+  mCharge = charge;
 }
 
 void Acceptance::AddParticle(int n) {
-   mParticles.insert(n);
+  mParticles.insert(n);
 }
 
 bool Acceptance::Is(const erhic::VirtualParticle& prt) const {
-   bool b = false;
-   // Check for genre first (em, hadronic, any)
-   if(PGenre(prt) == 0 or (mGenre not_eq 0 and PGenre(prt) not_eq mGenre)) {
-      return b;
-   } // if
-   // Check if the particle charge matches the required value.
-   if(mCharge not_eq kAllCharges) { // Don't need to check if accepting all
-      // Try to find the particle's charge via its TParticlePDG object.
-      TParticlePDG* pdg = prt.Id().Info();
-      if(pdg) {
-         bool charged = fabs(pdg->Charge()) > 0.;
-         // Check the charge against the requested value and return false
-         // if it is incorrect.
-         if((kNeutral == mCharge and charged) or
-            (kCharged == mCharge and not charged)) {
-            return false;
-         } // if
-      } // if
-      else {
-         // The particle is unknown. We can't guarantee it's charge matches
-         // the requested value, so return false.
-         return false;
-      } // if
-   } // if
-   // If there are no Zones, accept everything that passed genre check
-   if(mZones.empty()) {
-      return true;
-   } // if
-   for(unsigned i(0); i < mZones.size(); i++) {
-      if(mZones.at(i).Contains(prt)) {
-         b = true;
-         break;
-      } // if
-   } // for
-   // Check against exclusive particle list
-   if(not mParticles.empty()) {
-      b = b and mParticles.count(prt.Id()) > 0;
-   } // if
-   return b;
+  bool b = false;
+  // Check for genre first (em, hadronic, any)
+  if (PGenre(prt) == 0 || (mGenre != 0 && PGenre(prt) != mGenre)) {
+    return b;
+  }  // if
+     // Check if the particle charge matches the required value.
+  if (mCharge != kAllCharges) { // Don't need to check if accepting all
+    // Try to find the particle's charge via its TParticlePDG object.
+    TParticlePDG* pdg = prt.Id().Info();
+    if (pdg) {
+      bool charged = fabs(pdg->Charge()) > 0.;
+      // Check the charge against the requested value and return false
+      // if it is incorrect.
+      if ((kNeutral == mCharge && charged) ||
+         (kCharged == mCharge && !charged)) {
+        return false;
+      }  // if
+    } else {
+      // The particle is unknown. We can't guarantee it's charge matches
+      // the requested value, so return false.
+      return false;
+    }  // if
+  }  // if
+  // If there are no Zones, accept everything that passed genre check
+  if (mZones.empty()) {
+    return true;
+  }  // if
+  for (unsigned i(0); i < mZones.size(); i++) {
+    if (mZones.at(i).Contains(prt)) {
+      b = true;
+      break;
+    }  // if
+  }  // for
+     // Check against exclusive particle list
+  if (!mParticles.empty()) {
+    b = b && mParticles.count(prt.Id()) > 0;
+  }  // if
+  return b;
 }
 
 //
@@ -108,34 +108,33 @@ Acceptance::CustomCut::CustomCut(const TString& formula,
 , Kin2(kTheta)
 , Min(min)
 , Max(max) {
-   TString s(formula);
-   dim = ParseInputFunction(s, Kin1, Kin2);
-   if(not IsCoreType(Kin1) or not IsCoreType(Kin2)) {
-      std::cerr <<
-      "ERROR! Custom acceptance is not a function of E, p, theta, phi"
-      << std::endl;
-   } // if
-   if(1 == dim or 2 == dim) {
-      mFormula = TFormula("CustomCutFormula", s);
-   } // if
-   else {
-      std::cerr <<
-      "ERROR! Provided custom acceptance is not of dimension 1 or 2."
-      << std::endl;
-      return;
-   } // else if
-   std::cout << "Added custom cut " << formula << std::endl;
+  TString s(formula);
+  dim = ParseInputFunction(s, Kin1, Kin2);
+  if (!IsCoreType(Kin1) || !IsCoreType(Kin2)) {
+    std::cerr <<
+    "ERROR! Custom acceptance is not a function of E, p, theta, phi"
+    << std::endl;
+  }  // if
+  if (1 == dim || 2 == dim) {
+    mFormula = TFormula("CustomCutFormula", s);
+  } else {
+    std::cerr <<
+    "ERROR! Provided custom acceptance is not of dimension 1 or 2."
+    << std::endl;
+    return;
+  }  // if
+  std::cout << "Added custom cut " << formula << std::endl;
 }
 
 bool Acceptance::CustomCut::Contains(
-                              const erhic::VirtualParticle& prt) const {
-   double x = GetVariable(prt, Kin1);
-   double y(0.);
-   if(2 == dim) {
-      y = GetVariable(prt, Kin2);
-   } // if
-   double z = mFormula.Eval(x, y);
-   return z >= Min and z < Max;
+                                     const erhic::VirtualParticle& prt) const {
+  double x = GetVariable(prt, Kin1);
+  double y(0.);
+  if (2 == dim) {
+    y = GetVariable(prt, Kin2);
+  }  // if
+  double z = mFormula.Eval(x, y);
+  return z >= Min && z < Max;
 }
 
 //
@@ -166,41 +165,36 @@ Acceptance::Zone::Zone(double thMin, double thMax,
 }
 
 void Acceptance::Zone::Add(const CustomCut& cut) {
-   CustomCuts.push_back(cut);
+  CustomCuts.push_back(cut);
 }
 
 Bool_t Acceptance::Zone::Contains(const erhic::VirtualParticle& prt) const {
-   bool accept(true);
-   const double theta = FixTheta(prt.GetTheta());
-   const double phi = FixPhi(prt.GetPhi());
-   if(theta < thetaMin or theta > thetaMax) {
-      accept = false;
-   } // if...
-   else if(phi < phiMin or phi > phiMax) {
-      accept = false;
-   } // else if...
-   else if(prt.GetE() < EMin or prt.GetE() > EMax) {
-      accept = false;
-   } // else if...
-   else if(prt.GetP() < PMin or prt.GetP() > PMax) {
-      accept = false;
-   } // else if
-   else if(prt.GetPz() < pZMin or prt.GetPz() > pZMax) {
-      accept = false;
-   } // else if
-   else if(prt.GetPt() < pTMin or prt.GetPt() > pTMax) {
-      accept = false;
-   } // else if
-   // If it made it this far, test the custom cut(s)
-   if(accept) {
-      for(unsigned j(0); j < CustomCuts.size(); ++j) {
-         if(not CustomCuts.at(j).Contains(prt)) {
-            accept = false;
-            break;
-         } // if
-      } // for
-   } // if
-   return accept;
+  bool accept(true);
+  const double theta = FixTheta(prt.GetTheta());
+  const double phi = FixPhi(prt.GetPhi());
+  if (theta < thetaMin || theta > thetaMax) {
+    accept = false;
+  } else if (phi < phiMin || phi > phiMax) {
+    accept = false;
+  } else if (prt.GetE() < EMin || prt.GetE() > EMax) {
+    accept = false;
+  } else if (prt.GetP() < PMin || prt.GetP() > PMax) {
+    accept = false;
+  } else if (prt.GetPz() < pZMin || prt.GetPz() > pZMax) {
+    accept = false;
+  } else if (prt.GetPt() < pTMin || prt.GetPt() > pTMax) {
+    accept = false;
+  }  // if
+  // If it made it this far, test the custom cut(s)
+  if (accept) {
+    for (unsigned j(0); j < CustomCuts.size(); ++j) {
+      if (!CustomCuts.at(j).Contains(prt)) {
+        accept = false;
+        break;
+      }  // if
+    }  // for
+  }  // if
+  return accept;
 }
 
-} // namespace Smear
+}  // namespace Smear

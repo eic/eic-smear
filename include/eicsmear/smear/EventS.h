@@ -1,14 +1,19 @@
-#ifndef _EICSMEAR_SMEAR_EVENTS_H_
-#define _EICSMEAR_SMEAR_EVENTS_H_
+/**
+ \file
+ For backward compatibility with earlier code.
+ EventS and ParticleS classes were both declared in EventS.h.
+ 
+ \author    Michael Savastio
+ \date      2011-08-19
+ \copyright 2011 Brookhaven National Lab
+ */
 
-// For backward compatibility with version 1
-// of the code, where the EventS and ParticleS
-// classes were both declared in EventS.h
+#ifndef INCLUDE_EICSMEAR_SMEAR_EVENTS_H_
+#define INCLUDE_EICSMEAR_SMEAR_EVENTS_H_
 
 #include "eicsmear/erhic/ParticleMC.h"
 #include "eicsmear/smear/EventSmear.h"
 
-//typedef Smear::Event::TrackType ParticleS;
 typedef Smear::ParticleMCS ParticleS;
 
-#endif // _EICSMEAR_SMEAR_EVENTS_H_
+#endif  // INCLUDE_EICSMEAR_SMEAR_EVENTS_H_

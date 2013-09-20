@@ -1,13 +1,18 @@
-#ifndef _EICSMEAR_PARTICLE_
-#define _EICSMEAR_PARTICLE_
+/**
+ \file
+ For backward compatibility with old-style classes,
+ in which the base (and only) particle class was named Particle.
+ 
+ \author    Thomas Burton
+ \date      2011-10-10
+ \copyright 2011 Brookhaven National Lab
+ */
 
-// For backward compatibility with old-style classes,
-// in which the base (and only) particle class was named Particle.
+#ifndef INCLUDE_EICSMEAR_ERHIC_PARTICLE_H_
+#define INCLUDE_EICSMEAR_ERHIC_PARTICLE_H_
 
-//#include "eicsmear/erhic/EventMC.h"
 #include "eicsmear/erhic/ParticleMC.h"
 
-//typedef erhic::EventMC::TrackType Particle;
 typedef erhic::ParticleMC Particle;
 
-#endif
+#endif  // INCLUDE_EICSMEAR_ERHIC_PARTICLE_H_

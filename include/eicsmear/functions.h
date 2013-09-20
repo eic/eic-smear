@@ -1,8 +1,14 @@
-// For Doxygen documentation:
-/*! \file */ 
+/**
+ \file
+ Global function declarations.
+ 
+ \author    Thomas Burton
+ \date      2011-07-07
+ \copyright 2011 Brookhaven National Lab
+ */
 
-#ifndef _EICSMEAR_FUNCTIONS_
-#define _EICSMEAR_FUNCTIONS_
+#ifndef INCLUDE_EICSMEAR_FUNCTIONS_H_
+#define INCLUDE_EICSMEAR_FUNCTIONS_H_
 
 #include <string>
 
@@ -15,8 +21,8 @@
 class TLorentzVector;
 
 namespace erhic {
-   class EventMC;
-   class VirtualEventFactory;
+  class EventMC;
+  class VirtualEventFactory;
 }
 
 /**
@@ -56,15 +62,18 @@ Long64_t BuildTree(const TString& inputFileName,
  Produces a DOT file describing the particle content of the event.
  */
 class EventToDot {
-   
-public:
-   
-   virtual ~EventToDot() { }
-   
-   void Generate(const erhic::EventMC&,
-                 const std::string& outputName) const;
-   
-   ClassDef(EventToDot, 0)
+ public:
+  /**
+   Destructor.
+   */
+  virtual ~EventToDot() { }
+
+  /**
+   Write a DOT file describing an event.
+   */
+  void Generate(const erhic::EventMC&, const std::string& outputName) const;
+
+  ClassDef(EventToDot, 0)
 };
 
-#endif
+#endif  // INCLUDE_EICSMEAR_FUNCTIONS_H_
