@@ -160,9 +160,8 @@ class Forester : public TObject {
     virtual std::ostream& Print(std::ostream& os = std::cout) const {
       // Put start and end times in different os <<... otherwise I get
       // the same time for each...
-      char buffer[50];
-      os << "Began on " << std::ctime_r(&mStartTime, buffer);
-      os << "Ended on " << std::ctime_r(&mEndTime, buffer);
+      os << "Began on " << std::ctime(&mStartTime);
+      os << "Ended on " << std::ctime(&mEndTime);
       os << "Processed " << mNEvents << " events containing "
       << mNParticles << " particles in "
       << mTimer.RealTime() << " seconds "
