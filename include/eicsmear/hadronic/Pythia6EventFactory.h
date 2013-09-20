@@ -38,7 +38,7 @@ class Pythia6EventFactory : public erhic::VirtualEventFactory {
   /**
    Constructor.
    */
-  Pythia6EventFactory(EventMCFilterABC* filter);
+  explicit Pythia6EventFactory(EventMCFilterABC* filter);
 
   /**
    Returns a new event instance.

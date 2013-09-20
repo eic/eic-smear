@@ -88,7 +88,7 @@ const ParticleMC* EventPythia::ScatteredLepton() const {
     if ((*iter)->GetParentIndex() == 3 &&
        (*iter)->Id().Code() == species) {
       // Found it, cast to required particle type and return.
-      return dynamic_cast<const ParticleMC*>(*iter);
+      return static_cast<const ParticleMC*>(*iter);
     }  // if
   }  // for
   // No luck, couldn't find the scattered lepton.

@@ -178,7 +178,7 @@ TLorentzVector ParticleMC::Get4Vector() const {
 }
 
 const EventMC* ParticleMC::GetEvent() const {
-  return dynamic_cast<EventMC*>(event.GetObject());
+  return static_cast<EventMC*>(event.GetObject());
 }
 
 const ParticleMC* ParticleMC::GetChild(UShort_t u) const {

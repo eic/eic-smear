@@ -67,7 +67,7 @@ class LeptonKinematicsComputer : public KinematicsComputer {
   /**
    Determine the beam info from the input event
    */
-  LeptonKinematicsComputer(const EventDis&);
+  explicit LeptonKinematicsComputer(const EventDis&);
   virtual DisKinematics* Calculate();
 
  protected:
@@ -95,7 +95,7 @@ class JacquetBlondelComputer : public KinematicsComputer {
    This allows the same class to be used with smeared calculations, where
    the beam information isn't associated with the smeared event itself.
    */
-  JacquetBlondelComputer(const EventDis&);
+  explicit JacquetBlondelComputer(const EventDis&);
   virtual DisKinematics* Calculate();
 
  protected:
@@ -126,7 +126,7 @@ class DoubleAngleComputer : public KinematicsComputer {
    This allows the same class to be used with smeared calculations, where
    the beam information isn't associated with the smeared event itself.
    */
-  DoubleAngleComputer(const EventDis&);
+  explicit DoubleAngleComputer(const EventDis&);
   virtual DisKinematics* Calculate();
 
  protected:

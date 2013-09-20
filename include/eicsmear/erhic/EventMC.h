@@ -224,7 +224,7 @@ inline UInt_t EventMC::GetNTracks() const {
 
 inline const ParticleMC* EventMC::GetTrack(UInt_t u) const {
   if (u < (UInt_t)particles.GetEntries()) {
-    return dynamic_cast<ParticleMC*>(particles.At(u));
+    return static_cast<ParticleMC*>(particles.At(u));
   } else {
     return NULL;
   }  // if
@@ -232,7 +232,7 @@ inline const ParticleMC* EventMC::GetTrack(UInt_t u) const {
 
 inline ParticleMC* EventMC::GetTrack(UInt_t u) {
   if (u < (UInt_t)particles.GetEntries()) {
-    return dynamic_cast<ParticleMC*>(particles.At(u));
+    return static_cast<ParticleMC*>(particles.At(u));
   } else {
     return NULL;
   }  // if
@@ -266,7 +266,7 @@ class Reader {
   /**
    Construct a Reader for the named TTree.
    */
-  Reader(const std::string& treeName = "EICTree");
+  explicit Reader(const std::string& treeName = "EICTree");
 
   /**
    Destructor.

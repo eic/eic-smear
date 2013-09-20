@@ -38,7 +38,7 @@ class Pythia6EventBuilder : public VirtualEventFactory {
    The filter should be allocated via new and is subsequently
    owned and deleted by the Pythia6EventBuilder.
    */
-  Pythia6EventBuilder(EventMCFilterABC* = NULL);
+  explicit Pythia6EventBuilder(EventMCFilterABC* = NULL);
 
   /**
    Destructor

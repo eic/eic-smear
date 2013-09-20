@@ -56,7 +56,7 @@ class FormulaString : public TObject {
    e.g. for the function p/sin(theta)
    Smear::FormulaString("P/sin(theta)");
    */
-  FormulaString(const std::string&);
+  explicit FormulaString(const std::string&);
 
   /**
    Evaluate the formula with the provided arguments.

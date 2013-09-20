@@ -98,7 +98,7 @@ class EventFromAsciiFactory : public VirtualEventFactory {
   /**
    Initialise the factory from an input stream. 
    */
-  EventFromAsciiFactory(std::istream& is)
+  explicit EventFromAsciiFactory(std::istream& is)
   : mInput(&is)
   , mEvent(NULL) {
   }

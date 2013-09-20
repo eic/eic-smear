@@ -83,11 +83,11 @@ EventPythia* Pythia6EventBuilder::BuildEvent() {
   // The beam lepton should be the first particle
   // and the beam hadron the second particle.
   const double eLepton =
-  dynamic_cast<TMCParticle*>(particles->At(0))->GetEnergy();
+  static_cast<TMCParticle*>(particles->At(0))->GetEnergy();
   const double eHadron =
-  dynamic_cast<TMCParticle*>(particles->At(1))->GetEnergy();
+  static_cast<TMCParticle*>(particles->At(1))->GetEnergy();
   const double mHadron =
-  dynamic_cast<TMCParticle*>(particles->At(1))->GetMass();
+  static_cast<TMCParticle*>(particles->At(1))->GetMass();
   // x, W2 and nu are calculated from y, Q2 and the beam energies.
   // y and Q2 come from PYTHIA.
   // Use (approximate expression) Q2 = sxy, where s = 4.E_e.E_h
@@ -109,7 +109,7 @@ EventPythia* Pythia6EventBuilder::BuildEvent() {
   Pythia6ParticleBuilder builder;
   for (int i(0); i < particles->GetEntries(); ++i) {
     TMCParticle* p =
-    dynamic_cast<TMCParticle*>(particles->At(i));
+    static_cast<TMCParticle*>(particles->At(i));
     std::auto_ptr<ParticleMC> particle = builder.Create(*p);
     particle->SetIndex(i + 1);
     particle->SetEvent(event.get());

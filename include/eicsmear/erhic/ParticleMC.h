@@ -33,7 +33,7 @@ class ParticleMC : public VirtualParticle {
    format, namely:
      "index status id parent firstChild lastChild px py pz E m xv yv zv"
    */
-  ParticleMC(const std::string& = "");
+  explicit ParticleMC(const std::string& = "");
 
   /**
    Destructor

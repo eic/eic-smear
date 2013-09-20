@@ -27,7 +27,7 @@ class EventGmcTrans : public EventMC {
 
    Optionally initialise from a string. See Parse() for the string format.
    */
-  EventGmcTrans(const std::string& = "");
+  explicit EventGmcTrans(const std::string& = "");
 
   /**
    Destructor.

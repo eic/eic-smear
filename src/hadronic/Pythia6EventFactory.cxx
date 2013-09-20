@@ -60,7 +60,7 @@ EventPythiaPP* Pythia6EventFactory::BuildEvent() {
   TIter iter(particles);
   TMCParticle* mc(NULL);
   // Populate particle list
-  while ((mc = dynamic_cast<TMCParticle*>(iter.Next()))) {
+  while ((mc = static_cast<TMCParticle*>(iter.Next()))) {
     if (mc) {
       std::auto_ptr<ParticleMC> p(new ParticleMC(*mc));
       p->SetParentIndex(mc->GetParent());

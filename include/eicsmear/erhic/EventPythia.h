@@ -36,7 +36,7 @@ class EventPythia : public EventMC {
    leptonphi s_hat t_hat u_hat pt2_hat Q2_hat F2 F1 R sigma_rad SigRadCor
    EBrems photonflux nrTracks"
    */
-  EventPythia(const std::string& str = "");
+  explicit EventPythia(const std::string& str = "");
 
   /**
    Destructor

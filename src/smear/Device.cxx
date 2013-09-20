@@ -63,11 +63,11 @@ Device::Device(const Device& that)
 , mFormula(NULL)
 , mDimensions(that.mDimensions) {
   if (that.mKinematicFunction) {
-    mKinematicFunction = dynamic_cast<TF1*>(
+    mKinematicFunction = static_cast<TF1*>(
         that.mKinematicFunction->Clone(TUUID().AsString()));
   }  // if
   if (that.mFormula) {
-    mFormula = dynamic_cast<FormulaString*>(that.mFormula->Clone());
+    mFormula = static_cast<FormulaString*>(that.mFormula->Clone());
   }  // if
 }
 

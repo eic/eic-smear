@@ -42,7 +42,7 @@ class ParticleMC : public erhic::VirtualParticle {
   /**
    Initialise from a PYTHIA TParticleMC
    */
-  ParticleMC(const TMCParticle&);
+  explicit ParticleMC(const TMCParticle&);
 
   /**
    Initialise from energy-momentum 4-vector, vertex 3-vector and PDG,

@@ -50,7 +50,7 @@ TrackVector EventMC::GetTracks() const {
   TObject* object(NULL);
   TIter next(&particles);
   while ((object = next())) {
-    tracks.push_back(dynamic_cast<ParticleMC*>(object));
+    tracks.push_back(static_cast<ParticleMC*>(object));
   }  // while
   return tracks;
 }
@@ -74,7 +74,7 @@ void EventMC::FinalState(TrackVector& final_) const {
   final_.clear();
   TIter next(&particles);
   ParticleMC* p(NULL);
-  while ((p = dynamic_cast<ParticleMC*>(next()))) {
+  while ((p = static_cast<ParticleMC*>(next()))) {
     if (1 == p->GetStatus()) {
       final_.push_back(p);
     }  // if

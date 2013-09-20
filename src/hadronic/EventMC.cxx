@@ -27,11 +27,11 @@ void EventMC::Clear(Option_t* /* option */) {
 }
 
 const ParticleMC* EventMC::GetTrack(UInt_t i) const {
-  return dynamic_cast<ParticleMC*>(mTracks.At(i));
+  return static_cast<ParticleMC*>(mTracks.At(i));
 }
 
 ParticleMC* EventMC::GetTrack(UInt_t i) {
-  return dynamic_cast<ParticleMC*>(mTracks.At(i));
+  return static_cast<ParticleMC*>(mTracks.At(i));
 }
 
 UInt_t EventMC::GetNTracks() const {

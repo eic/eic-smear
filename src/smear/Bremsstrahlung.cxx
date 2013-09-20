@@ -56,7 +56,7 @@ int Bremsstrahlung::NGamma() {
   ret += -4. * (mKMax - mKMin) / (3. * mParticle->E);
   ret += 0.5* pow((mKMax - mKMin) / mParticle->E, 2.);
   ret *= mTraversed / mRadLength;
-  int n = (int)ret;
+  int n = static_cast<int>(ret);
   if (fabs(ret - n) < fabs(ret - n - 1)) {
     return n;
   } else {
@@ -65,7 +65,7 @@ int Bremsstrahlung::NGamma() {
 }
 
 void Bremsstrahlung::SetParticle(const erhic::VirtualParticle& prt) {
-  mParticle.reset((Particle*)prt.Clone());
+  mParticle.reset(static_cast<erhic::ParticleMC*>(prt.Clone()));
   if (!mPdf) {
     mPdf = new TF1("Smear_Bremsstrahlung_PDF",
                    this,

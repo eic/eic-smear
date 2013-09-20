@@ -77,7 +77,7 @@ struct ParticleID : public Smearer {
    Constructor.
    Initialise the particle misidentification matrix from the named file.
    */
-  ParticleID(TString filename);
+  explicit ParticleID(TString filename);
 
   /**
    Destructor.

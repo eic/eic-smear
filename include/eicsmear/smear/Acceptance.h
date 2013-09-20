@@ -115,7 +115,7 @@ class Acceptance {
    By default, the device has 4pi coverage,
    and accepts particles with all energy and momenta.
    */
-  Acceptance(int genre = kAll);
+  explicit Acceptance(int genre = kAll);
 
   /**
    Add a new zone with user-specified coverage.

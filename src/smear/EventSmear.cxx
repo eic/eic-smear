@@ -42,7 +42,8 @@ void Event::AddLast(ParticleMCS* track) {
 
 // The scattered lepton should be the first non-NULL entry in the track list
 const ParticleMCS* Event::ScatteredLepton() const {
-  if (mScatteredIndex > -1 && mScatteredIndex < int(GetNTracks())) {
+  if (mScatteredIndex > -1 &&
+      mScatteredIndex < static_cast<int>(GetNTracks())) {
     return GetTrack(mScatteredIndex);
   }  // if
   return NULL;
