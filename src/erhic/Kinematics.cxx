@@ -273,9 +273,11 @@ DisKinematics* LeptonKinematicsComputer::Calculate() {
       kin->mQ2 = std::max(0., Q2);
       // Find scattered lepton energy boosted to the rest
       // frame of the hadron beam. Calculate nu from this.
-      double ELeptonInNucl = h.Gamma() * (l.P() - h.Beta() * l.Pz());
-      double ELeptonOutNucl = h.Gamma() *
-      (scattered->GetP() - h.Beta() * scattered->GetPz());
+      double gamma = mBeams.at(1)->GetE() / mBeams.at(1)->GetM();
+      double beta = mBeams.at(1)->GetP() / mBeams.at(1)->GetE();
+      double ELeptonInNucl = gamma * (l.P() - beta * l.Pz());
+      double ELeptonOutNucl = gamma *
+      (scattered->GetP() - beta * scattered->GetPz());
       kin->mNu = std::max(0., ELeptonInNucl - ELeptonOutNucl);
       // Calculate y using the exchange boson.
       // Determine the exchange boson 4-vector from the scattered lepton, as
