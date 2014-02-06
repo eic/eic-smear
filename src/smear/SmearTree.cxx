@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <memory>
 
 #include <TClass.h>
 #include <TROOT.h>
@@ -54,17 +55,17 @@ int SmearTree(const Smear::Detector& detector, const TString& inFileName,
     std::cerr << "Unable to find EICTree in " << inFileName << std::endl;
     return 1;
   }  // if
-  erhic::VirtualEventFactory* builder(NULL);
+  std::auto_ptr<erhic::VirtualEventFactory> builder;
   // Need to determine the type of object in the tree to choose
   // the correct smeared event builder.
   TClass branchClass(mcTree->GetBranch("event")->GetClassName());
   if (branchClass.InheritsFrom("erhic::EventDis")) {
-    builder = new Smear::EventDisFactory(detector,
-                                         *(mcTree->GetBranch("event")));
+    builder.reset(new Smear::EventDisFactory(detector,
+                                             *(mcTree->GetBranch("event"))));
 #ifdef WITH_PYTHIA6
   } else if (branchClass.InheritsFrom("erhic::hadronic::EventMC")) {
-    builder = new Smear::HadronicEventBuilder(detector,
-                                              *(mcTree->GetBranch("event")));
+    builder.reset(new Smear::HadronicEventBuilder(detector,
+                                             *(mcTree->GetBranch("event"))));
 #endif
   } else {
     std::cerr << branchClass.GetName() << " is not supported for smearing" <<
