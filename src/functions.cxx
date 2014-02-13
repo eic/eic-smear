@@ -149,11 +149,13 @@ void EventToDot::Generate(const erhic::EventMC& event,
       shape = "diamond";
     }  // if
     oss.str("");
-    oss << "   " <<
-    (*i)->GetIndex() << " [label=\""
-    << (*i)->GetIndex() << " "
-    << (*i)->Id().Info()->GetName()
-    << "\", shape=" << shape << "];";
+    oss << "   " << (*i)->GetIndex() << " [label=\"" << (*i)->GetIndex() << " ";
+    if ((*i)->Id().Info()) {
+      oss << (*i)->Id().Info()->GetName();
+    } else {
+      oss << "unknown PDG " << (*i)->Id().Code();
+    }  // if
+    oss << "\", shape=" << shape << "];";
     file << oss.str() << std::endl;
   }  // for
   file << "}";
