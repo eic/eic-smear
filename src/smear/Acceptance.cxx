@@ -44,12 +44,11 @@ void Acceptance::AddParticle(int n) {
 }
 
 bool Acceptance::Is(const erhic::VirtualParticle& prt) const {
-  bool b = false;
   // Check for genre first (em, hadronic, any)
   if (PGenre(prt) == 0 || (mGenre != 0 && PGenre(prt) != mGenre)) {
-    return b;
+    return false;
   }  // if
-     // Check if the particle charge matches the required value.
+  // Check if the particle charge matches the required value.
   if (mCharge != kAllCharges) { // Don't need to check if accepting all
     // Try to find the particle's charge via its TParticlePDG object.
     TParticlePDG* pdg = prt.Id().Info();
@@ -67,21 +66,20 @@ bool Acceptance::Is(const erhic::VirtualParticle& prt) const {
       return false;
     }  // if
   }  // if
+  // Check against exclusive particle list
+  if (!mParticles.empty() && mParticles.count(prt.Id()) == 0) {
+    return false;
+  }  // if
   // If there are no Zones, accept everything that passed genre check
   if (mZones.empty()) {
     return true;
   }  // if
   for (unsigned i(0); i < mZones.size(); i++) {
     if (mZones.at(i).Contains(prt)) {
-      b = true;
-      break;
+      return true;
     }  // if
   }  // for
-     // Check against exclusive particle list
-  if (!mParticles.empty()) {
-    b = b && mParticles.count(prt.Id()) > 0;
-  }  // if
-  return b;
+  return false;
 }
 
 //
