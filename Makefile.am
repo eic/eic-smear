@@ -37,9 +37,10 @@ include/eicsmear/smear/Bremsstrahlung.h \
 include/eicsmear/smear/Detector.h \
 include/eicsmear/smear/Device.h \
 include/eicsmear/smear/Distributor.h \
+include/eicsmear/smear/EventDisFactory.h \
+include/eicsmear/smear/EventFactory.h \
 include/eicsmear/smear/EventS.h \
 include/eicsmear/smear/EventSmear.h \
-include/eicsmear/smear/EventDisFactory.h \
 include/eicsmear/smear/FormulaString.h \
 include/eicsmear/smear/functions.h \
 include/eicsmear/smear/ParticleID.h \
@@ -102,8 +103,12 @@ src/smear/RadialTracker.cxx \
 src/smear/Smear.cxx \
 src/smear/SmearTree.cxx \
 src/smear/Tracker.cxx \
+cint/LinkDef.h \
 cint/BuildTreeDict.cxx \
-cint/smearDict.cxx
+cint/BuildTreeDict.h \
+cint/smearLinkDef.h \
+cint/smearDict.cxx \
+cint/smearDict.h
 
 # Use this construction so when we call make install
 # all the files end up in the correct subdirectories.
@@ -143,8 +148,13 @@ src/hadronic/EventPythia.cxx \
 src/hadronic/EventSmear.cxx \
 src/hadronic/ParticleMC.cxx \
 src/hadronic/Pythia6EventFactory.cxx \
+cint/hadronicLinkDef.h \
 cint/hadronicDict.cxx \
-cint/pythiaDict.cxx
+cint/hadronicDict.h \
+cint/LinkDefPythia.h \
+cint/pythiaDict.cxx \
+cint/pythiaDict.h
+
 
 # In the smearing routine we need to be able to turn
 # on and off support for smearing hadronic events.
@@ -168,6 +178,8 @@ cint/smearDict.cxx: $(smear_headers) cint/smearLinkDef.h
 
 cint/BuildTreeDict.cxx: $(erhic_headers) cint/LinkDef.h
 	rootcint -f $@ -c -I$(top_srcdir)/include $^
+
+EXTRA_DIST = CMakeLists.txt cmake
 
 clean-local:
 	rm -f $(BUILT_SOURCES) cint/*Dict* .libs _libs
