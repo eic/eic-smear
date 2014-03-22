@@ -286,7 +286,14 @@ void ParticleMC::Set4Vector(const TLorentzVector& v) {
   px = v.Px();
   py = v.Py();
   pz = v.Pz();
+  m = v.M();
   ComputeDerivedQuantities();  // Rapidity etc
+  // If an event reference is set, recalculate event-dependent quantities
+  // like z, xF
+  EventMC* ev = static_cast<EventMC*>(event.GetObject());
+  if (ev) {
+    ComputeEventDependentQuantities(*ev);
+  }  // if
 }
 
 void ParticleMC::SetVertex(const TVector3& v) {
