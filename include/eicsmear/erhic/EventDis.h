@@ -18,7 +18,7 @@
 
 namespace erhic {
 
-class DisKinematics;
+struct DisKinematics;
 class VirtualParticle;
 
 /**
