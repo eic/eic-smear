@@ -47,6 +47,18 @@ struct Bremsstrahlung : public Device {
   Bremsstrahlung(const Bremsstrahlung&);
 
   /**
+   Returns a pointer to a duplicate of this object.
+   */
+  virtual Bremsstrahlung* Clone(Option_t* option = "not used") const;
+
+  /**
+   Smear the properties of a Particle and assign them to a ParticleS.
+   */
+  virtual void Smear(const erhic::VirtualParticle&, ParticleMCS&);
+
+ protected:
+
+  /**
    Returns dSigmga/dK at k = x[0].
    The arguments have this form to interface with ROOT::TF1.
    The second argument is unused.
@@ -59,18 +71,6 @@ struct Bremsstrahlung : public Device {
   int NGamma();
 
   void FixParticleKinematics(ParticleMCS&);
-
-  /**
-   Returns a pointer to a duplicate of this object.
-   */
-  virtual Bremsstrahlung* Clone(Option_t* option = "not used") const;
-
-  /**
-   Smear the properties of a Particle and assign them to a ParticleS.
-   */
-  virtual void Smear(const erhic::VirtualParticle&, ParticleMCS&);
-
-// protected:
 
   /**
    Set the radiating particle type and configure the dSigma/dK
