@@ -52,5 +52,6 @@
 
 #pragma link C++ class std::vector<Smear::KinType>;
 #pragma link C++ class std::vector<Int_t>;
+#pragma link C++ class std::auto_ptr<erhic::ParticleMC>;
 
 #endif // __CINT__
