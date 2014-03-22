@@ -1,4 +1,13 @@
 /**
+ \file ZEUSDetector.cpp
+ Example smearing script for the ZEUS detector
+
+ \author    Thomas Burton
+ \date      2014-01-10
+ \copyright 2014 Brookhaven National Lab
+ */
+
+/**
  Convert pseudorapidity (eta) to polar angle (theta) in radians.
  Make use of TLorentzVector to do eta-to-theta conversion.
  */
