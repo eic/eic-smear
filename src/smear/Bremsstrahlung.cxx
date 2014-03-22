@@ -30,6 +30,17 @@ Bremsstrahlung::Bremsstrahlung(double epsilon,
   Accept.AddParticle(-11);
 }
 
+Bremsstrahlung::Bremsstrahlung(const Bremsstrahlung& other)
+    : Device(other), mParticle(NULL), mKMin(other.mKMin), mKMax(other.mKMax),
+      mEpsilon(other.mEpsilon), mTraversed(other.mTraversed),
+      mRadLength(other.mRadLength), mPdf(NULL) {
+  // Duplicate cached particle if there is one
+  // SetParticle() duplicates the particle and sets up the PDF
+  //if (other.mParticle.get()) {
+  //  SetParticle(*mParticle);
+  //}  // if
+}
+
 double Bremsstrahlung::dSigmadK(double *x, double*) {
   double k = x[0];
   double ret = 4. / 3.;
@@ -82,11 +93,12 @@ void Bremsstrahlung::FixParticleKinematics(ParticleMCS& prt) {
   prt.pz = prt.p * cos(prt.theta);
 }
 
-Bremsstrahlung* Bremsstrahlung::Clone() {
+Bremsstrahlung* Bremsstrahlung::Clone(Option_t* /* not used */) const {
   return new Bremsstrahlung(*this);
 }
 
-void Bremsstrahlung::Smear(const Particle &prt, ParticleMCS& prtOut) {
+void Bremsstrahlung::Smear(const erhic::VirtualParticle& prt,
+                           ParticleMCS& prtOut) {
   SetParticle(prt);
   const int nGamma = NGamma();
   for (int i = 0; i < nGamma; i++) {

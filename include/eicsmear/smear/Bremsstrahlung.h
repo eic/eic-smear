@@ -42,6 +42,11 @@ struct Bremsstrahlung : public Device {
                  double radLength = 47.1);
 
   /**
+   Copy constructor
+   */
+  Bremsstrahlung(const Bremsstrahlung&);
+
+  /**
    Returns dSigmga/dK at k = x[0].
    The arguments have this form to interface with ROOT::TF1.
    The second argument is unused.
@@ -58,12 +63,12 @@ struct Bremsstrahlung : public Device {
   /**
    Returns a pointer to a duplicate of this object.
    */
-  virtual Bremsstrahlung* Clone();
+  virtual Bremsstrahlung* Clone(Option_t* option = "not used") const;
 
   /**
    Smear the properties of a Particle and assign them to a ParticleS.
    */
-  virtual void Smear(const Particle&, ParticleMCS&);
+  virtual void Smear(const erhic::VirtualParticle&, ParticleMCS&);
 
 // protected:
 
