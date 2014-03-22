@@ -104,11 +104,7 @@ src/smear/Smear.cxx \
 src/smear/SmearTree.cxx \
 src/smear/Tracker.cxx \
 cint/LinkDef.h \
-cint/BuildTreeDict.cxx \
-cint/BuildTreeDict.h \
-cint/smearLinkDef.h \
-cint/smearDict.cxx \
-cint/smearDict.h
+cint/smearLinkDef.h
 
 # Use this construction so when we call make install
 # all the files end up in the correct subdirectories.
@@ -149,12 +145,7 @@ src/hadronic/EventSmear.cxx \
 src/hadronic/ParticleMC.cxx \
 src/hadronic/Pythia6EventFactory.cxx \
 cint/hadronicLinkDef.h \
-cint/hadronicDict.cxx \
-cint/hadronicDict.h \
-cint/LinkDefPythia.h \
-cint/pythiaDict.cxx \
-cint/pythiaDict.h
-
+cint/LinkDefPythia.h
 
 # In the smearing routine we need to be able to turn
 # on and off support for smearing hadronic events.
