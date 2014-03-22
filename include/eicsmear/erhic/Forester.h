@@ -119,7 +119,14 @@ class Forester : public TObject {
   /**
    Prints the current configuration to the requested output stream.
    */
-  void Print(std::ostream& = std::cout) const;
+  void Print(std::ostream& stream) const;
+
+  /**
+   \overload
+
+   To avoid hiding TObject::Print()
+   */
+  void Print(Option_t* = "not used") const;
 
   /**
    If set to true, prints messages during running.

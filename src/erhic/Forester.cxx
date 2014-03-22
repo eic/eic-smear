@@ -249,4 +249,7 @@ void Forester::Print(std::ostream& os) const {
   }  // if
 }
 
+void Forester::Print(Option_t* /* not used */) const {
+  Print(std::cout);
+}
 }  // namespace erhic
