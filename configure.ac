@@ -3,7 +3,7 @@ AC_INIT([The EIC smearing package], [2.0], [tpb@bnl.gov], [eic-smear])
 
 # Runs many macros required for proper operation of the generated Makefiles.
 # Use foreign to ignore absent ChangeLog, AUTHORS etc.
-AM_INIT_AUTOMAKE([-Wall foreign])
+AM_INIT_AUTOMAKE([subdir-objects -Wall foreign])
 
 # Test for the existence of this file as
 # a check against incorrect --srcdir.
@@ -18,8 +18,6 @@ AC_ENABLE_SHARED
 # Change the default behaviour for LT_INIT to disable static libraries.
 # The user may still override this default by specifying ‘--enable-static’.
 AC_DISABLE_STATIC
-
-AM_INIT_AUTOMAKE([subdir-objects])
 
 # Checks for programs.
 AC_PROG_CXX
