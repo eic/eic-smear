@@ -104,7 +104,9 @@ src/smear/Smear.cxx \
 src/smear/SmearTree.cxx \
 src/smear/Tracker.cxx \
 cint/LinkDef.h \
-cint/smearLinkDef.h
+cint/BuildTreeDict.cxx \
+cint/smearLinkDef.h \
+cint/smearDict.cxx
 
 # Use this construction so when we call make install
 # all the files end up in the correct subdirectories.
@@ -145,7 +147,10 @@ src/hadronic/EventSmear.cxx \
 src/hadronic/ParticleMC.cxx \
 src/hadronic/Pythia6EventFactory.cxx \
 cint/hadronicLinkDef.h \
-cint/LinkDefPythia.h
+cint/hadronicDict.cxx \
+cint/LinkDefPythia.h \
+cint/pythiaDict.cxx
+
 
 # In the smearing routine we need to be able to turn
 # on and off support for smearing hadronic events.
@@ -171,6 +176,8 @@ cint/BuildTreeDict.cxx: $(erhic_headers) cint/LinkDef.h
 	rootcint -f $@ -c -I$(top_srcdir)/include $^
 
 EXTRA_DIST = CMakeLists.txt cmake
+dist-hook:
+	rm -rf `find $(distdir) -name "*Dict*"`
 
 clean-local:
 	rm -f $(BUILT_SOURCES) cint/*Dict* .libs _libs
