@@ -1,5 +1,5 @@
 # Initialise
-AC_INIT([The EIC smearing package], [2.0], [tpb@bnl.gov], [eic-smear])
+AC_INIT([The EIC smearing package], [1.0.3], [tpb@bnl.gov], [eic-smear])
 
 # Runs many macros required for proper operation of the generated Makefiles.
 # Use foreign to ignore absent ChangeLog, AUTHORS etc.

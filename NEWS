@@ -1,3 +1,16 @@
+Changes for 1.0.3:
+
+* Add example smearing scripts for ZEUS, STAR, eSTAR and ePHENIX detectors.
+* Add utility scripts to build and verify ROOT files.
+* Support for interface with eicroot detector simulation.
+* Support for building via CMake.
+* Correct an error in PEPSI/LEPTO kinematic calculations.
+* Fix a small descrepancy between the nu reported by a generator and that
+  calculated by eic-smear.
+* Fix occasional crashes in SmearTree and EventToDot
+* Fix error in Acceptance that caused PID cuts to sometimes not be applied.
+* Fix bug causing cross section to be ignored when reading DJANGOH log files.
+
 Changes for 1.0.2:
 
 * Monte Carlo events now store tracks in a TClonesArray instead of vector.

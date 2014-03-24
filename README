@@ -18,7 +18,7 @@ It contains classes and routines for:
 The tree-building portion processes plain text files, formatted according to
 the EIC convention, into a ROOT TTree containing events.
 The following Monte Carlo generators are supported:
-PYTHIA, RAPGAP, PEPSI, DJANGOH, MILOU, DPMJet, gmc_trans.
+PYTHIA, RAPGAP, PEPSI, LEPTO, DJANGOH, MILOU, DPMJet, gmc_trans.
 Please see the EIC wiki pages for descriptions of the data formats and
 the EIC AFS area for installations of each of the Monte Carlo generators.
 Each entry in the TTree is a single C++ event object, storing event-wise 
@@ -34,33 +34,59 @@ input Monte Carlo events.
 
 Both portions of the code are included in the eic-smear shared library.
 
---------------------------------------------------------------------------------
-Building
-
 For those with access to the EIC AFS area, the stable versions of the
 code are installed under
 /afs/rhic.bnl.gov/eic/PACKAGES/eic-smear
 
-Those who wish to build the code themselves can check it out via Subversion:
+--------------------------------------------------------------------------------
+Building with configure/make
 
-svn checkout http://svn.racf.bnl.gov/svn/eic/Utilities/eic-smear/trunk eic-smear
-
-Navigate to /path/to/eic-smear, and run
-
-autoreconf --force --install
-
-Create a directory in which to build eic-smear, navigate to that and run
+To compile eic-smear from a source distribution, create a directory in which to
+build eic-smear and from there:
 
 /path/to/eic-smear/configure
 make
 
-If you wish to install the generated libraries in a location install-dir,
-instead do
+If you wish to install the generated libraries in a location, specify the
+location via the --prefix argument and 'make install' after building:
 
 /path/to/eic-smear/configure --prefix=/path/to/install-dir
 make
 make install
 
-If you want to build PYTHIA6-dependent components, pass the location
-of libPythia6 to configure via
+If you wish to build PYTHIA6-dependent components, pass the location of
+libPythia6 to configure via with --with-pythia6-lidir argument:
+
 /path/to/eic-smear/configure --with-pythia6-libdir=/path/to/pythia6/lib
+
+Full help is available via
+
+/path/to/eic-smear/configure --help
+
+--------------------------------------------------------------------------------
+Building with CMake
+
+Create a build directory and from there:
+
+cmake /path/to/eic-smear
+make
+
+To install, run cmake with:
+
+cmake -DCMAKE_INSTALL_PREFIX=/path/to/install-dir /path/to/eic-smear
+
+To include PYTHIA6-dependent components, add the argument:
+
+cmake -DPYTHIA6_LIBDIR=/path/to/pythia6-libdir
+
+--------------------------------------------------------------------------------
+
+Those who wish to develop the code themselves can check it out via Subversion:
+
+svn checkout http://svn.racf.bnl.gov/svn/eic/Utilities/eic-smear/trunk eic-smear
+
+Before building with configure/make, navigate to /path/to/eic-smear, and run
+
+autoreconf --force --install
+
+This requires that you have GNU Autotools installed
