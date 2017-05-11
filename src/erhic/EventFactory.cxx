@@ -155,11 +155,16 @@ Int_t EventFromAsciiFactory<T>::FinishEvent() {
 
 template<typename T>
 bool EventFromAsciiFactory<T>::AddParticle() {
+  //return true;
   try {
     if (mEvent.get()) {
-      ParticleMC particle(mLine);  // Throws if the string is bad
+      ParticleMC particle(mLine, mEvent->RequiresEaParticleFields());  // Throws if the string is bad
       particle.SetEvent(mEvent.get());
       mEvent->AddLast(&particle);
+      //ParticleMCeA *particle = new ParticleMCeA(mLine);  // Throws if the string is bad
+      //particle->SetEvent(mEvent.get());
+      //mEvent->AddLast(particle);
+      //delete particle;
     }  // if
     return true;
   }  // try
@@ -186,5 +191,7 @@ erhic::EventFromAsciiFactory<erhic::EventMilou> em;
 erhic::EventFromAsciiFactory<erhic::EventRapgap> er;
 erhic::EventFromAsciiFactory<erhic::EventPythia> ep;
 erhic::EventFromAsciiFactory<erhic::EventGmcTrans> eg;
+
+erhic::EventFromAsciiFactory<erhic::EventBeagle> eb;
 
 }  // namespace

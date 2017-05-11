@@ -95,4 +95,69 @@ const ParticleMC* EventPythia::ScatteredLepton() const {
   return NULL;
 }
 
+  EventBeagle::EventBeagle(const std::string& str/* Unused */): 
+    EventPythia(str)
+    , lepton(std::numeric_limits<Int_t>::max()) 
+    , Atarg(std::numeric_limits<Int_t>::max())
+    , Ztarg(std::numeric_limits<Int_t>::max())
+    , pzlep(NAN)
+    , pztarg(NAN)
+    , pznucl(NAN)
+    , crang(NAN)
+    , crori(NAN)
+    , b(NAN)
+    , Phib(NAN)
+    , Thickness(NAN)
+    , ThickScl(NAN)
+    , Ncollt(std::numeric_limits<Int_t>::max())
+    , Ncolli(std::numeric_limits<Int_t>::max())
+    , Nwound(std::numeric_limits<Int_t>::max())
+    , Nwdch(std::numeric_limits<Int_t>::max())
+    , Nnevap(std::numeric_limits<Int_t>::max())
+    , Npevap(std::numeric_limits<Int_t>::max())
+    , Aremn(std::numeric_limits<Int_t>::max())
+    , NINC(std::numeric_limits<Int_t>::max())
+    , NINCch(std::numeric_limits<Int_t>::max())
+    , d1st(NAN)
+    , davg(NAN)
+    , pxf(NAN)
+    , pyf(NAN)
+    , pzf(NAN)
+    , Eexc(NAN)
+    , RAevt(NAN)
+    , User1(NAN)
+    , User2(NAN)
+    , User3(NAN)
+  {
+   
+  } // EventBeagle::EventBeagle()
+
+  EventBeagle::~EventBeagle() { }
+
+bool EventBeagle::Parse(const std::string& line) {
+  static std::stringstream ss;
+  ss.str("");
+  ss.clear();
+  ss << line;
+  ss >>
+//  number >> number >>  // Skip first int in the line
+//  genevent >> process >> nucleon >> tgtparton >> xtgtparton >>
+//  beamparton >> xbeamparton >> thetabeamparton >> trueY >> trueQ2 >>
+//  trueX >> trueW2 >> trueNu >> leptonphi >> sHat >> t_hat >> u_hat >>
+//  pt2_hat >> Q2_hat >> F2 >> F1 >> R >> sigma_rad >> SigRadCor >> EBrems >>
+//  photonflux >> nTracks;
+  number >> number >>  // Skip first int in the line
+  genevent >> 
+  lepton >> Atarg >> Ztarg >> pzlep >> pztarg >> pznucl >> crang >> crori >>//added variables
+  process >> nucleon >> tgtparton >> xtgtparton >>
+  beamparton >> xbeamparton >> thetabeamparton >> trueY >> trueQ2 >>
+  trueX >> trueW2 >> trueNu >> leptonphi >> sHat >> t_hat >> u_hat >>
+  pt2_hat >> Q2_hat >> F2 >> F1 >> R >> sigma_rad >> SigRadCor >> EBrems >>
+  photonflux >> 
+  b >> Phib >> Thickness >> ThickScl >> Ncollt >> Ncolli >> Nwound >> Nwdch >> Nnevap >> Npevap >> Aremn >> //added variables
+  NINC >> NINCch >> d1st >> davg >> pxf >> pyf >> pzf >> Eexc >> RAevt >> User1 >> User2 >> User3 >> //added variables
+  nTracks;
+  // Protect against errors in the input file or the stream
+  return !ss.fail();
+}
 }  // namespace erhic

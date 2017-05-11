@@ -305,7 +305,8 @@ class EventPythia : public EventMC {
    */
   virtual const ParticleMC* ScatteredLepton() const;
 
- protected:
+  // Let them all be public; this access method dances for POD does not make sense;
+  //protected:
   // Inline comments after field names will appear in ROOT
   // when EventPythia::Dump() is called.
   Int_t       nucleon;          ///< PDG code of the hadron beam,
@@ -350,7 +351,7 @@ class EventPythia : public EventMC {
                                 ///< subprocess, see PARI(18)
   Double32_t  sHat;             ///< Mandelstam s of the hard subprocess,
                                 ///< see PARI(14)
-  ClassDef(erhic::EventPythia, 1)
+  ClassDef(erhic::EventPythia, 2)
 };
 
 inline void EventPythia::SetNucleon(int n) {
@@ -540,6 +541,54 @@ inline double EventPythia::GetTrueNu() const {
 inline double EventPythia::GetR() const {
   return R;
 }
+
+
+class EventBeagle : public EventPythia {
+ public:
+  explicit EventBeagle(const std::string& str = "");
+
+  ~EventBeagle();
+
+  bool RequiresEaParticleFields() { return true; };
+
+  bool Parse(const std::string&);
+
+  ///=================additional variables for BeAGLE==================
+	//put in the public region to be easily accessed
+  Int_t lepton;  ///< lepton beam ID
+  Int_t Atarg;	 ///< mass number of target beam
+  Int_t Ztarg;	 ///< charge number of target beam
+  Double32_t pzlep;		///< lepton beam momentum
+  Double32_t pztarg;		///< target beam momentum
+  Double32_t pznucl;		///< target nucleon momentum
+	Double32_t crang;			///< crossing angle (mr). crang=1000*atan(px/pz), one beam px=py=0, the other py=0
+	Double32_t crori;			///< crossing angle orientation, +-1 lepton beam along +-z, +-2 hadron beam along +-z, 0 meas no crossing angle
+  Double32_t b;		///< impact parameter value
+  Double32_t Phib;		///< phi of impact parameter vector
+	Double32_t Thickness; ///< T(b) in nucleons/fm^2
+	Double32_t ThickScl; ///< T(b)/rho0 in fm
+	Int_t Ncollt; ///< Number of collisions in target
+	Int_t Ncolli; ///< Number of inelastic collisions in target
+	Int_t Nwound; ///< Number of wounded nucleon including those in INC
+	Int_t Nwdch; ///< Number of wounded proton including those in INC
+	Int_t Nnevap; ///< Number of neutrons from evaporation
+	Int_t Npevap; ///< Number of protons from evaporation
+	Int_t Aremn; ///< A of the nuclear remnant after evaporation and breakup
+  Int_t NINC; ///< Number of stable hadrons from intranuclear cascade
+	Int_t NINCch; ///< Number of charged stable hadrons from intranuclear cascade
+	Double32_t d1st; ///< density-weighted distance from first collision to the edge of the nucleus (amount of material traversed / rho0)
+	Double32_t davg; ///< Average density-weighted distance from all inelastic collisions to the edge of the nucleus
+	Double32_t pxf; ///< Sum fermi momentum of all inelastic participant in target rest frame z along gamma*
+	Double32_t pyf; ///< Sum fermi momentum of all inelastic participant in target rest frame z along gamma*
+	Double32_t pzf; ///< Sum fermi momentum of all inelastic participant in target rest frame z along gamma*
+	Double32_t Eexc; ///< Excitation energy in the nuclear remnant before evaporation and breakup 
+	Double32_t RAevt; ///< Nuclear PDF ratio for the up sea for the given event kinematics 
+	Double32_t User1; ///< User variables to prevent/delay future format changes 
+	Double32_t User2; ///< User variables to prevent/delay future format changes 
+	Double32_t User3; ///< User variables to prevent/delay future format changes 
+
+  ClassDef(erhic::EventBeagle, 1)
+};
 
 }  // namespace erhic
 

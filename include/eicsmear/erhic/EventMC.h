@@ -39,6 +39,8 @@ class EventMC : public EventDis {
    */
   virtual ~EventMC();
 
+  virtual bool RequiresEaParticleFields() { return false; };
+
   /**
    Returns a unique identifier for this event.
    */

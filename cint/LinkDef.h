@@ -20,7 +20,9 @@
 // Particle classes
 
 #pragma link C++ class erhic::VirtualParticle+;
+#pragma link C++ class erhic::ParticleMCbase+;
 #pragma link C++ class erhic::ParticleMC+;
+#pragma link C++ class erhic::ParticleMCeA+;
 
 // Base event classes
 
@@ -31,6 +33,7 @@
 // Event classes for individual generators
 
 #pragma link C++ class erhic::EventPythia+;
+#pragma link C++ class erhic::EventBeagle+;
 #pragma link C++ class erhic::EventRapgap+;
 #pragma link C++ class erhic::EventPepsi+;
 #pragma link C++ class erhic::EventDjangoh+;
@@ -46,6 +49,7 @@
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventRapgap>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventDjangoh>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventDpmjet>+;
+#pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventBeagle>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventPythia>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventGmcTrans>+;
 #pragma link C++ class erhic::EventMCFilterABC+;
@@ -74,6 +78,7 @@
 #pragma link C++ class erhic::File<erhic::EventRapgap>+;
 #pragma link C++ class erhic::File<erhic::EventDjangoh>+;
 #pragma link C++ class erhic::File<erhic::EventDpmjet>+;
+#pragma link C++ class erhic::File<erhic::EventBeagle>+;
 #pragma link C++ class erhic::File<erhic::EventGmcTrans>+;
 #pragma link C++ class erhic::FileFactory;
 

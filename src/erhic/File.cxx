@@ -418,6 +418,8 @@ LogReader* LogReaderFactory::CreateReader(std::istream& is) const {
     reader = CreateReader("rapgap");
   } else if (str.Contains("djangoh")) {
     reader = CreateReader("djangoh");
+    //} else if (str.Contains("beagle")) {
+    //reader = CreateReader("beagle");
   } else if (str.Contains("milou")) {
     reader = CreateReader("milou");
   }  // if
@@ -546,6 +548,8 @@ const FileType* FileFactory::GetFile(std::istream& is) const {
     file = GetFile("djangoh");
   } else if (str.Contains("milou")) {
     file = GetFile("milou");
+  } else if (str.Contains("beagle")) {
+    file = GetFile("beagle");
   } else if (str.Contains("gmctrans")) {
     file = GetFile("gmctrans");
   }  // if
@@ -563,6 +567,8 @@ FileFactory::FileFactory() {
                                     new File<EventPepsi>()));
   prototypes_.insert(std::make_pair("pythia",
                                     new File<EventPythia>()));
+  prototypes_.insert(std::make_pair("beagle",
+                                    new File<EventBeagle>()));
   prototypes_.insert(std::make_pair("rapgap",
                                     new File<EventRapgap>()));
   prototypes_.insert(std::make_pair("gmctrans",

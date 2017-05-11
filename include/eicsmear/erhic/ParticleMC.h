@@ -21,24 +21,32 @@
 
 namespace erhic {
 
+  class ParticleMCeA: public TObject {
+ public:
+    explicit ParticleMCeA() {};
+  virtual ~ParticleMCeA() {};
+
+  // Let them all be public;
+  //added by liang to include add on particle data structure
+  Int_t charge; 
+  Int_t massNum;
+  Int_t NoBam; ///< 0, 2 create in hard collisions not affected by INC: 0 inside nucleus, 2 outside nucleus;
+							 ///< 3 create in evaporation; 4 heaviest remnant in evaporation;
+							 ///< 11-34 created in INC, 10+n, n=IDCH cascade generated in INC
+  ClassDef(ParticleMCeA, 1)
+};
+
 class EventMC;
 /**
  A particle produced by a Monte Carlo generator.
  */
-class ParticleMC : public VirtualParticle {
+class ParticleMCbase : public VirtualParticle {
  public:
-  /**
-   Default constructor.
-   Optionally pass a string with particle information in a HEPEVT
-   format, namely:
-     "index status id parent firstChild lastChild px py pz E m xv yv zv"
-   */
-  explicit ParticleMC(const std::string& = "");
-
+  explicit ParticleMCbase();
   /**
    Destructor
    */
-  virtual ~ParticleMC();
+  virtual ~ParticleMCbase() {};
 
   /**
    Print the contents of Particle to standard output.
@@ -64,15 +72,7 @@ class ParticleMC : public VirtualParticle {
    Returns the index of this particle's parent in an event.
    */
   virtual UShort_t GetParentIndex() const;
-
-  /**
-   Returns a pointer to the parent of this particle.
-   This is the particle with index GetParentIndex() in the
-   event containing this particle (obtainable via GetEvent()).
-   Returns NULL if this particle has no parent or if it cannot
-   be accessed via GetEvent().
-   */
-  virtual const ParticleMC* GetParent() const;
+  virtual UShort_t GetParentIndex1() const;
 
   /**
    Returns the index of this particle's first child particle.
@@ -91,26 +91,6 @@ class ParticleMC : public VirtualParticle {
    Returns 0 if the particle did not decay.
    */
   virtual UInt_t GetNChildren() const;
-
-  /**
-   Returns a pointer to the nth child particle of this particle,
-   where n is in the range [0, GetNChildren()).
-   GetChild(0) returns the child whose index in this particle's
-   event is GetChild1Index().
-   GetChild(GetNChildren()-1) returns the child whose index
-   is GetChildNIndex().
-   Returns NULL if there is no such child particle or it
-   cannot be accessed via the event for some reason (see GetEvent()).
-   */
-  virtual const ParticleMC* GetChild(UShort_t) const;
-
-  /**
-   Returns true if n in the range [0, N), where N is the number
-   of children of this particle.
-   Returns false otherwise.
-   Equivalent to GetChild(n) != NULL.
-   */
-  virtual Bool_t HasChild(Int_t) const;
 
   /**
    Returns the x component of 3-momentum.
@@ -349,15 +329,22 @@ class ParticleMC : public VirtualParticle {
 // protected:
 
   UShort_t    I;             ///< Particle index in event
-  UShort_t    KS;            ///< Particle status code: see PYTHIA manual
+  //UShort_t    KS;            ///< Particle status code: see PYTHIA manual
+  //modified by liang to include negative KS values
+  Int_t		  KS;            ///< Particle status code: see PYTHIA manual
   Int_t       id;            ///< PDG particle code
+  // Looks strange (see also access methods); keep like this for sort of 
+  // backward compatibility;
   UShort_t    orig;          ///< I of parent particle
+  UShort_t    orig1;         ///< I of parent particle1
   UShort_t    daughter;      ///< I of first child particle
   UShort_t    ldaughter;     ///< I of last child particle
 
-  Double32_t px;           ///< x component of particle momentum
-  Double32_t py;           ///< y component of particle momentum
-  Double32_t pz;           ///< z component of particle momentum
+  // AYK, 2017/04/02: changed {px,py,pz} & {xv,yv,zv} variable types 
+  // from Double32_t (float) to Double_t (double);
+  Double_t px;           ///< x component of particle momentum
+  Double_t py;           ///< y component of particle momentum
+  Double_t pz;           ///< z component of particle momentum
 
   // Reducing file size.
   // The following variables could be removed, at the cost of increased
@@ -381,9 +368,9 @@ class ParticleMC : public VirtualParticle {
   Double32_t E;            ///< Energy of particle
   Double32_t m;            ///< Invariant mass of particle
   Double32_t pt;           ///< Transverse momentum of particle
-  Double32_t xv;           ///< x coordinate of particle production vertex
-  Double32_t yv;           ///< y coordinate of particle production vertex
-  Double32_t zv;           ///< z coordinate of particle production vertex
+  Double_t xv;           ///< x coordinate of particle production vertex
+  Double_t yv;           ///< y coordinate of particle production vertex
+  Double_t zv;           ///< z coordinate of particle production vertex
 
   // Can be deprecated if parent particle itself is available
   Int_t parentId;          ///< PDG code of this particle's parent
@@ -406,136 +393,197 @@ class ParticleMC : public VirtualParticle {
   TRef event;  ///< Persistent reference to the event containing
                ///< this particle.
 
-  ClassDef(ParticleMC, 1)
+  ClassDef(ParticleMCbase, 4)
 };
 
-inline UInt_t ParticleMC::GetIndex() const {
+// The unfortunate consequence of adding 'eA' pointer to the ParticleMC 
+// class is that default copy ctor does not work; the easiest workaround
+// (unless somebody would like to copy all the other variables by hand) 
+// is to offload these variables to an intermediate base class;
+class ParticleMC : public ParticleMCbase {
+ public:
+  /**
+   Default constructor.
+   Optionally pass a string with particle information in a HEPEVT
+   format, namely:
+     "index status id parent firstChild lastChild px py pz E m xv yv zv"
+   */
+  explicit ParticleMC(): eA(0) {};
+  explicit ParticleMC(const std::string&, bool eAflag);
+  // So this is the evil copy ctor, which is damn simple now;
+ ParticleMC(const ParticleMC &src): ParticleMCbase(src) {
+    eA = src.eA ? new ParticleMCeA(*src.eA) : 0; //orig1 = src.orig1;
+  };
+
+  ~ParticleMC();
+
+  /**
+   Returns a pointer to the parent of this particle.
+   This is the particle with index GetParentIndex() in the
+   event containing this particle (obtainable via GetEvent()).
+   Returns NULL if this particle has no parent or if it cannot
+   be accessed via GetEvent().
+   */
+  virtual const ParticleMC* GetParent() const;
+
+  /**
+   Returns a pointer to the nth child particle of this particle,
+   where n is in the range [0, GetNChildren()).
+   GetChild(0) returns the child whose index in this particle's
+   event is GetChild1Index().
+   GetChild(GetNChildren()-1) returns the child whose index
+   is GetChildNIndex().
+   Returns NULL if there is no such child particle or it
+   cannot be accessed via the event for some reason (see GetEvent()).
+   */
+  virtual const ParticleMC* GetChild(UShort_t) const;
+
+  /**
+   Returns true if n in the range [0, N), where N is the number
+   of children of this particle.
+   Returns false otherwise.
+   Equivalent to GetChild(n) != NULL.
+   */
+  virtual Bool_t HasChild(Int_t) const;
+
+  // FIXME: let it be public?; NB: TRef (like for ParticleMCbase.event) is 
+  // not needed here, since it is just a POD instance with a single reference;
+  ParticleMCeA *eA;
+  //UShort_t    orig1;          ///< I of parent particle1
+
+  ClassDef(ParticleMC, 2)
+};
+
+inline UInt_t ParticleMCbase::GetIndex() const {
   return I;
 }
 
-inline UShort_t ParticleMC::GetStatus() const {
+inline UShort_t ParticleMCbase::GetStatus() const {
   return KS;
 }
 
-inline UShort_t ParticleMC::GetParentIndex() const {
+inline UShort_t ParticleMCbase::GetParentIndex() const {
   return orig;
 }
+inline UShort_t ParticleMCbase::GetParentIndex1() const {
+  return orig1;
+}
 
-inline UShort_t ParticleMC::GetChild1Index() const {
+inline UShort_t ParticleMCbase::GetChild1Index() const {
   return daughter;
 }
 
-inline UShort_t ParticleMC::GetChildNIndex() const {
+inline UShort_t ParticleMCbase::GetChildNIndex() const {
   return ldaughter;
 }
 
-inline Double_t ParticleMC::GetPx() const {
+inline Double_t ParticleMCbase::GetPx() const {
   return px;
 }
 
-inline Double_t ParticleMC::GetPy() const {
+inline Double_t ParticleMCbase::GetPy() const {
   return py;
 }
 
-inline Double_t ParticleMC::GetPz() const {
+inline Double_t ParticleMCbase::GetPz() const {
   return pz;
 }
 
-inline Double_t ParticleMC::GetM() const {
+inline Double_t ParticleMCbase::GetM() const {
   return m;
 }
 
-inline Double_t ParticleMC::GetPt() const {
+inline Double_t ParticleMCbase::GetPt() const {
   return pt;
 }
 
-inline TVector3 ParticleMC::GetVertex() const {
+inline TVector3 ParticleMCbase::GetVertex() const {
   return TVector3(xv, yv, zv);
 }
 
-inline erhic::Pid ParticleMC::GetParentId() const {
+inline erhic::Pid ParticleMCbase::GetParentId() const {
   return erhic::Pid(parentId);
 }
 
-inline Double_t ParticleMC::GetP() const {
+inline Double_t ParticleMCbase::GetP() const {
   return p;
 }
 
-inline Double_t ParticleMC::GetTheta() const {
+inline Double_t ParticleMCbase::GetTheta() const {
   return theta;
 }
 
-inline Double_t ParticleMC::GetPhi() const {
+inline Double_t ParticleMCbase::GetPhi() const {
   return phi;
 }
 
-inline Double_t ParticleMC::GetRapidity() const {
+inline Double_t ParticleMCbase::GetRapidity() const {
   return rapidity;
 }
 
-inline Double_t ParticleMC::GetEta() const {
+inline Double_t ParticleMCbase::GetEta() const {
   return eta;
 }
 
-inline Double_t ParticleMC::GetZ() const {
+inline Double_t ParticleMCbase::GetZ() const {
   return z;
 }
 
-inline Double_t ParticleMC::GetXFeynman() const {
+inline Double_t ParticleMCbase::GetXFeynman() const {
   return xFeynman;
 }
 
-inline Double_t ParticleMC::GetThetaVsGamma() const {
+inline Double_t ParticleMCbase::GetThetaVsGamma() const {
   return thetaGamma;
 }
 
-inline Double_t ParticleMC::GetPtVsGamma() const {
+inline Double_t ParticleMCbase::GetPtVsGamma() const {
   return ptVsGamma;
 }
 
-inline Pid ParticleMC::Id() const {
+inline Pid ParticleMCbase::Id() const {
   return Pid(id);
 }
 
-inline UInt_t ParticleMC::GetNChildren() const {
+inline UInt_t ParticleMCbase::GetNChildren() const {
   if (0 == daughter) return 0;
   if (0 == ldaughter) return 1;
   return ldaughter - daughter + 1;
 }
 
-inline Double_t ParticleMC::GetE() const {
+inline Double_t ParticleMCbase::GetE() const {
   return E;
 }
 
-inline void ParticleMC::SetE(Double_t e) {
+inline void ParticleMCbase::SetE(Double_t e) {
   E = e;
 }
 
-inline void ParticleMC::SetM(Double_t mass) {
+inline void ParticleMCbase::SetM(Double_t mass) {
   m = mass;
 }
 
-inline void ParticleMC::SetP(Double_t momentum) {
+inline void ParticleMCbase::SetP(Double_t momentum) {
   p = momentum;
 }
 
-inline void ParticleMC::SetPt(Double_t momentum) {
+inline void ParticleMCbase::SetPt(Double_t momentum) {
   pt = momentum;
 }
 
-inline void ParticleMC::SetPz(Double_t momentum) {
+inline void ParticleMCbase::SetPz(Double_t momentum) {
   pz = momentum;
 }
 
-inline void ParticleMC::SetPhi(Double_t value) {
+inline void ParticleMCbase::SetPhi(Double_t value) {
   phi = value;
 }
 
-inline void ParticleMC::SetTheta(Double_t value) {
+inline void ParticleMCbase::SetTheta(Double_t value) {
   theta = value;
 }
 
-inline void ParticleMC::SetStatus(UShort_t status) {
+inline void ParticleMCbase::SetStatus(UShort_t status) {
   KS = status;
 }
 

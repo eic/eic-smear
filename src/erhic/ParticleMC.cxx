@@ -52,7 +52,7 @@ TLorentzRotation computeBoost(const TLorentzVector& rest,
 
 namespace erhic {
 
-ParticleMC::ParticleMC(const std::string& line)
+  ParticleMCbase::ParticleMCbase()
 : I(-1)
 , KS(-1)
 , id(std::numeric_limits<Int_t>::min())
@@ -78,18 +78,38 @@ ParticleMC::ParticleMC(const std::string& line)
 , xFeynman(0.)
 , thetaGamma(0.)
 , ptVsGamma(0.)
-, phiPrf(0.) {
+, phiPrf(0.)
+  {
+  }
+
+  ParticleMC::ParticleMC(const std::string &line, bool eAflag): ParticleMCbase(), eA(0) 
+{
   // Initialise to nonsense values to make input errors easy to spot
   if (!line.empty()) {
     static std::stringstream ss;
     ss.str("");
     ss.clear();
     ss << line;
-    ss >>
-    I >> KS >> id >> orig >> daughter >> ldaughter >>
-    px >> py >> pz >> E >> m >> xv >> yv >> zv;
-    // We should have no stream errors and should have exhausted
-    // the whole of the stream filling the particle.
+    if (eAflag) {
+      eA = new ParticleMCeA();
+
+      ss >>
+	//changed by liang to add particle mother1
+	//    I >> KS >> id >> orig >> daughter >> ldaughter >>
+	I >> KS >> id >> orig1 >> orig >> daughter >> ldaughter >>
+	px >> py >> pz >> E >> m >> xv >> yv >> zv
+	//added by liang to include add particle data structure
+	 >> eA->massNum >> eA->charge >> eA->NoBam;
+
+      //eA->pz = pz; orig1 = eA->orig1; 
+    } else {
+      ss >>
+	I >> KS >> id >> orig >> daughter >> ldaughter >>
+	px >> py >> pz >> E >> m >> xv >> yv >> zv;
+      orig1 = 0;
+    } //if
+      // We should have no stream errors and should have exhausted
+      // the whole of the stream filling the particle.
     if (ss.fail() || !ss.eof()) {
       throw std::runtime_error("Bad particle input: " + line);
     }  // if
@@ -97,17 +117,20 @@ ParticleMC::ParticleMC(const std::string& line)
   }  // if
 }
 
-ParticleMC::~ParticleMC() {
+ParticleMC::~ParticleMC() 
+{
+  if (eA) delete eA;
 }
 
-void ParticleMC::Print(Option_t* /* option */) const {
+  // FIXME: may also want to print out ParticleMCeA variables?;
+void ParticleMCbase::Print(Option_t* /* option */) const {
   std::cout << I << '\t' << KS << '\t' << id << '\t' << orig << '\t' <<
   daughter << '\t' << ldaughter << '\t' << px << '\t' << py << '\t' << pz
   << '\t' << E << '\t' << m << '\t' << xv << '\t' << yv << '\t' << zv <<
   std::endl;
 }
 
-void ParticleMC::ComputeDerivedQuantities() {
+void ParticleMCbase::ComputeDerivedQuantities() {
   // Calculate quantities that depend only on the properties already read.
   pt = sqrt(pow(px, 2.) + pow(py, 2.));
   p = sqrt(pow(pt, 2.) + pow(pz, 2.));
@@ -129,7 +152,7 @@ void ParticleMC::ComputeDerivedQuantities() {
   phi = TVector2::Phi_0_2pi(atan2(py, px));
 }
 
-void ParticleMC::ComputeEventDependentQuantities(EventMC& event) {
+void ParticleMCbase::ComputeEventDependentQuantities(EventMC& event) {
   try {
     // Get the beam hadon, beam lepton and exchange boson.
     const TLorentzVector& hadron = event.BeamHadron()->Get4Vector();
@@ -173,11 +196,11 @@ void ParticleMC::ComputeEventDependentQuantities(EventMC& event) {
   }  // catch
 }
 
-TLorentzVector ParticleMC::Get4Vector() const {
+TLorentzVector ParticleMCbase::Get4Vector() const {
   return TLorentzVector(px, py, pz, E);
 }
 
-const EventMC* ParticleMC::GetEvent() const {
+const EventMC* ParticleMCbase::GetEvent() const {
   return static_cast<EventMC*>(event.GetObject());
 }
 
@@ -226,7 +249,7 @@ Bool_t ParticleMC::HasChild(Int_t pdg) const {
   return false;
 }
 
-TLorentzVector ParticleMC::Get4VectorInHadronBosonFrame() const {
+TLorentzVector ParticleMCbase::Get4VectorInHadronBosonFrame() const {
   double p_(0.), e_(0.), px_(ptVsGamma), py_(0.), pz_(0.);
   // Calculate mangitude of momentum from pT and polar angle in
   // hadron-boson frame. If theta is ~parallel to the beam just set
@@ -277,11 +300,11 @@ TLorentzVector ParticleMC::Get4VectorInHadronBosonFrame() const {
   return TLorentzVector(px_, py_, pz_, e_);
 }
 
-void ParticleMC::SetEvent(EventMC* e) {
+void ParticleMCbase::SetEvent(EventMC* e) {
   event = e;
 }
 
-void ParticleMC::Set4Vector(const TLorentzVector& v) {
+void ParticleMCbase::Set4Vector(const TLorentzVector& v) {
   E = v.Energy();
   px = v.Px();
   py = v.Py();
@@ -296,10 +319,66 @@ void ParticleMC::Set4Vector(const TLorentzVector& v) {
   }  // if
 }
 
-void ParticleMC::SetVertex(const TVector3& v) {
+void ParticleMCbase::SetVertex(const TVector3& v) {
   xv = v.X();
   yv = v.Y();
   zv = v.Z();
 }
+
+#if _OLD_
+ParticleMCeA::ParticleMCeA(const std::string& line)
+: /*I(-1)
+, KS(-1)
+, id(std::numeric_limits<Int_t>::min())
+, orig(-1)
+, daughter(-1)
+, ldaughter(-1)
+, px(0.)
+, py(0.)
+, pz(0.)
+, E(0.)
+, m(0.)
+, pt(0.)
+, xv(0.)
+, yv(0.)
+, zv(0.)
+, parentId(std::numeric_limits<Int_t>::min())
+, p(0.)
+, theta(0.)
+, phi(0.)
+, rapidity(0.)
+, eta(0.)
+, z(0.)
+, xFeynman(0.)
+, thetaGamma(0.)
+, ptVsGamma(0.)
+, phiPrf(0.) 
+//added by liang to include add particle data structure
+,*/ orig1(-1)
+, charge(-999)
+, massNum(-999) 
+, NoBam(-999) {
+  // Initialise to nonsense values to make input errors easy to spot
+  if (!line.empty()) {
+    static std::stringstream ss;
+    ss.str("");
+    ss.clear();
+    ss << line;
+    ss >>
+	//changed by liang to add particle mother1
+//    I >> KS >> id >> orig >> daughter >> ldaughter >>
+    I >> KS >> id >> orig1 >> orig >> daughter >> ldaughter >>
+    px >> py >> pz >> E >> m >> xv >> yv >> zv
+	//added by liang to include add particle data structure
+	>> massNum >> charge >> NoBam;
+    // We should have no stream errors and should have exhausted
+    // the whole of the stream filling the particle.
+    if (ss.fail() || !ss.eof()) {
+      throw std::runtime_error("Bad particle input: " + line);
+    }  // if
+    ComputeDerivedQuantities();
+  }  // if
+}
+#endif
 
 }  // namespace erhic
