@@ -43,26 +43,36 @@ For those with access to the EIC AFS area, the stable versions of the
 code are installed under
 /afs/rhic.bnl.gov/eic/env/pro/PACKAGES
 
-Those who wish to build the code themselves can check it out via Subversion:
+Those who wish to build the code from the original Subversion reporitory (not up to date):
 
+```sh
 svn checkout http://svn.racf.bnl.gov/svn/eic/Utilities/eic-smear/trunk eic-smear
+```
 
 Navigate to /path/to/eic-smear, and run
 
+```sh
 autoreconf --force --install
+```
 
 Create a directory in which to build eic-smear, navigate to that and run
 
+```sh
 /path/to/eic-smear/configure
 make
+```
 
 If you wish to install the generated libraries in a location install-dir,
 instead do
 
+```sh
 /path/to/eic-smear/configure --prefix=/path/to/install-dir
 make
 make install
+```
 
 If you want to build PYTHIA6-dependent components, pass the location
 of libPythia6 to configure via
+```sh
 /path/to/eic-smear/configure --with-pythia6-libdir=/path/to/pythia6/lib
+```
