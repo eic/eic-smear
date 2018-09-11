@@ -1,0 +1,301 @@
+#!/usr/bin/env python
+
+'''
+Bridging script between TPPMC output and EIC smearing code.
+
+You need both TPPMC and eic-smear installed, and the libraries to
+be accessible via (DY)LD_LIBRARY_PATH.
+ROOT should be installed with Python support (which it is by default).
+
+First, it generates a ROOT tree in the EIC event format, specifically
+events of the class erhic::hadronic::EventPythia, from the TPPMC events.
+Only TPPMC hadrons are propagated to the EIC tree file, as the partons
+are not involved in smearing.
+Then, smearing is performed on the EIC tree.
+Users can define their own smearing performance either by
+1) modifying the subroutine build_detector() in tppmc2smear.py
+2) providing an external ROOT script. The external script should provide
+   a function with the following name and signature:
+      void define_smearing(Smear::Detector&);
+   The function should define the Smear::Detector that guides smearing
+   according to their needs.
+By default the intermediate EIC event tree will be saved, with the name
+unsmeared.<name>.root for a smeared file named <name>.root.
+
+Run tppmc2smear.py --help for an explanation of all command line options.
+
+Examples:
+
+1) Create EIC/smeared trees:
+    tppmc2smear.py tppmc.root myfile.root
+Generates myfile.root and unsmeared.myfile.root
+
+2) Use smearing defined in an external script:
+    tppmc2smear.py tppmc.root myfile.root --script detector.C
+
+3) Delete intermediate unsmeared EIC file
+    tppmc2smear.py tppmc.root myfile.root --clean
+'''
+
+import argparse
+import math
+import os
+import subprocess
+import sys
+
+import ROOT
+
+# Don't pass command line arguments to ROOT so it
+# doesn't intercept use of --help: we want the help
+# to be printed for this script, not ROOT.
+# root.cern.ch/phpBB3/viewtopic.php?f=14&t=13582
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+
+# Speed things up a bit
+ROOT.SetSignalPolicy(ROOT.kSignalFast)
+
+def open_tppmc_file(filename):
+    '''
+    Open the named ROOT file.
+    Return a tuple of the file and the tree in the file.
+    '''
+    try:
+        file = ROOT.TFile(filename, 'read')
+        tree = file.Get('events')
+        print "Opened file '{}' containing TTree '{}'".format(
+            file.GetName(), tree.GetName())
+        return file, tree
+    except Exception as e:
+        print 'error in open_tppmc_file', e
+
+class Pdg:
+    '''
+    Class for look-up of static particle properties.
+    Caches ROOT.TParticlePDG objects to avoid repeated
+    calls to ROOT.TDatabasePDG.GetParticle().
+    '''
+    particles = {}
+    database = ROOT.TDatabasePDG.Instance()
+    pow = math.pow
+    @classmethod
+    def mass2(cls, pdgcode):
+        # Populate the dict if this PDG code is not present
+        if pdgcode not in cls.particles:
+            cls.particles[pdgcode] = cls.database.GetParticle(pdgcode)
+        # Return the mass if the particle is known, 0 if not
+        if cls.particles[pdgcode]:
+            return cls.pow(cls.particles[pdgcode].Mass(), 2.)
+        else:
+            return 0.
+
+
+'''
+def get_mass(pdg):
+    Returns the mass (GeV/c^2) of the particle species identified
+    by the PDG code, or zero if the particle cannot be determined.
+    if ROOT.TDatabasePDG.Instance().GetParticle(pdg):
+        return ROOT.TDatabasePDG.Instance().GetParticle(pdg).Mass()
+    return 0.
+'''
+def tppmc_particle(tp, cme):
+    '''
+    Generate an erhic::hadronic::ParticleMC from a tppmc::Particle
+    '''
+    # TPPMC doesn't store particle energy, so
+    # compute it from momentum and mass
+    pdg = tp.Type()
+    mom3 = tp.PxPyPz()
+    energy = math.sqrt(mom3.Mag2() + math.pow(Pdg.mass(pdg), 2.))
+#    energy = math.sqrt(mom3.Mag2() + math.pow(get_mass(pdg), 2.))
+    momentum = ROOT.TLorentzVector(mom3, energy)
+    # All TPPMC particles are final-state (status = 1).
+    # Vertex and parent index is not recorded, so use 0.
+    ep = ROOT.erhic.hadronic.ParticleMC(
+        momentum, ROOT.TVector3(0., 0., 0.), pdg, 1, 0)
+    ep.SetXFeynman(ep.GetPz() * 2. / cme)
+    return ep
+
+def qa(options):
+    '''
+    Make some simple plots comparing values in the TPPMC and
+    EIC trees, to ensure values were properly copied.
+    '''
+    print type(options.tppmc)
+    tppmcfile = ROOT.TFile(options.tppmc)
+    tppmctree = tppmcfile.events
+    tppmctree.AddFriend('EICTree', options.smear)
+    window = ROOT.TCanvas()
+    window.Print(options.qa + '[')
+    option = 'box'
+    for pattern in [
+        'mHadrons.pz:mTracks.pz', 'mHadrons.PxPyPz().Eta():mTracks.eta',
+        'mHadrons.type:mTracks.id', 'QSquared():EICTree.QSquared',
+        'PartonX1():EICTree.x1', 'PartonX2():EICTree.x2']:
+        tppmctree.Draw(pattern, '', option)
+        window.Print(options.qa)
+    tppmctree.Draw('EICTree.mTracks.xFeynman')
+    window.Print(options.qa + ')')
+
+def build_detector():
+    '''
+    An example of a possible EIC detector.
+    Put your own smearing definitions here.
+    '''
+    emcal = ROOT.Smear.Device(ROOT.Smear.kE, '0.15*sqrt(E)',
+                              ROOT.Smear.kElectromagnetic)
+    momentum = ROOT.Smear.Device(ROOT.Smear.kP, '0.005*P + 0.004*P*P')
+    theta = ROOT.Smear.Device(ROOT.Smear.kTheta, '0.')
+    phi = ROOT.Smear.Device(ROOT.Smear.kPhi, '0')
+    pid = ROOT.Smear.ParticleID('PerfectPIDMatrix.dat')
+
+    detector = ROOT.Smear.Detector()
+    detector.SetEventKinematicsCalculator('NM JB DA')
+    for d in [emcal, momentum, theta, phi, pid]:
+        detector.AddDevice(d)
+    
+    return detector
+
+def runsmear(filename, detector, outname = ''):
+    '''
+    Use the SmearTree routine to run smearing.
+    '''
+    out = outname
+    if len(out) == 0:
+        base, ext = os.path.splitext(os.path.basename(filename))
+        out = '.'.join([base, 'smear.root'])
+    ROOT.SmearTree(detector, filename, out)
+
+def load_external_root_script(options):
+    '''
+    Check for the external ROOT script named by the command
+    line options and load it into ROOT. Ensure that it provides
+    the expected defined_smearing() function.
+    Return True if everything is OK, or raise an exception
+    if an error is encountered.
+    '''
+    if not os.path.exists(options.script):
+        raise IOError(
+        'External script {} does not exist'.format(options.script))
+    ROOT.gROOT.LoadMacro(options.script)
+    # Check that the user provided a function called define_smearing()
+    # in their external script.
+    if not ROOT.gROOT.GetGlobalFunction('define_smearing'):
+        raise RuntimeError(
+        '{} does not provide define_smearing()'.format(options.script))
+    return True
+
+def get_detector(options):
+    '''
+    Returns a ROOT.Smear.Detector(), either defined in this
+    script or provided by an external ROOT script, depening
+    on command line options.
+    '''
+    # Check for an external script
+    if options.script and load_external_root_script(options):
+        print 'Reading smearing from', options.script
+        detector = ROOT.Smear.Detector()
+        # The external script loaded a function called define_smearing().
+        ROOT.define_smearing(detector)
+    else:
+        print 'Using tppmc2smear smearing definition'
+        detector = build_detector()
+    return detector
+
+def generate(options):
+    file, tree = open_tppmc_file(options.tppmc)
+    eicfile = ROOT.TFile('.'.join(['unsmeared', options.smear]), 'recreate')
+    eictree = ROOT.TTree('EICTree', 'Converted TPPMC event tree')
+    eictree.Branch('event', ROOT.erhic.hadronic.EventPythiaPP())
+    entries = tree.GetEntries()
+    interval = entries / 10
+    print 'Converting tree to suitable format...'
+    event_loop(tree, eictree, entries, interval)
+    eicfile.Write()
+    # Now we have a tree corresponding to the input TPPMC tree, but
+    # in a format that the smearing code will accept.
+    runsmear(eicfile.GetName(), get_detector(options), options.smear)
+    # Delete intermediate EIC file if requested
+    if options.clean:
+        subprocess.call(['rm', '-f', eicfile.GetName()])
+
+class TreeReader(object):
+    '''
+    Generator class for entry-by-entry reading of ROOT TTree.
+    Each call returns the next event in the tree.
+    '''
+    def __init__(self, tree):
+        self.tree = tree
+        self.entries = tree.GetEntries()
+        self.get = ROOT.TTree.GetEntry
+    def __call__(self):
+        for i in xrange(0, self.entries):
+            self.get(self.tree, i)
+            yield self.tree.event
+
+def event_loop(tree, eictree, entries, interval):
+    # Not creating the vectors each time in the inner loop saves some time.
+    vertex = ROOT.TVector3(0., 0., 0.)
+    momentum = ROOT.TLorentzVector(0., 0., 0., 0.)
+    # Read input tree event by event and copy properties to output event.
+    read_events = TreeReader(tree)
+    for te in read_events():
+        event = ROOT.erhic.hadronic.EventPythiaPP(
+            te.QSquared(), te.PartonX1(), te.PartonX2())
+        # Convert and add hadrons to the eRHIC event
+        hadrons = te.Hadrons()
+        # This runs faster without having the particle creation
+        # in a separate function.
+        for i in hadrons:
+            # TPPMC doesn't store particle energy, so
+            # compute it from momentum and mass
+            pdg = i.Type()
+            mom3 = i.PxPyPz()
+            energy = math.sqrt(mom3.Mag2() + Pdg.mass2(pdg))
+            momentum.SetVect(mom3)
+            momentum.SetE(energy)
+            # All TPPMC particles are final-state (status = 1).
+            # Vertex and parent index is not recorded, so use 0.
+            ep = ROOT.erhic.hadronic.ParticleMC(momentum, vertex, pdg, 1, 0)
+            ep.SetXFeynman(ep.GetPz() * 2. / te.mCentreOfMassEnergy)
+            event.Add(ep)
+        eictree.SetBranchAddress('event', event)
+        eictree.Fill()
+        # Print the number of events processed.
+        # Pad the number correctly for nice formatting.
+        if eictree.GetEntries() % interval == 0 and eictree.GetEntries() > 0:
+            print str(eictree.GetEntries()).rjust(len(str(entries))), \
+                  'of', entries, 'events'
+
+def process_arguments():
+    '''
+    Processes command line arguments.
+    Returns an argparse.Namespace with the following fields:
+        tppmc
+        erhic
+        qa
+        script
+        clean
+    '''
+    parser = argparse.ArgumentParser()
+    parser.add_argument('tppmc', help='name of input TPPMC ROOT file')
+    parser.add_argument('smear', help='name of output smeared ROOT file')
+    parser.add_argument('--script', action='store',
+        help='name of ROOT script defining smearing')
+    parser.add_argument('--clean', action='store_const', const=True,
+        default=False, help='delete intermediate EIC file')
+    # This is just for testing, so suppress help
+    parser.add_argument('--qa', action='store', default=None, help=argparse.SUPPRESS)
+    options = parser.parse_args()
+    return options
+
+def execute():
+    ROOT.gSystem.Load('libtppmc')
+    ROOT.gSystem.Load('libeicsmear')
+    options = process_arguments()
+    if options.qa:
+        qa(options)
+    else:
+        generate(options)
+
+if __name__ == "__main__":
+    execute()

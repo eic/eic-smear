@@ -1,0 +1,161 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/eic/!svn/ver/247/Utilities/eic-smear/trunk/include/eicsmear/erhic
+END
+Forester.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/eic/!svn/ver/247/Utilities/eic-smear/trunk/include/eicsmear/erhic/Forester.h
+END
+Pythia6EventBuilder.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/eic/!svn/ver/197/Utilities/eic-smear/trunk/include/eicsmear/erhic/Pythia6EventBuilder.h
+END
+EventPythia.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/eic/!svn/ver/197/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventPythia.h
+END
+EventMC.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/eic/!svn/ver/197/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventMC.h
+END
+Particle.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/Particle.h
+END
+ParticleIdentifier.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/ParticleIdentifier.h
+END
+EventFactory.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/eic/!svn/ver/197/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventFactory.h
+END
+VirtualParticle.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/VirtualParticle.h
+END
+BeamParticles.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/BeamParticles.h
+END
+EventRapgap.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventRapgap.h
+END
+EventDjangoh.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventDjangoh.h
+END
+EventBase.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventBase.h
+END
+Pid.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/Pid.h
+END
+EventMCFilterABC.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventMCFilterABC.h
+END
+File.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/File.h
+END
+Pythia6ParticleBuilder.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/Pythia6ParticleBuilder.h
+END
+EventGmcTrans.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/eic/!svn/ver/197/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventGmcTrans.h
+END
+EventDis.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/eic/!svn/ver/246/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventDis.h
+END
+EventPepsi.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventPepsi.h
+END
+ParticleMC.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/eic/!svn/ver/197/Utilities/eic-smear/trunk/include/eicsmear/erhic/ParticleMC.h
+END
+Pythia6.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/Pythia6.h
+END
+EventDpmjet.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventDpmjet.h
+END
+EventMilou.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/EventMilou.h
+END
+DisKinematics.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/DisKinematics.h
+END
+Kinematics.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/eic/!svn/ver/197/Utilities/eic-smear/trunk/include/eicsmear/erhic/Kinematics.h
+END
+VirtualEvent.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/erhic/VirtualEvent.h
+END

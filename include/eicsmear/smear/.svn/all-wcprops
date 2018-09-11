@@ -1,0 +1,119 @@
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/eic/!svn/ver/250/Utilities/eic-smear/trunk/include/eicsmear/smear
+END
+PlanarTracker.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/PlanarTracker.h
+END
+Tracker.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/Tracker.h
+END
+FormulaString.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/eic/!svn/ver/197/Utilities/eic-smear/trunk/include/eicsmear/smear/FormulaString.h
+END
+Smearer.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/Smearer.h
+END
+Device.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/Device.h
+END
+Bremsstrahlung.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/eic/!svn/ver/250/Utilities/eic-smear/trunk/include/eicsmear/smear/Bremsstrahlung.h
+END
+EventS.h
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/EventS.h
+END
+PerfectID.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/PerfectID.h
+END
+ParticleMCS.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/ParticleMCS.h
+END
+Smear.h
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/Smear.h
+END
+RadialTracker.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/RadialTracker.h
+END
+functions.h
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/functions.h
+END
+EventSmear.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/EventSmear.h
+END
+EventFactory.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/EventFactory.h
+END
+EventDisFactory.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/EventDisFactory.h
+END
+Detector.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/Detector.h
+END
+Distributor.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/eic/!svn/ver/196/Utilities/eic-smear/trunk/include/eicsmear/smear/Distributor.h
+END
+ParticleID.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/eic/!svn/ver/197/Utilities/eic-smear/trunk/include/eicsmear/smear/ParticleID.h
+END
+Acceptance.h
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/eic/!svn/ver/197/Utilities/eic-smear/trunk/include/eicsmear/smear/Acceptance.h
+END
