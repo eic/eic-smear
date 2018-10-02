@@ -1,0 +1,59 @@
+/**
+ \file
+ Implementation of class erhic::Forester.
+ 
+ \author    Thomas Burton
+ \date      2011-06-23
+ \copyright 2011 Brookhaven National Lab
+ */
+
+#include "eicsmear/erhic/ForesterStatus.h"
+
+namespace erhic {
+  
+  ForesterStatus::ForesterStatus()
+    : mNEvents(0)
+    , mNParticles(0) {
+    // Initialise the start and end time to the creation time and reset
+    // the timer to ensure it is at zero.
+    std::time(&mStartTime);
+    mEndTime = mStartTime;
+    mTimer.Reset();
+  }
+  
+  ForesterStatus::~ForesterStatus() { /* noop */ }
+  
+  std::ostream& ForesterStatus::Print(std::ostream& os) const {
+    // Put start and end times in different os <<... otherwise I get
+    // the same time for each...
+    os << "Began on " << std::ctime(&mStartTime);
+    os << "Ended on " << std::ctime(&mEndTime);
+    os << "Processed " << mNEvents << " events containing "
+       << mNParticles << " particles in "
+       << mTimer.RealTime() << " seconds "
+       << '(' << mTimer.RealTime()/mNEvents <<" sec/event)" << std::endl;
+    return os;
+  }
+  
+  void ForesterStatus::StartTimer() {
+    std::time(&mStartTime);
+    mTimer.Start();
+  }
+  
+  void ForesterStatus::StopTimer() {
+    std::time(&mEndTime);
+    mTimer.Stop();
+  }
+  
+  void ForesterStatus::ModifyEventCount(Long64_t count) {
+    mNEvents += count;
+  }
+  
+  void ForesterStatus::ModifyParticleCount(Long64_t count) {
+    mNParticles += count;
+  }
+  
+  // ClassImp( ForesterStatus ); // throws error for some reason
+  
+
+}  // namespace erhic

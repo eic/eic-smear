@@ -1,0 +1,57 @@
+#ifndef INCLUDE_EICSMEAR_ERHIC_FORESTER_STATUS_H_
+#define INCLUDE_EICSMEAR_ERHIC_FORESTER_STATUS_H_
+
+// C(++) headers
+#include <cmath>
+#include <ctime>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+
+// ROOT headers
+#include <Rtypes.h>
+#include <TFile.h>
+#include <TStopwatch.h>
+#include <TTree.h>
+
+// Other headers
+#include "eicsmear/erhic/EventMC.h"
+
+namespace erhic {
+
+// -------------------------------------------------
+/**
+   Stores summary information about the last call to Forester::Plant().
+   KK: Pulled outside of the nesting because of compilation issues with root6
+*/
+  class ForesterStatus{
+ public:
+   ForesterStatus();
+   
+   virtual ~ForesterStatus();   
+   virtual std::ostream& Print(std::ostream& os = std::cout) const;   
+
+ protected:
+   virtual void StartTimer();   
+   virtual void StopTimer();   
+   virtual void ModifyEventCount(Long64_t count);   
+   virtual void ModifyParticleCount(Long64_t count);   
+
+   time_t mStartTime;
+   time_t mEndTime;
+   Long64_t mNEvents;
+   Long64_t mNParticles;
+   
+   // The TStopwatch is mutable as "GetRealTime()" is non-const.
+   mutable TStopwatch mTimer;
+   
+   friend class Forester;
+   
+   ClassDef(ForesterStatus, 1)
+     /* nop for formatting */  ;
+ };
+ 
+  // End of class Status
+}
+#endif
