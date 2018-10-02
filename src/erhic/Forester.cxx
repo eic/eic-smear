@@ -252,4 +252,51 @@ void Forester::Print(std::ostream& os) const {
 void Forester::Print(Option_t* /* not used */) const {
   Print(std::cout);
 }
+
+  Forester::Status::Status()
+    : mNEvents(0)
+    , mNParticles(0) {
+    // Initialise the start and end time to the creation time and reset
+    // the timer to ensure it is at zero.
+    std::time(&mStartTime);
+    mEndTime = mStartTime;
+    mTimer.Reset();
+  }
+  
+  Forester::Status::~Status() { /* noop */ }
+  
+  std::ostream& Forester::Status::Print(std::ostream& os) const {
+    // Put start and end times in different os <<... otherwise I get
+    // the same time for each...
+    os << "Began on " << std::ctime(&mStartTime);
+    os << "Ended on " << std::ctime(&mEndTime);
+    os << "Processed " << mNEvents << " events containing "
+       << mNParticles << " particles in "
+       << mTimer.RealTime() << " seconds "
+       << '(' << mTimer.RealTime()/mNEvents <<" sec/event)" << std::endl;
+    return os;
+  }
+  
+  void Forester::Status::StartTimer() {
+    std::time(&mStartTime);
+    mTimer.Start();
+  }
+  
+  void Forester::Status::StopTimer() {
+    std::time(&mEndTime);
+    mTimer.Stop();
+  }
+  
+  void Forester::Status::ModifyEventCount(Long64_t count) {
+    mNEvents += count;
+  }
+  
+  void Forester::Status::ModifyParticleCount(Long64_t count) {
+    mNParticles += count;
+  }
+  
+  // ClassImp( ForesterStatus ); // throws error for some reason
+  
+
+
 }  // namespace erhic

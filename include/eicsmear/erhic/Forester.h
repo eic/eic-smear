@@ -32,6 +32,7 @@ namespace erhic {
 class FileType;
 class VirtualEventFactory;
 
+
 /**
  Manages the creation of trees from plain-text Monte Carlo files.
  Bad pun, I know, but the ROOT guys started it.
@@ -145,71 +146,37 @@ class Forester : public TObject {
    Do not delete the returned object.
    */
   const erhic::FileType* GetFileType() const;
-
- protected:
+  
   /**
    Stores summary information about the last call to Forester::Plant().
+   KK: Made public for rootcint
    */
-  class Status {
-   public:
-    Status()
-    : mNEvents(0)
-    , mNParticles(0) {
-      // Initialise the start and end time to the creation time and reset
-      // the timer to ensure it is at zero.
-      std::time(&mStartTime);
-      mEndTime = mStartTime;
-      mTimer.Reset();
-    }
-
-    virtual ~Status() { }
-
-    virtual std::ostream& Print(std::ostream& os = std::cout) const {
-      // Put start and end times in different os <<... otherwise I get
-      // the same time for each...
-      os << "Began on " << std::ctime(&mStartTime);
-      os << "Ended on " << std::ctime(&mEndTime);
-      os << "Processed " << mNEvents << " events containing "
-      << mNParticles << " particles in "
-      << mTimer.RealTime() << " seconds "
-      << '(' << mTimer.RealTime()/mNEvents <<" sec/event)" << std::endl;
-      return os;
-    }
-
+  class Status{
+  public:
+    Status();
+    virtual ~Status();   
+    virtual std::ostream& Print(std::ostream& os = std::cout) const;   
+    
   protected:
-    virtual void StartTimer() {
-      std::time(&mStartTime);
-      mTimer.Start();
-    }
-
-    virtual void StopTimer() {
-      std::time(&mEndTime);
-      mTimer.Stop();
-    }
-
-    virtual void ModifyEventCount(Long64_t count) {
-      mNEvents += count;
-    }
-
-    virtual void ModifyParticleCount(Long64_t count) {
-      mNParticles += count;
-    }
-
+    virtual void StartTimer();   
+    virtual void StopTimer();   
+    virtual void ModifyEventCount(Long64_t count);   
+    virtual void ModifyParticleCount(Long64_t count);   
+    
     time_t mStartTime;
     time_t mEndTime;
     Long64_t mNEvents;
     Long64_t mNParticles;
-
+    
     // The TStopwatch is mutable as "GetRealTime()" is non-const.
     mutable TStopwatch mTimer;
-
+    
     friend class Forester;
-
-    ClassDef(Status, 1)
+    
+    ClassDef(Status, 1);
   };
 
-  // End of class Status
-
+ protected:
   /**
    Prints a summary of the last call to Plant()
    to the requested output stream.
@@ -286,7 +253,7 @@ class Forester : public TObject {
   Status mStatus;  ///< Forester status information
   VirtualEventFactory* mFactory;  //!< Pointer to the event-builder object
 
-  ClassDef(Forester, 1)
+  ClassDef(Forester, 2)
 };
 
 inline void Forester::SetInputFileName(const std::string& name) {
