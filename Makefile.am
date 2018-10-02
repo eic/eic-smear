@@ -3,6 +3,9 @@ lib_LTLIBRARIES = libeicsmear.la
 # Note we list headers separately for each subdirectory so
 # we can match this structure when doing make install.
 
+## Recommendation by autoreconf
+ACLOCAL_AMFLAGS = -I m4
+
 # Headers in eicsmear/erhic.
 erhic_headers = \
 include/eicsmear/functions.h \
@@ -121,9 +124,14 @@ smearinclude_HEADERS = $(smear_headers)
 libeicsmear_la_CPPFLAGS = -I$(top_srcdir)/include
 
 # Link various ROOT libraries.
-libeicsmear_la_LIBADD = \
--lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint \
--lPostscript -lMatrix -lPhysics -lMathCore -lThread -lfreetype -lm -ldl -lEG
+libeicsmear_la_LDFLAGS = -version-info 1:0 -R @ROOTLIBDIR@
+libeicsmear_la_LIBADD   = @ROOTGLIBS@  -lEG
+AM_CPPFLAGS             = -I@ROOTINCDIR@
+AM_LDFLAGS              = -L@ROOTLIBDIR@
+
+# libeicsmear_la_LIBADD = \
+# -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint \
+# -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lfreetype -lm -ldl -lEG
 
 # ------------------------------------------------
 # If the user passed a PYTHIA6 library directory,
