@@ -27,8 +27,11 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+ROOT_PATH
 m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
+AC_CONFIG_MACRO_DIR([m4])
+
 
 # Enable support for --enable-shared and --disable-shared configure flags.
 AC_PROG_LIBTOOL
@@ -55,6 +58,9 @@ AC_ARG_WITH(
 # ENABLE_PYTHIA6_SUPPORT conditional is tested in Makefile.am.
 AM_CONDITIONAL([ENABLE_PYTHIA6_SUPPORT], [test x"$PYTHIA6_LIBS" != x""])
 AC_SUBST(PYTHIA6_LIBS)
+
+# Enable c++11 support
+AX_CXX_COMPILE_STDCXX_11
 
 AC_CONFIG_FILES([Makefile])
 
