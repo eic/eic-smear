@@ -25,9 +25,11 @@
 # from each subdirectory have to be combined in a single
 # shared library, rather than being one library per directory.
 
-cmake_minimum_required(VERSION 2.7)
+cmake_minimum_required(VERSION 3.1)
 
 project(EICSMEAR)
+
+
 
 # Add this project's module path to the default path.
 # Needed to locate this project's FindROOT.cmake.
@@ -43,7 +45,12 @@ set(
 # ROOT_LIBRARIES      Most common libraries
 # ROOT_LIBRARY_DIR    PATH to the library directory 
 # It also provides ROOT_GENERATE_DICTIONARY, which is used below.
+
 find_package(ROOT)
+# ROOT6 needs C++11 standard
+IF(${found_root_major_vers} GREATER 5)
+  set(CMAKE_CXX_STANDARD 11)
+ENDIF()
 
 # List all main eRHIC headers EXCEPT PYTHIA-related files.
 # We don't need to prefix "${CMAKE_SOURCE_DIR}/include/" before all
