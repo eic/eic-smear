@@ -39,6 +39,8 @@ set(
    ${CMAKE_SOURCE_DIR}/cmake/Modules/
 )
 
+SET (CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -Wno-deprecated-declarations")
+
 # Find ROOT package sets the following.
 # ROOT_FOUND          If the ROOT is found
 # ROOT_INCLUDE_DIR    PATH to the include directory
@@ -263,7 +265,12 @@ add_library(
 # Add ROOT elements
 if(ROOT_FOUND)
    include_directories(${ROOT_INCLUDE_DIR})
+
+if(PYTHIA6_LIBDIR)
    target_link_libraries(eicsmear ${ROOT_LIBRARIES} -lEGPythia6 -lEve -lEG)
+else()
+   target_link_libraries(eicsmear ${ROOT_LIBRARIES} -lEve -lEG)
+endif()
 endif(ROOT_FOUND)
 
 INSTALL(TARGETS eicsmear LIBRARY DESTINATION lib)
