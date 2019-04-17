@@ -87,7 +87,7 @@ struct Bremsstrahlung : public Device {
    */
   bool SetupPDF();
 
-  std::auto_ptr<erhic::ParticleMC> mParticle;  //!< Copy of the current particle
+  std::auto_ptr<erhic::ParticleMC> mParticle;  //! < Copy of the current particle
 
   double mKMin;
   double mKMax;
@@ -95,7 +95,7 @@ struct Bremsstrahlung : public Device {
   double mTraversed;
   double mRadLength;
 
-  TF1* mPdf;  //!< dSigma/dK function
+  TF1* mPdf;  //! < dSigma/dK function
 
   ClassDef(Smear::Bremsstrahlung, 1)
 };
