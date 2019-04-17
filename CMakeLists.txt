@@ -194,7 +194,6 @@ SET(
    ALL_DICTS
    ${CMAKE_CURRENT_BINARY_DIR}/erhicDict_rdict.pcm
    ${CMAKE_CURRENT_BINARY_DIR}/smearDict_rdict.pcm
-   ${ERHIC_SOURCE} # Includes smear source files
 )
 
 
