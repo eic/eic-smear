@@ -189,6 +189,15 @@ SET(
    ${ERHIC_SOURCE} # Includes smear source files
 )
 
+## PCM files for installation
+SET(
+   ALL_DICTS
+   ${CMAKE_CURRENT_BINARY_DIR}/erhicDict_rdict.pcm
+   ${CMAKE_CURRENT_BINARY_DIR}/smearDict_rdict.pcm
+   ${ERHIC_SOURCE} # Includes smear source files
+)
+
+
 # Build PYTHIA6-dependent code if a library directory was specified.
 # This comprises PYTHIA-related stuff in the main eRHIC directory,
 # plus the hadronic code.
@@ -276,5 +285,4 @@ endif(ROOT_FOUND)
 INSTALL(TARGETS eicsmear LIBRARY DESTINATION lib)
 
 # Dictionaries for ROOT
-FILE(GLOB DICTS ${PROJECT_BINARY_DIR}/*pcm )
-INSTALL(FILES ${DICTS} DESTINATION lib)
+INSTALL(FILES ${ALL_DICTS} DESTINATION lib)
