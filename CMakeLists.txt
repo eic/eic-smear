@@ -201,6 +201,7 @@ SET(
 # This comprises PYTHIA-related stuff in the main eRHIC directory,
 # plus the hadronic code.
 if(PYTHIA6_LIBDIR)
+   message ( "PYTHIA6_LIBDIR specified --> Adding PYTHIA sources and headers" )
    # PYTHIA-related header files.
    SET(
       PYTHIA_HEADERS
@@ -273,12 +274,11 @@ add_library(
 # Add ROOT elements
 if(ROOT_FOUND)
    include_directories(${ROOT_INCLUDE_DIR})
-
-if(PYTHIA6_LIBDIR)
-   target_link_libraries(eicsmear ${ROOT_LIBRARIES} -lEGPythia6 -lEve -lEG)
-else()
-   target_link_libraries(eicsmear ${ROOT_LIBRARIES} -lEve -lEG)
-endif()
+   if(PYTHIA6_LIBDIR)
+	target_link_libraries(eicsmear ${ROOT_LIBRARIES} -lEGPythia6 -lEve -lEG)
+   else (PYTHIA6_LIBDIR)
+   	target_link_libraries(eicsmear ${ROOT_LIBRARIES} -lEG)
+   endif(PYTHIA6_LIBDIR)
 endif(ROOT_FOUND)
 
 INSTALL(TARGETS eicsmear LIBRARY DESTINATION lib)
