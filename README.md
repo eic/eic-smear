@@ -39,34 +39,54 @@ Both portions of the code are included in the eic-smear shared library.
 --------------------------------------------------------------------------------
 Building
 
-For those with access to the EIC AFS area, the stable versions of the
-code are installed under
-/afs/rhic.bnl.gov/eic/env/pro/PACKAGES
+CMake version >3.1 is required. If you wish to build against root6,
+you also need a compiler with c++11 support.
 
-Those who wish to build the code from the original Subversion reporitory (not up to date):
-
+Create adirectory in which to build eic-smear and navigate to that
 ```sh
-svn checkout http://svn.racf.bnl.gov/svn/eic/Utilities/eic-smear/trunk eic-smear
+cd eic-smear
+mkdir build
+cd build
 ```
 
-Navigate to /path/to/eic-smear, and run
+Configure using cmake. Optionally, you can specify a location where to
+install include files and libraties:
+```
+cmake ../ -DCMAKE_INSTALL_PREFIX=</path/to/install>
+```
 
+Build and install (the -j flag specifies how many parallel compilation
+threads to use)
+```
+make -j 2
+make install
+```
+
+If you want to build PYTHIA6-dependent components, pass the location
+of libPythia6 to cmake:
+```
+cmake ../ -DCMAKE_INSTALL_PREFIX=</path/to/install> -DPYTHIA6_LIBDIR=/path/to/pythia6/lib
+```
+
+
+For those with access to the EIC AFS area, the stable versions of the
+code are installed in the current pro environment.
+
+
+--------------------------------------------------------------------------------
+Historical note:
+
+The original Subversion reporitory (not up to date) is at:
+
+```sh
+ http://svn.racf.bnl.gov/svn/eic/Utilities/eic-smear/trunk eic-smear
+```
+
+It was configured using autoconf:
 ```sh
 autoreconf --force --install
-```
-
-Create a directory in which to build eic-smear, navigate to that and run
-
-```sh
-/path/to/eic-smear/configure
-make
-```
-
-If you wish to install the generated libraries in a location install-dir,
-instead do
-
-```sh
-/path/to/eic-smear/configure --prefix=/path/to/install-dir
+cd /path/to/eic-smear/
+./configure  --prefix=/path/to/install-dir
 make
 make install
 ```
