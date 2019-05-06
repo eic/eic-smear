@@ -4,9 +4,8 @@ eic-smear
 https://wiki.bnl.gov/eic/index.php/Monte_Carlo_and_Smearing
 
 Contacts:
-elke@bnl.gov
-tpb@bnl.gov
-macl@bnl.gov
+Alexander Kiselev <ayk@bnl.gov>
+Kolja Kauder <kkauderl@bnl.gov>
 
 --------------------------------------------------------------------------------
 Overview
