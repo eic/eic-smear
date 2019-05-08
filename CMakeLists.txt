@@ -190,7 +190,7 @@ SET(
 )
 
 ## PCM files for installation
-SET(
+list( APPEND
    ALL_DICTS
    ${CMAKE_CURRENT_BINARY_DIR}/erhicDict_rdict.pcm
    ${CMAKE_CURRENT_BINARY_DIR}/smearDict_rdict.pcm
@@ -252,6 +252,13 @@ if(PYTHIA6_LIBDIR)
       ${CMAKE_CURRENT_BINARY_DIR}/hadronicDict.cxx
       "${ROOT_INCLUDE_DIR};${CMAKE_SOURCE_DIR}/include"
    )
+
+   # Update dictionaries to bne installed   
+   list( APPEND
+   	 ALL_DICTS
+	 ${CMAKE_CURRENT_BINARY_DIR}/pythiaDict_rdict.pcm
+   	 ${CMAKE_CURRENT_BINARY_DIR}/hadronicDict_rdict.pcm
+	 )
 
    # Update sources with pythia-dependent files.
    SET(
