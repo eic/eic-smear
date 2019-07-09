@@ -219,26 +219,23 @@ if(PYTHIA6_LIBDIR)
    # PYTHIA-related header files.
    SET(
       PYTHIA_HEADERS
-      Pythia6.h
-      Pythia6EventBuilder.h
-      Pythia6ParticleBuilder.h
+      eicsmear/erhic/Pythia6.h
+      eicsmear/erhic/Pythia6EventBuilder.h
+      eicsmear/erhic/Pythia6ParticleBuilder.h
    )
-   # INSTALL(FILES ${PYTHIA_HEADERS} DESTINATION include/eicsmear/erhic)
-   INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic DESTINATION include/eicsmear )
 
    # Headers related to hadronic code.
    # Because they are referenced by a different LinkDef
    # they are listed separately from PYTHIA_HEADERS.
    SET(
       HADRONIC_HEADERS
-      EventMC.h
-      EventPythia.h
-      ParticleMC.h
-      Pythia6EventFactory.h
-      EventSmear.h
+      eicsmear/hadronic/EventMC.h
+      eicsmear/hadronic/EventPythia.h
+      eicsmear/hadronic/ParticleMC.h
+      eicsmear/hadronic/Pythia6EventFactory.h
+      eicsmear/hadronic/EventSmear.h
    )
-   INSTALL(FILES ${HADRONIC_HEADERS} DESTINATION include/eicsmear/hadronic)
-   include_directories(${CMAKE_SOURCE_DIR}/include/eicsmear/hadronic)
+   INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/hadronic DESTINATION include/eicsmear )
 
    # PYTHIA-related source files (including for hadronic code).
    SET(
