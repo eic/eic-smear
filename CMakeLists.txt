@@ -39,16 +39,6 @@ set(
    ${CMAKE_SOURCE_DIR}/cmake/Modules/
 )
 
-SET (CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -Wno-deprecated-declarations")
-
-# Find ROOT package sets the following.
-# ROOT_FOUND          If the ROOT is found
-# ROOT_INCLUDE_DIR    PATH to the include directory
-# ROOT_LIBRARIES      Most common libraries
-# ROOT_LIBRARY_DIR    PATH to the library directory 
-# It also provides ROOT_GENERATE_DICTIONARY, which is used below.
-
-## Updated
 # This module sets up ROOT information
 # It defines:
 # ROOT_FOUND             If the ROOT is found
@@ -78,6 +68,7 @@ ENDIF()
 
 ## Need to have this base for rootcint
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/include/eicsmear)
 
 # List all main eRHIC headers EXCEPT PYTHIA-related files.
 # We don't need to prefix "${CMAKE_SOURCE_DIR}/include/" before all
@@ -87,61 +78,60 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 # the header files properly.
 SET(
    ERHIC_HEADERS
-   BeamParticles.h
-   DisKinematics.h
-   EventBase.h
-   EventDis.h
-   EventDjangoh.h
-   EventDpmjet.h
-   EventFactory.h
-   EventGmcTrans.h
-   EventMC.h
-   EventMCFilterABC.h
-   EventMilou.h
-   EventPepsi.h
-   EventPythia.h
-   EventRapgap.h
-   File.h
-   Forester.h
-   Kinematics.h
-   Particle.h
-   ParticleIdentifier.h
-   ParticleMC.h
-   Pid.h
-   VirtualEvent.h
-   VirtualParticle.h
-)
-INSTALL(FILES ${ERHIC_HEADERS} DESTINATION include/eicsmear/erhic)
-INSTALL(FILES ${CMAKE_SOURCE_DIR}/include/eicsmear/functions.h
-        DESTINATION include/eicsmear/erhic )
-include_directories(${CMAKE_SOURCE_DIR}/include/eicsmear/erhic)
+   eicsmear/erhic/BeamParticles.h
+   eicsmear/erhic/DisKinematics.h
+   eicsmear/erhic/EventBase.h
+   eicsmear/erhic/EventDis.h
+   eicsmear/erhic/EventDjangoh.h
+   eicsmear/erhic/EventDpmjet.h
+   eicsmear/erhic/EventFactory.h
+   eicsmear/erhic/EventGmcTrans.h
+   eicsmear/erhic/EventMC.h
+   eicsmear/erhic/EventMCFilterABC.h
+   eicsmear/erhic/EventMilou.h
+   eicsmear/erhic/EventPepsi.h
+   eicsmear/erhic/EventPythia.h
+   eicsmear/erhic/EventRapgap.h
+   eicsmear/erhic/File.h
+   eicsmear/erhic/Forester.h
+   eicsmear/erhic/Kinematics.h
+   eicsmear/erhic/Particle.h
+   eicsmear/erhic/ParticleIdentifier.h
+   eicsmear/erhic/ParticleMC.h
+   eicsmear/erhic/Pid.h
+   eicsmear/erhic/VirtualEvent.h
+   eicsmear/erhic/VirtualParticle.h
+   )
+
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic DESTINATION include/eicsmear )
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/include/eicsmear/functions.h DESTINATION include/eicsmear )
+#include_directories(${CMAKE_SOURCE_DIR}/include/eicsmear/erhic)
 
 # Smearing-related headers.
 # These are referenced by a different LinkDef to ERHIC_HEADERS so
 # we list the separately.
 SET(
    SMEAR_HEADERS
-   Acceptance.h
-   Bremsstrahlung.h
-   Detector.h
-   Device.h
-   Distributor.h
-   EventS.h
-   EventSmear.h
-   EventDisFactory.h
-   FormulaString.h
-   functions.h
-   ParticleID.h
-   ParticleMCS.h
-   PerfectID.h
-   PlanarTracker.h
-   RadialTracker.h
-   Smear.h
-   Smearer.h
-   Tracker.h
+   eicsmear/smear/Acceptance.h
+   eicsmear/smear/Bremsstrahlung.h
+   eicsmear/smear/Detector.h
+   eicsmear/smear/Device.h
+   eicsmear/smear/Distributor.h
+   eicsmear/smear/EventS.h
+   eicsmear/smear/EventSmear.h
+   eicsmear/smear/EventDisFactory.h
+   eicsmear/smear/FormulaString.h
+   eicsmear/smear/functions.h
+   eicsmear/smear/ParticleID.h
+   eicsmear/smear/ParticleMCS.h
+   eicsmear/smear/PerfectID.h
+   eicsmear/smear/PlanarTracker.h
+   eicsmear/smear/RadialTracker.h
+   eicsmear/smear/Smear.h
+   eicsmear/smear/Smearer.h
+   eicsmear/smear/Tracker.h
 )
-INSTALL(FILES ${SMEAR_HEADERS} DESTINATION include/eicsmear/smear)
-include_directories(${CMAKE_SOURCE_DIR}/include/eicsmear/smear)
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/smear DESTINATION include/eicsmear )
 
 # List all main eRHIC source files EXCEPT PYTHIA-related files.
 # This includes smearing code as the separate LinkDefs have no role here.
@@ -233,7 +223,8 @@ if(PYTHIA6_LIBDIR)
       Pythia6EventBuilder.h
       Pythia6ParticleBuilder.h
    )
-   INSTALL(FILES ${PYTHIA_HEADERS} DESTINATION include/eicsmear/erhic)
+   # INSTALL(FILES ${PYTHIA_HEADERS} DESTINATION include/eicsmear/erhic)
+   INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic DESTINATION include/eicsmear )
 
    # Headers related to hadronic code.
    # Because they are referenced by a different LinkDef
@@ -296,12 +287,11 @@ add_library(
 # Add ROOT elements
 if(ROOT_FOUND)
    include_directories(${ROOT_INCLUDE_DIR})
-   target_link_libraries(eicsmear ${ROOT_LIBRARIES} )
-   # if(PYTHIA6_LIBDIR)
-   # 	target_link_libraries(eicsmear ${ROOT_LIBRARIES} ${ROOT_EGPYTHIA_LIBRARY} ${ROOT_EVE_LIBRARY}  ${ROOT_EG_LIBRARY} )
-   # else (PYTHIA6_LIBDIR)
-   # 	target_link_libraries(eicsmear ${ROOT_LIBRARIES} ${ROOT_EG_LIBRARY} )
-   # endif(PYTHIA6_LIBDIR)
+   if(PYTHIA6_LIBDIR)
+   	target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
+   else (PYTHIA6_LIBDIR)
+   	target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG )
+   endif(PYTHIA6_LIBDIR)
 endif(ROOT_FOUND)
 
 INSTALL(TARGETS eicsmear LIBRARY DESTINATION lib)
