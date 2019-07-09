@@ -48,11 +48,36 @@ SET (CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -Wno-deprecated-declarations")
 # ROOT_LIBRARY_DIR    PATH to the library directory 
 # It also provides ROOT_GENERATE_DICTIONARY, which is used below.
 
+## Updated
+# This module sets up ROOT information
+# It defines:
+# ROOT_FOUND             If the ROOT is found
+# ROOT_INCLUDE_DIR       PATH to the include directory
+# ROOT_INCLUDE_DIRS      PATH to the include directories (not cached)
+# ROOT_LIBRARIES         Most common libraries
+# ROOT_<name>_LIBRARY    Full path to the library <name>
+# ROOT_LIBRARY_DIR       PATH to the library directory
+# ROOT_ETC_DIR           PATH to the etc directory
+# ROOT_DEFINITIONS       Compiler definitions
+# ROOT_CXX_FLAGS         Compiler flags to used by client packages
+# ROOT_C_FLAGS           Compiler flags to used by client packages
+# ROOT_EXE_LINKER_FLAGS  Linker flags to used by client packages
+#
+# Updated by K. Smith (ksmith37@nd.edu) to properly handle
+#  dependencies in ROOT_GENERATE_DICTIONARY
+
 find_package(ROOT)
 # ROOT6 needs C++11 standard
-IF(${found_root_major_vers} GREATER 5)
+string(SUBSTRING ${ROOT_VERSION} 0 1 ROOT_MAJOR)
+
+# message ( " ROOT_VERSION = " ${ROOT_VERSION})
+# message ( " ROOT_MAJOR = " ${ROOT_MAJOR})
+IF(${ROOT_MAJOR} GREATER 5)
   set(CMAKE_CXX_STANDARD 11)
 ENDIF()
+
+## Need to have this base for rootcint
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # List all main eRHIC headers EXCEPT PYTHIA-related files.
 # We don't need to prefix "${CMAKE_SOURCE_DIR}/include/" before all
@@ -62,59 +87,61 @@ ENDIF()
 # the header files properly.
 SET(
    ERHIC_HEADERS
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/BeamParticles.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/DisKinematics.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventBase.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventDis.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventDjangoh.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventDpmjet.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventFactory.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventGmcTrans.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventMC.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventMCFilterABC.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventMilou.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventPepsi.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventPythia.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/EventRapgap.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/File.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/Forester.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/Kinematics.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/Particle.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/ParticleIdentifier.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/ParticleMC.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/Pid.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/VirtualEvent.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/VirtualParticle.h
+   BeamParticles.h
+   DisKinematics.h
+   EventBase.h
+   EventDis.h
+   EventDjangoh.h
+   EventDpmjet.h
+   EventFactory.h
+   EventGmcTrans.h
+   EventMC.h
+   EventMCFilterABC.h
+   EventMilou.h
+   EventPepsi.h
+   EventPythia.h
+   EventRapgap.h
+   File.h
+   Forester.h
+   Kinematics.h
+   Particle.h
+   ParticleIdentifier.h
+   ParticleMC.h
+   Pid.h
+   VirtualEvent.h
+   VirtualParticle.h
 )
 INSTALL(FILES ${ERHIC_HEADERS} DESTINATION include/eicsmear/erhic)
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/include/eicsmear/functions.h
-        DESTINATION include/eicsmear)
+        DESTINATION include/eicsmear/erhic )
+include_directories(${CMAKE_SOURCE_DIR}/include/eicsmear/erhic)
 
 # Smearing-related headers.
 # These are referenced by a different LinkDef to ERHIC_HEADERS so
 # we list the separately.
 SET(
    SMEAR_HEADERS
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/Acceptance.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/Bremsstrahlung.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/Detector.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/Device.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/Distributor.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/EventS.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/EventSmear.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/EventDisFactory.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/FormulaString.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/functions.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/ParticleID.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/ParticleMCS.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/PerfectID.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/PlanarTracker.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/RadialTracker.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/Smear.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/Smearer.h
-   ${CMAKE_SOURCE_DIR}/include/eicsmear/smear/Tracker.h
+   Acceptance.h
+   Bremsstrahlung.h
+   Detector.h
+   Device.h
+   Distributor.h
+   EventS.h
+   EventSmear.h
+   EventDisFactory.h
+   FormulaString.h
+   functions.h
+   ParticleID.h
+   ParticleMCS.h
+   PerfectID.h
+   PlanarTracker.h
+   RadialTracker.h
+   Smear.h
+   Smearer.h
+   Tracker.h
 )
 INSTALL(FILES ${SMEAR_HEADERS} DESTINATION include/eicsmear/smear)
+include_directories(${CMAKE_SOURCE_DIR}/include/eicsmear/smear)
 
 # List all main eRHIC source files EXCEPT PYTHIA-related files.
 # This includes smearing code as the separate LinkDefs have no role here.
@@ -164,21 +191,18 @@ SET(
 #  Output dictionary file
 #  Include director(y/ies)
 
+## UPDATED to new syntax
+
+include_directories(${CMAKE_SOURCE_DIR}/cint)
+
 # Main eRHIC dictionary.
-ROOT_GENERATE_DICTIONARY(
-   "${CMAKE_SOURCE_DIR}/include/eicsmear/functions.h;${ERHIC_HEADERS}"
-   ${CMAKE_SOURCE_DIR}/cint/LinkDef.h
-   ${CMAKE_CURRENT_BINARY_DIR}/erhicDict.cxx
-   "${ROOT_INCLUDE_DIR};${CMAKE_SOURCE_DIR}/include"
-)
+ROOT_GENERATE_DICTIONARY( erhicDict functions.h ${ERHIC_HEADERS} LINKDEF LinkDef.h )
+	# ${ERHIC_HEADERS}
+	# ${ROOT_INCLUDE_DIR}
+	# ${CMAKE_SOURCE_DIR}/include
 
 # Smearing code dictionary.
-ROOT_GENERATE_DICTIONARY(
-   "${SMEAR_HEADERS}"
-   ${CMAKE_SOURCE_DIR}/cint/smearLinkDef.h
-   ${CMAKE_CURRENT_BINARY_DIR}/smearDict.cxx
-   "${ROOT_INCLUDE_DIR};${CMAKE_SOURCE_DIR}/include"
-)
+ROOT_GENERATE_DICTIONARY( smearDict ${SMEAR_HEADERS} LINKDEF smearLinkDef.h )
 
 # Default complete set of source file (including dictionary files).
 # We will add to this if PYTHIA support was requested.
@@ -205,9 +229,9 @@ if(PYTHIA6_LIBDIR)
    # PYTHIA-related header files.
    SET(
       PYTHIA_HEADERS
-      ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/Pythia6.h
-      ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/Pythia6EventBuilder.h
-      ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic/Pythia6ParticleBuilder.h
+      Pythia6.h
+      Pythia6EventBuilder.h
+      Pythia6ParticleBuilder.h
    )
    INSTALL(FILES ${PYTHIA_HEADERS} DESTINATION include/eicsmear/erhic)
 
@@ -216,13 +240,14 @@ if(PYTHIA6_LIBDIR)
    # they are listed separately from PYTHIA_HEADERS.
    SET(
       HADRONIC_HEADERS
-      ${CMAKE_SOURCE_DIR}/include/eicsmear/hadronic/EventMC.h
-      ${CMAKE_SOURCE_DIR}/include/eicsmear/hadronic/EventPythia.h
-      ${CMAKE_SOURCE_DIR}/include/eicsmear/hadronic/ParticleMC.h
-      ${CMAKE_SOURCE_DIR}/include/eicsmear/hadronic/Pythia6EventFactory.h
-      ${CMAKE_SOURCE_DIR}/include/eicsmear/hadronic/EventSmear.h
+      EventMC.h
+      EventPythia.h
+      ParticleMC.h
+      Pythia6EventFactory.h
+      EventSmear.h
    )
    INSTALL(FILES ${HADRONIC_HEADERS} DESTINATION include/eicsmear/hadronic)
+   include_directories(${CMAKE_SOURCE_DIR}/include/eicsmear/hadronic)
 
    # PYTHIA-related source files (including for hadronic code).
    SET(
@@ -238,20 +263,10 @@ if(PYTHIA6_LIBDIR)
    )
 
    # Create the pythia dictionary.
-   ROOT_GENERATE_DICTIONARY(
-      "${PYTHIA_HEADERS}"
-      ${CMAKE_SOURCE_DIR}/cint/LinkDefPythia.h
-      ${CMAKE_CURRENT_BINARY_DIR}/pythiaDict.cxx
-      "${ROOT_INCLUDE_DIR};${CMAKE_SOURCE_DIR}/include"
-   )
+   ROOT_GENERATE_DICTIONARY( pythiaDict ${PYTHIA_HEADERS} LINKDEF LinkDefPythia.h )
 
    # Create the hadronic dictionary.
-   ROOT_GENERATE_DICTIONARY(
-      "${HADRONIC_HEADERS}"
-      ${CMAKE_SOURCE_DIR}/cint/hadronicLinkDef.h
-      ${CMAKE_CURRENT_BINARY_DIR}/hadronicDict.cxx
-      "${ROOT_INCLUDE_DIR};${CMAKE_SOURCE_DIR}/include"
-   )
+   ROOT_GENERATE_DICTIONARY( hadronicDict ${HADRONIC_HEADERS} LINKDEF hadronicLinkDef.h )
 
    # Update dictionaries to bne installed   
    list( APPEND
@@ -281,11 +296,12 @@ add_library(
 # Add ROOT elements
 if(ROOT_FOUND)
    include_directories(${ROOT_INCLUDE_DIR})
-   if(PYTHIA6_LIBDIR)
-	target_link_libraries(eicsmear ${ROOT_LIBRARIES} -lEGPythia6 -lEve -lEG)
-   else (PYTHIA6_LIBDIR)
-   	target_link_libraries(eicsmear ${ROOT_LIBRARIES} -lEG)
-   endif(PYTHIA6_LIBDIR)
+   target_link_libraries(eicsmear ${ROOT_LIBRARIES} )
+   # if(PYTHIA6_LIBDIR)
+   # 	target_link_libraries(eicsmear ${ROOT_LIBRARIES} ${ROOT_EGPYTHIA_LIBRARY} ${ROOT_EVE_LIBRARY}  ${ROOT_EG_LIBRARY} )
+   # else (PYTHIA6_LIBDIR)
+   # 	target_link_libraries(eicsmear ${ROOT_LIBRARIES} ${ROOT_EG_LIBRARY} )
+   # endif(PYTHIA6_LIBDIR)
 endif(ROOT_FOUND)
 
 INSTALL(TARGETS eicsmear LIBRARY DESTINATION lib)
