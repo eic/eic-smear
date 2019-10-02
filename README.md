@@ -6,7 +6,7 @@ https://wiki.bnl.gov/eic/index.php/Monte_Carlo_and_Smearing
 Contacts:
 Alexander Kiselev <ayk@bnl.gov>
 Kolja Kauder <kkauderl@bnl.gov>
-
+Maxim Potekhin <potekhin@bnl.gov>
 --------------------------------------------------------------------------------
 Overview
 
