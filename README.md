@@ -47,9 +47,20 @@ Both portions of the code are included in the eic-smear shared library.
 
 ## Building
 
-CMake version >3.1 is required. If you wish to build against root6,
-you also need a compiler with c++11 support.
+## Prerequisites
 
+* CMake version >3.1 is required.
+* ROOT6 is required. This implies you need a compiler with c++11 support
+
+If building at BNL, get ROOT6 in the following manner
+```source /afs/rhic.bnl.gov/eic/restructured/etc/eic_cshrc.csh
+setenv EIC_LEVEL dev
+# verify
+which root
+```
+
+
+### Procedure
 Create adirectory in which to build eic-smear and navigate to that
 ```sh
 cd eic-smear
@@ -70,6 +81,7 @@ make -j 2
 make install
 ```
 
+### Pythia
 If you want to build PYTHIA6-dependent components, pass the location
 of libPythia6 to cmake:
 ```
@@ -81,9 +93,10 @@ For those with access to the EIC AFS area, the stable versions of the
 code are installed in the current pro environment.
 
 
-## Historical note:
+## A historical note
 
-The original Subversion reporitory (not up to date) is at:
+These instructions were used in the context of an older configuration
+not currently in use. The original Subversion reporitory (not up to date) is at:
 
 ```sh
  http://svn.racf.bnl.gov/svn/eic/Utilities/eic-smear/trunk eic-smear
