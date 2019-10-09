@@ -1,14 +1,16 @@
-# eic-smear
+# EIC-smear
 
-eic-smear
+## Documentation and Contacts
+
+### Documentation in the BNL Wiki
 https://wiki.bnl.gov/eic/index.php/Monte_Carlo_and_Smearing
 
-Contacts:
+### Contacts
 Alexander Kiselev <ayk@bnl.gov>
 Kolja Kauder <kkauderl@bnl.gov>
 Maxim Potekhin <potekhin@bnl.gov>
 --------------------------------------------------------------------------------
-Overview
+## Overview
 
 eic-smear is the BNL EIC task force Monte Carlo analysis package.
 It contains classes and routines for:
