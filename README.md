@@ -1,25 +1,34 @@
-# eic-smear
+# EIC-smear
 
-eic-smear
-https://wiki.bnl.gov/eic/index.php/Monte_Carlo_and_Smearing
+## About
 
-Contacts:
-Alexander Kiselev <ayk@bnl.gov>
-Kolja Kauder <kkauderl@bnl.gov>
+Documentation in the BNL Wiki
+* https://wiki.bnl.gov/eic/index.php/Monte_Carlo_and_Smearing
 
---------------------------------------------------------------------------------
-Overview
+Contacts
+* Alexander Kiselev <ayk@bnl.gov>
+* Kolja Kauder <kkauderl@bnl.gov>
+* Maxim Potekhin <potekhin@bnl.gov>
 
-eic-smear is the BNL EIC task force Monte Carlo analysis package.
+## Overview
+
+eic-smear is a Monte Carlo analysis package developed and used by the BNL EIC task force.
+
 It contains classes and routines for:
-1) Building events in a C++ object and writing them to a ROOT file in a tree
-   data structure.
+1) Building events in a C++ object and writing them to a ROOT file in a tree data structure.
 2) Performing fast detector smearing on those Monte Carlo events.
 
 The tree-building portion processes plain text files, formatted according to
 the EIC convention, into a ROOT TTree containing events.
 The following Monte Carlo generators are supported:
-PYTHIA, RAPGAP, PEPSI, DJANGOH, MILOU, DPMJet, gmc_trans.
+* PYTHIA
+* RAPGAP
+* PEPSI
+* DJANGOH
+* MILOU
+* DPMJet
+* gmc_trans
+
 Please see the EIC wiki pages for descriptions of the data formats and
 the EIC AFS area for installations of each of the Monte Carlo generators.
 Each entry in the TTree is a single C++ event object, storing event-wise 
@@ -35,12 +44,23 @@ input Monte Carlo events.
 
 Both portions of the code are included in the eic-smear shared library.
 
---------------------------------------------------------------------------------
-Building
 
-CMake version >3.1 is required. If you wish to build against root6,
-you also need a compiler with c++11 support.
+## Building
 
+## Prerequisites
+
+* CMake version >3.1 is required.
+* ROOT6 is required. This implies you need a compiler with c++11 support
+
+If building at BNL, get ROOT6 in the following manner
+```source /afs/rhic.bnl.gov/eic/restructured/etc/eic_cshrc.csh
+setenv EIC_LEVEL dev
+# verify
+which root
+```
+
+
+### Procedure
 Create adirectory in which to build eic-smear and navigate to that
 ```sh
 cd eic-smear
@@ -61,6 +81,7 @@ make -j 2
 make install
 ```
 
+### Pythia
 If you want to build PYTHIA6-dependent components, pass the location
 of libPythia6 to cmake:
 ```
@@ -72,10 +93,10 @@ For those with access to the EIC AFS area, the stable versions of the
 code are installed in the current pro environment.
 
 
---------------------------------------------------------------------------------
-Historical note:
+## A historical note
 
-The original Subversion reporitory (not up to date) is at:
+These instructions were used in the context of an older configuration
+not currently in use. The original Subversion reporitory (not up to date) is at:
 
 ```sh
  http://svn.racf.bnl.gov/svn/eic/Utilities/eic-smear/trunk eic-smear
