@@ -63,7 +63,14 @@ string(SUBSTRING ${ROOT_VERSION} 0 1 ROOT_MAJOR)
 # message ( " ROOT_VERSION = " ${ROOT_VERSION})
 # message ( " ROOT_MAJOR = " ${ROOT_MAJOR})
 IF(${ROOT_MAJOR} GREATER 5)
-  set(CMAKE_CXX_STANDARD 11)
+  if(NOT DEFINED CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 11)
+  endif()
+  
+  if( ${CMAKE_CXX_STANDARD} LESS 11 )
+    message ( FATAL_ERROR " ROOT_VERSION = " ${ROOT_VERSION} " needs CMAKE_CXX_STANDARD >= 11 " )
+  endif()
+
 ENDIF()
 
 ## Need to have this base for rootcint
