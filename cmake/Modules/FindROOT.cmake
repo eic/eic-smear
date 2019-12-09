@@ -95,7 +95,20 @@ find_package_handle_standard_args(ROOT DEFAULT_MSG ROOT_CONFIG_EXECUTABLE
 mark_as_advanced(ROOT_CONFIG_EXECUTABLE)
 
 include(CMakeParseArguments)
-find_program(ROOTCLING_EXECUTABLE rootcling HINTS $ENV{ROOTSYS}/bin)
+
+STRING(REGEX REPLACE "^([0-9]+)\\.[0-9][0-9]+\\/[0-9][0-9]+.*" "\\1" ROOT_MAJOR "${ROOT_VERSION}")
+# MESSAGE(STATUS "Root major version is " ${ROOT_MAJOR})
+# MESSAGE(STATUS "Root version is " ${ROOT_VERSION})
+
+if ( ${ROOT_MAJOR} GREATER 5 )
+#  MESSAGE(STATUS "Using root6 option" )
+  find_program(ROOTCLING_EXECUTABLE rootcling HINTS $ENV{ROOTSYS}/bin)
+else ( )
+#  MESSAGE(STATUS "Using root5 option" )
+  find_program( ROOTCLING_EXECUTABLE NAMES rootcint  HINTS $ENV{ROOTSYS}/bin)
+endif ( )
+# MESSAGE(STATUS "root cling/cint is " ${ROOTCLING_EXECUTABLE} )
+
 find_program(GENREFLEX_EXECUTABLE genreflex HINTS $ENV{ROOTSYS}/bin)
 find_package(GCCXML)
 
@@ -136,11 +149,24 @@ function(ROOT_GENERATE_DICTIONARY dictionary)
     unset(linkFile CACHE)
   endforeach()
   #---call rootcling------------------------------------------
-  add_custom_command(OUTPUT ${dictionary}.cxx
+
+  if ( ${ROOT_MAJOR} GREATER 5 )
+    add_custom_command(OUTPUT ${dictionary}.cxx
                      COMMAND ${ROOTCLING_EXECUTABLE} -f ${dictionary}.cxx
-                                          -noIncludePaths -inlineInputHeader
-                                          -c ${ARG_OPTIONS} ${includedirs} ${headerfiles} ${linkdefs}
+                             -noIncludePaths -inlineInputHeader
+                             -c ${ARG_OPTIONS} ${includedirs} ${headerfiles} ${linkdefs}
                      DEPENDS ${headerfiles} ${linkdefs} VERBATIM)
+
+  else ( )
+    add_custom_command(OUTPUT ${dictionary}.cxx
+                       COMMAND ${ROOTCLING_EXECUTABLE} -f ${dictionary}.cxx
+                              -c -DHAVE_CONFIG_H -inlineInputHeader 
+			      ${ARG_OPTIONS} ${includedirs} ${headerfiles} ${linkdefs}
+		       DEPENDS ${headerfiles} ${linkdefs} VERBATIM)
+		   #ARGS -f ${OUTFILE} -c -DHAVE_CONFIG_H ${CINTFLAGS} ${INCLUDE_DIRS} ${INFILES} ${LINKDEF_FILE} DEPENDS ${INFILES})
+  endif ( )
+
+
 endfunction()
 
 #----------------------------------------------------------------------------
