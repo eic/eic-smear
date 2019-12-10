@@ -27,6 +27,7 @@
 #include "eicsmear/erhic/EventDis.h"
 #include "eicsmear/erhic/ParticleIdentifier.h"
 
+bool erhic::DisKinematics::BoundaryWarning=true;
 namespace {
 
 const double chargedPionMass =
@@ -46,9 +47,18 @@ double computeW2FromXQ2M(double x, double Q2, double m) {
 
 // ==========================================================================
 // Returns the value x bounded by [minimum, maximum].
+// KK 12/10/19: x>1 can be physically possible (in eA).
+// In general, silently cutting off values is dangerous practice.
+// Instead, we will issue a warning but accept
 // ==========================================================================
 double bounded(double x, double minimum, double maximum) {
-  return std::max(minimum, std::min(x, maximum));
+  // return std::max(minimum, std::min(x, maximum));
+  if ( erhic::DisKinematics::BoundaryWarning && ( x< minimum || x > maximum ) ){
+    std::cerr << "Warning in Kinematics, bounded(): x (or y) = " << x
+	      << " is outside [" << minimum << "," << maximum << "]" << std::endl;
+    std::cerr << "To disable this warning, set erhic::DisKinematics::BoundaryWarning=false;" << std::endl;
+  }
+  return x;
 }
 
 // ==========================================================================
