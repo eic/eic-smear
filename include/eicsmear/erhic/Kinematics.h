@@ -43,8 +43,6 @@ struct DisKinematics : public TObject {
   Double32_t mNu;
   Double32_t mY;
 
-  static bool BoundaryWarning; ///< Issue warnings if calculations return x or y outside [0,1]
-
   ClassDef(erhic::DisKinematics, 1)
 };
 
