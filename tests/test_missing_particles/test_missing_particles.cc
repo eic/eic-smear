@@ -1,6 +1,10 @@
 #include <iomanip>
 
 #include <TDatabasePDG.h>
+#include <TH1.h>
+#include <TCanvas.h>
+#include <TLegend.h>
+#include <TStyle.h>
 
 #include "BeASTDetector.h"
 #include "ePHENIXDetector.h"
@@ -33,6 +37,12 @@ struct EicSmearStatistics {
     uint64_t zero_e_zero_p = 0;
 
     std::vector<EicSmearStep> steps;
+
+    TH1D* null_particles_eta;
+    TH1D* zero_e_smear_p_eta;
+    TH1D* smear_e_zero_p_eta;
+    TH1D* zero_e_zero_p_eta;
+    TH1D* smear_e_smear_p_eta;
 };
 
 /// This function does smearing itself. by calling detector.Smear(not_smeared_prt);
@@ -103,9 +113,15 @@ EicSmearStatistics Process(int pdg, Smear::Detector& detector) {
 
     auto pdg_particle = db->GetParticle(pdg);
     EicSmearStatistics stat;
-    
+    stat.null_particles_eta  = new TH1D("null_particles_eta",  "Unsmeared particles;#eta;counts", 200, -5, 5 );
+    stat.zero_e_smear_p_eta  = new TH1D("zero_e_smear_p_eta",  "only p smeared;#eta;counts", 100, -5, 5 );
+    stat.smear_e_zero_p_eta  = new TH1D("smear_e_zero_p_eta",  "only e smeared;#eta;counts", 100, -5, 5 );
+    stat.zero_e_zero_p_eta   = new TH1D("zero_e_zero_p_eta",   "Unsmeared particles;#eta;counts", 100, -5, 5 );
+    stat.smear_e_smear_p_eta = new TH1D("smear_e_smear_p_eta", "smeared e, smeared p;#eta;counts", 100, -5, 5 );
+
+    int angleinc = 1;
     for(int mom=1; mom < 20; mom+=2) {
-        for(int angle_deg=0; angle_deg < 360; angle_deg+=1) {  // theta
+        for(int angle_deg=angleinc; angle_deg < 360; angle_deg+=angleinc) {  // theta
             // 4 vector
 	    TLorentzVector input_vect(0, 0, mom, sqrt ( mom*mom + pow(pdg_particle->Mass(),2)) );
 	    input_vect.RotateX(angle_deg*deg_to_rad);
@@ -117,18 +133,23 @@ EicSmearStatistics Process(int pdg, Smear::Detector& detector) {
             switch(step.result) {
                 case EicSmearResults::null_particle:
                     stat.null_particles++;
+		    stat.null_particles_eta->Fill(input_vect.Eta());
                     break;
                 case EicSmearResults::zero_e_smear_p:
                     stat.zero_e_smear_p++;
+                    stat.zero_e_smear_p_eta->Fill(input_vect.Eta());
                     break;
                 case EicSmearResults::smear_e_zero_p:
                     stat.smear_e_zero_p++;
+                    stat.smear_e_zero_p_eta->Fill(input_vect.Eta());
                     break;
                 case EicSmearResults::zero_e_zero_p:
                     stat.zero_e_zero_p++;
+                    stat.zero_e_zero_p_eta->Fill(input_vect.Eta());
                     break;
                 case EicSmearResults::smear_e_smear_p:
                     stat.smear_e_smear_p++;
+                    stat.smear_e_smear_p_eta->Fill(input_vect.Eta());
                     break;
             }
 
@@ -154,14 +175,67 @@ void PrintSmearStats(const EicSmearStatistics& stat) {
 
 int main() {
 
-    Smear::Detector beast_detector = BuildBeAST();
-    Smear::Detector zeus_detector = BuildZeus();
-    Smear::Detector ephoenix_detector = BuildEphoenix();
-    
+    // Smear::Detector beast_detector = BuildBeAST();
+    // Smear::Detector zeus_detector = BuildZeus();
+    // Smear::Detector ephoenix_detector = BuildEphoenix();
     // auto stat = Process(11, ephoenix_detector); // 11 - electron
     // auto stat = Process(22, ephoenix_detector); // 22 - gamma
     // auto stat = Process(2212, ephoenix_detector); // 2212 - proton
-    auto stat = Process(211, beast_detector); // 211 - pi+
+    // auto stat = Process(211, beast_detector); // 211 - pi+
+    
+    int pid = 211; // pi+
+    
+    TString detstring = "BeAST";
+    // TString detstring = "ePhenix";
+    // TString detstring = "ZEUS";
+    
+    Smear::Detector detector;
+    if ( detstring=="BeAST" ) detector = BuildBeAST();
+    if ( detstring=="ZEUS" ) detector = BuildZeus();
+    if ( detstring=="ePhenix" ) detector = BuildEphoenix();
+    
+    auto stat = Process( pid, detector);
     PrintSmearStats(stat);
+
+    gStyle->SetOptStat(0);
+    gStyle->SetHistLineWidth(2);
+    float lMargin = 0.12;
+    float bMargin = 0.12;
+    gStyle->SetLabelSize(.05, "XY");
+    gStyle->SetTitleSize(.05, "XY");
+    gStyle->SetTitleOffset(1.1,"x");	//X-axis title offset from axis
+    gStyle->SetTitleOffset(1.1,"y");	//Y-axis title offset from axis
+ 
+    new TCanvas;
+    TString title = detstring;
+    title += ", pid="; title +=pid;
+    TLegend * leg = new TLegend( 0.65, 0.65, 0.95, 0.95, title);
+    stat.smear_e_smear_p_eta->Draw("AXIS");
+	
+    stat.smear_e_smear_p_eta->SetLineColor(kGreen+1);
+    stat.smear_e_smear_p_eta->Draw("same");
+
+    stat.zero_e_smear_p_eta->SetLineColor(kBlue);
+    stat.zero_e_smear_p_eta->Draw("same");
+    
+    stat.smear_e_zero_p_eta->SetLineColor(kBlack);
+    stat.smear_e_zero_p_eta->Draw("same");
+        
+    stat.null_particles_eta->SetLineColor(kRed);
+    stat.null_particles_eta->Draw("same");
+    
+    leg->AddEntry( stat.zero_e_smear_p_eta, "P smeared", "l");
+    leg->AddEntry( stat.smear_e_zero_p_eta, "E smeared", "l");
+    leg->AddEntry( stat.smear_e_smear_p_eta, "Both smeared", "l");
+    leg->AddEntry( stat.null_particles_eta, "NONE smeared", "l");
+    leg->Draw("same");
+
+    TString outname=detstring;
+    outname += "_"; outname+=pid;
+    outname += "_eta.png";
+    gPad->SaveAs(outname);
+    gPad->SaveAs("etaplot.png"); // for quick looks at the most recent one
+    
+    
     return 0;
 }
