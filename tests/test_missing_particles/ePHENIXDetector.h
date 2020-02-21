@@ -105,7 +105,7 @@ public:
     /**
      Draw all graphs
      */
-    virtual void Draw(Option_t *option = "ac");
+    virtual void Draw(Option_t *option = "ac") override;
 
 private:
     TMultiGraph *mGraphDrawer;  ///< Collection of graphs for each eta range
