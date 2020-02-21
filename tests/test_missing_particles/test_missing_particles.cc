@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include <TDatabasePDG.h>
 
 #include "BeASTDetector.h"
@@ -5,6 +7,8 @@
 #include "ZeusDetector.h"
 
 const double deg_to_rad = 0.01745329251; // pi/180
+
+using std::setw;
 
 enum class EicSmearResults {
     null_particle,
@@ -95,12 +99,11 @@ EicSmearStatistics Process(int pdg, Smear::Detector& detector) {
     using namespace std;
 
     // Get the inputs needed for this factory.
-    TDatabasePDG db;
+    auto db = TDatabasePDG::Instance();
 
-    auto pdg_particle = db.GetParticle(pdg);
+    auto pdg_particle = db->GetParticle(pdg);
     EicSmearStatistics stat;
-
-
+    
     for(int mom=1; mom < 20; mom+=2) {
         for(int angle_deg=0; angle_deg < 360; angle_deg+=1) {
             // 4 vector
@@ -153,11 +156,11 @@ int main() {
     Smear::Detector beast_detector = BuildBeAST();
     Smear::Detector zeus_detector = BuildZeus();
     Smear::Detector ephoenix_detector = BuildEphoenix();
-
-    auto stat = Process(11, ephoenix_detector); // 11 - electron
+    
+    // auto stat = Process(11, ephoenix_detector); // 11 - electron
     // auto stat = Process(22, ephoenix_detector); // 22 - gamma
     // auto stat = Process(2212, ephoenix_detector); // 2212 - proton
-    // auto stat = Process(211, beast_detector); // 211 - pi+
+    auto stat = Process(211, beast_detector); // 211 - pi+
     PrintSmearStats(stat);
     return 0;
 }
