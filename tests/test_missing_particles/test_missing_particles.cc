@@ -121,7 +121,7 @@ EicSmearStatistics Process(int pdg, Smear::Detector& detector) {
 
     int angleinc = 1;
     for(int mom=1; mom < 20; mom+=2) {
-        for(int angle_deg=angleinc; angle_deg < 360; angle_deg+=angleinc) {  // theta
+        for(int angle_deg=angleinc; angle_deg < 180; angle_deg+=angleinc) {  // theta
             // 4 vector
 	    TLorentzVector input_vect(0, 0, mom, sqrt ( mom*mom + pow(pdg_particle->Mass(),2)) );
 	    input_vect.RotateX(angle_deg*deg_to_rad);
