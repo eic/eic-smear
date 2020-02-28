@@ -100,7 +100,7 @@ class EventFromAsciiFactory : public VirtualEventFactory {
    */
   explicit EventFromAsciiFactory(std::istream& is)
   : mInput(&is)
-  , mEvent(NULL) {
+  , mEvent(nullptr) {
   }
 
   /**
@@ -115,7 +115,7 @@ class EventFromAsciiFactory : public VirtualEventFactory {
 
   std::istream* mInput;  //!
   std::string mLine;  //!
-  std::auto_ptr<T> mEvent;  //!
+  std::unique_ptr<T> mEvent;  //!
 
  protected:
   /**

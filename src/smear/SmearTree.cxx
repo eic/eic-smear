@@ -55,7 +55,7 @@ int SmearTree(const Smear::Detector& detector, const TString& inFileName,
     std::cerr << "Unable to find EICTree in " << inFileName << std::endl;
     return 1;
   }  // if
-  std::auto_ptr<erhic::VirtualEventFactory> builder;
+  std::unique_ptr<erhic::VirtualEventFactory> builder;
   // Need to determine the type of object in the tree to choose
   // the correct smeared event builder.
   TClass branchClass(mcTree->GetBranch("event")->GetClassName());

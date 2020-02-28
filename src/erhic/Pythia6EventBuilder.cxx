@@ -43,7 +43,7 @@ Pythia6EventBuilder::~Pythia6EventBuilder() {
 }
 
 EventPythia* Pythia6EventBuilder::Create() {
-  std::auto_ptr<EventPythia> event(BuildEvent());
+  std::unique_ptr<EventPythia> event(BuildEvent());
   if (mFilter) {
     while (!mFilter->Accept(*event)) {
       event.reset(BuildEvent());
@@ -62,7 +62,7 @@ EventPythia* Pythia6EventBuilder::BuildEvent() {
   TObjArray* particles = pythia->ImportParticles("All");
   // Construct the EventPythia object from the current
   // state of TPythia6.
-  std::auto_ptr<EventPythia> event(new EventPythia);
+  std::unique_ptr<EventPythia> event(new EventPythia);
   // Extract the event-wise quantities:
   event->SetNucleon(pythia->GetMSTI(12));
   event->SetTargetParton(pythia->GetMSTI(16));
@@ -110,7 +110,7 @@ EventPythia* Pythia6EventBuilder::BuildEvent() {
   for (int i(0); i < particles->GetEntries(); ++i) {
     TMCParticle* p =
     static_cast<TMCParticle*>(particles->At(i));
-    std::auto_ptr<ParticleMC> particle = builder.Create(*p);
+    std::unique_ptr<ParticleMC> particle = builder.Create(*p);
     particle->SetIndex(i + 1);
     particle->SetEvent(event.get());
     event->AddLast(particle.get());

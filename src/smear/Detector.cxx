@@ -89,7 +89,7 @@ void Detector::FillEventKinematics(Event* eventS) {
      // electron with the smeared version.
      // Then we can use the standard JB/DA algorithms on the smeared event.
   const ParticleMCS* scattered = eventS->ScatteredLepton();
-  typedef std::auto_ptr<erhic::DisKinematics> KinPtr;
+  typedef std::unique_ptr<erhic::DisKinematics> KinPtr;
   if (useNM && scattered) {
     KinPtr kin(erhic::LeptonKinematicsComputer(*eventS).Calculate());
     if (kin.get()) {
@@ -155,7 +155,10 @@ std::vector<Smearer*> Detector::CopyDevices() const {
   std::vector<Smearer*> copies;
   std::transform(Devices.begin(), Devices.end(),
                  std::back_inserter(copies),
-                 std::bind2nd(std::mem_fun(&Smearer::Clone), ""));
+		 [](Smearer* item){ return item->Clone();}
+		 );
+  //                 std::bind( std::mem_fn(&Smearer::Clone), std::placeholders::_1, ""));
+  // std::bind2nd(std::mem_fn(&Smearer::Clone), ""));
   return copies;
 }
 

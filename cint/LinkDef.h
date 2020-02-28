@@ -88,7 +88,7 @@
 #pragma link C++ class std::vector<Particle*>+;
 #pragma link C++ class std::vector<const Particle*>+;
 #pragma link C++ class std::vector<const erhic::VirtualParticle*>+;
-#pragma link C++ class std::auto_ptr<erhic::Pid>;
+// #pragma link C++ class std::unique_ptr<erhic::Pid>;
 
 // Miscellaneous utilities and helper functions/functors
 

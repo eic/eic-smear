@@ -272,7 +272,7 @@ DisKinematics* LeptonKinematicsComputer::Calculate() {
     // Use E, p and ID of scattered lepton to create "best-guess" kinematics.
     // MeasuredParticle::Create will throw an exception in case of a NULL
     // pointer argument.
-    std::auto_ptr<const VirtualParticle> scattered(
+    std::unique_ptr<const VirtualParticle> scattered(
       MeasuredParticle::Create(mBeams.at(3)));
     // If there is no measurement of theta of the scattered lepton we
     // cannot calculate kinematics. Note that via MeasuredParticle the momentum
@@ -338,8 +338,11 @@ JacquetBlondelComputer::JacquetBlondelComputer(const EventDis& event)
   mEvent.HadronicFinalState(final);
   // Populate the stored particle list with "measurable" versions of
   // each final-state particle.
-  std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
-                 std::ptr_fun(&MeasuredParticle::Create));
+  std::transform(final.begin(), final.end(), std::back_inserter(mParticles), MeasuredParticle::Create);
+  // std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
+  //                [](ParticleMC*) { return &MeasuredParticle::Create;});
+  // std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
+  //                std::ptr_fun(&MeasuredParticle::Create));
 }
 
 // ==========================================================================
@@ -367,13 +370,13 @@ Double_t JacquetBlondelComputer::ComputeY() const {
     std::list<double> E;
     std::transform(mParticles.begin(), mParticles.end(),
                    std::back_inserter(E),
-                   std::mem_fun(&VirtualParticle::GetE));
+                   std::mem_fn(&VirtualParticle::GetE));
     const double sumEh = std::accumulate(E.begin(), E.end(), 0.);
     // Sum the pz of the final-state hadrons
     std::list<double> pz;
     std::transform(mParticles.begin(), mParticles.end(),
                    std::back_inserter(pz),
-                   std::mem_fun(&VirtualParticle::GetPz));
+                   std::mem_fn(&VirtualParticle::GetPz));
     const double sumPzh = std::accumulate(pz.begin(), pz.end(), 0.);
     // Compute y.
     // This expression seems more accurate at small y than the usual
@@ -401,13 +404,13 @@ Double_t JacquetBlondelComputer::ComputeQSquared() const {
     std::transform(mParticles.begin(),
                    mParticles.end(),
                    std::back_inserter(px),
-                   std::mem_fun(&VirtualParticle::GetPx));
+                   std::mem_fn(&VirtualParticle::GetPx));
     // Get the py of each particle:
     std::list<double> py;
     std::transform(mParticles.begin(),
                    mParticles.end(),
                    std::back_inserter(py),
-                   std::mem_fun(&VirtualParticle::GetPy));
+                   std::mem_fn(&VirtualParticle::GetPy));
     double sumPx = std::accumulate(px.begin(), px.end(), 0.);
     double sumPy = std::accumulate(py.begin(), py.end(), 0.);
     double y = ComputeY();
@@ -460,8 +463,9 @@ DoubleAngleComputer::DoubleAngleComputer(const EventDis& event)
   mEvent.HadronicFinalState(final);
   // Populate the stored particle list with "measurable" versions of
   // each final-state particle.
-  std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
-                 std::ptr_fun(&MeasuredParticle::Create));
+  std::transform(final.begin(), final.end(), std::back_inserter(mParticles), MeasuredParticle::Create);
+  // std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
+  //                std::ptr_fun(&MeasuredParticle::Create));
 }
 
 // ==========================================================================
@@ -497,7 +501,7 @@ Double_t DoubleAngleComputer::ComputeQuarkAngle() const {
   std::transform(mParticles.begin(),
                  mParticles.end(),
                  std::back_inserter(hadrons),
-                 std::mem_fun(&VirtualParticle::Get4Vector));
+                 std::mem_fn(&VirtualParticle::Get4Vector));
   TLorentzVector h = std::accumulate(hadrons.begin(),
                                      hadrons.end(),
                                      TLorentzVector(0., 0., 0., 0.));

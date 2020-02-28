@@ -19,7 +19,7 @@ namespace Smear {
 Bremsstrahlung::Bremsstrahlung(double epsilon,
                                double traversed,
                                double radLength)
-: mParticle(NULL)
+: mParticle(nullptr)
 , mKMin(0.)
 , mKMax(0.)
 , mEpsilon(epsilon)
@@ -31,7 +31,7 @@ Bremsstrahlung::Bremsstrahlung(double epsilon,
 }
 
 Bremsstrahlung::Bremsstrahlung(const Bremsstrahlung& other)
-    : Device(other), mParticle(NULL), mKMin(other.mKMin), mKMax(other.mKMax),
+    : Device(other), mParticle(nullptr), mKMin(other.mKMin), mKMax(other.mKMax),
       mEpsilon(other.mEpsilon), mTraversed(other.mTraversed),
       mRadLength(other.mRadLength), mPdf(NULL) {
   // Duplicate cached particle if there is one

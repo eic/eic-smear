@@ -114,11 +114,11 @@ T* EventFromAsciiFactory<T>::Create() {
 
 template<typename T>
 Int_t EventFromAsciiFactory<T>::FinishEvent() {
-  std::auto_ptr<DisKinematics> nm(
+  std::unique_ptr<DisKinematics> nm(
       LeptonKinematicsComputer(*mEvent).Calculate());
-  std::auto_ptr<DisKinematics> jb(
+  std::unique_ptr<DisKinematics> jb(
       JacquetBlondelComputer(*mEvent).Calculate());
-  std::auto_ptr<DisKinematics> da(
+  std::unique_ptr<DisKinematics> da(
       DoubleAngleComputer(*mEvent).Calculate());
   if (nm.get()) {
     mEvent->SetLeptonKinematics(*nm);
