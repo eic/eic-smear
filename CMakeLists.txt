@@ -29,7 +29,8 @@ cmake_minimum_required(VERSION 3.1)
 
 project(EICSMEAR)
 
-
+# Build or not to build tests
+option(BUILD_TESTS "Build tests executables" OFF)
 
 # Add this project's module path to the default path.
 # Needed to locate this project's FindROOT.cmake.
@@ -297,6 +298,10 @@ if(ROOT_FOUND)
    	target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG )
    endif(PYTHIA6_LIBDIR)
 endif(ROOT_FOUND)
+
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
 
 INSTALL(TARGETS eicsmear LIBRARY DESTINATION lib)
 
