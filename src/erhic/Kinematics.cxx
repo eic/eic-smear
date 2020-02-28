@@ -338,8 +338,15 @@ JacquetBlondelComputer::JacquetBlondelComputer(const EventDis& event)
   mEvent.HadronicFinalState(final);
   // Populate the stored particle list with "measurable" versions of
   // each final-state particle.
-  std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
-                 std::ptr_fun(&MeasuredParticle::Create));
+  // std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
+  //                std::ptr_fun(&MeasuredParticle::Create));
+
+  // transform applies the function MeasuredParticle::Create to each element of
+  // final and stores the result in mParticles.
+  // Easier:
+  for ( auto& p : final ){
+    mParticles.push_back ( MeasuredParticle::Create (p) );
+  }
 }
 
 // ==========================================================================
