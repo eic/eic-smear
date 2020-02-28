@@ -153,9 +153,14 @@ ParticleMCS* Detector::Smear(const erhic::VirtualParticle& prt) const {
 
 std::vector<Smearer*> Detector::CopyDevices() const {
   std::vector<Smearer*> copies;
-  std::transform(Devices.begin(), Devices.end(),
-                 std::back_inserter(copies),
-                 std::bind2nd(std::mem_fun(&Smearer::Clone), ""));
+  // std::transform(Devices.begin(), Devices.end(),
+  //                std::back_inserter(copies),
+  //                std::bind2nd(std::mem_fun(&Smearer::Clone), ""));
+  for ( std::vector<Smearer*>::const_iterator it = Devices.begin();
+	it!=Devices.end();
+	++it ){    
+    copies.push_back ( (*it)->Clone(""));
+  }
   return copies;
 }
 
