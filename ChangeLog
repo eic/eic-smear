@@ -1,0 +1,4 @@
+KK: 02/28/2020: In some places, clever use was made of transform,
+	auto_ptr, ptr_fun, mem_fun, bind2nd, ...
+	All of which are deleted in C++17. Changing to simpler
+	structures compatible back and forward

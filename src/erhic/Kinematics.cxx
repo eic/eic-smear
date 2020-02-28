@@ -117,6 +117,9 @@ struct EnergyFromMomentumAndId : public std::unary_function<const Particle*,
  */
 using erhic::ParticleMC;
 using erhic::VirtualParticle;
+typedef std::vector<const VirtualParticle*>::iterator VirtPartIter;
+typedef std::vector<const VirtualParticle*>::const_iterator cVirtPartIter;
+
 class MeasuredParticle {
  public:
   static ParticleMC* Create(const erhic::VirtualParticle* particle) {
@@ -319,8 +322,7 @@ DisKinematics* LeptonKinematicsComputer::Calculate() {
 // ==========================================================================
 JacquetBlondelComputer::~JacquetBlondelComputer() {
   // Delete all "measureable" particles.
-  typedef std::vector<const VirtualParticle*>::iterator Iter;
-  for (Iter i = mParticles.begin(); i != mParticles.end(); ++i) {
+  for (VirtPartIter i = mParticles.begin(); i != mParticles.end(); ++i) {
     if (*i) {
       delete *i;
       *i = NULL;
@@ -340,12 +342,11 @@ JacquetBlondelComputer::JacquetBlondelComputer(const EventDis& event)
   // each final-state particle.
   // std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
   //                std::ptr_fun(&MeasuredParticle::Create));
-
   // transform applies the function MeasuredParticle::Create to each element of
   // final and stores the result in mParticles.
-  // Easier:
-  for ( auto& p : final ){
-    mParticles.push_back ( MeasuredParticle::Create (p) );
+  // Easier, and compatible with C++98 and C++17:
+  for (VirtPartIter it = final.begin() ; it != final.end(); ++it){
+    mParticles.push_back ( MeasuredParticle::Create ( *it ) );
   }
 }
 
@@ -371,16 +372,17 @@ Double_t JacquetBlondelComputer::ComputeY() const {
   const VirtualParticle* lepton = mEvent.BeamLepton();
   if (hadron && lepton) {
     // Sum the energies of the final-state hadrons
-    std::list<double> E;
-    std::transform(mParticles.begin(), mParticles.end(),
-                   std::back_inserter(E),
-                   std::mem_fun(&VirtualParticle::GetE));
+    std::vector<double> E;
+    for (cVirtPartIter it = mParticles.begin() ; it != mParticles.end(); ++it){
+      E.push_back ( (*it)->GetE() );
+    }
     const double sumEh = std::accumulate(E.begin(), E.end(), 0.);
+
     // Sum the pz of the final-state hadrons
-    std::list<double> pz;
-    std::transform(mParticles.begin(), mParticles.end(),
-                   std::back_inserter(pz),
-                   std::mem_fun(&VirtualParticle::GetPz));
+    std::vector<double> pz;
+    for (cVirtPartIter it = mParticles.begin() ; it != mParticles.end(); ++it){
+      pz.push_back ( (*it)->GetPz() );
+    }
     const double sumPzh = std::accumulate(pz.begin(), pz.end(), 0.);
     // Compute y.
     // This expression seems more accurate at small y than the usual
@@ -404,17 +406,17 @@ Double_t JacquetBlondelComputer::ComputeQSquared() const {
   const VirtualParticle* hadron = mEvent.BeamHadron();
   if (hadron) {
     // Get the px of each particle:
-    std::list<double> px;
-    std::transform(mParticles.begin(),
-                   mParticles.end(),
-                   std::back_inserter(px),
-                   std::mem_fun(&VirtualParticle::GetPx));
+    std::vector<double> px;
+    for (cVirtPartIter it = mParticles.begin() ; it != mParticles.end(); ++it){
+      px.push_back ( (*it)->GetPx() );
+    }
+
     // Get the py of each particle:
-    std::list<double> py;
-    std::transform(mParticles.begin(),
-                   mParticles.end(),
-                   std::back_inserter(py),
-                   std::mem_fun(&VirtualParticle::GetPy));
+    std::vector<double> py;
+    for (cVirtPartIter it = mParticles.begin() ; it != mParticles.end(); ++it){
+      py.push_back ( (*it)->GetPy() );
+    }
+
     double sumPx = std::accumulate(px.begin(), px.end(), 0.);
     double sumPy = std::accumulate(py.begin(), py.end(), 0.);
     double y = ComputeY();
@@ -467,8 +469,9 @@ DoubleAngleComputer::DoubleAngleComputer(const EventDis& event)
   mEvent.HadronicFinalState(final);
   // Populate the stored particle list with "measurable" versions of
   // each final-state particle.
-  std::transform(final.begin(), final.end(), std::back_inserter(mParticles),
-                 std::ptr_fun(&MeasuredParticle::Create));
+  for (VirtPartIter it = final.begin() ; it != final.end(); ++it){
+    mParticles.push_back ( MeasuredParticle::Create ( *it ) );
+  }
 }
 
 // ==========================================================================
@@ -500,11 +503,14 @@ Double_t DoubleAngleComputer::ComputeQuarkAngle() const {
   if (!mHasChanged) {
     return mAngle;
   }  // if
-  std::list<TLorentzVector> hadrons;
-  std::transform(mParticles.begin(),
-                 mParticles.end(),
-                 std::back_inserter(hadrons),
-                 std::mem_fun(&VirtualParticle::Get4Vector));
+  std::vector<TLorentzVector> hadrons;
+  // std::transform(mParticles.begin(),
+  //                mParticles.end(),
+  //                std::back_inserter(hadrons),
+  //                std::mem_fun(&VirtualParticle::Get4Vector));
+  for (cVirtPartIter it = mParticles.begin() ; it != mParticles.end(); ++it){
+    hadrons.push_back ( (*it)->Get4Vector() );
+  }
   TLorentzVector h = std::accumulate(hadrons.begin(),
                                      hadrons.end(),
                                      TLorentzVector(0., 0., 0., 0.));
