@@ -1,3 +1,15 @@
+#include "eicsmear/erhic/VirtualParticle.h"
+#include "eicsmear/smear/Acceptance.h"
+#include "eicsmear/smear/Device.h"
+#include "eicsmear/smear/Detector.h"
+#include "eicsmear/smear/Smearer.h"
+#include "eicsmear/smear/ParticleMCS.h"
+#include "eicsmear/smear/PerfectID.h"
+#include <eicsmear/smear/Smear.h>
+#include <eicsmear/erhic/ParticleMC.h>
+#include "Math/Vector4D.h"
+#include <TClingRuntime.h>
+
 Smear::Detector BuildBeAST() {
 
   gSystem->Load("libeicsmear");
