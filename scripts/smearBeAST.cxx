@@ -8,7 +8,6 @@
 #include <eicsmear/smear/Smear.h>
 #include <eicsmear/erhic/ParticleMC.h>
 #include "Math/Vector4D.h"
-#include <TClingRuntime.h>
 
 Smear::Detector BuildBeAST() {
 

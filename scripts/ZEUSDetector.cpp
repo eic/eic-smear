@@ -17,7 +17,6 @@
 #include <eicsmear/smear/Smear.h>
 #include <eicsmear/erhic/ParticleMC.h>
 #include "Math/Vector4D.h"
-#include <TClingRuntime.h>
 
 /**
    Convert pseudorapidity (eta) to polar angle (theta) in radians.
