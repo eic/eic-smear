@@ -84,7 +84,7 @@ make install
 ### Tests
 if you prepare buildind using the cmake option
 ```
--DBUILD_TESTS
+-DBUILD_TESTS=ON
 ```
 two tests get generated:
 ```
