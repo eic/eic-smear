@@ -59,17 +59,3 @@ cmake-build-*/
 # ignore JetBrains ide project folder
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
 .idea/
-BeASTDetector.cc
-BeASTDetector.h
-CMakeLists.txt
-eic_smear.cc
-ePHENIXDetector.cc
-ePHENIXDetector.h
-JleicSmear.cc
-JleicSmear.h
-README.md
-SmearedEvent.h
-SmearingFactory.cc
-SmearingFactory.h
-ZeusDetector.cc
-ZeusDetector.h
