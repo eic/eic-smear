@@ -29,12 +29,12 @@ struct EicSmearStep {
 
 // Some statistics about the smearing process
 struct EicSmearStatistics {
-    long int total_particles = 0;
-    long int null_particles = 0;
-    long int zero_e_smear_p = 0;
-    long int smear_e_zero_p = 0;
-    long int smear_e_smear_p = 0;
-    long int zero_e_zero_p = 0;
+    long int total_particles;
+    long int null_particles;
+    long int zero_e_smear_p;
+    long int smear_e_zero_p;
+    long int smear_e_smear_p;
+    long int zero_e_zero_p;
 
     std::vector<EicSmearStep> steps;
 
@@ -113,6 +113,13 @@ EicSmearStatistics Process(int pdg, Smear::Detector& detector) {
 
     TParticlePDG* pdg_particle = db->GetParticle(pdg);
     EicSmearStatistics stat;
+    stat.total_particles=0;
+    stat.null_particles=0;
+    stat.zero_e_smear_p=0;
+    stat.smear_e_zero_p=0;
+    stat.smear_e_smear_p=0;
+    stat.zero_e_zero_p=0;
+
     stat.null_particles_eta  = new TH1D("null_particles_eta",  "Unsmeared particles;#eta;counts", 200, -5, 5 );
     stat.zero_e_smear_p_eta  = new TH1D("zero_e_smear_p_eta",  "only p smeared;#eta;counts", 100, -5, 5 );
     stat.smear_e_zero_p_eta  = new TH1D("smear_e_zero_p_eta",  "only e smeared;#eta;counts", 100, -5, 5 );
