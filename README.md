@@ -98,6 +98,14 @@ will read a (provided) e+D BeAGLE file.
 is a customizable particle gun that creates a few simplee histograms
  and plots to see and test the acceptance dependence of smearing.
 
+### Notes
+If you see instances of things like
+```
+Error in cling::AutoloadingVisitor::InsertIntoAutoloadingState:
+   Missing FileEntry for eicsmear/smear/Smear.h
+   requested to autoload type erhic::VirtualParticle
+```
+please setenv or export the environment variable ROOT_INCLUDE_PATH to point to the include directory in your installation.
 
 ### Pythia
 If you want to build PYTHIA6-dependent components, pass the location
