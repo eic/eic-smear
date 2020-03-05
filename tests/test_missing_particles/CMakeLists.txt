@@ -15,6 +15,7 @@ file(GLOB HEADER_FILES *.h)
 list( APPEND
    SRC_FILES
    ${PROJECT_SOURCE_DIR}/scripts/smearBeAST.cxx
+   ${PROJECT_SOURCE_DIR}/scripts/ZEUSDetector.cpp
 )
 
 # Add sources to our target

@@ -173,21 +173,12 @@ void PrintSmearStats(const EicSmearStatistics& stat) {
 
 
 
-int main() {
-
-    // Smear::Detector beast_detector = BuildBeAST();
-    // Smear::Detector zeus_detector = BuildZeus();
-    // Smear::Detector ephoenix_detector = BuildEphoenix();
-    // auto stat = Process(11, ephoenix_detector); // 11 - electron
-    // auto stat = Process(22, ephoenix_detector); // 22 - gamma
-    // auto stat = Process(2212, ephoenix_detector); // 2212 - proton
-    // auto stat = Process(211, beast_detector); // 211 - pi+
-    
+int main() {   
     int pid = 211; // pi+
     
-    TString detstring = "BeAST";
+    // TString detstring = "BeAST";
     // TString detstring = "ePhenix";
-    // TString detstring = "ZEUS";
+    TString detstring = "ZEUS";
     
     Smear::Detector detector;
     if ( detstring=="BeAST" ) detector = BuildBeAST();

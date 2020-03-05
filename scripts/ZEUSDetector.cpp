@@ -7,8 +7,6 @@
    \copyright 2014 Brookhaven National Lab
 */
 
-#include "ZeusDetector.h"
-
 #include "eicsmear/erhic/VirtualParticle.h"
 #include "eicsmear/smear/Acceptance.h"
 #include "eicsmear/smear/Device.h"
