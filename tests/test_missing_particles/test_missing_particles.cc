@@ -177,8 +177,8 @@ int main() {
     int pid = 211; // pi+
     
     // TString detstring = "BeAST";
-    // TString detstring = "ePhenix";
-    TString detstring = "ZEUS";
+    TString detstring = "ePhenix";
+    // TString detstring = "ZEUS";
     
     Smear::Detector detector;
     if ( detstring=="BeAST" ) detector = BuildBeAST();

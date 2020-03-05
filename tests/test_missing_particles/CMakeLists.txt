@@ -16,6 +16,7 @@ list( APPEND
    SRC_FILES
    ${PROJECT_SOURCE_DIR}/scripts/smearBeAST.cxx
    ${PROJECT_SOURCE_DIR}/scripts/ZEUSDetector.cpp
+   ${PROJECT_SOURCE_DIR}/scripts/ePHENIXDetector.cpp
 )
 
 # Add sources to our target
