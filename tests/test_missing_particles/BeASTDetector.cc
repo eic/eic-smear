@@ -10,11 +10,9 @@
 #include "Math/Vector4D.h"
 #include <TClingRuntime.h>
 
-
 Smear::Detector BuildBeAST() {
 
   gSystem->Load("libeicsmear");
-  //R_LOAD_LIBRARY(libeicsmear);
 
    // Calorimeter resolution usually given as sigma_E/E = const% + stocastic%/Sqrt{E}
    // EIC Smear needs absolute sigma: sigma_E = Sqrt{const*const*E*E + stoc*stoc*E}
