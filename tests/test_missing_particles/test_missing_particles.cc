@@ -14,7 +14,7 @@ const double deg_to_rad = 0.01745329251; // pi/180
 
 using std::setw;
 
-enum class EicSmearResults {
+enum EicSmearResults {
     null_particle,
     zero_e_smear_p,
     smear_e_zero_p,
@@ -29,12 +29,12 @@ struct EicSmearStep {
 
 // Some statistics about the smearing process
 struct EicSmearStatistics {
-    uint64_t total_particles = 0;
-    uint64_t null_particles = 0;
-    uint64_t zero_e_smear_p = 0;
-    uint64_t smear_e_zero_p = 0;
-    uint64_t smear_e_smear_p = 0;
-    uint64_t zero_e_zero_p = 0;
+    long int total_particles = 0;
+    long int null_particles = 0;
+    long int zero_e_smear_p = 0;
+    long int smear_e_zero_p = 0;
+    long int smear_e_smear_p = 0;
+    long int zero_e_zero_p = 0;
 
     std::vector<EicSmearStep> steps;
 
@@ -64,7 +64,7 @@ EicSmearStep DoSmearStep(int pdg, TLorentzVector& input_vect, Smear::Detector& d
     smeared_prt = detector.Smear(not_smeared_prt);
 
     if(!smeared_prt) {
-        step.result = EicSmearResults::null_particle;
+        step.result = null_particle;
         return step;
     }
 
@@ -79,16 +79,16 @@ EicSmearStep DoSmearStep(int pdg, TLorentzVector& input_vect, Smear::Detector& d
     bool zero_e = TMath::Abs(in_e)>0.001 && TMath::Abs(sm_e)<0.00001;
 
     if(zero_p && zero_e) {
-        step.result = EicSmearResults::zero_e_zero_p;   // we don't take such particle
+        step.result = zero_e_zero_p;   // we don't take such particle
     }
     else if (zero_p) {
-        step.result = EicSmearResults::smear_e_zero_p;  // we don't take such particle
+        step.result = smear_e_zero_p;  // we don't take such particle
     }
     else if (zero_e) {
-        step.result = EicSmearResults::zero_e_smear_p;  // we don't take such particle
+        step.result = zero_e_smear_p;  // we don't take such particle
     }
     else {
-        step.result = EicSmearResults::smear_e_smear_p;
+        step.result = smear_e_smear_p;
         // that! is the particle we take...
 
         // In EJana we do:
@@ -109,9 +109,9 @@ EicSmearStatistics Process(int pdg, Smear::Detector& detector) {
     using namespace std;
 
     // Get the inputs needed for this factory.
-    auto db = TDatabasePDG::Instance();
+    TDatabasePDG* db = TDatabasePDG::Instance();
 
-    auto pdg_particle = db->GetParticle(pdg);
+    TParticlePDG* pdg_particle = db->GetParticle(pdg);
     EicSmearStatistics stat;
     stat.null_particles_eta  = new TH1D("null_particles_eta",  "Unsmeared particles;#eta;counts", 200, -5, 5 );
     stat.zero_e_smear_p_eta  = new TH1D("zero_e_smear_p_eta",  "only p smeared;#eta;counts", 100, -5, 5 );
@@ -127,27 +127,27 @@ EicSmearStatistics Process(int pdg, Smear::Detector& detector) {
 	    input_vect.RotateX(angle_deg*deg_to_rad);
 	    // input_vect.Print();
   
-            auto step = DoSmearStep(pdg, input_vect, detector);
+            EicSmearStep step = DoSmearStep(pdg, input_vect, detector);
 
             // Update statistics
             switch(step.result) {
-                case EicSmearResults::null_particle:
+                case null_particle:
                     stat.null_particles++;
 		    stat.null_particles_eta->Fill(input_vect.Eta());
                     break;
-                case EicSmearResults::zero_e_smear_p:
+                case zero_e_smear_p:
                     stat.zero_e_smear_p++;
                     stat.zero_e_smear_p_eta->Fill(input_vect.Eta());
                     break;
-                case EicSmearResults::smear_e_zero_p:
+                case smear_e_zero_p:
                     stat.smear_e_zero_p++;
                     stat.smear_e_zero_p_eta->Fill(input_vect.Eta());
                     break;
-                case EicSmearResults::zero_e_zero_p:
+                case zero_e_zero_p:
                     stat.zero_e_zero_p++;
                     stat.zero_e_zero_p_eta->Fill(input_vect.Eta());
                     break;
-                case EicSmearResults::smear_e_smear_p:
+                case smear_e_smear_p:
                     stat.smear_e_smear_p++;
                     stat.smear_e_smear_p_eta->Fill(input_vect.Eta());
                     break;
@@ -185,7 +185,7 @@ int main() {
     if ( detstring=="ZEUS" ) detector = BuildZeus();
     if ( detstring=="ePhenix" ) detector = BuildEphoenix();
     
-    auto stat = Process( pid, detector);
+    EicSmearStatistics stat = Process( pid, detector);
     PrintSmearStats(stat);
 
     gStyle->SetOptStat(0);
