@@ -176,8 +176,8 @@ void PrintSmearStats(const EicSmearStatistics& stat) {
 int main() {   
     int pid = 211; // pi+
     
-    // TString detstring = "BeAST";
-    TString detstring = "ePhenix";
+    TString detstring = "BeAST";
+    // TString detstring = "ePhenix";
     // TString detstring = "ZEUS";
     
     Smear::Detector detector;
