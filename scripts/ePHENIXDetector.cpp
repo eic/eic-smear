@@ -1,29 +1,29 @@
 /**
- \file ePHENIXDetector.cpp
- Example smearing script for the ePHENIX detector
+   \file ePHENIXDetector.cpp
+   Example smearing script for the ePHENIX detector
 
- \author    Thomas Burton
- \date      2014-03-21
- \copyright 2014 Brookhaven National Lab
- */
+   \author    Thomas Burton
+   \date      2014-03-21
+   \copyright 2014 Brookhaven National Lab
+*/
 
 /*
- Example smearing script for the ePHENIX detector.
+  Example smearing script for the ePHENIX detector.
  
- It defines:
+  It defines:
   - EPhenixMomentum: a special smearing class for the ePHENIX momentum
-                     performance
+  performance
   - BuildDetector: a function to generate the full ePHENIX detector description
  
- This script must be compiled in ROOT before running.
- Therefore, you must first make sure that
- (1) libeicsmear is loaded, via
-       gSystem->Load("libeicsmear");
- (2) the eicsmear headers are accessible, by doing e.g.
-       gSystem->AddIncludePath(" -I/path/to/eic-smear/include");
- You can then compile it in a ROOT session via
-       .L ePHENIXDetector.cpp+g
- */
+  This script must be compiled in ROOT before running.
+  Therefore, you must first make sure that
+  (1) libeicsmear is loaded, via
+  gSystem->Load("libeicsmear");
+  (2) the eicsmear headers are accessible, by doing e.g.
+  gSystem->AddIncludePath(" -I/path/to/eic-smear/include");
+  You can then compile it in a ROOT session via
+  .L ePHENIXDetector.cpp+g
+*/
 
 #include <algorithm>  // For std::max
 #include <cmath>
@@ -45,71 +45,82 @@
 #include "eicsmear/smear/ParticleMCS.h"
 #include "eicsmear/smear/PerfectID.h"
 
+
 /**
- Smearing class describing ePHENIX momentum resolution.
+   Smearing class describing ePHENIX momentum resolution.
  
- The ePHENIX momentum resolution is too complicated to handle with a simple
- parameterisation via the Smear::Device class.
- Therefore we define a custom Smearer class to implement the resolution.
- See the email in comments at the end of the file for details of the
- resolution values we use.
- */
+   The ePHENIX momentum resolution is too complicated to handle with a simple
+   parameterisation via the Smear::Device class.
+   Therefore we define a custom Smearer class to implement the resolution.
+   See the email in comments at the end of the file for details of the
+   resolution values we use.
+*/
 class EPhenixMomentum : public Smear::Smearer {
- public:
+public:
   /**
-   Destructor.
-   */
+     Destructor.
+  */
   virtual ~EPhenixMomentum();
   /**
-   Constructor.
+     Constructor.
    
-   If multipleScattering is true, apply the multiple scattering resolution in
-   the region where it is known, 2 < eta < 4.
-   Otherwise apply only the linear resolution term.
-   */
+     If multipleScattering is true, apply the multiple scattering resolution in
+     the region where it is known, 2 < eta < 4.
+     Otherwise apply only the linear resolution term.
+  */
   EPhenixMomentum(bool multipleScattering = true);
   /**
-   Initialise the object
+     Initialise the object
    
-   This is called automatically by the smearing routine, so the user needn't
-   call it themselves before smearing.
-   */
+     This is called automatically by the smearing routine, so the user needn't
+     call it themselves before smearing.
+  */
   void Initialise();
   /**
-   Returns a pointer to the graphs.
+     Returns a pointer to the graphs.
    
-   Initialises all graphs if not yet done.
-   */
+     Initialises all graphs if not yet done.
+  */
   TMultiGraph* Graphs();
   /**
-   Duplicate this object.
-   */
+     Duplicate this object.
+  */
   virtual EPhenixMomentum* Clone(const char* /* unused */) const;
   /**
-   Smears the input ParticleMC and stores the results in the ParticleMCS.
-   */
+     Smears the input ParticleMC and stores the results in the ParticleMCS.
+  */
   virtual void Smear(const erhic::VirtualParticle& particle,
                      Smear::ParticleMCS& smeared);
   /**
-   Return sigma(P) due to multiple scattering
+     Return sigma(P) due to multiple scattering
    
-   Note this means sigma(P) (GeV) *not* sigma(P)/P
-   */
+     Note this means sigma(P) (GeV) *not* sigma(P)/P
+  */
   virtual double computeMultipleScattering(
-    const erhic::VirtualParticle& particle) const;
+					   const erhic::VirtualParticle& particle) const;
   /**
-   Draw all graphs
-   */
+     Draw all graphs
+  */
   virtual void Draw(Option_t* option = "ac");
 
- private:
+  /**
+     Helper function to convert eta to theta (radians)
+     
+     Detector acceptances require theta, not eta
+  */
+  static double etaToTheta(double eta) {
+    return 2. * std::atan(std::exp(-eta));
+  }
+
+
+private:
   TMultiGraph* mGraphDrawer;  ///< Collection of graphs for each eta range
   Bool_t mMultipleScattering;  ///< Flag to include multiple scattering
-  ClassDef(EPhenixMomentum, 1)
+  // ClassDef(EPhenixMomentum, 1)
 };
 
 EPhenixMomentum::EPhenixMomentum(bool multipleScattering)
-    : mGraphDrawer(NULL), mMultipleScattering(multipleScattering) {
+  : mGraphDrawer(nullptr), mMultipleScattering(multipleScattering) {
   // Only use charged particles, as this is a tracker
   Accept.SetCharge(Smear::kCharged);
 }
@@ -127,10 +138,10 @@ void EPhenixMomentum::Initialise() {
     -3.0, -2.9, -2.8, -2.7, -2.6, -2.5, -2.4, -2.3, -2.2, -2.1, -2.0, -2.0,
     -1.9, -1.8, -1.7, -1.6, -1.5, -1.5, -1.4, -1.3, -1.2, -1.1, -1.0, -0.9,
     -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1,  0.0,  0.1,  0.2,  0.3,
-     0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1.0,  1.0,  1.1,  1.2,  1.3,  1.4,
-     1.5,  1.6,  1.7,  1.8,  1.9,  2.0,  2.1,  2.2,  2.3,  2.4,  2.5,  2.5,
-     2.6,  2.7,  2.8,  2.9,  3.0,  3.1,  3.2,  3.3,  3.4,  3.5,  3.6,  3.7,
-     3.8,  3.9,  4.0
+    0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1.0,  1.0,  1.1,  1.2,  1.3,  1.4,
+    1.5,  1.6,  1.7,  1.8,  1.9,  2.0,  2.1,  2.2,  2.3,  2.4,  2.5,  2.5,
+    2.6,  2.7,  2.8,  2.9,  3.0,  3.1,  3.2,  3.3,  3.4,  3.5,  3.6,  3.7,
+    3.8,  3.9,  4.0
   };
   // sigma(1/p) values at each value of eta
   const double sigma[75] = {
@@ -202,7 +213,7 @@ void EPhenixMomentum::Smear(const erhic::VirtualParticle& particle,
     // Stored values are sigma(1/p).
     // We want to get sigma(p), which is equivalent to sigma(1/p) * p^2.
     double sigmaP = graph->Eval(particle.GetEta()) // sigma(1/p)
-                  * std::pow(particle.GetP(), 2.);
+      * std::pow(particle.GetP(), 2.);
     // Add multiple scattering in quadrature with the linear term if requested
     if (mMultipleScattering) {
       sigmaP = std::sqrt(std::pow(sigmaP, 2.) +
@@ -214,7 +225,7 @@ void EPhenixMomentum::Smear(const erhic::VirtualParticle& particle,
 }
 
 double EPhenixMomentum::computeMultipleScattering(
-    const erhic::VirtualParticle& particle) const {
+						  const erhic::VirtualParticle& particle) const {
   // Here is a duplicate of the relevant information from Sasha's email:
   //  "As for multiple scattering term, what has been simulated so far is eta
   //   ranges 2-3 and 3-4. Numbers keep changing after inclusion of different
@@ -229,7 +240,7 @@ double EPhenixMomentum::computeMultipleScattering(
     // The behaviour Sasha describes is (I think!)
     // log(M.S.) ~= log(3%) + (log(15%) - log(3%)) * (eta - 3) [3 < eta < 4]
     double logSigmaP = std::log(0.03) +
-                       (std::log(0.15) - std::log(0.03)) * (eta - 3);
+      (std::log(0.15) - std::log(0.03)) * (eta - 3);
     // Remember to multiply by momentum, as the 3-15% is sigma(P)/P and we
     // want sigma(P)
     return std::exp(logSigmaP) * particle.GetP();
@@ -245,29 +256,20 @@ void EPhenixMomentum::Draw(Option_t* option) {
 }
 
 /**
- Helper function to convert eta to theta (radians)
+   Smearing parameterisations for the ePHENIX detector.
  
- Detector acceptances require theta, not eta
- */
-double etaToTheta(double eta) {
-  return 2. * std::atan(std::exp(-eta));
-}
+   These parameterisations are non-exhaustive: they do not cover elements such
+   as particle identification, and they are only for the central elements of
+   the detector - essentially, just TPC and B/EEMC.
+ 
+   If multipleScattering == true, apply multiple scattering term to momentum
+   resolution (currently only implemented for 2 < eta < 4). Otherwise just use
+   the linear resolution term.
 
-/**
- Smearing parameterisations for the ePHENIX detector.
- 
- These parameterisations are non-exhaustive: they do not cover elements such
- as particle identification, and they are only for the central elements of
- the detector - essentially, just TPC and B/EEMC.
- 
- If multipleScattering == true, apply multiple scattering term to momentum
- resolution (currently only implemented for 2 < eta < 4). Otherwise just use
- the linear resolution term.
-
- Note: you must gSystem->Load("libeicsmear") BEFORE loading this script,
- as ROOT needs to understand what a Smear::Detector is.
- */
-Smear::Detector BuildDetector(bool multipleScattering = true) {
+   Note: you must gSystem->Load("libeicsmear") BEFORE loading this script,
+   as ROOT needs to understand what a Smear::Detector is.
+*/
+Smear::Detector BuildEphoenix(bool multipleScattering) {
   EPhenixMomentum momentum(multipleScattering);
   // Define acceptance zones for different ePHENIX regions:
   // - electron-going: -4 < eta < -1
@@ -276,9 +278,9 @@ Smear::Detector BuildDetector(bool multipleScattering = true) {
   // As the same calorimeter performance is used in the barrel and hadron-going
   // directions we define them as a single zone
   // Note etamin -> thetamax, etamax -> thetamin
-  Smear::Acceptance::Zone electronDirection(etaToTheta(-1.), etaToTheta(-4.));
-  Smear::Acceptance::Zone barrelAndHadronDirection(etaToTheta(4.),
-                                                   etaToTheta(-1.));
+  Smear::Acceptance::Zone electronDirection(EPhenixMomentum::etaToTheta(-1.), EPhenixMomentum::etaToTheta(-4.));
+  Smear::Acceptance::Zone barrelAndHadronDirection(EPhenixMomentum::etaToTheta(4.),EPhenixMomentum::etaToTheta(-1.));
+
   // Electron-going electromagnetic calorimeter
   Smear::Device electronEcal("E", "0.015*sqrt(E) + 0.01*E",
                              Smear::kElectromagnetic);
@@ -297,7 +299,7 @@ Smear::Detector BuildDetector(bool multipleScattering = true) {
   // PID performance is unparameterised as of now
   Smear::PerfectID pid;
   // Combine the devices into a detector.
-	Smear::Detector ephenix;
+  Smear::Detector ephenix;
   ephenix.AddDevice(momentum);
   ephenix.AddDevice(electronEcal);
   ephenix.AddDevice(barrelAndHadronEcal);
@@ -310,130 +312,130 @@ Smear::Detector BuildDetector(bool multipleScattering = true) {
 }
 
 /*
-Here is the email from Sasha giving the calorimeter performances used above:
+  Here is the email from Sasha giving the calorimeter performances used above:
 
-From: 	Alexander Bazilevsky <shura@bnl.gov>
-	Subject: 	Re: a favour
-	Date: 	26 December, 2013 1:47:19 PM EST
-	To: 	elke-caroline aschenauer <elke@bnl.gov>, Thomas P Burton <tpb@bnl.gov>
+  From: 	Alexander Bazilevsky <shura@bnl.gov>
+  Subject: 	Re: a favour
+  Date: 	26 December, 2013 1:47:19 PM EST
+  To: 	elke-caroline aschenauer <elke@bnl.gov>, Thomas P Burton <tpb@bnl.gov>
 
-Hello Elke, Thomas,
+  Hello Elke, Thomas,
 
-Of course numbers are still drifting, but for now what you could use is roughly the following:
+  Of course numbers are still drifting, but for now what you could use is roughly the following:
 
-EMCal sigma_E/E:
-e-going direction: 1.5%/sqrt(E) \oplus 1%
-h-going direction and barrel: 12%/sqrt(E) \oplus 2%
+  EMCal sigma_E/E:
+  e-going direction: 1.5%/sqrt(E) \oplus 1%
+  h-going direction and barrel: 12%/sqrt(E) \oplus 2%
 
-HCal sigma_E/E:
-h-going direction and barrel: 100%/sqrt(E)
+  HCal sigma_E/E:
+  h-going direction and barrel: 100%/sqrt(E)
 
-Tracking sigma_p/p:
-is quite complicated: the linear term is in attached plot; we also calculated constant (multiple scattering) term from Geant, which appeared to vary from under 1% at eta~1 to 3% at eta~3 and to larger values (~10%) towards eta~4. I'll give you numerical parametrization one of the following days, as soon as I get them from the author of these calculations (Jin Huang).
+  Tracking sigma_p/p:
+  is quite complicated: the linear term is in attached plot; we also calculated constant (multiple scattering) term from Geant, which appeared to vary from under 1% at eta~1 to 3% at eta~3 and to larger values (~10%) towards eta~4. I'll give you numerical parametrization one of the following days, as soon as I get them from the author of these calculations (Jin Huang).
 
-Regards,
+  Regards,
 
-Sasha.
+  Sasha.
 
---------------------------------------------------------------------------------
+  --------------------------------------------------------------------------------
 
-Here is the email from Sasha giving the momentum resolution points used above:
+  Here is the email from Sasha giving the momentum resolution points used above:
 
-From: 	Alexander Bazilevsky <shura@bnl.gov>
-	Subject: 	Re: a favour
-	Date: 	2 January, 2014 11:01:39 AM EST
-	To: 	elke-caroline aschenauer <elke@bnl.gov>, Thomas P Burton <tpb@bnl.gov>
+  From: 	Alexander Bazilevsky <shura@bnl.gov>
+  Subject: 	Re: a favour
+  Date: 	2 January, 2014 11:01:39 AM EST
+  To: 	elke-caroline aschenauer <elke@bnl.gov>, Thomas P Burton <tpb@bnl.gov>
 
-Hello Elke, Thomas, 
+  Hello Elke, Thomas, 
 
-Ok, the linear term in momentum resolution (as in the plot I sent you before): 
+  Ok, the linear term in momentum resolution (as in the plot I sent you before): 
 
-eta        d(1/p) in (1/GeV)
--3.0       0.010500
--2.9       0.009820
--2.8       0.009140
--2.7       0.008460
--2.6       0.007780
--2.5       0.007100
--2.4       0.006520
--2.3       0.005940
--2.2       0.005360
--2.1       0.004780
--2.0       0.004200
+  eta        d(1/p) in (1/GeV)
+  -3.0       0.010500
+  -2.9       0.009820
+  -2.8       0.009140
+  -2.7       0.008460
+  -2.6       0.007780
+  -2.5       0.007100
+  -2.4       0.006520
+  -2.3       0.005940
+  -2.2       0.005360
+  -2.1       0.004780
+  -2.0       0.004200
 
--2.0       0.009811
--1.9       0.008759
--1.8       0.007479
--1.7       0.006242
--1.6       0.005436
--1.5       0.004524
+  -2.0       0.009811
+  -1.9       0.008759
+  -1.8       0.007479
+  -1.7       0.006242
+  -1.6       0.005436
+  -1.5       0.004524
 
--1.5       0.006887
--1.4       0.005374
--1.3       0.004485
--1.2       0.003822
--1.1       0.003164
--1.0       0.002592
--0.9       0.002791
--0.8       0.002991
--0.7       0.003187
--0.6       0.003374
--0.5       0.003547
--0.4       0.003700
--0.3       0.003827
--0.2       0.003921
--0.1       0.003980
-0.0       0.004000
-0.1       0.003980
-0.2       0.003921
-0.3       0.003827
-0.4       0.003700
-0.5       0.003547
-0.6       0.003374
-0.7       0.003187
-0.8       0.002991
-0.9       0.002791
-1.0       0.002592
+  -1.5       0.006887
+  -1.4       0.005374
+  -1.3       0.004485
+  -1.2       0.003822
+  -1.1       0.003164
+  -1.0       0.002592
+  -0.9       0.002791
+  -0.8       0.002991
+  -0.7       0.003187
+  -0.6       0.003374
+  -0.5       0.003547
+  -0.4       0.003700
+  -0.3       0.003827
+  -0.2       0.003921
+  -0.1       0.003980
+  0.0       0.004000
+  0.1       0.003980
+  0.2       0.003921
+  0.3       0.003827
+  0.4       0.003700
+  0.5       0.003547
+  0.6       0.003374
+  0.7       0.003187
+  0.8       0.002991
+  0.9       0.002791
+  1.0       0.002592
 
-1.0       0.001200
-1.1       0.001280
-1.2       0.001360
-1.3       0.001440
-1.4       0.001520
-1.5       0.001600
-1.6       0.001840
-1.7       0.002080
-1.8       0.002320
-1.9       0.002560
-2.0       0.002800
-2.1       0.003160
-2.2       0.003520
-2.3       0.003880
-2.4       0.004240
-2.5       0.004600
+  1.0       0.001200
+  1.1       0.001280
+  1.2       0.001360
+  1.3       0.001440
+  1.4       0.001520
+  1.5       0.001600
+  1.6       0.001840
+  1.7       0.002080
+  1.8       0.002320
+  1.9       0.002560
+  2.0       0.002800
+  2.1       0.003160
+  2.2       0.003520
+  2.3       0.003880
+  2.4       0.004240
+  2.5       0.004600
 
-2.5       0.002300
-2.6       0.002620
-2.7       0.002940
-2.8       0.003260
-2.9       0.003580
-3.0       0.003900
-3.1       0.004400
-3.2       0.004900
-3.3       0.005400
-3.4       0.005900
-3.5       0.006400
-3.6       0.007220
-3.7       0.008040
-3.8       0.008860
-3.9       0.009680
-4.0       0.010500
+  2.5       0.002300
+  2.6       0.002620
+  2.7       0.002940
+  2.8       0.003260
+  2.9       0.003580
+  3.0       0.003900
+  3.1       0.004400
+  3.2       0.004900
+  3.3       0.005400
+  3.4       0.005900
+  3.5       0.006400
+  3.6       0.007220
+  3.7       0.008040
+  3.8       0.008860
+  3.9       0.009680
+  4.0       0.010500
 
-As for multiple scattering term, what has been simulated so far is eta ranges 2-3 and 3-4. Numbers keep changing after inclusion of different material (associated with detectors and read-out). The current very conservative advice is to use 3% for eta=2-3; in eta=3-4, log of this term changes ~linearly from 3% at eta=3 to ~15% at eta=4. 
+  As for multiple scattering term, what has been simulated so far is eta ranges 2-3 and 3-4. Numbers keep changing after inclusion of different material (associated with detectors and read-out). The current very conservative advice is to use 3% for eta=2-3; in eta=3-4, log of this term changes ~linearly from 3% at eta=3 to ~15% at eta=4. 
 
-That's what we have for now. 
+  That's what we have for now. 
 
-Regards, 
+  Regards, 
 
-Sasha.
- */
+  Sasha.
+*/
