@@ -2,7 +2,7 @@ var struct_smear_1_1_bremsstrahlung =
 [
     [ "Bremsstrahlung", "struct_smear_1_1_bremsstrahlung.html#a7451710d0cd45caf328478e3c5f9268e", null ],
     [ "Bremsstrahlung", "struct_smear_1_1_bremsstrahlung.html#a6102a3e2719bb61b91f30ebd72cd60ac", null ],
-    [ "Clone", "struct_smear_1_1_bremsstrahlung.html#a47885753c405f889ff8a0e02b1362226", null ],
+    [ "Clone", "struct_smear_1_1_bremsstrahlung.html#a01cf56f6d376dfd75013cd8bd2670378", null ],
     [ "dSigmadK", "struct_smear_1_1_bremsstrahlung.html#a7b572707b4ed6ca1358d17c2690163a0", null ],
     [ "FixParticleKinematics", "struct_smear_1_1_bremsstrahlung.html#a85040f9377feb65e30f60598bfeaaa2a", null ],
     [ "NGamma", "struct_smear_1_1_bremsstrahlung.html#a0f230f66356d3be2f41657ae3cfb3e43", null ],

@@ -1,9 +1,9 @@
 var classerhic_1_1_event_djangoh =
 [
     [ "EventDjangoh", "classerhic_1_1_event_djangoh.html#a9c9c556886e1f928896a948657ae3a54", null ],
-    [ "ExchangeBoson", "classerhic_1_1_event_djangoh.html#a3f371e3c0dd8ad739b9bfcfe4d655f54", null ],
+    [ "ExchangeBoson", "classerhic_1_1_event_djangoh.html#a9a693f8f5e091075fa1b2245a219ecea", null ],
     [ "Parse", "classerhic_1_1_event_djangoh.html#a54a8842321a86b05b65eef378f234c81", null ],
-    [ "ScatteredLepton", "classerhic_1_1_event_djangoh.html#aa908e2a8aefb37f5939c6cb4a52b7056", null ],
+    [ "ScatteredLepton", "classerhic_1_1_event_djangoh.html#aafb2c19167a2fc6683a5acd43403b402", null ],
     [ "A1NC", "classerhic_1_1_event_djangoh.html#a57c39f9271c0d88f9456f56248718533", null ],
     [ "D", "classerhic_1_1_event_djangoh.html#a5984550cdeb9bfc9b04fd68f71d84ecd", null ],
     [ "dNu", "classerhic_1_1_event_djangoh.html#a4a725c3502c0f2bb1f706ca8f79dacf6", null ],

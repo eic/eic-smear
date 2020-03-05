@@ -4,6 +4,6 @@ var class_smear_1_1_event_factory =
     [ "~EventFactory", "class_smear_1_1_event_factory.html#ae0a874016fc809217a701c409f3956af", null ],
     [ "Branch", "class_smear_1_1_event_factory.html#a4ec73bfce53eecd8b1a8df85863fede8", null ],
     [ "Create", "class_smear_1_1_event_factory.html#a737e84271151325577d547bd6e9226f8", null ],
-    [ "EventName", "class_smear_1_1_event_factory.html#a525b6fcd310da196c991911127917f39", null ],
+    [ "EventName", "class_smear_1_1_event_factory.html#a0c7403ff8c346fa29705aefbd4fe682d", null ],
     [ "Fill", "class_smear_1_1_event_factory.html#a159040b35b8cb90f92554e12dfe9dc5b", null ]
 ];

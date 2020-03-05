@@ -1,9 +1,9 @@
 var classerhic_1_1_event_milou =
 [
     [ "EventMilou", "classerhic_1_1_event_milou.html#a75f13d4c19f9323185315d354b7186af", null ],
-    [ "GetPhiBelGen", "classerhic_1_1_event_milou.html#adb59bd0e61c08ec0a600c7102ac42c56", null ],
-    [ "GetPhiBelRec", "classerhic_1_1_event_milou.html#adc59082ba7fb73ba67137f0463cb3224", null ],
-    [ "GetPhiBelRes", "classerhic_1_1_event_milou.html#a6b9ebf26196b6489b416df5a361a9beb", null ],
+    [ "GetPhiBelGen", "classerhic_1_1_event_milou.html#abafeb67b3725b20259917cf6f7172a87", null ],
+    [ "GetPhiBelRec", "classerhic_1_1_event_milou.html#a4c312740994a17cc1a05ad84ce82e616", null ],
+    [ "GetPhiBelRes", "classerhic_1_1_event_milou.html#acc0fc85137ff70f74141f22b49f8f67e", null ],
     [ "Parse", "classerhic_1_1_event_milou.html#adc17a5837a1c85a130e011b82dca296b", null ],
     [ "phibelgen", "classerhic_1_1_event_milou.html#a061e209952a08a3ea3b99772b558e8a3", null ],
     [ "phibelrec", "classerhic_1_1_event_milou.html#aee7e696067c67f52aacb9180c97d2b99", null ],

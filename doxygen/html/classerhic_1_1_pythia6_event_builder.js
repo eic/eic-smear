@@ -5,7 +5,7 @@ var classerhic_1_1_pythia6_event_builder =
     [ "Branch", "classerhic_1_1_pythia6_event_builder.html#aaba7cb4faa102e5024961c6e0a0fade8", null ],
     [ "BuildEvent", "classerhic_1_1_pythia6_event_builder.html#ac97f6bf0d160fe3b6e4d6c7030c225e1", null ],
     [ "Create", "classerhic_1_1_pythia6_event_builder.html#aa5e0e30aad8da53bea1611d16cee03bb", null ],
-    [ "EventName", "classerhic_1_1_pythia6_event_builder.html#a9c6ee35b25c752d171b95afd1d737bcd", null ],
+    [ "EventName", "classerhic_1_1_pythia6_event_builder.html#a1f410204467035c6ec0be5731a0e6ee5", null ],
     [ "Fill", "classerhic_1_1_pythia6_event_builder.html#ab3445a82c3d944cbd8f39c1d5212c311", null ],
     [ "mEvent", "classerhic_1_1_pythia6_event_builder.html#a629474c9cad3a4cbe4858ee038ee5d0a", null ],
     [ "mFilter", "classerhic_1_1_pythia6_event_builder.html#a89c867bf5d465d9d7e7477b52bc8ed5a", null ],
