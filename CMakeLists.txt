@@ -293,11 +293,14 @@ add_library(
 if(ROOT_FOUND)
    include_directories(${ROOT_INCLUDE_DIR})
    if(PYTHIA6_LIBDIR)
-   	target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
+     target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
+     add_executable(compiled_runpythia scripts/compiled_runpythia.cpp scripts/runpythia.cpp)
+     target_link_libraries(compiled_runpythia eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
    else (PYTHIA6_LIBDIR)
-   	target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG )
+     target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG )
    endif(PYTHIA6_LIBDIR)
-endif(ROOT_FOUND)
+ endif(ROOT_FOUND)
+
 
 if(BUILD_TESTS)
     add_subdirectory(tests)
