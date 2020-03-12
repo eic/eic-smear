@@ -70,7 +70,7 @@ class Pythia6 {
   const int mNEvents;     ///< Number of events to produce
   int mNGenerated;        ///< Number of events passing PYTHIA selection
   int mNTrials;           ///< Number of events thrown by PYTHIA
-  std::auto_ptr<VirtualEventFactory> mFactory;  //! < Event factory.
+  std::unique_ptr<VirtualEventFactory> mFactory;  //! < Event factory.
 
   ClassDef(erhic::Pythia6, 1)
 };
