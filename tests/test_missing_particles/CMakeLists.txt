@@ -11,6 +11,14 @@ add_executable(${EXEC_NAME} "")
 file(GLOB SRC_FILES *.cc)
 file(GLOB HEADER_FILES *.h)
 
+## Add detectors
+list( APPEND
+   SRC_FILES
+   ${PROJECT_SOURCE_DIR}/scripts/smearBeAST.cxx
+   ${PROJECT_SOURCE_DIR}/scripts/ZEUSDetector.cpp
+   ${PROJECT_SOURCE_DIR}/scripts/ePHENIXDetector.cpp
+)
+
 # Add sources to our target
 target_sources(${EXEC_NAME} PRIVATE ${SRC_FILES} PUBLIC ${HEADER_FILES})
 

@@ -1,1 +1,2 @@
 add_subdirectory(test_missing_particles)
+add_subdirectory(test_simple)
