@@ -50,7 +50,8 @@ Both portions of the code are included in the eic-smear shared library.
 ## Prerequisites
 
 * CMake version >3.1 is required.
-* ROOT6 is required. This implies you need a compiler with c++11 support
+* Compiler with C++11 support
+* ROOT is required. ROOT6 strongly preferred, although ROOT5 may work
 
 If building at BNL, get ROOT6 in the following manner
 ```source /afs/rhic.bnl.gov/eic/restructured/etc/eic_cshrc.csh

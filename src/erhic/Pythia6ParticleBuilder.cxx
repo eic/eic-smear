@@ -18,9 +18,9 @@
 
 namespace erhic {
 
-std::auto_ptr<ParticleMC>
+std::unique_ptr<ParticleMC>
 Pythia6ParticleBuilder::Create(const TMCParticle& mc) const {
-  std::auto_ptr<ParticleMC> particle(new ParticleMC);
+  std::unique_ptr<ParticleMC> particle(new ParticleMC);
   TLorentzVector p(mc.GetPx(),
                    mc.GetPy(),
                    mc.GetPz(),

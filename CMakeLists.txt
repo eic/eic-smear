@@ -32,6 +32,16 @@ project(EICSMEAR)
 # Build or not to build tests
 option(BUILD_TESTS "Build tests executables" OFF)
 
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 11)
+endif()
+# Need support for unique_ptr etc.
+# I believe beyond C++20, changes will be drastic, so reject that too
+# which also takes care of C++98 
+if( ${CMAKE_CXX_STANDARD} LESS 11 OR ${CMAKE_CXX_STANDARD} GREATER 20 )
+  message ( FATAL_ERROR " Needs CMAKE_CXX_STANDARD at least 11" )
+endif()
+
 # Add this project's module path to the default path.
 # Needed to locate this project's FindROOT.cmake.
 set(
@@ -58,21 +68,18 @@ set(
 #  dependencies in ROOT_GENERATE_DICTIONARY
 
 find_package(ROOT)
-# ROOT6 needs C++11 standard
-string(SUBSTRING ${ROOT_VERSION} 0 1 ROOT_MAJOR)
 
+# Version check no longer needed b/c c++11 is now always required.
+# But leaving it in for future needs
+string(SUBSTRING ${ROOT_VERSION} 0 1 ROOT_MAJOR)
 # message ( " ROOT_VERSION = " ${ROOT_VERSION})
 # message ( " ROOT_MAJOR = " ${ROOT_MAJOR})
-IF(${ROOT_MAJOR} GREATER 5)
-  if(NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 11)
-  endif()
-  
-  if( ${CMAKE_CXX_STANDARD} LESS 11 )
-    message ( FATAL_ERROR " ROOT_VERSION = " ${ROOT_VERSION} " needs CMAKE_CXX_STANDARD >= 11 " )
-  endif()
+# IF(${ROOT_MAJOR} GREATER 5)
+#   if(NOT DEFINED CMAKE_CXX_STANDARD)
+#     set(CMAKE_CXX_STANDARD 11)
+#   endif()
+#ENDIF()
 
-ENDIF()
 
 ## Need to have this base for rootcint
 include_directories(${CMAKE_SOURCE_DIR}/include)

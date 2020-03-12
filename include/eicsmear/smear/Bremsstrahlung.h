@@ -87,7 +87,7 @@ struct Bremsstrahlung : public Device {
    */
   bool SetupPDF();
 
-  std::auto_ptr<erhic::ParticleMC> mParticle;  //! < Copy of the current particle
+  std::unique_ptr<erhic::ParticleMC> mParticle;  //! < Copy of the current particle
 
   double mKMin;
   double mKMax;

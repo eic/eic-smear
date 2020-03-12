@@ -31,7 +31,7 @@ class Pythia6ParticleBuilder {
   /**
    Generate a ParticleMC from a ROOT TMCParticle.
    */
-  std::auto_ptr<ParticleMC> Create(const TMCParticle&) const;
+  std::unique_ptr<ParticleMC> Create(const TMCParticle&) const;
 };
 
 }  // namespace erhic

@@ -66,7 +66,7 @@ class Pythia6EventFactory : public erhic::VirtualEventFactory {
    */
   virtual EventPythiaPP* BuildEvent();
 
-  std::auto_ptr<erhic::EventMCFilterABC> mFilter;
+  std::unique_ptr<erhic::EventMCFilterABC> mFilter;
   EventPythiaPP* mEvent;
 
   ClassDef(erhic::hadronic::Pythia6EventFactory, 1)

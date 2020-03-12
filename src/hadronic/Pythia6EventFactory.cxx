@@ -34,7 +34,7 @@ Pythia6EventFactory::Pythia6EventFactory(erhic::EventMCFilterABC* filter)
 }
 
 EventPythiaPP* Pythia6EventFactory::Create() {
-  std::auto_ptr<EventPythiaPP> event(BuildEvent());
+  std::unique_ptr<EventPythiaPP> event(BuildEvent());
   if (mFilter.get()) {
     while (!mFilter->Accept(*event)) {
       event.reset(BuildEvent());
@@ -53,7 +53,7 @@ EventPythiaPP* Pythia6EventFactory::BuildEvent() {
   double Q2 = pythia->GetPARI(22);
   double x1 = pythia->GetPARI(33);
   double x2 = pythia->GetPARI(34);
-  std::auto_ptr<EventPythiaPP> event(new EventPythiaPP(Q2, x1, x2));
+  std::unique_ptr<EventPythiaPP> event(new EventPythiaPP(Q2, x1, x2));
   // Get the particles from the current PYTHIA event.
   // Build a ParticleMC from each and add to the event's list
   TObjArray* particles = pythia->ImportParticles("All");
@@ -62,7 +62,7 @@ EventPythiaPP* Pythia6EventFactory::BuildEvent() {
   // Populate particle list
   while ((mc = static_cast<TMCParticle*>(iter.Next()))) {
     if (mc) {
-      std::auto_ptr<ParticleMC> p(new ParticleMC(*mc));
+      std::unique_ptr<ParticleMC> p(new ParticleMC(*mc));
       p->SetParentIndex(mc->GetParent());
       event->Add(p.get());
     }  // if
