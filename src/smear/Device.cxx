@@ -21,8 +21,19 @@
 #include "eicsmear/smear/FormulaString.h"
 #include "eicsmear/smear/ParticleMCS.h"
 
+using std::cout;
+using std::cerr;
+using std::endl;
+
 namespace Smear {
 
+
+  /// TODO: KK It seems the use of kinematicFunction is unnecessary
+  /// All it does is
+  // - create a string that identifies the smeared observable (say, phi)
+  // - create a string ("phi"), translate it to a TF1 ("x")
+  // - relate the smeared value to the observable using GetX()
+  //But this TF1 is always identity, modulo range restrictions that cause obscure errors
 bool Device::Init(const TString& kinematicFunction,
                   const TString& resolutionFunction, int genre) {
   Accept.SetGenre(genre);
@@ -34,9 +45,10 @@ bool Device::Init(const TString& kinematicFunction,
   mSmeared = f.Variables().front();
   // Use UUID for ROOT function name to avoid instances clashing
   mKinematicFunction = new TF1(TUUID().AsString(),
-                               f.GetString().c_str(), 0., 1.e16);
+                               f.GetString().c_str(), -1e15, 1.e16);
   // Set the resolution function.
   mFormula = new FormulaString(resolutionFunction.Data());
+  // cout << mFormula->GetString() << endl;
   return mFormula && mKinematicFunction;
 }
 
@@ -98,6 +110,17 @@ void Device::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
   double unsmeared = mKinematicFunction->Eval(GetVariable(prt, mSmeared));
   double resolution = mFormula->Eval(args);
   double smeared = mDistribution.Generate(unsmeared, resolution);
+  // mDistribution.Print();
+  // std::cout << "unsmeared " << unsmeared << std::endl;
+  // std::cout << "resolution " << resolution << std::endl;
+  // std::cout << "smeared " << smeared << std::endl;
+  // std::cout << "mSmeared " << mSmeared << std::endl;
+  // mKinematicFunction->Print();
+  if ( mKinematicFunction->GetFormula()->GetExpFormula() != "x" ){
+    std::cerr << "Formula = " << mKinematicFunction->GetFormula()->GetExpFormula() << std::endl;
+    throw -1;
+  }
+  // if ( smeared < 0 || fabs(mKinematicFunction->GetX(smeared)-smeared)>1e-5 ) cout << mKinematicFunction->GetX(smeared) << " " << smeared << endl;
   SetVariable(out, mKinematicFunction->GetX(smeared), mSmeared);
   // Fix angles to the correct ranges.
   if (kTheta == mSmeared) {
@@ -107,6 +130,8 @@ void Device::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
   }  // else if
   // Ensure E, p are positive definite
   HandleBogusValues(out, mSmeared);
+  if ( isnan( GetVariable (out, mSmeared ) ) ) cout << "Problem. smeared is " << smeared << " but propagated nan in " << mSmeared<< endl;
+  // std::cout << "Bye Smear" << std::endl << std::endl;
 }
 
 Device* Device::Clone(const char* /** Unused */) const {
