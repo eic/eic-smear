@@ -99,6 +99,8 @@ std::vector<KinType> FormulaString::Variables() const {
   return mVariables;
 }
 
+  /// TODO: kk Implicitly limits the number of variables in a formula to 4.
+  /// TODO: kk Needs documentation and graceful handling.
 std::string FormulaString::Parse(const std::string& formula) {
   using std::string;
   using std::vector;
