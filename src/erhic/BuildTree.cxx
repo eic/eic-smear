@@ -22,8 +22,8 @@
  Forester can be tweaked to do so.
  */
 Long64_t
-BuildTree(const TString& inputFileName,
-          const TString& outputDirName,
+BuildTree(const std::string& inputFileName,
+          const std::string& outputDirName,
           const Long64_t maxEvent,
           const std::string& logFileName) {
   // Set the maximum size of the tree on disk.
@@ -33,7 +33,7 @@ BuildTree(const TString& inputFileName,
 
   // Get the input file name, stripping any leading directory path via
   // use of the BaseName() method from TSystem.
-  TString outName = gSystem->BaseName(inputFileName);
+  TString outName = gSystem->BaseName(inputFileName.c_str());
 
   // Remove the existing extension, if there is one.
   if (outName.Last('.') > -1) {
@@ -54,11 +54,12 @@ BuildTree(const TString& inputFileName,
   if (!outDir.EndsWith("/")) outDir.Append('/');
   outName.Prepend(outDir);
 
+
   // Configure an object of class Forester, which handles processing the text
   // file into a tree.
   erhic::Forester forester;
-  forester.SetInputFileName(std::string(inputFileName));
-  forester.SetOutputFileName(std::string(outName));
+  forester.SetInputFileName(inputFileName);
+  forester.SetOutputFileName(std::string(outName.Data()));  //
   forester.SetMaxNEvents(maxEvent);
   forester.SetMessageInterval(10000);
   forester.SetBeVerbose(true);
@@ -76,7 +77,7 @@ BuildTree(const TString& inputFileName,
   std::string logFile(logFileName);
   if (logFile.empty()) {
     logFile =
-    erhic::LogReaderFactory::GetInstance().Locate(inputFileName.Data());
+    erhic::LogReaderFactory::GetInstance().Locate(inputFileName.c_str());
   }  // if
 
   // Use the FileType created by Forester when running to generate a
