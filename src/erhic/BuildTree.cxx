@@ -54,11 +54,12 @@ BuildTree(const std::string& inputFileName,
   if (!outDir.EndsWith("/")) outDir.Append('/');
   outName.Prepend(outDir);
 
+
   // Configure an object of class Forester, which handles processing the text
   // file into a tree.
   erhic::Forester forester;
-  forester.SetInputFileName(std::string(inputFileName));
-  forester.SetOutputFileName(std::string(outName));
+  forester.SetInputFileName(inputFileName);
+  forester.SetOutputFileName(std::string(outName.Data()));  //
   forester.SetMaxNEvents(maxEvent);
   forester.SetMessageInterval(10000);
   forester.SetBeVerbose(true);
