@@ -53,8 +53,8 @@ double computeHermesPhiH(const TLorentzVector& hadronInPrf,
  \fn
  Function for generating a ROOT TTree file from a plain-text Monte Carl file.
  */
-Long64_t BuildTree(const TString& inputFileName,
-                   const TString& outputDirName = ".",
+Long64_t BuildTree(const std::string& inputFileName,
+                   const std::string& outputDirName = ".",
                    const Long64_t maxEvent = 0,
                    const std::string& logFileName = "");
 
