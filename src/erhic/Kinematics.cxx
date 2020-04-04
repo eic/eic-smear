@@ -387,13 +387,23 @@ Double_t JacquetBlondelComputer::ComputeY() const {
     // Compute y.
     // This expression seems more accurate at small y than the usual
     // (sumE - sumPz) / 2E_lepton.
+    // Tested by Xiaoxuan Chu and Elke Aschenauer, this formula
+    // is more appropriate in the presence of radiative effects.
     y = (hadron->GetE() * sumEh -
          hadron->GetPz() * sumPzh -
          pow(hadron->GetM(), 2.)) /
     (lepton->GetE() * hadron->GetE() - lepton->GetPz() * hadron->GetPz());
+
+    // Can result in negative y. Catch that here since bounded() below is
+    // for legacy reasons only and produces warnings instead of cutoffs
+    if (y<0) y=0;
   }  // if
-     // Return y, bounding it by the range [0, 1]
-  return bounded(y, 0., 1.);
+
+  // Return y, bounding it by the range [0, 1]
+  // return bounded(y, 0., 1.);
+  // changed: y_jb can be slightly >1
+  // we're returning y as is and circumvent the warnning
+  return y;
 }
 
 // ==========================================================================
@@ -443,7 +453,11 @@ Double_t JacquetBlondelComputer::ComputeX() const {
       x = ComputeQSquared() / y / s;
     }  // if
   }  // if
-  return bounded(x, 0., 1.);
+
+  // return bounded(x, 0., 1.);
+  // changed: x_jb can be slightly >1 when y_jb is very small
+  // we're returning x as is and circumvent the warning (but keep warning for x<0)
+  return bounded(x, 0., 100.);
 }
 
 // ==========================================================================
