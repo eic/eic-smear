@@ -1,4 +1,8 @@
 Author: kkauder <kkauder@gmail.com>
+Date:   Sat Apr 4 13:52:23 2020 +0000
+	Fixes for unphysical y_JB and x_JB, see issue #10
+
+Author: kkauder <kkauder@gmail.com>
 Date:   Tue Mar 17 13:51:48 2020 +0000
 	Range bugfix
 	After smearing, the smeared observable gets funneled through a TF1
