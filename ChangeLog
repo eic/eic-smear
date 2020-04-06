@@ -1,3 +1,8 @@
+Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Sat Apr 4 10:38:09 2020 -0400
+    Renamed and restructure existing tests.
+    Added qaplot maker in tests directory.
+
 Author: kkauder <kkauder@gmail.com>
 Date:   Sat Apr 4 13:52:23 2020 +0000
 	Fixes for unphysical y_JB and x_JB, see issue #10
