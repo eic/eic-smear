@@ -107,7 +107,7 @@ SET(
    eicsmear/erhic/EventPepsi.h
    eicsmear/erhic/EventPythia.h
    eicsmear/erhic/EventRapgap.h
-   eicsmear/erhic/EventSimple.h
+   eicsmear/erhic/EventSartre.h
    eicsmear/erhic/File.h
    eicsmear/erhic/Forester.h
    eicsmear/erhic/Kinematics.h
@@ -166,7 +166,7 @@ SET(
    src/erhic/EventPepsi.cxx
    src/erhic/EventPythia.cxx
    src/erhic/EventRapgap.cxx
-   src/erhic/EventSimple.cxx
+   src/erhic/EventSartre.cxx
    src/erhic/File.cxx
    src/erhic/Forester.cxx
    src/erhic/Kinematics.cxx

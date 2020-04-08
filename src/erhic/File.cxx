@@ -20,7 +20,7 @@
 #include "eicsmear/erhic/EventDpmjet.h"
 #include "eicsmear/erhic/EventRapgap.h"
 #include "eicsmear/erhic/EventGmcTrans.h"
-#include "eicsmear/erhic/EventSimple.h"
+#include "eicsmear/erhic/EventSartre.h"
 
 
 namespace erhic {
@@ -424,8 +424,8 @@ LogReader* LogReaderFactory::CreateReader(std::istream& is) const {
     //reader = CreateReader("beagle");
   } else if (str.Contains("milou")) {
     reader = CreateReader("milou");
-  } else if (str.Contains("simple")) {
-    reader = CreateReader("simple");
+  } else if (str.Contains("sartre")) {
+    reader = CreateReader("sartre");
   }  // if
   return reader;
 }
@@ -558,8 +558,8 @@ const FileType* FileFactory::GetFile(std::istream& is) const {
     file = GetFile("gmctrans");
   } else if (str.Contains("dpmjet")) {
     file = GetFile("dpmjet");
-  } else if (str.Contains("simple")) {
-    file = GetFile("simple");  
+  } else if (str.Contains("sartre")) {
+    file = GetFile("sartre");  
   }  // if
   return file;
 }
@@ -581,8 +581,8 @@ FileFactory::FileFactory() {
                                     new File<EventRapgap>()));
   prototypes_.insert(std::make_pair("gmctrans",
                                     new File<EventGmcTrans>()));
-  prototypes_.insert(std::make_pair("simple",
-                                    new File<EventSimple>()));
+  prototypes_.insert(std::make_pair("sartre",
+                                    new File<EventSartre>()));
   
 }
 
