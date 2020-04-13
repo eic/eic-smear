@@ -9,8 +9,6 @@
 #include <TDatabasePDG.h>
 #include <TFile.h>
 #include <TChain.h>
-#include <TH1.h>
-#include <TH2.h>
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <TStyle.h>
@@ -25,7 +23,6 @@
 #include "eicsmear/smear/EventS.h"
 #include "eicsmear/smear/Smear.h"
 #include "eicsmear/smear/ParticleMCS.h"
-
 
 #include "ePHENIXDetector.h"
 #include "eicsmear/smear/Detector.h"
@@ -42,10 +39,15 @@ Smear::Detector BuildBeAST();
 using std::cout;
 using std::cerr;
 using std::endl;
-using std::setw;
 using std::string;
 using std::vector;
 using std::map;
+
+// some helpers
+const TString getrootname(const qaparameters& qapars );
+void initializeqabook(const qaparameters& qapars, map<int,qacollection>& qabook );
+
+
 
 int main(int argc, char* argv[]){
   
@@ -54,32 +56,12 @@ int main(int argc, char* argv[]){
   // Defaults are set in qaplots.h
   qaparameters qapars = ParseArguments ( argc, argv );
 
-  // First, convert txt file to tree
-  // -------------------------------
-  // The root file name is created by replacing .txt by .root
-  // Make sure input name is right and generate output name for loading
-  if ( qapars.txtfilename.substr(qapars.txtfilename.length()-4,4) != ".txt" ){
-    cerr << "Input file " << qapars.txtfilename << " doesn't end with .txt";
-    return -1;
-  }
-  TString rootname = qapars.txtfilename.substr(0,qapars.txtfilename.length()-4);
-  // BuildTree includes event number in partial transformation
-  if ( qapars.nevents>=0 ) {
-    rootname += ".";
-    rootname += qapars.nevents;
-    rootname += "event";
-  }
-  rootname += ".root";
-  rootname = gSystem->BaseName( rootname );
-  string outpath = "./";
-  rootname.Prepend( outpath );
-  cout << " ======================= " << endl;
-  cout << " Transforming input file " << endl
-       << qapars.txtfilename << endl
-       << " into root file " << endl
-       << rootname << endl;
+  // Set up output name
+  TString rootname = getrootname(qapars);
   
-  BuildTree(qapars.txtfilename.c_str(), outpath.c_str(), qapars.nevents);
+  // First, convert txt file to tree
+  // -------------------------------  
+  BuildTree(qapars.txtfilename.c_str(), qapars.outpath.c_str(), qapars.nevents);
 
   // Smear the tree
   // --------------
@@ -112,78 +94,16 @@ int main(int argc, char* argv[]){
   inTree->SetBranchAddress("event",&inEvent);
   inTree->SetBranchAddress("eventS",&inEventS);
 
-
   // Open histo root file and book histograms
   // ----------------------------------------
   TFile * outfile = new TFile ( qapars.outfilebase + qapars.detstring + ".root", "RECREATE");
 
   // We'll have a collection of histos and maybe other info for every pid
-  // defined here:
-  struct qacollection {
-    TH2D* DelP_th;
-    TH2D* DelE_th;
-    TH2D* dTh_p;
-    TH2D* dPhi_p;
-  };
-
+  // qacollection is defined in the header
   map<int,qacollection> qabook;
-  if ( qapars.pids.size() == 0 ) {
-    qapars.pids.push_back(11); // e
-    qapars.pids.push_back(211); // pi
-    qapars.pids.push_back(321); // K
-    qapars.pids.push_back(2212); // p
-    qapars.pids.push_back(2112); // n
-  }
-
-  TString s;
-  float pmin = 0;
-  float pmax = 20;
-  int pbins = 80;
-
-  float dpmin = -0.1;
-  float dpmax = 0.1;
-  int dpbins = 100;
-  
-  float emin = 0;
-  float emax = 20;
-  int ebins = 80;
-
-  float demin = -0.1;
-  float demax = 0.1;
-  int debins = 100;
-
-  float thmin = 0;
-  float thmax = TMath::Pi();
-  int thbins = 64;
-  
-  float dthmin = -0.1;
-  float dthmax = 0.1;
-  int dthbins = 100;
-
-  float phimin = 0;
-  float phimax = TMath::TwoPi();
-  int phibins = 64;
-  
-  float dphimin = -0.1;
-  float dphimax = 0.1;
-  int dphibins = 100;
-
-  for ( auto pid : qapars.pids ){
-    pid = abs ( pid ); // ignoring charge
-
-    s = qapars.detstring + "_DelP_th_"; s += pid;
-    qabook[pid].DelP_th = new TH2D( s,s+";#theta;#Delta p/p", thbins, thmin, thmax, dpbins, dpmin, dpmax);
-
-    s = qapars.detstring + "_DelE_th_"; s += pid;
-    qabook[pid].DelE_th = new TH2D( s,s+";#theta;#Delta E/E", thbins, thmin, thmax, debins, demin, demax);
-    
-    s = qapars.detstring + "_dTh_p_"; s += pid;
-    qabook[pid].dTh_p = new TH2D( s,s+";p;#Delta#theta", pbins, pmin, pmax, dthbins, dthmin, dthmax );
-
-    s = qapars.detstring + "_dPhi_p_"; s += pid;
-    qabook[pid].dPhi_p = new TH2D( s,s+";p;#Delta#phi", pbins, pmin, pmax, dphibins, dphimin, dphimax );
-    
-  }
+  // By default, use the five standard particles
+  if ( qapars.pids.size() == 0 ) qapars.pids = { 11, 211, 321, 2212, 2112 }; // e, pi, K, p, n
+  initializeqabook ( qapars, qabook );
     
   // Analysis loop
   // -------------  
@@ -226,7 +146,9 @@ int main(int argc, char* argv[]){
     }
   }
 
-  
+
+  // Make plots and save
+  // -------------------
   new TCanvas;
   gPad->SaveAs( qapars.outfilebase + qapars.detstring + ".pdf[" );
   for ( auto& pidcoll : qabook ){
@@ -302,4 +224,82 @@ qaparameters ParseArguments ( int argc, char* argv[] ){
   for (auto & c: qapars.detstring) c = toupper(c);
   
   return qapars;
+}
+
+// ---------------------------------------------------------------
+const TString getrootname(const qaparameters& qapars ){
+  // The root file name is created by replacing .txt by .root
+  // Make sure input name is right and generate output name for loading
+  if ( qapars.txtfilename.substr(qapars.txtfilename.length()-4,4) != ".txt" ){
+    cerr << "Input file " << qapars.txtfilename << " doesn't end with .txt";
+    throw std::runtime_error("Can't parse input file");
+  }
+  TString rootname = qapars.txtfilename.substr(0,qapars.txtfilename.length()-4);
+  // BuildTree includes event number in partial transformation
+  if ( qapars.nevents>=0 ) {
+    rootname += ".";
+    rootname += qapars.nevents;
+    rootname += "event";
+  }
+  rootname += ".root";
+  rootname = gSystem->BaseName( rootname );
+  rootname.Prepend( qapars.outpath );
+  cout << " ======================= " << endl;
+  cout << " Transforming input file " << endl
+       << qapars.txtfilename << endl
+       << " into root file " << endl
+       << rootname << endl;
+  return rootname;
+}
+// ---------------------------------------------------------------
+void initializeqabook(const qaparameters& qapars, map<int,qacollection>& qabook ){
+  TString s;
+  float pmin = 0;
+  float pmax = 20;
+  int pbins = 80;
+
+  float dpmin = -0.1;
+  float dpmax = 0.1;
+  int dpbins = 100;
+  
+  float emin = 0;
+  float emax = 20;
+  int ebins = 80;
+
+  float demin = -0.1;
+  float demax = 0.1;
+  int debins = 100;
+
+  float thmin = 0;
+  float thmax = TMath::Pi();
+  int thbins = 64;
+  
+  float dthmin = -0.1;
+  float dthmax = 0.1;
+  int dthbins = 100;
+
+  float phimin = 0;
+  float phimax = TMath::TwoPi();
+  int phibins = 64;
+  
+  float dphimin = -0.1;
+  float dphimax = 0.1;
+  int dphibins = 100;
+
+  for ( auto pid : qapars.pids ){
+    pid = abs ( pid ); // ignoring charge
+
+    s = qapars.detstring + "_DelP_th_"; s += pid;
+    qabook[pid].DelP_th = new TH2D( s,s+";#theta;#Delta p/p", thbins, thmin, thmax, dpbins, dpmin, dpmax);
+
+    s = qapars.detstring + "_DelE_th_"; s += pid;
+    qabook[pid].DelE_th = new TH2D( s,s+";#theta;#Delta E/E", thbins, thmin, thmax, debins, demin, demax);
+    
+    s = qapars.detstring + "_dTh_p_"; s += pid;
+    qabook[pid].dTh_p = new TH2D( s,s+";p;#Delta#theta", pbins, pmin, pmax, dthbins, dthmin, dthmax );
+
+    s = qapars.detstring + "_dPhi_p_"; s += pid;
+    qabook[pid].dPhi_p = new TH2D( s,s+";p;#Delta#phi", pbins, pmin, pmax, dphibins, dphimin, dphimax );    
+  }
+
 }
