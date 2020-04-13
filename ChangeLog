@@ -2,6 +2,10 @@ Author: Barak Schmookler <bschmookler1@gmail.com>
 Date:   Wed Apr 8 11:18:50 2020 -0400
     Implemented Simple Event Reader
 
+Author: Barak Schmookler <bschmookler1@gmail.com>
+Date:   Wed Apr 8 19:00:06 2020 -0400
+	Add ability to read-in Sartre Event Generator.
+
 Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Sat Apr 4 10:38:09 2020 -0400
     Renamed and restructure existing tests.
