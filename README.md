@@ -180,7 +180,9 @@ tests/ep_noradcorr.20x250.small.txt
 BuildTree accepts the name of an input file, the output directory, and
 the number of events to generate (-1 for all);
 IMPORTANT: The file type is by default assumed to be pythia6. For
-other files, please make sure to include the generator name in the filename.
+other files, please make sure to include the generator name in the
+filename. Currently accepted are pythia, pepsi, lepto, rapgap, djangoh, beagle,milou, sartre, simple
+
 
 #### Smear the tree
 ```
