@@ -303,12 +303,18 @@ DisKinematics* LeptonKinematicsComputer::Calculate() {
       // exchange boson is not recorded).
       const TLorentzVector q = l - scattered->Get4Vector();
       double y = (q.Dot(h)) / (l.Dot(h));
+      if ( y<0) y=0; // kk: catching unphysical negative values.
       kin->mY = bounded(y, 0., 1.);
       // Calculate x from Q^2 = sxy
       double cme = (l + h).M2();
-      double x = kin->mQ2 / kin->mY / cme;
+      // double x = kin->mQ2 / kin->mY / cme;
+      double x = 0;
+      if ( y>0 ) x = kin->mQ2 / kin->mY / cme;
+      if ( x<0) x=0; // kk: catching unphysically negative values.
       kin->mX = bounded(x, 0., 1.);
       kin->mW2 = computeW2FromXQ2M(kin->mX, kin->mQ2, h.M());
+      // if ( y > 1 ) std::cout << " NM y = " << y << std::endl;
+      // if ( x > 1 ) std::cout << " NM x = " << x << "    y = " << y << "    Q2 = " << kin->mQ2 << std::endl;
     }  // if
   }  // try
   catch(std::invalid_argument& except) {
@@ -403,6 +409,7 @@ Double_t JacquetBlondelComputer::ComputeY() const {
   // return bounded(y, 0., 1.);
   // changed: y_jb can be slightly >1
   // we're returning y as is and circumvent the warnning
+  //std::cout << " JB y = " << y << std::endl;
   return y;
 }
 
@@ -457,6 +464,7 @@ Double_t JacquetBlondelComputer::ComputeX() const {
   // return bounded(x, 0., 1.);
   // changed: x_jb can be slightly >1 when y_jb is very small
   // we're returning x as is and circumvent the warning (but keep warning for x<0)
+  // std::cout << " JB x = " << x << std::endl;
   return bounded(x, 0., 100.);
 }
 
@@ -560,7 +568,8 @@ Double_t DoubleAngleComputer::ComputeQSquared() const {
     double theta = scattered->GetTheta();
     double gamma = ComputeQuarkAngle();
     double denominator = tan(theta / 2.) + tan(gamma / 2.);
-    if (denominator > 0.) {
+    // kk: could catch theta=0, but it's a canary for a faulty detector   if (denominator > 0. && tan(theta / 2.) !=0 ) {
+    if (denominator > 0. ) {
       Q2 = 4. * pow(lepton->GetE(), 2.) / tan(theta / 2.) / denominator;
     }  // if
   }  // if

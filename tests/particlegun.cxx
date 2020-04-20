@@ -2,6 +2,7 @@
 
 #include <TDatabasePDG.h>
 #include <TH1.h>
+#include <TH2.h>
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <TStyle.h>
@@ -11,6 +12,9 @@
 #include "eicsmear/smear/Detector.h"
 Smear::Detector BuildZeus();
 Smear::Detector BuildBeAST();
+Smear::Detector BuildHandBookDetector();
+Smear::Detector BuildPerfectDetector();
+Smear::Detector BuildNaiveHandBookDetector();
 
 const double deg_to_rad = 0.01745329251; // pi/180
 
@@ -26,6 +30,7 @@ enum EicSmearResults {
 
 struct EicSmearStep {
     TLorentzVector not_smeared_lorentz;
+    TLorentzVector smeared_lorentz;
     EicSmearResults result;
 };
 
@@ -45,6 +50,8 @@ struct EicSmearStatistics {
     TH1D* smear_e_zero_p_eta;
     TH1D* zero_e_zero_p_eta;
     TH1D* smear_e_smear_p_eta;
+
+    TH2D* smear_DelP;
 };
 
 /// This function does smearing itself. by calling detector.Smear(not_smeared_prt);
@@ -69,6 +76,7 @@ EicSmearStep DoSmearStep(int pdg, TLorentzVector& input_vect, Smear::Detector& d
         step.result = null_particle;
         return step;
     }
+    step.smeared_lorentz = smeared_prt->Get4Vector();
 
     // Check odds of eic-smear smearing
     double in_p = input_vect.P();
@@ -128,6 +136,8 @@ EicSmearStatistics Process(int pdg, Smear::Detector& detector) {
     stat.zero_e_zero_p_eta   = new TH1D("zero_e_zero_p_eta",   "Unsmeared particles;#eta;counts", 100, -5, 5 );
     stat.smear_e_smear_p_eta = new TH1D("smear_e_smear_p_eta", "smeared e, smeared p;#eta;counts", 100, -5, 5 );
 
+    stat.smear_DelP = new TH2D("smear_DelP","#Delta p/p;p;#Delta p/p", 100, 0, 20, 100, -0.1,0.1);
+
     int angleinc = 1;
     for(int mom=1; mom < 20; mom+=2) {
         for(int angle_deg=angleinc; angle_deg < 180; angle_deg+=angleinc) {  // theta
@@ -140,26 +150,28 @@ EicSmearStatistics Process(int pdg, Smear::Detector& detector) {
 
             // Update statistics
             switch(step.result) {
-                case null_particle:
-                    stat.null_particles++;
-		    stat.null_particles_eta->Fill(input_vect.Eta());
-                    break;
-                case zero_e_smear_p:
-                    stat.zero_e_smear_p++;
-                    stat.zero_e_smear_p_eta->Fill(input_vect.Eta());
-                    break;
-                case smear_e_zero_p:
-                    stat.smear_e_zero_p++;
-                    stat.smear_e_zero_p_eta->Fill(input_vect.Eta());
-                    break;
-                case zero_e_zero_p:
-                    stat.zero_e_zero_p++;
-                    stat.zero_e_zero_p_eta->Fill(input_vect.Eta());
-                    break;
-                case smear_e_smear_p:
-                    stat.smear_e_smear_p++;
-                    stat.smear_e_smear_p_eta->Fill(input_vect.Eta());
-                    break;
+	    case null_particle:
+	      stat.null_particles++;
+	      stat.null_particles_eta->Fill(input_vect.Eta());
+	      break;
+	    case zero_e_smear_p:
+	      stat.zero_e_smear_p++;
+	      stat.zero_e_smear_p_eta->Fill(input_vect.Eta());
+	      stat.smear_DelP->Fill(input_vect.P(), (input_vect.P() - step.smeared_lorentz.P()) / input_vect.P());
+	      break;
+	    case smear_e_zero_p:
+	      stat.smear_e_zero_p++;
+	      stat.smear_e_zero_p_eta->Fill(input_vect.Eta());
+	      break;
+	    case zero_e_zero_p:
+	      stat.zero_e_zero_p++;
+	      stat.zero_e_zero_p_eta->Fill(input_vect.Eta());
+	      break;
+	    case smear_e_smear_p:
+	      stat.smear_e_smear_p++;
+	      stat.smear_e_smear_p_eta->Fill(input_vect.Eta());
+	      stat.smear_DelP->Fill(input_vect.P(), (input_vect.P() - step.smeared_lorentz.P()) / input_vect.P());
+	      break;
             }
 
             stat.steps.push_back(step);
@@ -183,14 +195,26 @@ void PrintSmearStats(const EicSmearStatistics& stat) {
 
 
 int main() {   
-    int pid = 211; // pi+
-    
-    TString detstring = "BeAST";
+  // int pid = 211; // pi+
+  int pid = 11; // e-
+  // int pid = 22; // gamma
+  // int pid = 2112; // n
+  // int pid = 2212; // p
+  // int pid = 13; // mu
+  // int pid = 12; // neutrino
+
+    TString detstring = "HandBook";
+    // TString detstring = "Perfect";
+    // TString detstring = "NaiveHandBook";
+    // TString detstring = "BeAST";
     // TString detstring = "ePhenix";
     // TString detstring = "ZEUS";
     
     Smear::Detector detector;
     if ( detstring=="BeAST" ) detector = BuildBeAST();
+    if ( detstring=="HandBook" ) detector = BuildHandBookDetector();
+    if ( detstring=="Perfect" ) detector = BuildPerfectDetector();
+    if ( detstring=="NaiveHandBook" ) detector = BuildNaiveHandBookDetector();
     if ( detstring=="ZEUS" ) detector = BuildZeus();
     if ( detstring=="ePhenix" ) detector = BuildEphoenix();
     
@@ -210,6 +234,13 @@ int main() {
     TString title = detstring;
     title += ", pid="; title +=pid;
     TLegend * leg = new TLegend( 0.65, 0.65, 0.95, 0.95, title);
+    
+    double ymax = stat.smear_e_smear_p_eta->GetMaximum();
+    ymax =  std::max ( ymax, stat.zero_e_smear_p_eta->GetMaximum() );
+    ymax =  std::max ( ymax, stat.smear_e_zero_p_eta->GetMaximum() );
+    ymax =  std::max ( ymax, stat.null_particles_eta->GetMaximum() );
+
+    stat.smear_e_smear_p_eta->SetAxisRange( 0, ymax*1.1, "y");
     stat.smear_e_smear_p_eta->Draw("AXIS");
 	
     stat.smear_e_smear_p_eta->SetLineColor(kGreen+1);
@@ -236,6 +267,14 @@ int main() {
     gPad->SaveAs(outname);
     gPad->SaveAs("etaplot.png"); // for quick looks at the most recent one
     
+    new TCanvas;
+    stat.smear_DelP->SetTitle(title);
+    stat.smear_DelP->Draw("colz");
+    outname=detstring;
+    outname += "_"; outname+=pid;
+    outname += "_DelP.png";
+    gPad->SaveAs(outname);
+    gPad->SaveAs("DelPplot.png"); // for quick looks at the most recent one
     
     return 0;
 }

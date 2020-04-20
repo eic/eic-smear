@@ -7,6 +7,9 @@ SET(
   )
 SET(
   DET_SRC  
+  ${PROJECT_SOURCE_DIR}/scripts/smearHandBook.cxx
+  ${PROJECT_SOURCE_DIR}/scripts/PerfectDetector.cxx
+  ${PROJECT_SOURCE_DIR}/scripts/smearNaiveHandBook.cxx
   ${PROJECT_SOURCE_DIR}/scripts/smearBeAST.cxx
   ${PROJECT_SOURCE_DIR}/scripts/ZEUSDetector.cpp
   ${PROJECT_SOURCE_DIR}/scripts/ePHENIXDetector.cpp
@@ -42,7 +45,8 @@ target_link_libraries(test_simple_buildtree eicsmear)
 
 # copy input files
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/beagle_eD.txt ${CMAKE_CURRENT_BINARY_DIR}/beagle_eD.txt COPYONLY)
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ep_noradcorr.20x250.small.txt ${CMAKE_CURRENT_BINARY_DIR}/ep_noradcorr.20x250.small.txt COPYONLY)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ep_lowQ2.20x250.small.txt ${CMAKE_CURRENT_BINARY_DIR}/ep_lowQ2.20x250.small.txt COPYONLY)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ep_hiQ2.20x250.small.txt ${CMAKE_CURRENT_BINARY_DIR}/ep_hiQ2.20x250.small.txt COPYONLY)
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/simple_gen.txt ${CMAKE_CURRENT_BINARY_DIR}/simple_gen.txt COPYONLY)
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ep_sartre.txt ${CMAKE_CURRENT_BINARY_DIR}/ep_sartre.txt COPYONLY)
 
