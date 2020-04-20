@@ -167,6 +167,22 @@ tests/CMakeLists.txt
 is intended to be readable and give insight how to generate compiled
 code.
 
+You can use them with the supplied test files,
+```
+ ./tests/qaplots -i tests/ep_lowQ2.20x250.small.txt -det handbook
+```
+or  
+```
+./tests/qaplots -i tests/ep_hiQ2.20x250.small.txt -det handbook
+```
+
+The first set of event-wise observables (`$y, x,`$ and `$Q^2`$ using
+three different methods) is set up to loosely compare to the plots on
+p. 88f in the eRHIC design study,  http://arxiv.org/pdf/1409.1633.pdf,
+but be aware of statistics limitations and specific settings (e.g.,
+20x250 GeV e+P) in the test files.
+
+
 ### Deconstructed example
 All steps can be performed interactively and individually in ROOT as
 follows:
@@ -174,8 +190,8 @@ follows:
 #### Generate EicTree
 ```
 root [] gSystem->Load("libeicsmear");
-root [] BuildTree ("tests/ep_noradcorr.20x250.small.txt",".",-1);
-tests/ep_noradcorr.20x250.small.txt
+root [] BuildTree ("tests/ep_lowQ2.20x250.small.txt",".",-1);
+Processed 10000 events containing 346937 particles in 6.20576 seconds (0.000620576 sec/event)
 ```
 BuildTree accepts the name of an input file, the output directory, and
 the number of events to generate (-1 for all);
@@ -188,7 +204,7 @@ filename. Currently accepted are pythia, pepsi, lepto, rapgap, djangoh, beagle,m
 ```
 root [] gSystem->Load("libeicsmear")
 root [] .L smearBeAST.cxx // Assuming you copied this here
-root [] SmearTree(BuildBeAST(), "ep_noradcorr.20x250.small.root", "smeared.root",-1)
+root [] SmearTree(BuildBeAST(), "ep_lowQ2.20x250.small.root", "smeared.root",-1)
 /-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/
 /  Commencing Smearing of 10000 events.
 /-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/
@@ -204,7 +220,7 @@ other files, please make sure to include the generator name in the filename.
 ```
 root -l 
 gSystem->Load("libeicsmear");
-TFile mcf ("ep_noradcorr.20x250.small.root"); // truth
+TFile mcf ("ep_lowQ2.20x250.small.txt.root"); // truth
 TTree* mc=(TTree*)mcf.Get("EICTree");
 mc->AddFriend("Smeared","smeared.root"); // befriend
 	
@@ -290,12 +306,31 @@ detector.
 
 * Formulas are based on ROOT::TFormula and accept kP, kPhi, kTheta, kE. In
 principle, kPt and kPz is also supported but currently not working.
-* IMPORTANT: Due to the limitations of TFormula only four different
+
+### IMPORTANT NOTES:
+* If you want to have an unsmeared value in the smeared tree, use a
+perfect device, e.g:
+```
+Smear::Device TrackTheta(Smear::kTheta, "0");
+```
+
+
+* Once any variable is smeared, all remaining fields are initialized
+to 0, meaning eic-smear treats them as measured with a zero value. It
+is in most cases up to the user to catch this behavior with lines of
+the form
+```
+if ( fabs (  inParticleS->GetTheta())> 1e-8 ) { \\ physical, treat as measured }
+```
+This unfortunate behavior will be corrected in future releases, but
+this fix will take some time to test and ensure it doesn't break existing
+code. See also some more details in scripts/smearHandBook.cxx
+regarding calculation of smeared kinematic variables.
+
+* Due to the limitations of TFormula only four different
   variables can be used at a time (because internally they get
   translated dynamically into the four available free variables
   x,y,z,t).
-  
-
 
 
 ## Doxygen
@@ -320,8 +355,7 @@ You can obtain doxygen at www.doxygen.nl.
 
 These instructions were used in the context of an older configuration
 not currently in use. The original Subversion reporitory (not up to date) is at:
-
-```sh
+```
  http://svn.racf.bnl.gov/svn/eic/Utilities/eic-smear/trunk eic-smear
 ```
 

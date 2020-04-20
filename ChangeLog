@@ -1,3 +1,14 @@
+Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Mon Apr 20 07:15:27 2020 -0400
+    Updated documentation.
+    Restructured qaplots for better readability; added keeping track of misses
+    Added details from calo DWG to handbook detector
+    Added eta-dependent QA plots and profiles
+    Renamed test file and added one with higher Q^2
+    Added perfect detector.
+    Catching a few unphysical cases in Kinematic.cxx. Leaving in others because they serve as canaraies to indicates issues with a detector implementation.
+
+
 Author: Barak Schmookler <bschmookler1@gmail.com>
 Date:   Wed Apr 8 11:18:50 2020 -0400
     Implemented Simple Event Reader

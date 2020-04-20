@@ -17,6 +17,7 @@
 #include <vector>
 
 #include <TUUID.h>
+#include <TDatabasePDG.h>
 
 #include "eicsmear/smear/FormulaString.h"
 #include "eicsmear/smear/ParticleMCS.h"
@@ -111,10 +112,16 @@ void Device::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
   double resolution = mFormula->Eval(args);
   double smeared = mDistribution.Generate(unsmeared, resolution);
   // mDistribution.Print();
-  // std::cout << "unsmeared " << unsmeared << std::endl;
-  // std::cout << "resolution " << resolution << std::endl;
-  // std::cout << "smeared " << smeared << std::endl;
-  // std::cout << "mSmeared " << mSmeared << std::endl;
+  if ( false && abs(prt.Id())==11){
+    // if ( mSmeared != kE ){std::cerr << " ======================  " << mSmeared << std::endl; throw(-1);}
+    std::cout << " ======================  mSmeared = " << mSmeared << std::endl;
+    // prt.Print();
+    std::cout << " orig eta = " << prt.GetEta()<< std::endl;
+    std::cout << "unsmeared " << unsmeared << std::endl;
+    std::cout << "resolution " << resolution << std::endl;
+    std::cout << "smeared " << smeared << std::endl;
+    std::cout << "mSmeared " << mSmeared << std::endl;
+  }
   // mKinematicFunction->Print();
   if ( mKinematicFunction->GetFormula()->GetExpFormula() != "x" ){
     std::cerr << "Formula = " << mKinematicFunction->GetFormula()->GetExpFormula() << std::endl;

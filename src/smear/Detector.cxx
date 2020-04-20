@@ -96,8 +96,7 @@ void Detector::FillEventKinematics(Event* eventS) {
       eventS->SetLeptonKinematics(*kin);
     }  // if
   } else {
-    eventS->SetLeptonKinematics(
-                                erhic::DisKinematics(-1., -1., -1., -1., -1.));
+    eventS->SetLeptonKinematics( erhic::DisKinematics(-1., -1., -1., -1., -1.));
   }  // if
   if (useJB) {
     KinPtr kin(erhic::JacquetBlondelComputer(*eventS).Calculate());
