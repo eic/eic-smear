@@ -30,9 +30,11 @@ The following Monte Carlo generators are supported:
 * Sartre
 * DPMJet
 * gmc_trans
+
 Most of these are currently hosted at https://gitlab.com/eic/mceg.
 Please see the associated documentation for further information on
 individual generators.
+
 Creation will typically be of the form
 ```
 pythiaeRHIC < STEER_FILE > out.log
