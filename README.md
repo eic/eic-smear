@@ -224,8 +224,8 @@ filename. Currently accepted are pythia, pepsi, lepto, rapgap, djangoh, beagle,m
 #### Smear the tree
 ```
 root [] gSystem->Load("libeicsmear")
-root [] .L smearBeAST.cxx // Assuming you copied this here
-root [] SmearTree(BuildBeAST(), "ep_lowQ2.20x250.small.root", "smeared.root",-1)
+root [] .L smearHandBook.cxx // Assuming you copied this here
+root [] SmearTree(BuildHandBookDetector(), "ep_lowQ2.20x250.small.root", "smeared.root",-1)
 /-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/
 /  Commencing Smearing of 10000 events.
 /-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/
