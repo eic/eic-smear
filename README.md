@@ -211,7 +211,7 @@ follows:
 #### Generate EicTree
 ```
 root [] gSystem->Load("libeicsmear");
-root [] BuildTree ("tests/ep_lowQ2.20x250.small.txt",".",-1);
+root [] BuildTree ("tests/ep_hiQ2.20x250.small.txt",".",-1);
 Processed 10000 events containing 346937 particles in 6.20576 seconds (0.000620576 sec/event)
 ```
 BuildTree accepts the name of an input file, the output directory, and
@@ -225,7 +225,7 @@ filename. Currently accepted are pythia, pepsi, lepto, rapgap, djangoh, beagle,m
 ```
 root [] gSystem->Load("libeicsmear")
 root [] .L smearHandBook.cxx // Assuming you copied this here
-root [] SmearTree(BuildHandBookDetector(), "ep_lowQ2.20x250.small.root", "smeared.root",-1)
+root [] SmearTree(BuildHandBookDetector(), "ep_hiQ2.20x250.small.root", "smeared.root",-1)
 /-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/
 /  Commencing Smearing of 10000 events.
 /-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/
@@ -241,7 +241,7 @@ other files, please make sure to include the generator name in the filename.
 ```
 root -l 
 gSystem->Load("libeicsmear");
-TFile mcf ("ep_lowQ2.20x250.small.txt.root"); // truth
+TFile mcf ("ep_hiQ2.20x250.small.root"); // truth
 TTree* mc=(TTree*)mcf.Get("EICTree");
 mc->AddFriend("Smeared","smeared.root"); // befriend
 	
