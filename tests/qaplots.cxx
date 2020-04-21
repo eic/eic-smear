@@ -204,17 +204,6 @@ void FillEventQA( eventqacollection& eventqa , const erhic::EventMC* const inEve
     if ( eventqa.dely_JB && inEventS->GetYJacquetBlondel()>0 ) eventqa.dely_JB->Fill ( inEvent->GetY(), std::abs(inEventS->GetYJacquetBlondel()-inEvent->GetY())/ inEvent->GetY());
     if ( eventqa.dely_DA && inEventS->GetYDoubleAngle()>0 )    eventqa.dely_DA->Fill ( inEvent->GetY(), std::abs(inEventS->GetYDoubleAngle()-inEvent->GetY())/ inEvent->GetY());
 
-    // if ( eventqa.y_NM && inEventS->GetY()>0)                eventqa.y_NM->Fill ( std::log10(inEvent->GetY()), std::log10(inEventS->GetY()));
-    // else eventqa.missedy_NM++;
-    // if ( eventqa.y_JB && inEventS->GetYJacquetBlondel()>0 ) eventqa.y_JB->Fill ( std::log10(inEvent->GetY()), std::log10(inEventS->GetYJacquetBlondel()));
-    // else eventqa.missedy_JB++;
-    // if ( eventqa.y_DA && inEventS->GetYDoubleAngle()>0 )    eventqa.y_DA->Fill ( std::log10(inEvent->GetY()), std::log10(inEventS->GetYDoubleAngle()));
-    // else eventqa.missedy_DA++;
-    
-    // if ( eventqa.dely_NM && inEventS->GetY()>0)                eventqa.dely_NM->Fill ( std::log10(inEvent->GetY()), std::abs(inEventS->GetY()-inEvent->GetY())/ inEvent->GetY());
-    // if ( eventqa.dely_JB && inEventS->GetYJacquetBlondel()>0 ) eventqa.dely_JB->Fill ( std::log10(inEvent->GetY()), std::abs(inEventS->GetYJacquetBlondel()-inEvent->GetY())/ inEvent->GetY());
-    // if ( eventqa.dely_DA && inEventS->GetYDoubleAngle()>0 )    eventqa.dely_DA->Fill ( std::log10(inEvent->GetY()), std::abs(inEventS->GetYDoubleAngle()-inEvent->GetY())/ inEvent->GetY());
-
     // x
     if ( eventqa.x_NM && inEventS->GetX()>0)                eventqa.x_NM->Fill ( std::log10(inEvent->GetX()), std::log10(inEventS->GetX()));
     else eventqa.missedx_NM++;
@@ -662,15 +651,15 @@ void PlotQA ( const qaparameters& qapars, eventqacollection& eventqa, map<int,pi
 
     // option "s" in Profile shows rms
     
-    // coll.DelP_th->Draw("colz");
-    // gPad->SaveAs( qapars.outfilebase + qapars.detstring + ".pdf" );
+    coll.DelP_th->Draw("colz");
+    gPad->SaveAs( qapars.outfilebase + qapars.detstring + ".pdf" );
 
     coll.DelP_eta->Draw("colz");
     coll.DelP_eta->ProfileX("_px",1,-1,"s")->Draw("same");
     gPad->SaveAs( qapars.outfilebase + qapars.detstring + ".pdf" );
 
-    // coll.DelE_th->Draw("colz");
-    // gPad->SaveAs( qapars.outfilebase + qapars.detstring + ".pdf" );
+    coll.DelE_th->Draw("colz");
+    gPad->SaveAs( qapars.outfilebase + qapars.detstring + ".pdf" );
     
     coll.DelE_eta->Draw("colz");
     coll.DelE_eta->ProfileX("_px",1,-1,"s")->Draw("same");
@@ -680,8 +669,8 @@ void PlotQA ( const qaparameters& qapars, eventqacollection& eventqa, map<int,pi
     coll.DelE_E->ProfileX("_px",1,-1,"s")->Draw("same");
     gPad->SaveAs( qapars.outfilebase + qapars.detstring + ".pdf" );
 
-    // coll.dTh_p->Draw("colz");
-    // gPad->SaveAs( qapars.outfilebase + qapars.detstring + ".pdf" );
+    coll.dTh_p->Draw("colz");
+    gPad->SaveAs( qapars.outfilebase + qapars.detstring + ".pdf" );
     
     coll.dEta_p->Draw("colz");
     coll.dEta_p->ProfileX("_px",1,-1,"s")->Draw("same");

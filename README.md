@@ -150,7 +150,7 @@ is a customizable particle gun that creates a few simplee histograms
 and plots to see and test the acceptance dependence of smearing.
 
 ### A canonic example
-A particularly useful example is 
+When tests are built, a particularly useful example is 
 ```
 ./tests/qaplots
 ```
@@ -167,7 +167,8 @@ tests/CMakeLists.txt
 is intended to be readable and give insight how to generate compiled
 code.
 
-You can use them with the supplied test files,
+You can use them with the supplied test files which cmake copies into
+your build directory:
 ```
  ./tests/qaplots -i tests/ep_lowQ2.20x250.small.txt -det handbook
 ```
@@ -181,6 +182,24 @@ three different methods) is set up to loosely compare to the plots on
 p. 88f in the eRHIC design study,  http://arxiv.org/pdf/1409.1633.pdf,
 but be aware of statistics limitations and specific settings (e.g.,
 20x250 GeV e+P) in the test files.
+
+You may wish to combine the two test files. In order to do so, the
+repeated header in the second (or any other subsequent) file needs to
+be removed. This can be achieved like this:
+```sh
+cp tests/ep_lowQ2.20x250.small.txt tests/combo.txt
+tail -n +7 tests/ep_hiQ2.20x250.small.txt >> tests/combo.txt
+```
+
+The result of
+```
+./tests/qaplots -i tests/combo.txt -det handbook
+```
+should then reproduce (within the limits of architecture-dependent
+random number details) the provided small reference plots in
+```
+./tests/epref_qaplotsHANDBOOK.pdf
+```
 
 
 ### Deconstructed example
