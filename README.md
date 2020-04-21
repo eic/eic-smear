@@ -7,7 +7,7 @@ Documentation in the BNL Wiki
 
 Contacts
 * Alexander Kiselev <ayk@bnl.gov>
-* Kolja Kauder <kkauderl@bnl.gov>
+* Kolja Kauder <kkauder@bnl.gov>
 * Maxim Potekhin <potekhin@bnl.gov>
 
 ## Overview
