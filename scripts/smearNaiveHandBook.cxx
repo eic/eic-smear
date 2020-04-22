@@ -186,7 +186,7 @@ Smear::Detector BuildNaiveHandBookDetector() {
 
 // -------------------------------------------------------------------
 double ThetaFromEta( const double eta ) {
-  if ( !isnan(eta) && !isinf(eta)   ) {
+  if ( !std::isnan(eta) && !std::isinf(eta)   ) {
     return 2.0 * atan( exp( -eta ));
   }
   throw std::runtime_error("ThetaFromEta called with NaN or Inf");
@@ -198,7 +198,7 @@ double EtaFromTheta( const double theta ) {
   // The default value of -19 is used in the main eRHIC code,
   // so use that for consistency.
   double eta = -19.;
-  if (theta > 0. && theta < TMath::Pi() && !isnan(theta) && !isinf(theta)) {
+  if (theta > 0. && theta < TMath::Pi() && !std::isnan(theta) && !std::isinf(theta)) {
     eta = -log(tan(theta / 2.));
   }
   return eta;
