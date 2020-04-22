@@ -11,12 +11,12 @@
 #include <vector>
 
 struct qaparameters{
-  std::string txtfilename="./tests/ep_lowQ2.20x250.small.txt";
+  std::string txtfilename="./tests/ep_hiQ2.20x250.small.txt";
   TString outfilebase="./qaplots";
   std::string outpath="./";
   long nevents=-1;
   std::vector<int> pids = {}; // sign will be ignored. 0 for all. leave empty for e, pi, k, p. 
-  std::string detstring = "BeAST"; // Capitalization does not matter
+  std::string detstring = "HANDBOOK"; // Capitalization does not matter
 
   long usedevents=-1;// pure convenience so I can access the true number when nevents=-1;
 };

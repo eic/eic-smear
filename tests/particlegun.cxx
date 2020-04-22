@@ -14,7 +14,6 @@ Smear::Detector BuildZeus();
 Smear::Detector BuildBeAST();
 Smear::Detector BuildHandBookDetector();
 Smear::Detector BuildPerfectDetector();
-Smear::Detector BuildNaiveHandBookDetector();
 
 const double deg_to_rad = 0.01745329251; // pi/180
 
@@ -205,7 +204,6 @@ int main() {
 
     TString detstring = "HandBook";
     // TString detstring = "Perfect";
-    // TString detstring = "NaiveHandBook";
     // TString detstring = "BeAST";
     // TString detstring = "ePhenix";
     // TString detstring = "ZEUS";
@@ -214,8 +212,7 @@ int main() {
     if ( detstring=="BeAST" ) detector = BuildBeAST();
     if ( detstring=="HandBook" ) detector = BuildHandBookDetector();
     if ( detstring=="Perfect" ) detector = BuildPerfectDetector();
-    if ( detstring=="NaiveHandBook" ) detector = BuildNaiveHandBookDetector();
-    if ( detstring=="ZEUS" ) detector = BuildZeus();
+     if ( detstring=="ZEUS" ) detector = BuildZeus();
     if ( detstring=="ePhenix" ) detector = BuildEphoenix();
     
     EicSmearStatistics stat = Process( pid, detector);
