@@ -179,7 +179,7 @@ or
 ./tests/qaplots -i tests/ep_hiQ2.20x250.small.txt -det handbook
 ```
 
-The first set of event-wise observables (`$y, x,`$ and `$Q^2`$ using
+The first set of event-wise observables (y, x, and Q^2 using
 three different methods) is set up to loosely compare to the plots on
 p. 88f in the eRHIC design study,  http://arxiv.org/pdf/1409.1633.pdf,
 but be aware of statistics limitations and specific settings (e.g.,
@@ -271,19 +271,21 @@ EEprime->Draw("colz");
 ## Anatomy of a Smearer
 A "detector" is constructed as follows. For details,
 please also see examples included in the scripts/directory.
-```c++
+
+```
 // ... omitted some includes and helpers
 Smear::Detector BuildMyDetector() {
 	
 // Create the detector object to hold all devices
-  Smear::Detector det;
+   Smear::Detector det;
   // The detector will calculate event kinematics from smeared values
   det.SetEventKinematicsCalculator("NM JB DA");
 ```
+
 * Implement a function returning a Smear::Detector. Setup the detector
 object and activate some additional calculation options.
 
-```c++
+```
   // Tracking
   // eta = -3.5 --  -2.5
   // sigma_p/p ~ 0.1% p+2.0%
@@ -293,6 +295,7 @@ object and activate some additional calculation options.
   TrackBack1P.Accept.SetCharge(Smear::kCharged);
   det.AddDevice(TrackBack1P);
 ```
+
 * Set up a device that smears. In this case, momentum is smeared
   * in eta = -3.5 --  -2.5,
   * with $`\sigma_p/p = 0.1 \% p+2.0 \%`$,
@@ -303,7 +306,7 @@ object and activate some additional calculation options.
   electrons that represents the combined information from multiple
   detectors, e.g.:
 
-```c++
+```
   TrackBack1P.Accept.SetCharge(Smear::kCharged);
   TrackBack1P.Accept.SetGenre(Smear::kHadronic);
   det.AddDevice(TrackBack1P);
@@ -322,6 +325,7 @@ etc.
   return det;
 }
 ```
+
 * Finally, after adding all desired devices return the complete
 detector.
 
@@ -331,6 +335,7 @@ principle, kPt and kPz is also supported but currently not working.
 ### IMPORTANT NOTES:
 * If you want to have an unsmeared value in the smeared tree, use a
 perfect device, e.g:
+
 ```
 Smear::Device TrackTheta(Smear::kTheta, "0");
 ```
