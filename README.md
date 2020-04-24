@@ -10,9 +10,9 @@ Contacts
 * Kolja Kauder <kkauder@bnl.gov>
 * Maxim Potekhin <potekhin@bnl.gov>
 
-## Overview
+#### Overview ####
 
-eic-smear is a Monte Carlo analysis package developed and used by the BNL EIC task force.
+eic-smear is a Monte Carlo analysis package originally developed by the BNL EIC task force.
 
 It contains classes and routines for:
 1) Building events in a C++ object and writing them to a ROOT file in a tree data structure.
@@ -34,13 +34,11 @@ The following Monte Carlo generators are supported:
 Most of these are currently hosted at https://gitlab.com/eic/mceg.
 Please see the associated documentation for further information on
 individual generators.
-
 Creation will typically be of the form
 ```
 pythiaeRHIC < STEER_FILE > out.log
 ```
 A few small example files are included for testing.
-
 
 Each entry in the TTree named EicTree is a single C++ event object,
 storing event-wise quantities common to all generators,
@@ -69,17 +67,18 @@ Both portions of the code are included in the eic-smear shared
 library.
 
 
-## Building
+#### Building ####
 
-### Prerequisites
+##### Prerequisites #####
 
 * CMake version >3.1 is required.
 * Compiler with C++11 support
 * ROOT is required. ROOT6 strongly preferred, although ROOT5 may work
 
-### Procedure
+##### Procedure #####
+
 Create a directory in which to build eic-smear and navigate to that
-```sh
+```
 cd eic-smear
 mkdir build
 cd build
@@ -100,7 +99,7 @@ make -j 2
 make install
 ```
 
-### Notes:
+##### Notes: #####
 
 * If you see instances of things like
 ```
@@ -110,10 +109,11 @@ Error in cling::AutoloadingVisitor::InsertIntoAutoloadingState:
 ```
 please setenv or export the environment variable ROOT_INCLUDE_PATH to point to the include directory in your installation.
 
-If building at BNL, get ROOT6 in the following manner
-```source /afs/rhic.bnl.gov/eic/restructured/etc/eic_cshrc.csh
+* If building at BNL, you can get ROOT6 in the following manner
+```
+source /afs/rhic.bnl.gov/eic/restructured/etc/eic_cshrc.csh
 setenv EIC_LEVEL pro
-# verify
+#verify
 which root
 ```
 
@@ -133,7 +133,8 @@ root [] gSystem->Load("libeicsmear");
 ```
 even if that same command is in your rootlogon.C. 
 
-## Tests and Examples
+#### Tests and Examples ####
+
 if you prepare building using the cmake option
 ```
 -DBUILD_TESTS=ON
@@ -151,7 +152,8 @@ will read a (provided) e+D BeAGLE file.
 is a customizable particle gun that creates a few simplee histograms
 and plots to see and test the acceptance dependence of smearing.
 
-### A canonic example
+#### A canonic example ####
+
 When tests are built, a particularly useful example is 
 ```
 ./tests/qaplots
@@ -204,11 +206,13 @@ random number details) the provided small reference plots in
 ```
 
 
-### Deconstructed example
+#### Deconstructed example ####
+
 All steps can be performed interactively and individually in ROOT as
 follows:
 
-#### Generate EicTree
+##### Generate EicTree #####
+
 ```
 root [] gSystem->Load("libeicsmear");
 root [] BuildTree ("tests/ep_hiQ2.20x250.small.txt",".",-1);
@@ -236,7 +240,8 @@ the number of events to smear (-1 for all);
 * IMPORTANT: The file type is by default assumed to be pythia6. For
 other files, please make sure to include the generator name in the filename.
 
-#### Analyze the Tree
+##### Analyze the Tree #####
+
 (Suppressing the root prompts for easier copy/paste):
 ```
 root -l 
@@ -268,7 +273,8 @@ for(long iEvent=0; iEvent<mc->GetEntries(); iEvent++){
 EEprime->Draw("colz");
 ```
 
-## Anatomy of a Smearer
+#### Anatomy of a Smearer ####
+
 A "detector" is constructed as follows. For details,
 please also see examples included in the scripts/directory.
 
@@ -282,9 +288,10 @@ Smear::Detector BuildMyDetector() {
   det.SetEventKinematicsCalculator("NM JB DA");
 ```
 
-* Implement a function returning a Smear::Detector. Setup the detector
-object and activate some additional calculation options.
-
+* Set up a device that smears. In this case, momentum is smeared
+  * in eta = -3.5 --  -2.5,
+  * with sigma_p/p = 0.1 % p+ 2.0 %,
+  * accepting all charged particles.
 ```
   // Tracking
   // eta = -3.5 --  -2.5
@@ -294,13 +301,8 @@ object and activate some additional calculation options.
   TrackBack1P.Accept.AddZone(TrackBack1Zone);
   TrackBack1P.Accept.SetCharge(Smear::kCharged);
   det.AddDevice(TrackBack1P);
-```
-
-* Set up a device that smears. In this case, momentum is smeared
-  * in eta = -3.5 --  -2.5,
-  * with $`\sigma_p/p = 0.1 \% p+2.0 \%`$,
-  * accepting all charged particles.
-
+  ```
+  
 * IMPORTANT: For more realistic representation of electrons, it may
   make sense to only accept hadrons and create a separate device for
   electrons that represents the combined information from multiple
@@ -321,25 +323,24 @@ object and activate some additional calculation options.
 * Continue on, adding $`\phi`$ and $`\theta`$ devices, calorimetry,
 etc.
 
+* Finally, after adding all desired devices return the complete
+detector.
 ```
   return det;
 }
 ```
 
-* Finally, after adding all desired devices return the complete
-detector.
-
 * Formulas are based on ROOT::TFormula and accept kP, kPhi, kTheta, kE. In
 principle, kPt and kPz is also supported but currently not working.
 
-### IMPORTANT NOTES:
+##### IMPORTANT NOTES: #####
+
 * If you want to have an unsmeared value in the smeared tree, use a
 perfect device, e.g:
 
 ```
 Smear::Device TrackTheta(Smear::kTheta, "0");
 ```
-
 
 * Once any variable is smeared, all remaining fields are initialized
 to 0, meaning eic-smear treats them as measured with a zero value. It
@@ -358,8 +359,19 @@ regarding calculation of smeared kinematic variables.
   translated dynamically into the four available free variables
   x,y,z,t).
 
+* If two devices of the same type have overlapping acceptance, only
+  the last one added to the detector will act. An example would be an
+  inner and outer tracker. In such a case, a combined parameterization
+  must be used. Two smearings of the same variable cannot act both
+  (that would be unphysical), nor be used in the way a human
+  experimenter would, i.e. by choosing the better device or combining
+  the two to reduce the uncertainty. Furthermore, the framework cannot
+  detect such acceptance collisions (under development), so it cannot
+  issue a warning. When you make changes to a detector, keep this in
+  mind and proceed with caution.
 
-## Doxygen
+#### Doxygen ####
+
 A recent version of the detailed class documentation is temporarily
 hosted at www4.rcf.bnl.gov/~eickolja/.
 You can also create an up-to-date one by running
