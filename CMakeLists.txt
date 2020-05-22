@@ -101,6 +101,7 @@ SET(
    eicsmear/erhic/EventDpmjet.h
    eicsmear/erhic/EventFactory.h
    eicsmear/erhic/EventGmcTrans.h
+   eicsmear/erhic/EventHepMC.h
    eicsmear/erhic/EventMC.h
    eicsmear/erhic/EventMCFilterABC.h
    eicsmear/erhic/EventMilou.h
@@ -162,6 +163,7 @@ SET(
    src/erhic/EventDpmjet.cxx
    src/erhic/EventFactory.cxx
    src/erhic/EventGmcTrans.cxx
+   src/erhic/EventHepMC.cxx
    src/erhic/EventMC.cxx
    src/erhic/EventMilou.cxx
    src/erhic/EventPepsi.cxx

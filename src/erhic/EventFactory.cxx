@@ -18,6 +18,7 @@
 
 #include "eicsmear/erhic/BeamParticles.h"
 #include "eicsmear/erhic/EventPythia.h"
+#include "eicsmear/erhic/EventHepMC.h"
 #include "eicsmear/erhic/EventMilou.h"
 #include "eicsmear/erhic/EventDjangoh.h"
 #include "eicsmear/erhic/EventDpmjet.h"
@@ -189,6 +190,7 @@ namespace {
 erhic::EventFromAsciiFactory<erhic::EventDjangoh> ed;
 erhic::EventFromAsciiFactory<erhic::EventDpmjet> ej;
 erhic::EventFromAsciiFactory<erhic::EventPepsi> ee;
+erhic::EventFromAsciiFactory<erhic::EventHepMC> eh;
 erhic::EventFromAsciiFactory<erhic::EventMilou> em;
 erhic::EventFromAsciiFactory<erhic::EventRapgap> er;
 erhic::EventFromAsciiFactory<erhic::EventPythia> ep;

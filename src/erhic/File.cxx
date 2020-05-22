@@ -20,6 +20,7 @@
 #include "eicsmear/erhic/EventDpmjet.h"
 #include "eicsmear/erhic/EventRapgap.h"
 #include "eicsmear/erhic/EventGmcTrans.h"
+#include "eicsmear/erhic/EventHepMC.h"
 #include "eicsmear/erhic/EventSimple.h"
 #include "eicsmear/erhic/EventSartre.h"
 
@@ -522,6 +523,23 @@ template<typename T>
 LogReader* File<T>::CreateLogReader() const {
   return LogReaderFactory::GetInstance().CreateReader(*t_);
 }
+/*
+template<>
+std::string File<erhic::EventHepMC>::GetGeneratorName() const {
+  // The event class name is "EventX" where "X" is the generator
+  // name.
+  TString name = t_->ClassName();
+  name.ReplaceAll("erhic::", "");
+  name.ReplaceAll("Event", "");
+  name.ToLower();
+  return name.Data();
+}
+
+template<>
+LogReader* File<erhic::EventHepMC>::CreateLogReader() const {
+  return LogReaderFactory::GetInstance().CreateReader(*t_);
+}
+*/
 
 FileFactory& FileFactory::GetInstance() {
   static FileFactory theInstance;
@@ -539,6 +557,10 @@ const FileType* FileFactory::GetFile(const std::string& name) const {
 const FileType* FileFactory::GetFile(std::istream& is) const {
   std::string line;
   std::getline(is, line);
+  if (line.empty())
+  {
+    std::getline(is, line);
+  }
   // Use TString::ToLower() to convert the input name to all
   // lower case.
   TString str(line);
@@ -564,6 +586,8 @@ const FileType* FileFactory::GetFile(std::istream& is) const {
     file = GetFile("simple");  
   } else if (str.Contains("sartre")) {
     file = GetFile("sartre");  
+  } else if (str.Contains("hepmc")) {
+    file = GetFile("hepmc");  
   }  // if
   return file;
 }
@@ -589,6 +613,8 @@ FileFactory::FileFactory() {
                                     new File<EventSimple>()));
   prototypes_.insert(std::make_pair("sartre",
                                     new File<EventSartre>()));
+  prototypes_.insert(std::make_pair("hepmc",
+                                    new File<EventHepMC>()));
   
 }
 
