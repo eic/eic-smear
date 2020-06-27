@@ -182,6 +182,15 @@ std::string EventFromAsciiFactory<T>::EventName() const {
   return T::Class()->GetName();
 }
 
+std::string EventFromAsciiFactory<erhic::EventHepMC>::EventName() const {
+  return erhic::EventHepMC::Class()->GetName();
+}
+
+erhic::EventHepMC* EventFromAsciiFactory<erhic::EventHepMC>::Create()
+{
+  std::cout << "creating hepmc in evt factory" << std::endl;
+return nullptr;}
+
 }  // namespace erhic
 
 namespace {

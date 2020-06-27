@@ -146,6 +146,7 @@ class EventFromAsciiFactory : public VirtualEventFactory {
  (any event class implementing a Parse() method to
  populate the event's variables from a string will work.)
  */
+
 template<>
 class EventFromAsciiFactory<erhic::EventHepMC> : public VirtualEventFactory {
  public:
@@ -164,13 +165,15 @@ class EventFromAsciiFactory<erhic::EventHepMC> : public VirtualEventFactory {
    */
   explicit EventFromAsciiFactory(std::istream& is)
   : mInput(&is)
-  , mEvent(nullptr) {
+    , mEvent(nullptr) 
+{ 
+  std::cout << "creating factory HepMC" << std::endl;
   }
 
   /**
    Returns a new event instance.
    */
-  virtual erhic::EventHepMC* Create() {return nullptr;}
+  virtual erhic::EventHepMC* Create();
 
   /**
    Returns the name of the event class created by this factory.
@@ -185,17 +188,17 @@ class EventFromAsciiFactory<erhic::EventHepMC> : public VirtualEventFactory {
   /**
    Returns true when an end-of-event marker is encountered in the input stream.
    */
-  bool AtEndOfEvent() const;
+  bool AtEndOfEvent() const {return false;}
 
   /**
    Perform end-of-event operations.
    */
-  Int_t FinishEvent();
+  Int_t FinishEvent() {return 0;}
 
   /**
    Create a new particle from the last data read from the input stream.
    */
-  bool AddParticle();
+  bool AddParticle() {return false;}
 
   // Warning: explicitly putting the erhic:: namespace before the class
   // name doesn't seen to work for template classes.
