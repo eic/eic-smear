@@ -563,7 +563,7 @@ class File<erhic::EventHepMC> : public FileType {
    */
   virtual LogReader* CreateLogReader() const {return nullptr;}
 
-  EventFromAsciiFactory<erhic::EventHepMC>* CreateEventFactory(std::istream& is) const {std::cout << "boom" << std::endl;
+  EventFromAsciiFactory<erhic::EventHepMC>* CreateEventFactory(std::istream& is) const {
     return new EventFromAsciiFactory<erhic::EventHepMC>(is);}
  protected:
   erhic::EventHepMC* t_;

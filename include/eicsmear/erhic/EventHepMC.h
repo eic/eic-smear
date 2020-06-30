@@ -36,10 +36,9 @@ class EventHepMC : public EventMC {
    "0 eventnumber numTracks weight processId radiativeCorrectionFlag
    trueX trueQ2 trueY trueT truePhi phi phiResolution reconstructedPhi"
    \endverbatim
-   Returns true in the event of a successful read operation,
-   false in case of an error.
+   dummy - the reading is done by a hepmc reader
    */
-  virtual bool Parse(const std::string&);
+  virtual bool Parse(const std::string&) {return true;}
 
   Bool_t radcorr;
   Double32_t weight;

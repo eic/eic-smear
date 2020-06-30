@@ -178,12 +178,7 @@ bool Forester::SetupOutput() {
     // Auto-save every 500 MB
     mTree->SetAutoSave(500LL * 1024LL * 1024LL);
     // Align the input file at the start of the first event (event generator dependent).
-mFactory->FindFirstEvent();
-    std::cout << "event name: " << mFactory->EventName() << std::endl;
-    // if (mFactory->EventName().find("EventHepMC") == std::string::npos)
-    // {
-    //   FindFirstEvent();
-    // }
+    mFactory->FindFirstEvent();
     // Start timing after opening and creating files,
     // before looping over events
     mStatus.StartTimer();

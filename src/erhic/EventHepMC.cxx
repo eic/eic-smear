@@ -27,13 +27,6 @@ EventHepMC::EventHepMC()
 , phibelgen(NAN)
 , phibelres(NAN)
 , phibelrec(NAN) {
-  std::cout << "creating HepMC Event" << std::endl;
-}
-
-bool EventHepMC::Parse(const std::string& line) {
-  static std::stringstream ss;
-  std::cout << "reading " << line << std::endl;
-return !ss.fail();
 }
 
 }  // namespace erhic

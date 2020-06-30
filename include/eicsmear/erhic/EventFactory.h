@@ -26,7 +26,6 @@
 namespace HepMC3
 {
 class ReaderAsciiHepMC2;
-class GenEvent;
 }
 
 namespace erhic {
@@ -195,7 +194,6 @@ class EventFromAsciiFactory<erhic::EventHepMC> : public VirtualEventFactory {
  protected:
 
   HepMC3::ReaderAsciiHepMC2 *adapter2;
-  HepMC3::GenEvent *evt;
   /**
    Returns true when an end-of-event marker is encountered in the input stream.
    */

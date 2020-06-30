@@ -196,7 +196,7 @@ template<typename T>
 void EventFromAsciiFactory<T>::FindFirstEvent()  {
   for (int i=0; i<5; i++)
   {
-  std::getline(*mInput,mLine);
+    std::getline(*mInput,mLine);
   }
 }
 
@@ -207,17 +207,7 @@ EventFromAsciiFactory<erhic::EventHepMC>::EventFromAsciiFactory(std::istream& is
  mInput(&is)
     , mEvent(nullptr) 
 {   
-adapter2 = new HepMC3::ReaderAsciiHepMC2(is);
-/*
-	while(!adapter2->failed())
-	{
-        HepMC3::GenEvent evt(HepMC3::Units::GEV,HepMC3::Units::MM);
-	adapter2->read_event(evt);
-        auto vtxvec = evt.vertices();
-         std::cout << "number of vertices: " << vtxvec.size() << std::endl;
-	}
-*/
-  std::cout << "creating factory HepMC from cxx file" << std::endl;
+  adapter2 = new HepMC3::ReaderAsciiHepMC2(is);
   }
 
 
@@ -225,60 +215,30 @@ std::string EventFromAsciiFactory<erhic::EventHepMC>::EventName() const {
   return erhic::EventHepMC::Class()->GetName();
 }
 
-erhic::EventHepMC* EventFromAsciiFactory<erhic::EventHepMC>::Create()
-{
-	while(!adapter2->failed())
-	{
-        HepMC3::GenEvent evt(HepMC3::Units::GEV,HepMC3::Units::MM);
-	adapter2->read_event(evt);
-        auto vtxvec = evt.vertices();
-         std::cout << "number of vertices in CREATE: " << vtxvec.size() << std::endl;
-	}
-    mEvent.reset(nullptr);
-return mEvent.release();
+  erhic::EventHepMC* EventFromAsciiFactory<erhic::EventHepMC>::Create()
+  {
+    TProcessIdObjectCount objectCount;
+    mEvent.reset(new erhic::EventHepMC());
+    if (!AddParticle()) {
+      mEvent.reset(nullptr);
+    }  // if
 
-  TProcessIdObjectCount objectCount;
-  static int icnt = 0;
-  mEvent.reset(new erhic::EventHepMC());
-   std::cout << "creating hepmc in evt factory" << std::endl;
-//   std::string mLine = "I hate this guy and his complicated software POS";
-//   mEvent->Parse(mLine);
-   icnt++;
-   std::cout << "event no " << icnt << std::endl;
-std::string error;
-        evt = new HepMC3::GenEvent(HepMC3::Units::GEV,HepMC3::Units::MM);
-	adapter2->read_event(*evt);
-/*
-      if (!AddParticle()) {
-    mEvent.reset(nullptr);
-    std::cout << "done reading" << std::endl;
-        error = "Bad particle input in event";
-      }  // if
-*/
-      if (icnt > 5)
-      {
-    mEvent.reset(nullptr);
-      }
-return mEvent.release();
-}
+    return mEvent.release();
+  }
 
   bool EventFromAsciiFactory<erhic::EventHepMC>::AddParticle() {
     try {
       if (mEvent.get()) {
-        evt = new HepMC3::GenEvent(HepMC3::Units::GEV,HepMC3::Units::MM);
-	adapter2->read_event(*evt);
-	return true;
+        HepMC3::GenEvent evt(HepMC3::Units::GEV,HepMC3::Units::MM);
+	adapter2->read_event(evt);
 	if (adapter2->failed())
 	{
-	  delete evt;
 	  return false;
 	}
-
-	auto vtxvec = evt->vertices();
+	auto vtxvec = evt.vertices();
 	for (auto v = vtxvec.begin();
 	     v != vtxvec.end();
 	     ++v)
-
 	{
 
 	  auto particlevec = (*v)->particles_out();
@@ -287,8 +247,7 @@ return mEvent.release();
 	  {
 	    TParticlePDG * pdg_p = TDatabasePDG::Instance()->GetParticle( (*p)->pdg_id() );
 	    TVector3 vertex((*v)->position().x(),(*v)->position().y(),(*v)->position().z());
-	    TLorentzVector lovec;
-	    lovec.SetXYZM((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),pdg_p->Mass());
+	    TLorentzVector lovec((*p)->momentum().x(),(*p)->momentum().y(),(*p)->momentum().z(),(*p)->momentum().e());
 	    ParticleMC particle; 
 	    particle.SetVertex(vertex);
 	    particle.Set4Vector(lovec);
@@ -301,12 +260,10 @@ return mEvent.release();
 	//mEvent->AddLast(particle);
 	//delete particle;
       }  // if
-      delete evt;
       return true;
     }  // try
     catch(std::exception& error) {
       std::cerr << "Exception building particle: " << error.what() << std::endl;
-      delete evt;
       return false;
     }
   }
