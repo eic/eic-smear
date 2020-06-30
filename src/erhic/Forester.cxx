@@ -146,6 +146,7 @@ bool Forester::OpenInput() {
       throw std::runtime_error(GetInputFileName() +
                                " is not from a supported generator");
     }  // for
+    std::cout << "creating EventFactory" << std::endl;
     mFactory = mFile->CreateEventFactory(*mTextFile);
     return true;
   }  // try...
@@ -176,8 +177,13 @@ bool Forester::SetupOutput() {
                   &mEvent, 32000, 99);
     // Auto-save every 500 MB
     mTree->SetAutoSave(500LL * 1024LL * 1024LL);
-    // Align the input file at the start of the first event.
-    FindFirstEvent();
+    // Align the input file at the start of the first event (event generator dependent).
+mFactory->FindFirstEvent();
+    std::cout << "event name: " << mFactory->EventName() << std::endl;
+    // if (mFactory->EventName().find("EventHepMC") == std::string::npos)
+    // {
+    //   FindFirstEvent();
+    // }
     // Start timing after opening and creating files,
     // before looping over events
     mStatus.StartTimer();

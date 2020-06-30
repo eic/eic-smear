@@ -23,6 +23,12 @@
 #include "eicsmear/erhic/EventPythia.h"
 #include "eicsmear/smear/EventSmear.h"
 
+namespace HepMC3
+{
+class ReaderAsciiHepMC2;
+class GenEvent;
+}
+
 namespace erhic {
 
 class ParticleMC;
@@ -57,6 +63,11 @@ class VirtualEventFactory : public TObject {
    event type in branches.
    */
   virtual std::string EventName() const = 0;
+
+/**
+if we need to skip lines to get to the first event
+*/
+  virtual void FindFirstEvent() {}
 
   /**
    Add a branch named "name" for the event type generated
@@ -114,6 +125,8 @@ class EventFromAsciiFactory : public VirtualEventFactory {
    */
   virtual std::string EventName() const;
 
+  virtual void FindFirstEvent();
+
   std::istream* mInput;  //!
   std::string mLine;  //!
   std::unique_ptr<T> mEvent;  //!
@@ -163,12 +176,7 @@ class EventFromAsciiFactory<erhic::EventHepMC> : public VirtualEventFactory {
   /**
    Initialise the factory from an input stream. 
    */
-  explicit EventFromAsciiFactory(std::istream& is)
-  : mInput(&is)
-    , mEvent(nullptr) 
-{ 
-  std::cout << "creating factory HepMC" << std::endl;
-  }
+  explicit EventFromAsciiFactory(std::istream& is);
 
   /**
    Returns a new event instance.
@@ -185,6 +193,9 @@ class EventFromAsciiFactory<erhic::EventHepMC> : public VirtualEventFactory {
   std::unique_ptr<erhic::EventHepMC> mEvent;  //!
 
  protected:
+
+  HepMC3::ReaderAsciiHepMC2 *adapter2;
+  HepMC3::GenEvent *evt;
   /**
    Returns true when an end-of-event marker is encountered in the input stream.
    */
@@ -198,7 +209,7 @@ class EventFromAsciiFactory<erhic::EventHepMC> : public VirtualEventFactory {
   /**
    Create a new particle from the last data read from the input stream.
    */
-  bool AddParticle() {return false;}
+  bool AddParticle();
 
   // Warning: explicitly putting the erhic:: namespace before the class
   // name doesn't seen to work for template classes.
