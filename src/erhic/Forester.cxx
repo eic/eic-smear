@@ -146,7 +146,6 @@ bool Forester::OpenInput() {
       throw std::runtime_error(GetInputFileName() +
                                " is not from a supported generator");
     }  // for
-    std::cout << "creating EventFactory" << std::endl;
     mFactory = mFile->CreateEventFactory(*mTextFile);
     return true;
   }  // try...
