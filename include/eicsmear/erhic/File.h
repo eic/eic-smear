@@ -105,9 +105,10 @@ class LogReaderPythia : public LogReader {
 
  protected:
   TObjString crossSection_;  ///> Total cross section in microbarns
-  TObjString nEvents_;  ///> Total number of events generated
+  TObjString nEvents_;  ///> Total number of events generated and kept
+  TObjString nTrials_;  ///> Total number of events generated
 
-  ClassDef(erhic::LogReaderPythia, 1)
+  ClassDef(erhic::LogReaderPythia, 2)
 };
 
 inline LogReaderPythia* LogReaderPythia::Create() const {
@@ -153,9 +154,10 @@ class LogReaderPepsi : public LogReader {
 
  protected:
   TObjString crossSection_;  ///> Total cross section in microbarns
-  TObjString nEvents_;  ///> Total number of events generated
+  TObjString nEvents_;  ///> Total number of events generated and kept
+  TObjString nTrials_;  ///> Total number of events generated
 
-  ClassDef(erhic::LogReaderPepsi, 1)
+  ClassDef(erhic::LogReaderPepsi, 2)
 };
 
 inline LogReaderPepsi* LogReaderPepsi::Create() const {
@@ -201,9 +203,10 @@ class LogReaderDjangoh : public LogReader {
 
  protected:
   TObjString crossSection_;  ///> Total cross section in microbarns
-  TObjString nEvents_;  ///> Total number of events generated
+  TObjString nEvents_;  ///> Total number of events generated and kept
+  TObjString nTrials_;  ///> Total number of events generated
 
-  ClassDef(erhic::LogReaderDjangoh, 1)
+  ClassDef(erhic::LogReaderDjangoh, 2)
 };
 
 inline LogReaderDjangoh* LogReaderDjangoh::Create() const {

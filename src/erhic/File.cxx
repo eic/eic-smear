@@ -23,6 +23,31 @@
 #include "eicsmear/erhic/EventSimple.h"
 #include "eicsmear/erhic/EventSartre.h"
 
+
+static void LogLineParse(std::string line, const std::string searchPattern, std::string& toupdate, const double rescale=1 ){
+  size_t position = line.find(searchPattern);
+  if (position != std::string::npos) {
+    // We found the line.
+    // This should be the first and only occurence. Check.
+    if ( toupdate!="") throw std::runtime_error( "LogLineParse: Found two instances of the search pattern");
+    // Erase the text preceding the value.
+    std::stringstream ss;
+    line.erase(0, position + searchPattern.length());
+    ss.str("");
+    ss.clear();
+    ss << line;
+    // Sometimes this needs rescaling (pb to mb)
+    if ( rescale!=1 ){
+      double v;
+      ss >> v;
+      v /= 1.e6;
+      ss.clear();  ss << v;
+    }    
+    ss >> toupdate;
+  }  // if
+  return;
+}
+
 namespace erhic {
 
 LogReaderPythia::LogReaderPythia() { }
@@ -36,49 +61,30 @@ bool LogReaderPythia::Extract(const std::string& file) {
   if (!ifs.is_open()) return false;
 
   std::string line;
-  const std::string searchPattern("Pythia total cross section normalisation:");
   std::string normalisation;
   std::string nEvents;
+  std::string nTrials;
 
   while (ifs.good()) {
     std::getline(ifs, line);
-    size_t position = line.find(searchPattern);
-    if (position != std::string::npos) {
-      // We found the line.
-      // Erase the text preceding the cross section.
-      std::stringstream ss;
-      line.erase(0, position + searchPattern.length());
-      ss.str("");
-      ss.clear();
-      ss << line;
-      ss >> normalisation;
-    }  // if
-    const std::string searchPattern2("Total Number of generated events");
-    position = line.find(searchPattern2);
-    if (position != std::string::npos) {
-      // We found the line.
-      // Erase the text preceding the cross section.
-      std::stringstream ss;
-      line.erase(0, position + searchPattern2.length());
-      ss.str("");
-      ss.clear();
-      ss << line;
-      ss >> nEvents;
-    }  // if
+    LogLineParse( line, "Pythia total cross section normalisation:", normalisation );
+    LogLineParse( line, "Total Number of generated events", nEvents );
+    LogLineParse( line, "Total Number of trials", nTrials );
   }  // while
+  
   crossSection_.SetString(normalisation.c_str());
-  std::cout << crossSection_.GetString().Atof() << std::endl;
   nEvents_.SetString(nEvents.c_str());
-  std::cout << nEvents_.GetString().Atoi() << std::endl;
+  nTrials_.SetString(nTrials.c_str());
   std::cout << "Extracted information from " << file << std::endl;
   return true;
 }
 
 Int_t LogReaderPythia::Save() const {
-  return
-  crossSection_.Write("crossSection") +
-  nEvents_.Write("nEvents");
-  nEvents_.Write("nTrials");
+  Int_t byteswritten = 0;
+  byteswritten += crossSection_.Write("crossSection");
+  byteswritten += nEvents_.Write("nEvents");
+  byteswritten += nTrials_.Write("nTrials");
+  return byteswritten;
 }
 
 //
@@ -94,55 +100,31 @@ bool LogReaderPepsi::Extract(const std::string& file) {
   std::ifstream ifs(file.c_str(), std::ios::in);
   if (!ifs.is_open()) return false;
   std::string line;
-  const std::string searchPattern(
-      "total cross section in pb from MC simulation");
   std::string normalisation;
   std::string nEvents;
+  std::string nTrials;
+  
   while (ifs.good()) {
     std::getline(ifs, line);
-    size_t position = line.find(searchPattern);
-    if (position != std::string::npos) {
-      // We found the line.
-      // Erase the text preceding the cross section.
-      std::stringstream ss;
-      line.erase(0, position + searchPattern.length());
-      ss.str("");
-      ss.clear();
-      ss << line;
-      double value;
-      // Divide by 1,000,000 to go from pb to microbarn
-      ss >> value;
-      value /= 1.e6;
-      ss.str("");
-      ss.clear();
-      ss << value;
-      ss >> normalisation;
-    }  // if
-    const std::string searchPattern2("Total Number of trials");
-    position = line.find(searchPattern2);
-    if (position != std::string::npos) {
-      // We found the line.
-      // Erase the text preceding the cross section.
-      std::stringstream ss;
-      line.erase(0, position + searchPattern2.length());
-      ss.str("");
-      ss.clear();
-      ss << line;
-      ss >> nEvents;
-    }  // if
+    // Divide by 1,000,000 to go from pb to microbarn
+    LogLineParse( line, "total cross section in pb from MC simulation", normalisation, 1e-6 );
+    LogLineParse( line, "Total Number of generated events", nEvents );
+    LogLineParse( line, "Total Number of trials", nTrials );
   }  // while
+  
   crossSection_.SetString(normalisation.c_str());
-  std::cout << crossSection_.GetString().Atof() << std::endl;
   nEvents_.SetString(nEvents.c_str());
-  std::cout << nEvents_.GetString().Atoi() << std::endl;
+  nTrials_.SetString(nTrials.c_str());
   std::cout << "Extracted information from " << file << std::endl;
   return true;
 }
 
 Int_t LogReaderPepsi::Save() const {
-  return
-  crossSection_.Write("crossSection") +
-  nEvents_.Write("nEvents");
+  Int_t byteswritten = 0;
+  byteswritten += crossSection_.Write("crossSection");
+  byteswritten += nEvents_.Write("nEvents");
+  byteswritten += nTrials_.Write("nTrials");
+  return byteswritten;
 }
 
 //
