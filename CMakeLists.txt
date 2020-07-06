@@ -20,140 +20,33 @@
 # you can do
 #  xargs rm < install_manifest.txt
 # from the cmake build directory.
-#
-# Run everything from this single file because the sources
-# from each subdirectory have to be combined in a single
-# shared library, rather than being one library per directory.
 
-cmake_minimum_required(VERSION 3.1)
-
-project(EICSMEAR)
+cmake_minimum_required(VERSION 3.10)
+project(eicsmear VERSION 1.0.4 LANGUAGES CXX )
 
 # Build or not to build tests
 option(BUILD_TESTS "Build tests executables" OFF)
 
-if(NOT DEFINED CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 11)
-endif()
-# Need support for unique_ptr etc.
-# I believe beyond C++20, changes will be drastic, so reject that too
-# which also takes care of C++98 
-if( ${CMAKE_CXX_STANDARD} LESS 11 OR ${CMAKE_CXX_STANDARD} GREATER 20 )
-  message ( FATAL_ERROR " Needs CMAKE_CXX_STANDARD at least 11" )
-endif()
-
-# Add this project's module path to the default path.
-# Needed to locate this project's FindROOT.cmake.
+# cmake needs a bit of help to find modules
 set(
    CMAKE_MODULE_PATH
    ${CMAKE_MODULE_PATH}
    ${CMAKE_SOURCE_DIR}/cmake/Modules/
-)
-
-# This module sets up ROOT information
-# It defines:
-# ROOT_FOUND             If the ROOT is found
-# ROOT_INCLUDE_DIR       PATH to the include directory
-# ROOT_INCLUDE_DIRS      PATH to the include directories (not cached)
-# ROOT_LIBRARIES         Most common libraries
-# ROOT_<name>_LIBRARY    Full path to the library <name>
-# ROOT_LIBRARY_DIR       PATH to the library directory
-# ROOT_ETC_DIR           PATH to the etc directory
-# ROOT_DEFINITIONS       Compiler definitions
-# ROOT_CXX_FLAGS         Compiler flags to used by client packages
-# ROOT_C_FLAGS           Compiler flags to used by client packages
-# ROOT_EXE_LINKER_FLAGS  Linker flags to used by client packages
-#
-# Updated by K. Smith (ksmith37@nd.edu) to properly handle
-#  dependencies in ROOT_GENERATE_DICTIONARY
-
-find_package(ROOT)
-
-# Version check no longer needed b/c c++11 is now always required.
-# But leaving it in for future needs
-string(SUBSTRING ${ROOT_VERSION} 0 1 ROOT_MAJOR)
-# message ( " ROOT_VERSION = " ${ROOT_VERSION})
-# message ( " ROOT_MAJOR = " ${ROOT_MAJOR})
-# IF(${ROOT_MAJOR} GREATER 5)
-#   if(NOT DEFINED CMAKE_CXX_STANDARD)
-#     set(CMAKE_CXX_STANDARD 11)
-#   endif()
-#ENDIF()
-
-
-## Need to have this base for rootcint
-include_directories(${CMAKE_SOURCE_DIR}/include)
-include_directories(${CMAKE_SOURCE_DIR}/include/eicsmear)
-
-# List all main eRHIC headers EXCEPT PYTHIA-related files.
-# We don't need to prefix "${CMAKE_SOURCE_DIR}/include/" before all
-# the header names for the main library (cmake figures it out) BUT
-# we do for it to work nicely with the ROOT dictionary creation.
-# Otherwise the dictionary-generation code doesn't seem to locate
-# the header files properly.
-SET(
-   ERHIC_HEADERS
-   eicsmear/erhic/BeamParticles.h
-   eicsmear/erhic/DisKinematics.h
-   eicsmear/erhic/EventBase.h
-   eicsmear/erhic/EventDis.h
-   eicsmear/erhic/EventDjangoh.h
-   eicsmear/erhic/EventDpmjet.h
-   eicsmear/erhic/EventFactory.h
-   eicsmear/erhic/EventGmcTrans.h
-   eicsmear/erhic/EventMC.h
-   eicsmear/erhic/EventMCFilterABC.h
-   eicsmear/erhic/EventMilou.h
-   eicsmear/erhic/EventPepsi.h
-   eicsmear/erhic/EventPythia.h
-   eicsmear/erhic/EventRapgap.h
-   eicsmear/erhic/EventSimple.h
-   eicsmear/erhic/EventSartre.h
-   eicsmear/erhic/File.h
-   eicsmear/erhic/Forester.h
-   eicsmear/erhic/Kinematics.h
-   eicsmear/erhic/Particle.h
-   eicsmear/erhic/ParticleIdentifier.h
-   eicsmear/erhic/ParticleMC.h
-   eicsmear/erhic/Pid.h
-   eicsmear/erhic/VirtualEvent.h
-   eicsmear/erhic/VirtualParticle.h
+   ${CMAKE_SOURCE_DIR}/cmake/
    )
 
-INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic DESTINATION include/eicsmear )
-INSTALL(FILES ${CMAKE_SOURCE_DIR}/include/eicsmear/functions.h DESTINATION include/eicsmear )
-#include_directories(${CMAKE_SOURCE_DIR}/include/eicsmear/erhic)
+# Need ROOT first to define some macros
+find_package(ROOT 6.10 REQUIRED)
 
-# Smearing-related headers.
-# These are referenced by a different LinkDef to ERHIC_HEADERS so
-# we list the separately.
-SET(
-   SMEAR_HEADERS
-   eicsmear/smear/Acceptance.h
-   eicsmear/smear/Bremsstrahlung.h
-   eicsmear/smear/Detector.h
-   eicsmear/smear/Device.h
-   eicsmear/smear/Distributor.h
-   eicsmear/smear/EventS.h
-   eicsmear/smear/EventSmear.h
-   eicsmear/smear/EventDisFactory.h
-   eicsmear/smear/FormulaString.h
-   eicsmear/smear/functions.h
-   eicsmear/smear/ParticleID.h
-   eicsmear/smear/ParticleMCS.h
-   eicsmear/smear/PerfectID.h
-   eicsmear/smear/PlanarTracker.h
-   eicsmear/smear/RadialTracker.h
-   eicsmear/smear/Smear.h
-   eicsmear/smear/Smearer.h
-   eicsmear/smear/Tracker.h
-)
-INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/smear DESTINATION include/eicsmear )
+##############################################################################################################
 
-# List all main eRHIC source files EXCEPT PYTHIA-related files.
-# This includes smearing code as the separate LinkDefs have no role here.
-SET(
-   ERHIC_SOURCE
+# Main target is the libeicsmear library
+# staying away from wildcards and variables
+add_library(
+   eicsmear
+   SHARED
+   ${CMAKE_CURRENT_BINARY_DIR}/erhicDict.cxx
+   ${CMAKE_CURRENT_BINARY_DIR}/smearDict.cxx
    src/functions.cxx
    src/erhic/BeamParticles.cxx
    src/erhic/BuildTree.cxx
@@ -193,131 +86,247 @@ SET(
    src/smear/Tracker.cxx
 )
 
+# include directories
+target_include_directories(eicsmear
+  PUBLIC 
+  $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/cint
+  ${ROOT_INCLUDE_DIR}
+  )
+
+# Require at least c++11. Could require individual features instead too
+target_compile_features(eicsmear PUBLIC cxx_std_11)
+
+# Can add addtional options here
+target_compile_options(eicsmear PRIVATE -Wall -g)
+
+##############################################################################################################
 # Generate various CINT dictionaries.
+
+#----------------------------------------------------------------------------
 # Arguments are:
-#  Input header files
-#  LinkDef file
-#  Output dictionary file
-#  Include director(y/ies)
-
-## UPDATED to new syntax
-
-include_directories(${CMAKE_SOURCE_DIR}/cint)
+# function custom_generate_root_dict( dictionary
+#                                    header1 header2 ...
+#                                    LINKDEF linkdef1 ...
+#                                    OPTIONS opt1...
+#                                    INCPATH includepath1...)
+# I tried my best to pull the include directories out of the target
+# but it chokes on $<INSTALL_INTERFACE>,   $<BUILD_INTERFACE>
+# so we're passing them by hand
+include( custom_generate_root_dict )
 
 # Main eRHIC dictionary.
-ROOT_GENERATE_DICTIONARY( erhicDict functions.h ${ERHIC_HEADERS} LINKDEF LinkDef.h )
-	# ${ERHIC_HEADERS}
-	# ${ROOT_INCLUDE_DIR}
-	# ${CMAKE_SOURCE_DIR}/include
+custom_generate_root_dict( erhicDict
+  eicsmear/functions.h
+  eicsmear/erhic/BeamParticles.h
+  eicsmear/erhic/DisKinematics.h
+  eicsmear/erhic/EventBase.h
+  eicsmear/erhic/EventDis.h
+  eicsmear/erhic/EventDjangoh.h
+  eicsmear/erhic/EventDpmjet.h
+  eicsmear/erhic/EventFactory.h
+  eicsmear/erhic/EventGmcTrans.h
+  eicsmear/erhic/EventMC.h
+  eicsmear/erhic/EventMCFilterABC.h
+  eicsmear/erhic/EventMilou.h
+  eicsmear/erhic/EventPepsi.h
+  eicsmear/erhic/EventPythia.h
+  eicsmear/erhic/EventRapgap.h
+  eicsmear/erhic/EventSimple.h
+  eicsmear/erhic/EventSartre.h
+  eicsmear/erhic/File.h
+  eicsmear/erhic/Forester.h
+  eicsmear/erhic/Kinematics.h
+  eicsmear/erhic/Particle.h
+  eicsmear/erhic/ParticleIdentifier.h
+  eicsmear/erhic/ParticleMC.h
+  eicsmear/erhic/Pid.h
+  eicsmear/erhic/VirtualEvent.h
+  eicsmear/erhic/VirtualParticle.h
+  LINKDEF LinkDef.h
+  OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
+  INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIR}
+  )
 
 # Smearing code dictionary.
-ROOT_GENERATE_DICTIONARY( smearDict ${SMEAR_HEADERS} LINKDEF smearLinkDef.h )
+custom_generate_root_dict( smearDict
+  eicsmear/smear/Acceptance.h
+  eicsmear/smear/Bremsstrahlung.h
+  eicsmear/smear/Detector.h
+  eicsmear/smear/Device.h
+  eicsmear/smear/Distributor.h
+  eicsmear/smear/EventS.h
+  eicsmear/smear/EventSmear.h
+  eicsmear/smear/EventDisFactory.h
+  eicsmear/smear/FormulaString.h
+  eicsmear/smear/functions.h
+  eicsmear/smear/ParticleID.h
+  eicsmear/smear/ParticleMCS.h
+  eicsmear/smear/PerfectID.h
+  eicsmear/smear/PlanarTracker.h
+  eicsmear/smear/RadialTracker.h
+  eicsmear/smear/Smear.h
+  eicsmear/smear/Smearer.h
+  eicsmear/smear/Tracker.h
+  LINKDEF smearLinkDef.h
+  OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
+  INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIR}
+  )
 
-# Default complete set of source file (including dictionary files).
-# We will add to this if PYTHIA support was requested.
-SET(
-   ALL_SOURCES
-   ${CMAKE_CURRENT_BINARY_DIR}/erhicDict.cxx
-   ${CMAKE_CURRENT_BINARY_DIR}/smearDict.cxx
-   ${ERHIC_SOURCE} # Includes smear source files
-)
-
-## PCM files for installation
-list( APPEND
-   ALL_DICTS
-   ${CMAKE_CURRENT_BINARY_DIR}/erhicDict_rdict.pcm
-   ${CMAKE_CURRENT_BINARY_DIR}/smearDict_rdict.pcm
-)
-
-
-# Build PYTHIA6-dependent code if a library directory was specified.
-# This comprises PYTHIA-related stuff in the main eRHIC directory,
-# plus the hadronic code.
+## Build PYTHIA6-dependent functionality if a library directory was specified.
+## This comprises PYTHIA-related stuff in the main eRHIC directory,
+## plus the hadronic code.
 if(PYTHIA6_LIBDIR)
-   message ( "PYTHIA6_LIBDIR specified --> Adding PYTHIA sources and headers" )
-   # PYTHIA-related header files.
-   SET(
-      PYTHIA_HEADERS
-      eicsmear/erhic/Pythia6.h
-      eicsmear/erhic/Pythia6EventBuilder.h
-      eicsmear/erhic/Pythia6ParticleBuilder.h
-   )
+  message ( "PYTHIA6_LIBDIR specified --> Adding PYTHIA sources and headers" )
 
-   # Headers related to hadronic code.
-   # Because they are referenced by a different LinkDef
-   # they are listed separately from PYTHIA_HEADERS.
-   SET(
-      HADRONIC_HEADERS
-      eicsmear/hadronic/EventMC.h
-      eicsmear/hadronic/EventPythia.h
-      eicsmear/hadronic/ParticleMC.h
-      eicsmear/hadronic/Pythia6EventFactory.h
-      eicsmear/hadronic/EventSmear.h
-   )
-   INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/hadronic DESTINATION include/eicsmear )
-
-   # PYTHIA-related source files (including for hadronic code).
-   SET(
-      PYTHIA_SOURCE
-      src/erhic/Pythia6.cxx
-      src/erhic/Pythia6EventBuilder.cxx
-      src/erhic/Pythia6ParticleBuilder.cxx
-      src/hadronic/EventMC.cxx
-      src/hadronic/EventPythia.cxx
-      src/hadronic/EventSmear.cxx
-      src/hadronic/ParticleMC.cxx
-      src/hadronic/Pythia6EventFactory.cxx
-   )
-
-   # Create the pythia dictionary.
-   ROOT_GENERATE_DICTIONARY( pythiaDict ${PYTHIA_HEADERS} LINKDEF LinkDefPythia.h )
-
-   # Create the hadronic dictionary.
-   ROOT_GENERATE_DICTIONARY( hadronicDict ${HADRONIC_HEADERS} LINKDEF hadronicLinkDef.h )
-
-   # Update dictionaries to bne installed   
-   list( APPEND
-   	 ALL_DICTS
-	 ${CMAKE_CURRENT_BINARY_DIR}/pythiaDict_rdict.pcm
-   	 ${CMAKE_CURRENT_BINARY_DIR}/hadronicDict_rdict.pcm
-	 )
-
-   # Update sources with pythia-dependent files.
-   SET(
-      ALL_SOURCES
-      ${ALL_SOURCES}
-      ${CMAKE_CURRENT_BINARY_DIR}/pythiaDict.cxx
-      ${CMAKE_CURRENT_BINARY_DIR}/hadronicDict.cxx
-      ${PYTHIA_SOURCE} # Includes hadronic source files
-   )
+  # Create the pythia dictionary.
+  custom_generate_root_dict( pythiaDict
+    eicsmear/erhic/Pythia6.h
+    eicsmear/erhic/Pythia6EventBuilder.h
+    eicsmear/erhic/Pythia6ParticleBuilder.h
+    LINKDEF LinkDefPythia.h
+    OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
+    INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIR}
+  )
+  
+  # Create the hadronic dictionary.
+  custom_generate_root_dict( hadronicDict
+    eicsmear/hadronic/EventMC.h
+    eicsmear/hadronic/EventPythia.h
+    eicsmear/hadronic/ParticleMC.h
+    eicsmear/hadronic/Pythia6EventFactory.h
+    eicsmear/hadronic/EventSmear.h
+    LINKDEF hadronicLinkDef.h
+    OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
+    INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIR}
+    )
+  
+  # Additional PYTHIA-related and hadronic source files
+  target_sources( eicsmear
+    PRIVATE 
+    ${CMAKE_CURRENT_BINARY_DIR}/pythiaDict.cxx
+    ${CMAKE_CURRENT_BINARY_DIR}/hadronicDict.cxx
+    src/erhic/Pythia6.cxx
+    src/erhic/Pythia6EventBuilder.cxx
+    src/erhic/Pythia6ParticleBuilder.cxx
+    src/hadronic/EventMC.cxx
+    src/hadronic/EventPythia.cxx
+    src/hadronic/EventSmear.cxx
+    src/hadronic/ParticleMC.cxx
+    src/hadronic/Pythia6EventFactory.cxx
+    )
 endif(PYTHIA6_LIBDIR)
 
-include_directories(include)
 
-add_library(
-   eicsmear
-   SHARED
-   ${ALL_SOURCES}
-)
+##############################################################################################################
 
-# Add ROOT elements
-if(ROOT_FOUND)
-   include_directories(${ROOT_INCLUDE_DIR})
-   if(PYTHIA6_LIBDIR)
-     target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
-     add_executable(compiled_runpythia scripts/compiled_runpythia.cpp scripts/runpythia.cpp)
-     target_link_libraries(compiled_runpythia eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
-   else (PYTHIA6_LIBDIR)
-     target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG )
-   endif(PYTHIA6_LIBDIR)
- endif(ROOT_FOUND)
+## Build the library
+## this can be improved with newer root versions
+target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
+if(PYTHIA6_LIBDIR)
+  target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
+else (PYTHIA6_LIBDIR)
+  target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG )
+endif(PYTHIA6_LIBDIR)
 
+##############################################################################################################
 
+## Build executables
+## pythia6:
+if ( PYTHIA6_LIBDIR )
+  add_executable(compiled_runpythia
+    scripts/compiled_runpythia.cpp
+    scripts/runpythia.cpp
+    )
+
+  target_include_directories(compiled_runpythia
+    PRIVATE
+    ${ROOT_INCLUDE_DIR}
+    )
+  
+target_link_libraries(compiled_runpythia
+    eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve
+    )
+endif(PYTHIA6_LIBDIR)
+
+## To be moved to the eicsmeardetectors package - build tests
 if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-INSTALL(TARGETS eicsmear LIBRARY DESTINATION lib)
+##############################################################################################################
 
-# Dictionaries for ROOT
-INSTALL(FILES ${ALL_DICTS} DESTINATION lib)
+## Install library
+# Could also use include(GNUInstallDirs)
+# and then destinations of the form ${CMAKE_INSTALL_INCLUDEDIR}
+install(TARGETS eicsmear
+  EXPORT eicsmear-export
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  )
+
+## Ideally, one would have a small list of headers
+## matched to the target via set_target_properties(eicsmear PROPERTIES  PUBLIC_HEADER eicsmear/functions.h  )
+## and then use PUBLIC_HEADER DESTINATION include above.
+## However, ROOT wants to see all headers, so we just copy them into place by hand
+## Note that this means the pythia6-related headers get installed regardless of
+## whether that functionality is compiled in (because they live in the same directories).
+
+## Install headers and pcm files
+install (DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/erhic
+  DESTINATION  include/eicsmear
+  )
+INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/smear
+  DESTINATION DESTINATION  include/eicsmear
+  )
+
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/include/eicsmear/functions.h
+  DESTINATION include/eicsmear
+  )
+
+INSTALL(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/libeicsmear_erhicDict_rdict.pcm
+  ${CMAKE_CURRENT_BINARY_DIR}/libeicsmear_smearDict_rdict.pcm
+  ${CMAKE_CURRENT_BINARY_DIR}/libeicsmear.rootmap
+  DESTINATION lib
+  )
+
+if(PYTHIA6_LIBDIR)
+  INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/include/eicsmear/hadronic
+    DESTINATION include/eicsmear
+    )
+  INSTALL(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/libeicsmear_pythiaDict_rdict.pcm
+    ${CMAKE_CURRENT_BINARY_DIR}/libeicsmear_hadronicDict_rdict.pcm
+    DESTINATION lib
+  )
+
+endif()
+
+## Generate configuration file
+install(EXPORT eicsmear-export
+  FILE
+    eicsmearTargets.cmake
+  NAMESPACE
+    eicsmear::
+  DESTINATION
+  lib/cmake/eicsmear
+  )
+
+
+
+  
+# Version check no longer needed b/c c++11 is now always required.
+# But leaving it in for future needs
+# string(SUBSTRING ${ROOT_VERSION} 0 1 ROOT_MAJOR)
+# message ( " ROOT_VERSION = " ${ROOT_VERSION})
+# message ( " ROOT_MAJOR = " ${ROOT_MAJOR})
+# IF(${ROOT_MAJOR} GREATER 5)
+#   if(NOT DEFINED CMAKE_CXX_STANDARD)
+#     set(CMAKE_CXX_STANDARD 11)
+#   endif()
+#ENDIF()
+
