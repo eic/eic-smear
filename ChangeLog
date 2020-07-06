@@ -1,4 +1,23 @@
 Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Mon Jul 6 11:57:10 2020 -0400
+	Revamped cmake setup to more modern guidelines
+	https://pabloariasal.github.io/2018/02/19/its-time-to-do-cmake-right/
+	https://www.youtube.com/watch?v=rLopVhns4Zs&feature=youtu.be
+	Some important changes:
+	- root dictionary generation moved to its own macro. In the
+	future, FindROOT should be completely eliminated but for
+	root < 6.20, it still neds to be around
+	- Enforce cmake >= 3.10 and Root >= 6.10
+	- ROOT_INCLUDE_PATH is no longer needed -- frustratingly, unless
+	ROOT >= 6.20...
+	- Version 1.0.4 specified in CMakeLists.txt
+	- explicit C++11 is enforced via
+	target_compile_features(eicsmear PUBLIC cxx_std_11)
+	c++17 interplay needs to be tested further.
+	- using $<INSTALL_INTERFACE:include> and  $<BUILD_INTERFACE:, but
+	for now it's unclear what that does.
+
+Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Mon Apr 20 07:15:27 2020 -0400
     Updated documentation.
     Restructured qaplots for better readability; added keeping track of misses
