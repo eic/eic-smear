@@ -1,3 +1,4 @@
+
 # EIC-smear
 
 ## About
@@ -107,7 +108,7 @@ Error in cling::AutoloadingVisitor::InsertIntoAutoloadingState:
    Missing FileEntry for eicsmear/smear/Smear.h
    requested to autoload type erhic::VirtualParticle
 ```
-please setenv or export the environment variable ROOT_INCLUDE_PATH to point to the include directory in your installation.
+please setenv or export the environment variable ROOT_INCLUDE_PATH to point to the include directory in your installation. It should no longer be necessary with recent build improvements, but for ROOT versions above 6.20, the necessity reaminas for the time being.
 
 * If building at BNL, you can get ROOT6 in the following manner
 ```
@@ -131,7 +132,7 @@ explicitly loading the library
 ```
 root [] gSystem->Load("libeicsmear");
 ```
-even if that same command is in your rootlogon.C. 
+even if that same command is in your rootlogon.C.
 
 #### Tests and Examples ####
 
@@ -154,7 +155,7 @@ and plots to see and test the acceptance dependence of smearing.
 
 #### A canonic example ####
 
-When tests are built, a particularly useful example is 
+When tests are built, a particularly useful example is
 ```
 ./tests/qaplots
 ```
@@ -215,14 +216,17 @@ follows:
 
 ```
 root [] gSystem->Load("libeicsmear");
-root [] BuildTree ("tests/ep_hiQ2.20x250.small.txt",".",-1);
+root [] BuildTree ("tests/ep_hiQ2.20x250.small.txt",".",-1, "");
 Processed 10000 events containing 346937 particles in 6.20576 seconds (0.000620576 sec/event)
 ```
 BuildTree accepts the name of an input file, the output directory, and
-the number of events to generate (-1 for all);
+the number of events to generate (-1 for all). The final string argument
+optionally accepts the name of a logfile created with the MC generator by using the ">" redirection. If it is not provided, the macro will look for a file with the same name as the input file but with the ending ".log". It will search in the same directory or, if the txt file is in a directory named "example/TXTFILES", in a directory named "example/LOGFILES".
+These log files contain additional information on generated cross section, events, and for some generators trials which are needed to calculate the total cross section.
+
 IMPORTANT: The file type is by default assumed to be pythia6. For
 other files, please make sure to include the generator name in the
-filename. Currently accepted are pythia, pepsi, lepto, rapgap, djangoh, beagle,milou, sartre, simple.
+filename. Currently accepted are pythia, pepsi, lepto, rapgap, djangoh, beagle, milou, sartre, simple.
 
 
 #### Smear the tree
@@ -244,18 +248,18 @@ other files, please make sure to include the generator name in the filename.
 
 (Suppressing the root prompts for easier copy/paste):
 ```
-root -l 
+root -l
 gSystem->Load("libeicsmear");
 TFile mcf ("ep_hiQ2.20x250.small.root"); // truth
 TTree* mc=(TTree*)mcf.Get("EICTree");
 mc->AddFriend("Smeared","smeared.root"); // befriend
-	
+
 // Setup Input Event Buffer
 erhic::EventMC* inEvent(NULL);
 Smear::Event* inEventS(NULL);
 mc->SetBranchAddress("event",&inEvent);
 mc->SetBranchAddress("eventS",&inEventS);
-	
+
 // histo and event loop
 TH2D* EEprime = new TH2D("EEprime", ";E;Eprime", 100, 0, 20, 100, 0, 20);
 for(long iEvent=0; iEvent<mc->GetEntries(); iEvent++){    
@@ -266,7 +270,7 @@ for(long iEvent=0; iEvent<mc->GetEntries(); iEvent++){
       if ( j<3 ) continue;       // Skip beam
       const Smear::ParticleMCS* inParticleS = inEventS->GetTrack(j); // Smeared Particle      
       const Particle* inParticle = inEvent->GetTrack(j); // Unsmeared Particle
-      if(inParticleS == NULL) continue; 
+      if(inParticleS == NULL) continue;
       EEprime->Fill(inParticle->GetE(), inParticleS->GetE());
    }
 }
@@ -281,7 +285,7 @@ please also see examples included in the scripts/directory.
 ```
 // ... omitted some includes and helpers
 Smear::Detector BuildMyDetector() {
-	
+
 // Create the detector object to hold all devices
    Smear::Detector det;
   // The detector will calculate event kinematics from smeared values
@@ -302,7 +306,7 @@ Smear::Detector BuildMyDetector() {
   TrackBack1P.Accept.SetCharge(Smear::kCharged);
   det.AddDevice(TrackBack1P);
   ```
-  
+
 * IMPORTANT: For more realistic representation of electrons, it may
   make sense to only accept hadrons and create a separate device for
   electrons that represents the combined information from multiple
@@ -312,7 +316,7 @@ Smear::Detector BuildMyDetector() {
   TrackBack1P.Accept.SetCharge(Smear::kCharged);
   TrackBack1P.Accept.SetGenre(Smear::kHadronic);
   det.AddDevice(TrackBack1P);
-  
+
   Smear::Device EMTrackBack1P(Smear::kP, "sqrt(  0.01 * pow(p.Pt(), 2) + 0.005 * p.Pt())");
   EMTrackBack1P.Accept.AddZone(TrackBack1Zone);
   EMTrackBack1P.Accept.SetCharge(Smear::kCharged);
