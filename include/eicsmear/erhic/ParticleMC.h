@@ -22,18 +22,18 @@
 namespace erhic {
 
   class ParticleMCeA: public TObject {
- public:
+  public:
     explicit ParticleMCeA() {};
-  virtual ~ParticleMCeA() {};
-
-  // Let them all be public;
-  //added by liang to include add on particle data structure
-  Int_t charge; 
-  Int_t massNum;
-  Int_t NoBam; ///< 0, 2 create in hard collisions not affected by INC: 0 inside nucleus, 2 outside nucleus;
+    virtual ~ParticleMCeA() {};
+    
+    // Let them all be public;
+    //added by liang to include add on particle data structure
+    Int_t charge; 
+    Int_t massNum;
+    Int_t NoBam; ///< 0, 2 create in hard collisions not affected by INC: 0 inside nucleus, 2 outside nucleus;
 							 ///< 3 create in evaporation; 4 heaviest remnant in evaporation;
 							 ///< 11-34 created in INC, 10+n, n=IDCH cascade generated in INC
-  ClassDef(ParticleMCeA, 1)
+    ClassDef(ParticleMCeA, 1)
 };
 
 class EventMC;
@@ -301,6 +301,10 @@ class ParticleMCbase : public VirtualParticle {
   /** Sets the index of this particle's parent if it has one.
    By default this is zero, indicating no parent. */
   virtual void SetParentIndex(int i) { orig = i; }
+
+  /** Sets the index of this particle's other parent if it has one.
+   By default this is zero, indicating no parent. */
+  virtual void SetParent1Index(int i) { orig1 = i; }
 
   /** Sets the index of this particle's first child. By default this
    is zero, indicating no children. */

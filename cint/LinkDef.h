@@ -38,6 +38,7 @@
 #pragma link C++ class erhic::EventPepsi+;
 #pragma link C++ class erhic::EventDjangoh+;
 #pragma link C++ class erhic::EventDpmjet+;
+#pragma link C++ class erhic::EventHepMC+;
 #pragma link C++ class erhic::EventMilou+;
 #pragma link C++ class erhic::EventGmcTrans+;
 #pragma link C++ class erhic::EventSimple+;
@@ -47,6 +48,7 @@
 
 #pragma link C++ class erhic::VirtualEventFactory+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventPepsi>+;
+#pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventHepMC>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventMilou>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventRapgap>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventDjangoh>+;
@@ -79,6 +81,7 @@
 
 #pragma link C++ class erhic::FileType+;
 #pragma link C++ class erhic::File<erhic::EventPythia>+;
+#pragma link C++ class erhic::File<erhic::EventHepMC>+;
 #pragma link C++ class erhic::File<erhic::EventMilou>+;
 #pragma link C++ class erhic::File<erhic::EventPepsi>+;
 #pragma link C++ class erhic::File<erhic::EventRapgap>+;

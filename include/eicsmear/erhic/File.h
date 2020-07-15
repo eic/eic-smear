@@ -1,7 +1,7 @@
 /**
  \file
  Declarations of file information and log-reading classes.
- 
+
  \author    Thomas Burton
  \date      2011-07-29
  \copyright 2011 Brookhaven National Lab
@@ -19,6 +19,7 @@
 #include <TString.h>
 
 #include "eicsmear/erhic/EventBase.h"
+#include "eicsmear/erhic/EventHepMC.h"
 #include "eicsmear/erhic/EventMilou.h"
 #include "eicsmear/erhic/EventPythia.h"
 #include "eicsmear/erhic/EventFactory.h"
@@ -468,7 +469,7 @@ class File : public FileType {
  public:
   /**
    Constructor.
-   
+
    If the string argument is not empty, the File attempts to open
    a file with that name. If the file is opened it tries to extract
    */
@@ -507,7 +508,7 @@ class File : public FileType {
    Returns a new event factory instance.
    */
   virtual EventFromAsciiFactory<T>*
-  CreateEventFactory(std::istream& is) const {
+    CreateEventFactory(std::istream& is) const {
      return new EventFromAsciiFactory<T>(is);
   }
 
@@ -519,6 +520,60 @@ class File : public FileType {
   ClassDef(File, 1)
 };
 
+template<>
+class File<erhic::EventHepMC> : public FileType {
+ public:
+
+  /**
+   Constructor.
+
+   If the string argument is not empty, the File attempts to open
+   a file with that name. If the file is opened it tries to extract
+   */
+  File(){}
+
+  /**
+   Destructor.
+   */
+  virtual ~File(){}
+
+  /**
+   Returns a new File object.
+   */
+  virtual File<erhic::EventHepMC>* Create() const {
+  return new File<erhic::EventHepMC>();
+}
+
+  /**
+   Allocates an event of the type for this file.
+   */
+  virtual erhic::EventHepMC* AllocateEvent() const {
+  return new erhic::EventHepMC();
+}
+
+
+  /**
+   Returns the name of the generator.
+   Entirely in lower case.
+   */
+  virtual std::string GetGeneratorName() const {return "HepMC";}
+
+  /**
+   Create a LogReader for this type of Monte Carlo file.
+   Returns NULL if the file type is unsupported or has no LogReader
+   class implemented.
+   The LogReader must be deleted by the user.
+   */
+  virtual LogReader* CreateLogReader() const {return nullptr;}
+
+  EventFromAsciiFactory<erhic::EventHepMC>* CreateEventFactory(std::istream& is) const {
+    return new EventFromAsciiFactory<erhic::EventHepMC>(is);}
+ protected:
+  erhic::EventHepMC* t_;
+
+  ClassDef(File<erhic::EventHepMC>, 1)
+};
+
 template<typename T>
 inline T* File<T>::AllocateEvent() const {
   return new T;
@@ -528,6 +583,7 @@ template<typename T>
 inline File<T>* File<T>::Create() const {
   return new File<T>();
 }
+
 
 /**
  Factory class for Files.

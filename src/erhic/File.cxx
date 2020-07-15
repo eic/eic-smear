@@ -1,7 +1,7 @@
 /**
  \file
  Implementations of file information and log-reading classes.
- 
+
  \author    Thomas Burton
  \date      2011-07-29
  \copyright 2011 Brookhaven National Lab
@@ -20,6 +20,7 @@
 #include "eicsmear/erhic/EventDpmjet.h"
 #include "eicsmear/erhic/EventRapgap.h"
 #include "eicsmear/erhic/EventGmcTrans.h"
+#include "eicsmear/erhic/EventHepMC.h"
 #include "eicsmear/erhic/EventSimple.h"
 #include "eicsmear/erhic/EventSartre.h"
 
@@ -42,7 +43,7 @@ static void LogLineParse(std::string line, const std::string searchPattern, std:
       ss >> v;
       v /= 1.e6;
       ss.clear();  ss << v;
-    }    
+    }
     ss >> toupdate;
   }  // if
   return;
@@ -71,7 +72,7 @@ bool LogReaderPythia::Extract(const std::string& file) {
     LogLineParse( line, "Total Number of generated events", nEvents );
     LogLineParse( line, "Total Number of trials", nTrials );
   }  // while
-  
+
   crossSection_.SetString(normalisation.c_str());
   nEvents_.SetString(nEvents.c_str());
   nTrials_.SetString(nTrials.c_str());
@@ -103,7 +104,7 @@ bool LogReaderPepsi::Extract(const std::string& file) {
   std::string normalisation;
   std::string nEvents;
   std::string nTrials;
-  
+
   while (ifs.good()) {
     std::getline(ifs, line);
     // Divide by 1,000,000 to go from pb to microbarn
@@ -111,7 +112,7 @@ bool LogReaderPepsi::Extract(const std::string& file) {
     LogLineParse( line, "Total Number of generated events", nEvents );
     LogLineParse( line, "Total Number of trials", nTrials );
   }  // while
-  
+
   crossSection_.SetString(normalisation.c_str());
   nEvents_.SetString(nEvents.c_str());
   nTrials_.SetString(nTrials.c_str());
@@ -504,6 +505,23 @@ template<typename T>
 LogReader* File<T>::CreateLogReader() const {
   return LogReaderFactory::GetInstance().CreateReader(*t_);
 }
+/*
+template<>
+std::string File<erhic::EventHepMC>::GetGeneratorName() const {
+  // The event class name is "EventX" where "X" is the generator
+  // name.
+  TString name = t_->ClassName();
+  name.ReplaceAll("erhic::", "");
+  name.ReplaceAll("Event", "");
+  name.ToLower();
+  return name.Data();
+}
+
+template<>
+LogReader* File<erhic::EventHepMC>::CreateLogReader() const {
+  return LogReaderFactory::GetInstance().CreateReader(*t_);
+}
+*/
 
 FileFactory& FileFactory::GetInstance() {
   static FileFactory theInstance;
@@ -521,6 +539,10 @@ const FileType* FileFactory::GetFile(const std::string& name) const {
 const FileType* FileFactory::GetFile(std::istream& is) const {
   std::string line;
   std::getline(is, line);
+  if (line.empty())
+  {
+    std::getline(is, line);
+  }
   // Use TString::ToLower() to convert the input name to all
   // lower case.
   TString str(line);
@@ -543,9 +565,11 @@ const FileType* FileFactory::GetFile(std::istream& is) const {
   } else if (str.Contains("dpmjet")) {
     file = GetFile("dpmjet");
   } else if (str.Contains("simple")) {
-    file = GetFile("simple");  
+    file = GetFile("simple");
   } else if (str.Contains("sartre")) {
-    file = GetFile("sartre");  
+    file = GetFile("sartre");
+  } else if (str.Contains("hepmc")) {
+    file = GetFile("hepmc");
   }  // if
   return file;
 }
@@ -571,7 +595,9 @@ FileFactory::FileFactory() {
                                     new File<EventSimple>()));
   prototypes_.insert(std::make_pair("sartre",
                                     new File<EventSartre>()));
-  
+  prototypes_.insert(std::make_pair("hepmc",
+                                    new File<EventHepMC>()));
+
 }
 
 FileFactory::~FileFactory() {

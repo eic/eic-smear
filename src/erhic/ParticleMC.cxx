@@ -53,12 +53,12 @@ TLorentzRotation computeBoost(const TLorentzVector& rest,
 namespace erhic {
 
   ParticleMCbase::ParticleMCbase()
-: I(-1)
-, KS(-1)
-, id(std::numeric_limits<Int_t>::min())
-, orig(-1)
-, daughter(-1)
-, ldaughter(-1)
+: I(0)
+, KS(0)
+, id(0)
+, orig(0)
+, daughter(0)
+, ldaughter(0)
 , px(0.)
 , py(0.)
 , pz(0.)

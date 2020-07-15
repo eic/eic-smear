@@ -1,4 +1,8 @@
 Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Thu Jul 9 16:15:45 2020 -0400
+    Added HepMC2 support to BuildTree
+
+Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Mon Jul 6 11:57:10 2020 -0400
 	Revamped cmake setup to more modern guidelines
 	https://pabloariasal.github.io/2018/02/19/its-time-to-do-cmake-right/
