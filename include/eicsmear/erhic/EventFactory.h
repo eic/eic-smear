@@ -1,7 +1,7 @@
 /**
  \file
  Declaration of class erhic::EventFactory.
- 
+
  \author    Thomas Burton
  \date      2011-10-31
  \copyright 2011 Brookhaven National Lab
@@ -13,14 +13,17 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <TBranch.h>
 #include <TTree.h>
 
 #include "eicsmear/functions.h"
 #include "eicsmear/erhic/VirtualEvent.h"
+#include "eicsmear/erhic/EventHepMC.h"
 #include "eicsmear/erhic/EventPythia.h"
 #include "eicsmear/smear/EventSmear.h"
+
 
 namespace erhic {
 
@@ -58,6 +61,11 @@ class VirtualEventFactory : public TObject {
   virtual std::string EventName() const = 0;
 
   /**
+     if we need to skip lines to get to the first event
+  */
+  virtual void FindFirstEvent() {}
+
+  /**
    Add a branch named "name" for the event type generated
    by this factory to a ROOT TTree.
    Returns a pointer to the branch, or NULL in the case of an error.
@@ -72,7 +80,18 @@ class VirtualEventFactory : public TObject {
    */
   virtual void Fill(TBranch&) { }
 
-  ClassDef(VirtualEventFactory, 1)
+  /** run information (like cross section) is usually saved with
+      a LogReader that parses a separate file and is completely independent from the
+      factory, forester, Plant() mechanism, only connected in BuildTree.cxx.
+      For some formats (like HepMC), that won't work; the best information is gained from the last event.
+      A hacky but flexible fix: Allow factories to maintain a TObjArray of things to write at the end.
+      Side effect: Could also be used for QA histos or the like.
+  **/
+  typedef std::pair <TString, TObject*> NamedObjects;
+  std::vector<NamedObjects> mObjectsToWriteAtTheEnd;
+
+
+  ClassDef(VirtualEventFactory, 2)
 };
 
 /**
@@ -96,7 +115,7 @@ class EventFromAsciiFactory : public VirtualEventFactory {
   virtual ~EventFromAsciiFactory() { }
 
   /**
-   Initialise the factory from an input stream. 
+   Initialise the factory from an input stream.
    */
   explicit EventFromAsciiFactory(std::istream& is)
   : mInput(&is)
@@ -112,6 +131,8 @@ class EventFromAsciiFactory : public VirtualEventFactory {
    Returns the name of the event class created by this factory.
    */
   virtual std::string EventName() const;
+
+  virtual void FindFirstEvent();
 
   std::istream* mInput;  //!
   std::string mLine;  //!
@@ -135,8 +156,17 @@ class EventFromAsciiFactory : public VirtualEventFactory {
 
   // Warning: explicitly putting the erhic:: namespace before the class
   // name doesn't seen to work for template classes.
-  ClassDef(EventFromAsciiFactory, 1)
+  ClassDef(EventFromAsciiFactory, 2)
 };
+
+/**
+ Creates events from an input plain text file containing
+ appropriately formatted data.
+ Templated for all the types inheriting from EventMC
+ (any event class implementing a Parse() method to
+ populate the event's variables from a string will work.)
+ */
+
 
 }  // namespace erhic
 

@@ -15,6 +15,11 @@
 
 #include "eicsmear/erhic/EventMC.h"
 
+using std::cout;
+using std::cerr;
+using std::endl;
+
+
 // =============================================================================
 // Constructor
 // =============================================================================
@@ -29,10 +34,17 @@ ParticleIdentifier::ParticleIdentifier(const int leptonBeamPdgCode)
 // =============================================================================
 bool ParticleIdentifier::isBeamLepton(
          const erhic::VirtualParticle& particle) const {
-  // Test against status 201 for SOPHIA events
-  return (21 == particle.GetStatus() || 201 == particle.GetStatus()) &&
-  GetLeptonBeamPdgCode() == particle.Id() &&
-  particle.GetParentIndex() == 0;
+  // Beam?
+  if ( particle.GetParentIndex() != 0 ) return false;
+  // Lepton?
+  if ( particle.Id() != GetLeptonBeamPdgCode() ) return false;
+  // Beam status?
+  switch (particle.GetStatus()){
+  case 21 : return true;  // pythia6 et al
+  case 201 : return true; // SOPHIA
+  case 4: return true;    // HepMC
+  }
+  return false;
 }
 
 // =============================================================================
@@ -40,7 +52,7 @@ bool ParticleIdentifier::isBeamLepton(
 // =============================================================================
 bool ParticleIdentifier::isScatteredLepton(
          const erhic::VirtualParticle& particle) const {
-  return 1 == particle.GetStatus() && mScatteredPdgCode == particle.Id();
+  return ( particle.GetStatus() == 1  && particle.Id()==mScatteredPdgCode);
 }
 
 // =============================================================================
@@ -81,7 +93,11 @@ bool ParticleIdentifier::SkipParticle(
 bool ParticleIdentifier::IsVirtualPhoton(
          const erhic::VirtualParticle& particle) const {
   const int pdg = abs(particle.Id());
-  return pdg > 21 && pdg < 25 && 21 == particle.GetStatus();
+  if (pdg<22) return false;
+  if (pdg>24) return false;
+  if ( particle.GetStatus() == 21 ) return true; // pythia6 et al
+  if ( particle.GetStatus() == 13 ) return true; // pythia8
+  return false;
 }
 
 // =============================================================================
@@ -89,10 +105,18 @@ bool ParticleIdentifier::IsVirtualPhoton(
 // =============================================================================
 bool ParticleIdentifier::isBeamNucleon(
          const erhic::VirtualParticle& particle) const {
-  // Test against status 201 for SOPHIA events
-  return (21  == particle.GetStatus() || 201 == particle.GetStatus()) &&
-  (2112 == particle.Id() || 2212 == particle.Id()) &&
-  particle.GetParentIndex() == 0;
+  // Beam?
+  if ( particle.GetParentIndex() != 0 ) return false;
+  // Hadron?
+  if ( particle.Id() != 2112 && particle.Id() != 2212 ) return false; // may have to change for eA
+  // Beam status?
+  switch (particle.GetStatus()){
+  case 21 : return true;  // pythia6 et al
+  case 201 : return true; // SOPHIA
+  case 4: return true;    // HepMC
+  }
+
+  return false;
 }
 
 // =============================================================================
@@ -183,15 +207,19 @@ bool ParticleIdentifier::IdentifyBeams(const erhic::VirtualEvent& event,
     }  // if
     // Test for beam lepton/hadron, exchange boson and scattered lepton.
     if (finder.isBeamNucleon(*particle)) {
+      // cout << "Found the beam nucleon" << endl;
       beams.at(1) = particle;
     } else if (finder.isBeamLepton(*particle) && 0 == leptonCount) {
+      // cout << "Found the beam lepton" << endl;
       beams.at(0) = particle;
       ++leptonCount;
     } else if (finder.isScatteredLepton(*particle) && 1 == leptonCount) {
+      // cout << "Found the scattered lepton" << endl;
       beams.at(3) = particle;
       // Protect against additional KS == 1 leptons following this
       ++leptonCount;
     } else if (finder.IsVirtualPhoton(*particle) && !foundExchangeBoson) {
+      // cout << "Found the boson" << endl;
       beams.at(2) = particle;
       foundExchangeBoson = true;
       // Check for charged current events, in which the scattered lepton

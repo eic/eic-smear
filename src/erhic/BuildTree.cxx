@@ -1,7 +1,7 @@
 /**
  \file
  Defines the main BuildTree function.
- 
+
  \author    Thomas Burton
  \date      2011-06-24
  \copyright 2011 Brookhaven National Lab

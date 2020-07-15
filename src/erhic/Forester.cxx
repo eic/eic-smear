@@ -1,7 +1,7 @@
 /**
  \file
  Implementation of class erhic::Forester.
- 
+
  \author    Thomas Burton
  \date      2011-06-23
  \copyright 2011 Brookhaven National Lab
@@ -176,8 +176,8 @@ bool Forester::SetupOutput() {
                   &mEvent, 32000, 99);
     // Auto-save every 500 MB
     mTree->SetAutoSave(500LL * 1024LL * 1024LL);
-    // Align the input file at the start of the first event.
-    FindFirstEvent();
+    // Align the input file at the start of the first event (event generator dependent).
+    mFactory->FindFirstEvent();
     // Start timing after opening and creating files,
     // before looping over events
     mStatus.StartTimer();
@@ -196,6 +196,9 @@ void Forester::Finish() {
   mRootFile = mTree->GetCurrentFile();
   mRootFile->cd();
   mTree->Write();
+  for ( auto namedobject : mFactory->mObjectsToWriteAtTheEnd ){
+    namedobject.second->Write(namedobject.first);
+  }
   mRootFile->ls();
   // Write the Forester itself to make it easier to reproduce the file
   // with the same settings.
@@ -262,9 +265,9 @@ void Forester::Print(Option_t* /* not used */) const {
     mEndTime = mStartTime;
     mTimer.Reset();
   }
-  
+
   Forester::Status::~Status() { /* noop */ }
-  
+
   std::ostream& Forester::Status::Print(std::ostream& os) const {
     // Put start and end times in different os <<... otherwise I get
     // the same time for each...
@@ -276,27 +279,27 @@ void Forester::Print(Option_t* /* not used */) const {
        << '(' << mTimer.RealTime()/mNEvents <<" sec/event)" << std::endl;
     return os;
   }
-  
+
   void Forester::Status::StartTimer() {
     std::time(&mStartTime);
     mTimer.Start();
   }
-  
+
   void Forester::Status::StopTimer() {
     std::time(&mEndTime);
     mTimer.Stop();
   }
-  
+
   void Forester::Status::ModifyEventCount(Long64_t count) {
     mNEvents += count;
   }
-  
+
   void Forester::Status::ModifyParticleCount(Long64_t count) {
     mNParticles += count;
   }
-  
+
   // ClassImp( ForesterStatus ); // throws error for some reason
-  
+
 
 
 }  // namespace erhic

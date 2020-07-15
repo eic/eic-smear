@@ -1,7 +1,7 @@
 /**
  \file
  Declaration of class erhic::Forester.
- 
+
  \author    Thomas Burton
  \date      2011-06-23
  \copyright 2011 Brookhaven National Lab
@@ -66,7 +66,7 @@ class Forester : public TObject {
   void SetOutputFileName(const std::string&);
 
   /**
-   Sets the name of the TTree to write to the file named by 
+   Sets the name of the TTree to write to the file named by
    SetOutputFileName().
    */
   void SetTreeName(const std::string& = "EICTree");
@@ -88,7 +88,7 @@ class Forester : public TObject {
   std::string GetOutputFileName() const;
 
   /**
-   Returns the name of the TTree to write to the file named by 
+   Returns the name of the TTree to write to the file named by
    SetOutputFileName().
    */
   std::string GetTreeName() const;
@@ -100,7 +100,7 @@ class Forester : public TObject {
 
   /**
    Sets the maximum number of events to process. Processing will terminate
-   when this number of events or the end of the input file is reached, 
+   when this number of events or the end of the input file is reached,
    whichever occurs first. A value <= 0 indicates to process all events in the
    input file (this is the default).
    */
@@ -146,7 +146,7 @@ class Forester : public TObject {
    Do not delete the returned object.
    */
   const erhic::FileType* GetFileType() const;
-  
+
   /**
    Stores summary information about the last call to Forester::Plant().
    KK: Made public for rootcint
@@ -154,25 +154,25 @@ class Forester : public TObject {
   class Status{
   public:
     Status();
-    virtual ~Status();   
-    virtual std::ostream& Print(std::ostream& os = std::cout) const;   
-    
+    virtual ~Status();
+    virtual std::ostream& Print(std::ostream& os = std::cout) const;
+
   protected:
-    virtual void StartTimer();   
-    virtual void StopTimer();   
-    virtual void ModifyEventCount(Long64_t count);   
-    virtual void ModifyParticleCount(Long64_t count);   
-    
+    virtual void StartTimer();
+    virtual void StopTimer();
+    virtual void ModifyEventCount(Long64_t count);
+    virtual void ModifyParticleCount(Long64_t count);
+
     time_t mStartTime;
     time_t mEndTime;
     Long64_t mNEvents;
     Long64_t mNParticles;
-    
+
     // The TStopwatch is mutable as "GetRealTime()" is non-const.
     mutable TStopwatch mTimer;
-    
+
     friend class Forester;
-    
+
     ClassDef(Status, 1);
   };
 
@@ -254,7 +254,7 @@ class Forester : public TObject {
   std::string mLine;  ///< Stores the latest text line read from the input file
   Status mStatus;  ///< Forester status information
   VirtualEventFactory* mFactory;  //! < Pointer to the event-builder object
-  
+
   ClassDef(Forester, 3)
 };
 

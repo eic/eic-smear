@@ -52,6 +52,9 @@ configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/beagle_eD.txt ${CMAKE_CURRENT_BINARY
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/simple_gen.txt ${CMAKE_CURRENT_BINARY_DIR}/simple_gen.txt COPYONLY)
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/ep_sartre.txt ${CMAKE_CURRENT_BINARY_DIR}/ep_sartre.txt COPYONLY)
 
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/DIS_hepmc.txt ${CMAKE_CURRENT_BINARY_DIR}/DIS_hepmc.txt COPYONLY)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/NC_hepmc.txt ${CMAKE_CURRENT_BINARY_DIR}/NC_hepmc.txt COPYONLY)
+
 # execute_process(
 #   COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/ep_noradcorr.20x250.quicktest.txt.gz ${CMAKE_CURRENT_BINARY_DIR}
 #   COMMAND gunzip ${CMAKE_CURRENT_BINARY_DIR}/ep_noradcorr.20x250.quicktest.txt.gz
