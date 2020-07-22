@@ -12,6 +12,7 @@
 #include "eicsmear/smear/Detector.h"
 Smear::Detector BuildZeus();
 Smear::Detector BuildBeAST();
+Smear::Detector BuildJLEIC();
 Smear::Detector BuildHandBookDetector();
 Smear::Detector BuildPerfectDetector();
 
@@ -194,26 +195,28 @@ void PrintSmearStats(const EicSmearStatistics& stat) {
 
 
 int main() {   
-  // int pid = 211; // pi+
-  int pid = 11; // e-
+  int pid = 211; // pi+
+  // int pid = 11; // e-
   // int pid = 22; // gamma
   // int pid = 2112; // n
   // int pid = 2212; // p
   // int pid = 13; // mu
   // int pid = 12; // neutrino
 
-    TString detstring = "HandBook";
+  // TString detstring = "HandBook";
     // TString detstring = "Perfect";
     // TString detstring = "BeAST";
     // TString detstring = "ePhenix";
+    TString detstring = "JLEIC";
     // TString detstring = "ZEUS";
     
     Smear::Detector detector;
     if ( detstring=="BeAST" ) detector = BuildBeAST();
     if ( detstring=="HandBook" ) detector = BuildHandBookDetector();
     if ( detstring=="Perfect" ) detector = BuildPerfectDetector();
-     if ( detstring=="ZEUS" ) detector = BuildZeus();
+    if ( detstring=="ZEUS" ) detector = BuildZeus();
     if ( detstring=="ePhenix" ) detector = BuildEphoenix();
+    if ( detstring=="JLEIC" ) detector = BuildJLEIC();
     
     EicSmearStatistics stat = Process( pid, detector);
     PrintSmearStats(stat);

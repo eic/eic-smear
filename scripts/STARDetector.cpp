@@ -44,14 +44,14 @@ Smear::Detector BuildDetector() {
   // so define a single acceptance zone -1 < eta < 2.
   // Acceptance is defined in terms of angle (theta) not pseudorapidity (eta)
   // so we need to convert eta -> theta.
-	Smear::Device emCal(Smear::kE,
+  Smear::Device emCal(Smear::kE,
                       "0.015*E+0.14*sqrt(E)",
                       Smear::kElectromagnetic);
-	emCal.Accept.AddZone(makeZone(-1., 2.));
+  emCal.Accept.AddZone(makeZone(-1., 2.));
   // Tracking, comprising momentum and theta.
   // These just span the TPC, -1 < eta < 1.
   Smear::Device momentum(Smear::kP, "0.005*P+0.004*P*P");
-	momentum.Accept.SetCharge(Smear::kCharged);
+  momentum.Accept.SetCharge(Smear::kCharged);
   momentum.Accept.AddZone(makeZone(-1., 1.));
   // See comments at the end of the file for Zhangbu's email about
   // theta resolution.
@@ -65,6 +65,7 @@ Smear::Detector BuildDetector() {
 	phi.Accept.SetCharge(Smear::kCharged);
   // Combine the devices into a detector.
 	Smear::Detector star;
+	star.SetLegacyMode ( true ); // turn off checks and enhanced momentum consistency
   star.AddDevice(emCal);
   star.AddDevice(momentum);
   star.AddDevice(theta);

@@ -338,8 +338,10 @@ detector.
 }
 ```
 
-* Formulas are based on ROOT::TFormula and accept kP, kPhi, kTheta, kE. In
-principle, kPt and kPz is also supported but currently not working.
+* Formulas are based on ROOT::TFormula and accept P, Phi, Theta,
+E, Pt and Pz. The logic also supports Px and Py, but this
+isn't included in the parser yet; please contact the authors if you
+need this functionality added.
 
 ##### IMPORTANT NOTES: #####
 
@@ -367,16 +369,14 @@ regarding calculation of smeared kinematic variables.
   translated dynamically into the four available free variables
   x,y,z,t).
 
-* If two devices of the same type have overlapping acceptance, only
-  the last one added to the detector will act. An example would be an
-  inner and outer tracker. In such a case, a combined parameterization
-  must be used. Two smearings of the same variable cannot act both
-  (that would be unphysical), nor be used in the way a human
-  experimenter would, i.e. by choosing the better device or combining
-  the two to reduce the uncertainty. Furthermore, the framework cannot
-  detect such acceptance collisions (under development), so it cannot
-  issue a warning. When you make changes to a detector, keep this in
-  mind and proceed with caution.
+* If two devices of the same type have overlapping acceptance, an error will be generated at runtime if a particle is smeared by both. This inelegant method is necessary since there is no realistic way to automatically detect colliding acceptances for arbitrary acceptance zones.
+
+* Recent changes make it a requirement to always have "location" information. In practice, this means:
+  * provide exactly 0 or exactly three smeared momentum components. The others will then be automatically constructed. If phi or theta resolution is unknown, this can be of the form ```Smear::Device phi(Smear::kPhi,"0");```
+  * In the case of no momentum smearing (i.e., only energy is smeared), angular smearers still need to be provided, now representing phi and theta as determined by the calorimeter.
+  * To support legacy smearing scripts, this behavior can be turned off via
+  ```Detector::SetLegacyMode(true);```
+  Note that in this case Pt and Pz smearing will no longer work (as that was the status when the legacy scripts were created).
 
 #### Doxygen ####
 

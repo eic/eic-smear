@@ -85,9 +85,9 @@ void Tracker::Smear(const erhic::VirtualParticle& pIn,
     double y = GetVariable(pIn, kP);
     // Randomly generate a smeared value from the resolution
     // and set it in the smeared particle.
-    SetVariable(pOut, Distribution.Generate(y, Resolution(pIn)), kP);
+    pOut.SetVariable(Distribution.Generate(y, Resolution(pIn)), kP);
     // Ensure E, p are positive definite
-    HandleBogusValues(pOut, kP);
+    pOut.HandleBogusValues(kP);
     if (pOut.GetP() < 0.) {
       std::cerr << "p " << pOut.GetP() << std::endl;
     }  // if

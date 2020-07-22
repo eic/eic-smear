@@ -275,8 +275,7 @@ DisKinematics* LeptonKinematicsComputer::Calculate() {
     // Use E, p and ID of scattered lepton to create "best-guess" kinematics.
     // MeasuredParticle::Create will throw an exception in case of a NULL
     // pointer argument.
-    std::unique_ptr<const VirtualParticle> scattered(
-      MeasuredParticle::Create(mBeams.at(3)));
+    std::unique_ptr<const VirtualParticle> scattered( MeasuredParticle::Create(mBeams.at(3)));
     // If there is no measurement of theta of the scattered lepton we
     // cannot calculate kinematics. Note that via MeasuredParticle the momentum
     // may actually be derived from measured energy instead of momentum.
@@ -342,6 +341,7 @@ JacquetBlondelComputer::~JacquetBlondelComputer() {
 JacquetBlondelComputer::JacquetBlondelComputer(const EventDis& event)
 : mEvent(event) {
   // Get the full list of final-state particles in the event.
+  // including decay bosons and leptons 
   std::vector<const erhic::VirtualParticle*> final;
   mEvent.HadronicFinalState(final);
   // Populate the stored particle list with "measurable" versions of
@@ -487,6 +487,7 @@ DoubleAngleComputer::~DoubleAngleComputer() {
 DoubleAngleComputer::DoubleAngleComputer(const EventDis& event)
 : mEvent(event) {
   // Get the full list of final-state particles in the event.
+  // including decay bosons and leptons 
   std::vector<const erhic::VirtualParticle*> final;
   mEvent.HadronicFinalState(final);
   // Populate the stored particle list with "measurable" versions of

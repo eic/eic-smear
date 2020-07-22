@@ -87,10 +87,10 @@ void Bremsstrahlung::SetParticle(const erhic::VirtualParticle& prt) {
 }
 
 void Bremsstrahlung::FixParticleKinematics(ParticleMCS& prt) {
-  prt.p = sqrt(prt.GetE() * prt.GetE() - prt.GetM() * prt.GetM());
-  if (prt.p < 0. || isnan(prt.p)) prt.p = 0.;
-  prt.pt = prt.p * sin(prt.theta);
-  prt.pz = prt.p * cos(prt.theta);
+  prt.SetP(sqrt(prt.GetE() * prt.GetE() - prt.GetM() * prt.GetM()) );
+  if (prt.GetP() < 0. || isnan(prt.GetP())) prt.SetP(0.);
+  prt.SetPt( prt.GetP() * sin(prt.GetTheta() ));
+  prt.SetPz( prt.GetP() * cos(prt.GetTheta() ));
 }
 
 Bremsstrahlung* Bremsstrahlung::Clone(Option_t* /* not used */) const {
@@ -106,9 +106,9 @@ void Bremsstrahlung::Smear(const erhic::VirtualParticle& prt,
     double loss = mPdf->GetRandom();
     mParticle->E -= loss;
   }  // for
-  prtOut.E = mParticle->GetE();
+  prtOut.SetE ( mParticle->GetE() );
   FixParticleKinematics(prtOut);
-  HandleBogusValues(prtOut);
+  prtOut.HandleBogusValues(kE);
   mParticle.reset(NULL);
 }
 

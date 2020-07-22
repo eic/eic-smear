@@ -53,6 +53,9 @@ class VirtualEvent : public TObject {
 
   /**
    Populate a track list with the hadronic final-state.
+   Note that the method is a bit of a misnomer - it will return ALL final
+   particles other than the scattered lepton
+   (intentionally, since you want to take decay products into account as well)
    */
   virtual void HadronicFinalState(ParticlePtrList&) const { }
 

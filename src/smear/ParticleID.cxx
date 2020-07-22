@@ -217,7 +217,7 @@ void ParticleID::Smear(const erhic::VirtualParticle& prt,
   if (bUseMC) {
     momentum = prt.GetP();
   } else {
-    momentum = prtOut.p;
+    momentum = prtOut.GetP();
   }  // if
   const int pid = prt.Id();
   if (InListOfTrue(pid) != -1 && Accept.Is(prt)) {
@@ -226,9 +226,9 @@ void ParticleID::Smear(const erhic::VirtualParticle& prt,
         // Generated ID is always positive.
         // Keep same sign as input PID i.e. no error in charge sign
         if (pid > 0) {
-          prtOut.id = Wild(i, pid);
+          prtOut.SetId (Wild(i, pid) );
         } else {
-          prtOut.id = -Wild(i, pid);
+          prtOut.SetId( -Wild(i, pid) );
         }  // if
       }  // if
     }  // for

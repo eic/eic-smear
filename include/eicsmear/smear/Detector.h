@@ -130,11 +130,24 @@ class Detector : public TObject {
    */
   std::list<Smear::Smearer*> Accept(const erhic::VirtualParticle&) const;
 
+  /**
+     Turn off consistency checks and momentum regularization in Smear().
+     Use only for legacy smear scripts from earlier versions (<~1.0.4)
+  */
+  virtual void SetLegacyMode( const bool mode=true );
+  
+  /**
+     Check status of legacy mode.
+  */
+  virtual bool GetLegacyMode() const;
+  
  protected:
   /**
    Returns pointers to new copies of all devices.
    */
   std::vector<Smear::Smearer*> CopyDevices() const;
+
+  bool LegacyMode=false;
 
   bool useNM;
   bool useJB;
