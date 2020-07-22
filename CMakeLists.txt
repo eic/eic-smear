@@ -361,11 +361,11 @@ endif()
 ## Generate configuration file
 install(EXPORT eicsmear-export
   FILE
-    eicsmearTargets.cmake
+    eicsmearConfig.cmake
   NAMESPACE
     eicsmear::
   DESTINATION
-  lib/cmake/eicsmear
+  cmake
   )
 
 
