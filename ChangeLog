@@ -1,3 +1,13 @@
+Author:  Dmitriy Kim <Dmitriy.Kim@stonybrook.edu>, Kolja Kauder <kkauder@gmail.com>
+Date:   Tue Jul 21 17:40:17 2020 -0400
+	Implemented Pt and Pz smearing
+	Changed Detector.cxx momentum calculations
+	Added JLEIC
+	Now saving various smear statuses as booleans in the output tree
+	changed particleMC initialization to physically consistent and
+	compatible with unsigned short values
+	Find scattered final electron in EventSimple
+
 Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Thu Jul 9 16:15:45 2020 -0400
     Added HepMC2 support to BuildTree

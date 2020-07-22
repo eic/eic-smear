@@ -34,6 +34,7 @@ class EventSimple : public EventMC {
    false in case of an error.
    */
   virtual bool Parse(const std::string&);
+  const ParticleMC* ScatteredLepton() const;
 
   Double32_t numParticles;
 

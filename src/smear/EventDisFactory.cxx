@@ -59,7 +59,7 @@ Event* EventDisFactory::Create() {
       event->AddLast(p);
       // Only set the index if the scattered electron is detected
     } else if (mMcEvent->BeamLepton() == ptr ||
-            mMcEvent->BeamHadron() == ptr) {
+	       mMcEvent->BeamHadron() == ptr) {
       // It's convenient to keep the initial beams, unsmeared, in the
       // smeared event record, so copy their properties exactly
       event->AddLast(mcToSmear(*ptr));

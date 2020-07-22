@@ -128,7 +128,7 @@ class Event : public erhic::EventDis {
   /**
    Yields all particles that belong to the hadronic final state.
    This is the same as the result of FinalState(), minus the scattered
-   beam lepton.
+   beam lepton (i.e. including leptons and bosons).
    */
   void HadronicFinalState(ParticlePtrList&) const;
 

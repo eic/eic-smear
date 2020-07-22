@@ -18,6 +18,10 @@
 #pragma link C++ nestedclasses;
 #pragma link C++ nestedtypedef;
 
+// STL classes
+// Needed for the status field in ParticleMCS
+// #pragma link C++ class std::bitset<64>+;
+
 // Namespace
 #pragma link C++ namespace Smear;
 

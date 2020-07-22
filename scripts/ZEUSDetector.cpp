@@ -73,6 +73,7 @@ Smear::Detector BuildZeus() {
   Smear::Device phi(Smear::kPhi);
   // Add all the devices to the detector.
   Smear::Detector zeus;
+  zeus.SetLegacyMode ( true ); // turn off checks and enhanced momentum consistency
   zeus.AddDevice(emCal);
   zeus.AddDevice(hCal);
   zeus.AddDevice(theta);

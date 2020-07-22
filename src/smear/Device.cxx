@@ -128,15 +128,15 @@ void Device::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
     throw -1;
   }
   // if ( smeared < 0 || fabs(mKinematicFunction->GetX(smeared)-smeared)>1e-5 ) cout << mKinematicFunction->GetX(smeared) << " " << smeared << endl;
-  SetVariable(out, mKinematicFunction->GetX(smeared), mSmeared);
+  out.SetVariable(mKinematicFunction->GetX(smeared), mSmeared);
   // Fix angles to the correct ranges.
   if (kTheta == mSmeared) {
-    out.theta = FixTheta(out.theta);
+    out.SetTheta ( FixTheta(out.GetTheta() ), false);
   } else if (kPhi == mSmeared) {
-    out.phi = FixPhi(out.phi);
+    out.SetPhi ( FixPhi(out.GetPhi() ), false);
   }  // else if
   // Ensure E, p are positive definite
-  HandleBogusValues(out, mSmeared);
+  out.HandleBogusValues(mSmeared);
   if ( isnan( GetVariable (out, mSmeared ) ) ) cout << "Problem. smeared is " << smeared << " but propagated nan in " << mSmeared<< endl;
   // std::cout << "Bye Smear" << std::endl << std::endl;
 }

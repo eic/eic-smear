@@ -36,6 +36,7 @@
 
 # ---> Linux
 *~
+\#*
 
 # ---> Mac
 .DS_Store

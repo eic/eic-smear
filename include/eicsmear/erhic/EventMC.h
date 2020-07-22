@@ -106,6 +106,10 @@ class EventMC : public EventDis {
    In the standard eRHIC Monte Carlo format, the scattered lepton beam
    is assumed to be the first final-state particle in the particle list
    with the same PDG code as the incident lepton beam.
+
+   Please overwrite this method accordingly!
+   By default, it will simply use the fourth particle in the particle list.
+   See e.g. EventPythia, EventSimple.
    */
   virtual const ParticleMC* ScatteredLepton() const;
 
@@ -174,7 +178,7 @@ class EventMC : public EventDis {
   /**
    Yields all particles that belong to the hadronic final state.
    This is the same as the result of FinalState(), minus the scattered
-   beam lepton.
+   beam lepton (i.e. including leptons and bosons).
    */
   void HadronicFinalState(ParticlePtrList&) const;
 

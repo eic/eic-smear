@@ -26,6 +26,7 @@ Smear::Detector BuildBeAST() {
   // Create the detector object to hold all devices
   Smear::Detector det;
   det.SetEventKinematicsCalculator("NM JB DA"); // The detector will calculate event kinematics from smeared values
+  det.SetLegacyMode ( true ); // turn off checks and enhanced momentum consistency
 
   // For proper kinematics calculations,
   // phi and theta need to be smeared (at least with "0") for

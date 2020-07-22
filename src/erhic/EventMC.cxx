@@ -60,6 +60,9 @@ void EventMC::HadronicFinalState(TrackVector& final_) const {
   // Copy vector to a list and use list::remove to get rid
   // of the scattered lepton. Then copy this list back to
   // the vector.
+  // Note that the method is a bit of a misnomer - it will return ALL final
+  // particles other than the scattered lepton
+  // (intentionally, since you want to take decay products into account as well)
   FinalState(final_);
   std::list<const VirtualParticle*> plist(final_.begin(),
                                           final_.end());
@@ -119,18 +122,22 @@ Double_t EventMC::FinalStateCharge() const {
   return charge;
 }
 
+  // See header!
 const ParticleMC* EventMC::BeamLepton() const {
   return GetTrack(0);
 }
 
+  // See header!
 const ParticleMC* EventMC::BeamHadron() const {
   return GetTrack(1);
 }
 
+  // See header!
 const ParticleMC* EventMC::ExchangeBoson() const {
   return GetTrack(3);
 }
 
+  // See header!
 const ParticleMC* EventMC::ScatteredLepton() const {
   return GetTrack(2);
 }

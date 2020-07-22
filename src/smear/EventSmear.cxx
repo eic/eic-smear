@@ -50,6 +50,7 @@ const ParticleMCS* Event::ScatteredLepton() const {
 }
 
 // Get the particles that belong to the hadronic final state.
+// (i.e. including leptons and bosons except for the scattered lepton).
 // The stored Particle* are pointers to the original particles in the event
 // so don't delete them!
 void Event::HadronicFinalState(ParticlePtrList& final) const {
