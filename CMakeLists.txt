@@ -24,8 +24,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(eicsmear VERSION 1.0.4 LANGUAGES CXX )
 
-# Build or not to build tests
-option(BUILD_TESTS "Build tests executables" OFF)
+# # Build or not to build tests
+# option(BUILD_TESTS "Build tests executables" OFF)
 
 # cmake needs a bit of help to find modules
 set(
@@ -308,10 +308,10 @@ target_link_libraries(compiled_runpythia
     )
 endif(PYTHIA6_LIBDIR)
 
-## To be moved to the eicsmeardetectors package - build tests
-if(BUILD_TESTS)
-    add_subdirectory(tests)
-endif()
+# ## To be moved to the eicsmeardetectors package - build tests
+# if(BUILD_TESTS)
+#     add_subdirectory(tests)
+# endif()
 
 ##############################################################################################################
 
