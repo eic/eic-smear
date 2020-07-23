@@ -1,3 +1,7 @@
+Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Thu Jul 23 08:12:14 2020 -0400
+    Added gzip support to BuildTree and Forester
+
 Author:  Dmitriy Kim <Dmitriy.Kim@stonybrook.edu>, Kolja Kauder <kkauder@gmail.com>
 Date:   Tue Jul 21 17:40:17 2020 -0400
 	Implemented Pt and Pz smearing
