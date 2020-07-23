@@ -319,14 +319,20 @@ qaparameters ParseArguments ( int argc, char* argv[] ){
 
 // ---------------------------------------------------------------
 const TString getrootname(const qaparameters& qapars ){
-  // The root file name is created by replacing .txt (or .out) by .root
-  // Make sure input name is right and generate output name for loading
-  auto extension = qapars.txtfilename.substr(qapars.txtfilename.length()-4,4);
-  if (  extension != ".txt" && extension != ".out" ){
-    cerr << "Input file " << qapars.txtfilename << " doesn't end with .txt or .out";
-    throw std::runtime_error("Can't parse input file");
-  }
-  TString rootname = qapars.txtfilename.substr(0,qapars.txtfilename.length()-4);
+  // The root file name is created by replacing the extension by ".root"
+
+  TString rootname = qapars.txtfilename;
+  
+  // Remove zip extension, if there is one.
+  if ( rootname.EndsWith(".gz", TString::kIgnoreCase) ||
+       rootname.EndsWith(".zip", TString::kIgnoreCase) )
+    rootname.Replace(rootname.Last('.'), rootname.Length(), "");
+  
+  // Remove the remaining extension, if there is one.
+  if (rootname.Last('.') > -1) {
+    rootname.Replace(rootname.Last('.'), rootname.Length(), "");
+  }  // if
+  
   // BuildTree includes event number in partial transformation
   if ( qapars.nevents>=0 ) {
     rootname += ".";

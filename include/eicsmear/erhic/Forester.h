@@ -246,7 +246,7 @@ class Forester : public TObject {
   Long64_t mMaxNEvents;  ///< Maximum number of events to process
   Long64_t mInterval;  ///< Event interval between printing status messages
 
-  std::ifstream* mTextFile;  //! < Input text file
+  std::shared_ptr<std::istream> mTextFile;  //! < Input text file
   std::string mInputName;  ///< Name of the input text file
   std::string mOutputName;  ///< Name of the output ROOT file
   std::string mTreeName;  ///< Name of the output TTree
@@ -322,6 +322,6 @@ inline const FileType* Forester::GetFileType() const {
   return mFile;
 }
 
-}  // namespace erhic
+}  // namesce erhic
 
 #endif  // INCLUDE_EICSMEAR_ERHIC_FORESTER_H_
