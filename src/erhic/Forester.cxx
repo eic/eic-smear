@@ -15,10 +15,13 @@
 #include <string>
 
 #include <TRefArray.h>
+#include <TString.h>
 
 #include "eicsmear/erhic/EventFactory.h"
 #include "eicsmear/erhic/File.h"
 #include "eicsmear/erhic/ParticleIdentifier.h"
+
+#include "gzstream.h"
 
 namespace erhic {
 
@@ -56,10 +59,10 @@ Forester::~Forester() {
     delete mRootFile;
     mRootFile = NULL;
   }  // if
-  if (mTextFile) {
-    delete mTextFile;
-    mTextFile = NULL;
-  }  // if
+  // if (mTextFile) {
+  //   delete mTextFile;
+  //   mTextFile = NULL;
+  // }  // if
   // We don't delete the mTree pointer because mRootFile
   // has ownership of it.
 }
@@ -130,26 +133,36 @@ Long64_t Forester::Plant() {
 bool Forester::OpenInput() {
   try {
     // Open the input file for reading.
-    if (!mTextFile) {
-      mTextFile = new std::ifstream;
-    }  // if
-    mTextFile->open(GetInputFileName().c_str());
-    // Throw a runtime_error if the file could not be opened.
-    if (!mTextFile->good()) {
-      std::string message("Unable to open file ");
-      throw std::runtime_error(message.append(GetInputFileName()));
-    }  // if
+    if ( TString(GetInputFileName()).EndsWith("gz", TString::kIgnoreCase) ||
+	 TString(GetInputFileName()).EndsWith("zip", TString::kIgnoreCase)){
+      auto tmp = std::make_shared<igzstream>();
+      tmp->open(GetInputFileName().c_str());
+      // Throw a runtime_error if the file could not be opened.
+      if (!tmp->good()) {
+	std::string message("Unable to open file ");
+	throw std::runtime_error(message.append(GetInputFileName()));
+      }  // if
+      mTextFile = tmp;
+    } else {
+      auto tmp = std::make_shared<std::ifstream>();
+      tmp->open(GetInputFileName().c_str());
+      // Throw a runtime_error if the file could not be opened.
+      if (!tmp->good()) {
+	std::string message("Unable to open file ");
+	throw std::runtime_error(message.append(GetInputFileName()));
+      }  // if
+      mTextFile = tmp;
+    }
+    
     // Determine which Monte Carlo generator produced the file.
-    mFile =
-    erhic::FileFactory::GetInstance().GetFile(*mTextFile);
+    mFile = erhic::FileFactory::GetInstance().GetFile(*mTextFile);
     if (!mFile) {
       throw std::runtime_error(GetInputFileName() +
-                               " is not from a supported generator");
+    			       " is not from a supported generator");
     }  // for
     mFactory = mFile->CreateEventFactory(*mTextFile);
     return true;
-  }  // try...
-  // Pass the exception on to be dealt with higher up the food chain.
+  } // Pass the exception on to be dealt with higher up the food chain.
   catch(std::exception&) {
     throw;
   }  // catch

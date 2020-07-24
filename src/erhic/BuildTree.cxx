@@ -35,7 +35,12 @@ BuildTree(const std::string& inputFileName,
   // use of the BaseName() method from TSystem.
   TString outName = gSystem->BaseName(inputFileName.c_str());
 
-  // Remove the existing extension, if there is one.
+  // Remove zip extension, if there is one.
+  if ( outName.EndsWith(".gz", TString::kIgnoreCase) ||
+       outName.EndsWith(".zip", TString::kIgnoreCase) )
+    outName.Replace(outName.Last('.'), outName.Length(), "");
+	
+  // Remove the remaining extension, if there is one.
   if (outName.Last('.') > -1) {
     outName.Replace(outName.Last('.'), outName.Length(), "");
   }  // if

@@ -24,8 +24,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(eicsmear VERSION 1.0.4 LANGUAGES CXX )
 
-# Build or not to build tests
-option(BUILD_TESTS "Build tests executables" OFF)
+# # Build or not to build tests
+# option(BUILD_TESTS "Build tests executables" OFF)
 
 # cmake needs a bit of help to find modules
 set(
@@ -41,6 +41,9 @@ find_package(ROOT 6.10 REQUIRED)
 # Is HepMC available?
 find_package(HepMC3 QUIET HINTS ${HepMC3_DIR} ${HepMC3} )
 
+# Make zlib required. It's almost everywhere, and this avoids ugly ifdefs and such
+find_package(ZLIB REQUIRED)
+
 ##############################################################################################################
 
 # Main target is the libeicsmear library
@@ -50,6 +53,7 @@ add_library(
    SHARED
    ${CMAKE_CURRENT_BINARY_DIR}/erhicDict.cxx
    ${CMAKE_CURRENT_BINARY_DIR}/smearDict.cxx
+   src/gzstream.cc
    src/functions.cxx
    src/erhic/BeamParticles.cxx
    src/erhic/BuildTree.cxx
@@ -273,7 +277,7 @@ endif(PYTHIA6_LIBDIR)
 ## Build the library
 ## this can be improved with newer root versions
 
-target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
+target_link_libraries(eicsmear -lz ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
 if(PYTHIA6_LIBDIR)
   target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
 else (PYTHIA6_LIBDIR)
@@ -304,10 +308,10 @@ target_link_libraries(compiled_runpythia
     )
 endif(PYTHIA6_LIBDIR)
 
-## To be moved to the eicsmeardetectors package - build tests
-if(BUILD_TESTS)
-    add_subdirectory(tests)
-endif()
+# ## To be moved to the eicsmeardetectors package - build tests
+# if(BUILD_TESTS)
+#     add_subdirectory(tests)
+# endif()
 
 ##############################################################################################################
 
@@ -361,11 +365,11 @@ endif()
 ## Generate configuration file
 install(EXPORT eicsmear-export
   FILE
-    eicsmearTargets.cmake
+    eicsmearConfig.cmake
   NAMESPACE
     eicsmear::
   DESTINATION
-  lib/cmake/eicsmear
+  cmake
   )
 
 
