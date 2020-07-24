@@ -24,9 +24,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(eicsmear VERSION 1.0.4 LANGUAGES CXX )
 
-# # Build or not to build tests
-# option(BUILD_TESTS "Build tests executables" OFF)
-
 # cmake needs a bit of help to find modules
 set(
    CMAKE_MODULE_PATH
@@ -308,11 +305,6 @@ target_link_libraries(compiled_runpythia
     )
 endif(PYTHIA6_LIBDIR)
 
-# ## To be moved to the eicsmeardetectors package - build tests
-# if(BUILD_TESTS)
-#     add_subdirectory(tests)
-# endif()
-
 ##############################################################################################################
 
 ## Install library
@@ -372,7 +364,8 @@ install(EXPORT eicsmear-export
   cmake
   )
 
-
+## Final message
+message( " !! After installation, you should also install detectors and tests from https://github.com/eic/eicsmeardetectors. ")
 
   
 # Version check no longer needed b/c c++11 is now always required.
