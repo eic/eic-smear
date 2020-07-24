@@ -1,7 +1,8 @@
 Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Fri Jul 24 13:26:17 2020 -0400
-    Added eic-smear ROOT wrapper to automatically load libraries and
-    display version information.
+	Added eic-smear ROOT wrapper to automatically load libraries
+	and display version information.
+	Declared version 1.1.0-rc1
 
 Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Thu Jul 23 08:12:14 2020 -0400

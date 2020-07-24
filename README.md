@@ -109,7 +109,7 @@ A wrapper allows to start ROOT with libraries loaded and displays
 version information as well as the library locations.
 ```
 $ eic-smear
-Using eic-smear version: 1.0.4-fix1
+Using eic-smear version: 1.1.0-rc1
 Using these eic-smear libraries :
 /Users/kkauder/software/lib/libeicsmear.dylib
 /Users/kkauder/software/lib/libeicsmeardetectors.dylib
