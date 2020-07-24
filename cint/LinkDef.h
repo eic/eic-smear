@@ -13,6 +13,10 @@
 
 #pragma link C++ namespace erhic;
 
+// Constants
+
+#pragma link C++ global erhic::EicSmearVersionString;
+
 // Functions
 
 #pragma link C++ function BuildTree;

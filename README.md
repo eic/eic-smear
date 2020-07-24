@@ -100,7 +100,26 @@ make -j 2
 make install
 ```
 
-Detector parameterizations are developed on a different timescale and are more prone to changes by users; they have therefore been moved to https://github.com/eic/eicsmeardetectors, together with tests and examples You should head over there now and install them.
+Detector parameterizations are developed on a different timescale and
+are more prone to changes by users; they have therefore been moved to
+https://github.com/eic/eicsmeardetectors, together with tests and
+examples You should head over there now and install them.
+
+A wrapper allows to start root with libraries loaded and displays
+version information as well as the library locations.
+```
+$ eic-smear
+Using eic-smear version: 1.0.4-fix1
+Using these eic-smear libraries :
+/Users/kkauder/software/lib/libeicsmear.dylib
+/Users/kkauder/software/lib/libeicsmeardetectors.dylib
+eic-smear [0]
+```
+
+It can also be used for simple one liners:
+```
+echo 'BuildTree ("ep_hiQ2.20x250.small.txt.gz");SmearTree(BuildMatrixDetector_0_1(),"ep_hiQ2.20x250.small.root")' | eic-smear
+```
 
 ##### Notes: #####
 

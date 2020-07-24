@@ -288,6 +288,21 @@ endif()
 ##############################################################################################################
 
 ## Build executables
+
+# eic-smear interface
+add_executable(eic-smear scripts/eic-smear.cxx)
+target_link_libraries(eic-smear eicsmear )
+target_include_directories(eic-smear
+  PRIVATE
+  ${ROOT_INCLUDE_DIR}
+  )
+
+# if(${CMAKE_SYSTEM_NAME} MATCHES Linux)
+#   target_compile_options(eic-smear PUBLIC -fPIC)
+# endif()
+install(TARGETS eic-smear DESTINATION bin)
+
+
 ## pythia6:
 if ( PYTHIA6_LIBDIR )
   add_executable(compiled_runpythia

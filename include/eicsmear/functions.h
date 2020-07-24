@@ -23,6 +23,11 @@ class TLorentzVector;
 namespace erhic {
   class EventMC;
   class VirtualEventFactory;
+  /** 
+      Simple namespace-wide constant to determine the version
+  */
+  const std::string EicSmearVersionString = "1.0.4-fix1";
+
 }
 
 /**
