@@ -105,7 +105,7 @@ are more prone to changes by users; they have therefore been moved to
 https://github.com/eic/eicsmeardetectors, together with tests and
 examples You should head over there now and install them.
 
-A wrapper allows to start root with libraries loaded and displays
+A wrapper allows to start ROOT with libraries loaded and displays
 version information as well as the library locations.
 ```
 $ eic-smear
