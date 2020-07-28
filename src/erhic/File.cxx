@@ -538,9 +538,14 @@ const FileType* FileFactory::GetFile(const std::string& name) const {
 
 const FileType* FileFactory::GetFile(std::istream& is) const {
   std::string line;
+// the first non empty line in a hepmc file gives the version so
+// we save the initial istream position so we can reset it to
+// this position if we find it is a hepmc file
+  std::streampos oldpos = is.tellg();
   std::getline(is, line);
   if (line.empty())
   {
+    oldpos = is.tellg();
     std::getline(is, line);
   }
   // Use TString::ToLower() to convert the input name to all
@@ -570,6 +575,9 @@ const FileType* FileFactory::GetFile(std::istream& is) const {
     file = GetFile("sartre");
   } else if (str.Contains("hepmc")) {
     file = GetFile("hepmc");
+// put stream position back to first line so we can extract
+// the version from it
+    is.seekg (oldpos);
   }  // if
   return file;
 }
