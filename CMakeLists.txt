@@ -274,7 +274,6 @@ endif(PYTHIA6_LIBDIR)
 ## Build the library
 ## this can be improved with newer root versions
 
-# target_link_libraries(eicsmear -lz ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
 if(PYTHIA6_LIBDIR)
   target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
 else (PYTHIA6_LIBDIR)
