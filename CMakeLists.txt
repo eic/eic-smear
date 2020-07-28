@@ -293,7 +293,7 @@ endif()
 add_executable(eic-smear scripts/eic-smear.cxx)
 target_compile_features(eic-smear PUBLIC cxx_std_11)
 target_compile_options(eic-smear PRIVATE -Wall -Wextra -pedantic -g)
-target_link_libraries(eic-smear eicsmear -std=c++17 )
+target_link_libraries(eic-smear eicsmear )
 target_include_directories(eic-smear
   PRIVATE
   ${ROOT_INCLUDE_DIR}
