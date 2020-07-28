@@ -275,9 +275,9 @@ endif(PYTHIA6_LIBDIR)
 ## this can be improved with newer root versions
 
 if(PYTHIA6_LIBDIR)
-  target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve )
+  target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lz -lEG -lEGPythia6 -lEve )
 else (PYTHIA6_LIBDIR)
-  target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG )
+  target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lz -lEG )
 endif(PYTHIA6_LIBDIR)
 
 if(HepMC3_FOUND)
