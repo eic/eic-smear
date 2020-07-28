@@ -107,8 +107,9 @@ target_include_directories(eicsmear
 # Require at least c++11. Could require individual features instead too
 target_compile_features(eicsmear PUBLIC cxx_std_11)
 
+
 # Can add addtional options here
-target_compile_options(eicsmear PRIVATE -Wall -g)
+target_compile_options(eicsmear PRIVATE -Wall -Wextra -pedantic -g)
 
 # Optional sources if HepMC3 is installed
 if(HepMC3_FOUND)
@@ -290,7 +291,9 @@ endif()
 
 # eic-smear interface
 add_executable(eic-smear scripts/eic-smear.cxx)
-target_link_libraries(eic-smear eicsmear )
+target_compile_features(eic-smear PUBLIC cxx_std_11)
+target_compile_options(eic-smear PRIVATE -Wall -Wextra -pedantic -g)
+target_link_libraries(eic-smear eicsmear -std=c++17 )
 target_include_directories(eic-smear
   PRIVATE
   ${ROOT_INCLUDE_DIR}
@@ -313,6 +316,9 @@ if ( PYTHIA6_LIBDIR )
     PRIVATE
     ${ROOT_INCLUDE_DIR}
     )
+  target_compile_features(compiled_runpythia PUBLIC cxx_std_11)
+  target_compile_options(compiled_runpythia PRIVATE -Wall -Wextra -pedantic -g)
+
   
 target_link_libraries(compiled_runpythia
     eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve
