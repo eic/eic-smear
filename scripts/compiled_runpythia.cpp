@@ -22,9 +22,9 @@ void runpythia(TString outFile,
 
 int main ( int argc, char** argv){
   TString outFile;
-  int nEvents;
-  double pElectron;
-  double pProton;
+  int nEvents=0;
+  double pElectron=10;
+  double pProton=100;
   double minQ2 = 1.;
   double maxQ2 = -1.;
   int messageInterval = 1000;
