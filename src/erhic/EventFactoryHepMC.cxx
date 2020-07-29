@@ -32,6 +32,9 @@
 #include "eicsmear/erhic/ParticleIdentifier.h"
 #include "eicsmear/erhic/ParticleMC.h"
 
+#include <HepMC3/ReaderAsciiHepMC2.h>
+#include <HepMC3/ReaderAscii.h>
+
 #include <TVector3.h>
 #include <TParticlePDG.h>
 #include <TLorentzVector.h>
@@ -50,6 +53,8 @@ using std::map;
 using std::vector;
 
 namespace erhic {
+
+  int version = 0;
 
   // Use this struct to automatically reset TProcessID object count.
   struct TProcessIdObjectCount {
@@ -71,17 +76,55 @@ namespace erhic {
   bool EventFromAsciiFactory<erhic::EventHepMC>::AtEndOfEvent() const {return false;}
 
   template<>
-  void EventFromAsciiFactory<erhic::EventHepMC>::FindFirstEvent()  { /* Do nothing; the general template function skips 5 lines here.*/ }
+  void EventFromAsciiFactory<erhic::EventHepMC>::FindFirstEvent()  {
+// we (ab)use this method to find out what HepMC version we are dealing with
+// First we need to save the location in the input stream so we
+// can reset it to this position after reading the first line to get the version
+    std::streampos oldpos = mInput->tellg();
+    string line;
+    std::getline(*mInput, line);
+// The first line looks like "HepMC::Version <version>"
+// strip this, the next character is the major HepMC version
+    string toErase("HepMC::Version ");
+    size_t pos = line.find(toErase);
+    if (pos != std::string::npos)
+    {
+      // If found then erase it from string
+      line.erase(pos, toErase.length());
+    }
+    else
+    {
+      cout << "Cannot parse " << line << endl;
+      throw;
+    }
+    version = std::stoi(line.substr(0,1));
+    mInput->seekg(oldpos);
+    }
 
 
   template<>
   bool EventFromAsciiFactory<erhic::EventHepMC>::AddParticle() {
     try {
-      HepMC3::ReaderAsciiHepMC2 adapter2(*mInput);
+      HepMC3::Reader *adapter2;
+      switch (version)
+      {
+      case 2:
+      adapter2 = new HepMC3::ReaderAsciiHepMC2(*mInput);
+      break;
+      case 3:
+      adapter2 = new HepMC3::ReaderAscii(*mInput);
+      break;
+      default:
+	cout << "invalid version " << version << endl;
+	throw ;
+      }
+
       if (mEvent.get()) {
         HepMC3::GenEvent evt(HepMC3::Units::GEV,HepMC3::Units::MM);
-	adapter2.read_event(evt);
-	if ( adapter2.failed() )    return false;
+	adapter2->read_event(evt);
+	bool adapterfailed = adapter2->failed();
+	delete adapter2;
+	if ( adapterfailed ) return false;
 
 	int particleindex;
 	particleindex = 1;
