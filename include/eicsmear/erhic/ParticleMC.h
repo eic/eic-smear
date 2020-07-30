@@ -391,13 +391,17 @@ class ParticleMCbase : public VirtualParticle {
                            ///< boson in the hadron beam rest frame
   Double32_t ptVsGamma;    ///< pt w.r.t. the virtual photon in the
                            ///< hadron beam rest frame
+  Double32_t thetaGammaHCM;   ///< Angle between particle and the exchange
+                              ///< boson in the hadron-boson rest frame
+  Double32_t ptVsGammaHCM;    ///< pt w.r.t. the virtual photon in the
+                              ///< hadron boson rest frame
   Double32_t phiPrf;       ///< Azimuthal angle around virtual
                            ///< photon in hadron beam rest frame
 
   TRef event;  ///< Persistent reference to the event containing
                ///< this particle.
 
-  ClassDef(ParticleMCbase, 4)
+  ClassDef(ParticleMCbase, 5)
 };
 
 // The unfortunate consequence of adding 'eA' pointer to the ParticleMC 

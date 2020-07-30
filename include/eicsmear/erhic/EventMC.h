@@ -95,7 +95,7 @@ class EventMC : public EventDis {
    See also notes in BeamLepton().
    
    In the standard eRHIC Monte Carlo format, the exchanged boson
-   is assumed to be the third particle in the particle list.
+   is assumed to be the fourth particle in the particle list.
    */
   virtual const ParticleMC* ExchangeBoson() const;
 

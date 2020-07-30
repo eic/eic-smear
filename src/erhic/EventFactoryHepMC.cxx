@@ -77,29 +77,29 @@ namespace erhic {
 
   template<>
   void EventFromAsciiFactory<erhic::EventHepMC>::FindFirstEvent()  {
-// we (ab)use this method to find out what HepMC version we are dealing with
-// First we need to save the location in the input stream so we
-// can reset it to this position after reading the first line to get the version
+    // we (ab)use this method to find out what HepMC version we are dealing with
+    // First we need to save the location in the input stream so we
+    // can reset it to this position after reading the first line to get the version
     std::streampos oldpos = mInput->tellg();
     string line;
     std::getline(*mInput, line);
-// The first line looks like "HepMC::Version <version>"
-// strip this, the next character is the major HepMC version
+    // The first line looks like "HepMC::Version <version>"
+    // strip this, the next character is the major HepMC version
     string toErase("HepMC::Version ");
     size_t pos = line.find(toErase);
     if (pos != std::string::npos)
-    {
-      // If found then erase it from string
-      line.erase(pos, toErase.length());
-    }
+      {
+	// If found then erase it from string
+	line.erase(pos, toErase.length());
+      }
     else
-    {
-      cout << "Cannot parse " << line << endl;
-      throw;
-    }
+      {
+	cout << "Cannot parse " << line << endl;
+	throw;
+      }
     version = std::stoi(line.substr(0,1));
     mInput->seekg(oldpos);
-    }
+  }
 
 
   template<>
@@ -107,17 +107,17 @@ namespace erhic {
     try {
       HepMC3::Reader *adapter2;
       switch (version)
-      {
-      case 2:
-      adapter2 = new HepMC3::ReaderAsciiHepMC2(*mInput);
-      break;
-      case 3:
-      adapter2 = new HepMC3::ReaderAscii(*mInput);
-      break;
-      default:
-	cout << "invalid version " << version << endl;
-	throw ;
-      }
+	{
+	case 2:
+	  adapter2 = new HepMC3::ReaderAsciiHepMC2(*mInput);
+	  break;
+	case 3:
+	  adapter2 = new HepMC3::ReaderAscii(*mInput);
+	  break;
+	default:
+	  cout << "invalid version " << version << endl;
+	  throw ;
+	}
 
       if (mEvent.get()) {
         HepMC3::GenEvent evt(HepMC3::Units::GEV,HepMC3::Units::MM);
@@ -126,6 +126,18 @@ namespace erhic {
 	delete adapter2;
 	if ( adapterfailed ) return false;
 
+	// We could take all particles "in order"
+	// This isn't well defined - depends on traversal of either particles()
+	// or for (auto& v : evt.vertices() ){ for (auto& p : v->particles_out() ) {}}
+	// Then we would also have to overwrite
+	// EventMC::BeamLepton(), EventMC::BeamHadron(), EventMC::ExchangeBoson(), EventMC::ScatteredLepton().
+	// and worry about the logic when the file is used.
+
+	// Alternatively, we can enforce standard order
+	// BeamLepton, BeamHadron, ScatteredLepton, ExchangeBoson
+	// That way we only need to do this logic once.
+	// Need to keep track of daughter-mother relationship for that.
+
 	int particleindex;
 	particleindex = 1;
 	// Can't use GenParticle::children() because they don't have indices assigned yet
@@ -133,15 +145,15 @@ namespace erhic {
 	std::map < HepMC3::GenParticlePtr, int > hepmcp_index;
 	hepmcp_index.clear();
 
-	// start with the beam plus gamma* and scattered lepton
+	// start with the beam
 	// Boring determination of the order:
 	auto beams = evt.beams();
 	assert ( beams.size() == 2 );
 	auto hadron = beams.at(0); // or nucleon
 	auto lepton = beams.at(1);
 	// Find the lepton
-	auto pdgl = TDatabasePDG::Instance()->GetParticle( lepton->pdg_id() );
-	auto pdgh = TDatabasePDG::Instance()->GetParticle( hadron->pdg_id() );
+	auto pdgl = TDatabasePDG::Instance()->GetParticle( lepton->pid() );
+	auto pdgh = TDatabasePDG::Instance()->GetParticle( hadron->pid() );
 	// Sigh. TParticlePDG uses C strings for particle type. I refuse to use strcmp
 	// Could test individual pid's instead.
 	bool b0islepton = (string(pdgl->ParticleClass()) == "Lepton");
@@ -156,24 +168,19 @@ namespace erhic {
 	// careful, don't try to use pdg[lh], b[01]islepton from here on out;
 	// they don't get swapped along
 
-	// now find the scattered e and the gamma
-	// some processes (ff2ff) don't have a gamma in the event record
-	HepMC3::GenParticlePtr scatteredlepton;
-	HepMC3::GenParticlePtr photon;
-	switch ( lepton->children().size() ){
-	case 1: {
-	    scatteredlepton = lepton->children().at(0);
-	    auto photonmom = lepton->momentum() - scatteredlepton->momentum();
-	    // Note that the m^2 = Q^2 seems low -- check
-	    // 13 : incoming beam-inside-beam (e.g. gamma inside e) <-- not sure how correct for ff2ff, but we'll use it
-	    photon = std::make_shared<HepMC3::GenParticle>( photonmom, 22, 13 );
-	    photon->set_momentum(photonmom);
-	    photon->set_pid( 22 );
-	    // And add to the vertex (meaning the photon now has the lepton as a mother)
-	    scatteredlepton->production_vertex()->add_particle_out(photon);
-	    break;
+	// now find the scattered lepton and potentially the gamma
+	// some processes (ff2ff) don't have a gamma!
+	HepMC3::GenParticlePtr scatteredlepton=0;
+	HepMC3::GenParticlePtr photon=0;
+
+	// we can handle one or two only
+	if ( lepton->children().size() >2 || lepton->children().size()==0 ){
+	  cerr << "electron has " << lepton->children().size() << " daughters." << endl;
+	  throw std::runtime_error ("Wrong number of lepton daughters (should be 1 or 2).");
 	}
-	case 2:
+
+	// if one exists, it's a daughter of the beam lepton, and its sibling is the lepton (which isn't necessarily final yet though)
+	if ( lepton->children().size() == 2 ){
 	  scatteredlepton = lepton->children().at(0);
 	  photon = lepton->children().at(1);
 	  if ( scatteredlepton->pid() != 22 && photon->pid() != 22 ){
@@ -184,26 +191,60 @@ namespace erhic {
 	  if ( photon->pid() != 22 ){
 	    std::swap ( photon, scatteredlepton );
 	  }
-	  break;
-	default:
-	  cerr << "electron has " << lepton->children().size() << " daughters." << endl;
-	  throw std::runtime_error ("Wrong number of lepton daughters (should be 1 or 2).");
-	  break;
+	}
+
+	// no exchange boson
+	if ( lepton->children().size() == 1 ){
+	  scatteredlepton = lepton->children().at(0);
+
+	  // We could play games and make one up:
+	  // auto photonmom = lepton->momentum() - scatteredlepton->momentum();
+	  // photon = std::make_shared<HepMC3::GenParticle>( photonmom, 22, 13 );
+	  // photon->set_momentum(photonmom);
+	  // photon->set_pid( 22 );
+	  // // And add to the vertex (meaning the photon now has the lepton as a mother)
+	  // scatteredlepton->production_vertex()->add_particle_out(photon);
+	  // But the cleaner solution seems to be to save a 0 particle in the photon spot
+	  photon=std::make_shared<HepMC3::GenParticle>();
+	   // we'll catch this in the ParticleIdentifier
+	  photon->set_pid( 0 );
+	  photon->set_status( 0 );
+	  // Need to give a production vertex to avoid segfaulting
+	  scatteredlepton->production_vertex()->add_particle_out(photon);
+	}
+
+	// Follow the lepton
+	// Assumptions (otherwise this code will break...)
+	// - it can onlhy branch into l -> l + X, where X is not a lepton
+	// -> we can traverse children and immediately follow any lepton,
+	//    we won't miss a "second" lepton
+	// -> we can go until we run out of children, the lepton won't decay
+	//    or we can go until the status is final, the result should be the same
+	// There's no clear-cut final() method though, so we go through the end and hope!
+	auto spid = scatteredlepton->pid();
+	while ( scatteredlepton->children().size() > 0 ){
+	  for ( auto& c : scatteredlepton->children() ){
+	    if ( c->pid() == spid ){
+	      // found the correct branch,
+	      // update and break out of for loop,
+	      // resume while loop with new candidate
+	      scatteredlepton = c;
+	      break;
+	    }
+	  }
+	}
+
+	if ( scatteredlepton->pid() != lepton->pid() ){
+	  cerr << "lepton  pid = " << lepton->pid() << endl;
+	  cerr << "scattered lepton  pid = " << scatteredlepton->pid() << endl;
+	  throw std::runtime_error ("Scattered lepton pid mismatch.");
 	}
 
 	// Now add all four in the right order
-	// Typical order is
-	//   beams.SetBeamLepton(particles.at(0)->Get4Vector());
-	//   beams.SetBeamHadron(particles.at(1)->Get4Vector());
-	//   beams.SetBoson(particles.at(2)->Get4Vector());
-	//   beams.SetScatteredLepton(particles.at(3)->Get4Vector());
-	// While we don't _have_ to follow that, it makes sense to obey the convention
-	// and not reinvent the wheel
-
 	HandleHepmcParticle( lepton, hepmcp_index, particleindex, mEvent );
 	HandleHepmcParticle( hadron, hepmcp_index, particleindex, mEvent );
-	HandleHepmcParticle( photon, hepmcp_index, particleindex, mEvent );
 	HandleHepmcParticle( scatteredlepton, hepmcp_index, particleindex, mEvent );
+	HandleHepmcParticle( photon, hepmcp_index, particleindex, mEvent );
 
 	// Now go over all vertices and handle the rest.
 	// Note that by default this could double-count what we just did

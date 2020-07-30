@@ -78,6 +78,8 @@ namespace erhic {
 , xFeynman(0.)
 , thetaGamma(0.)
 , ptVsGamma(0.)
+, thetaGammaHCM(0.)
+, ptVsGammaHCM(0.)
 , phiPrf(0.)
   {
   }
@@ -157,7 +159,11 @@ void ParticleMCbase::ComputeEventDependentQuantities(EventMC& event) {
     // Get the beam hadon, beam lepton and exchange boson.
     const TLorentzVector& hadron = event.BeamHadron()->Get4Vector();
     const TLorentzVector& lepton = event.ScatteredLepton()->Get4Vector();
-    const TLorentzVector& boson = event.ExchangeBoson()->Get4Vector();
+    // Determine the exchange boson 4-vector from the scattered lepton,
+    // since we're not always guaranteed to have one (weak neutral current e.g.)
+    // const TLorentzVector& boson = event.ExchangeBoson()->Get4Vector();
+    const TLorentzVector boson = event.BeamLepton()->Get4Vector() - lepton;
+    
     // Calculate z using the 4-vector definition,
     // so we don't care about frame of reference.
     z = hadron.Dot(Get4Vector()) / hadron.Dot(boson);
@@ -180,6 +186,10 @@ void ParticleMCbase::ComputeEventDependentQuantities(EventMC& event) {
     // Use the photon to define the z direction.
     TLorentzRotation boost = computeBoost(boson + hadron, &boson);
     xFeynman = 2. * (Get4Vector() *= boost).Pz() / sqrt(event.GetW2());
+
+    thetaGammaHCM = (Get4Vector() *= boost).Theta();
+    ptVsGammaHCM =  (Get4Vector() *= boost).Pt();
+
     // Determine the PDG code of the parent particle, if the particle
     // has a parent and the parent is present in the particle array.
     // The index of the particles from the Monte Carlo runs from [1,N]
@@ -250,12 +260,12 @@ Bool_t ParticleMC::HasChild(Int_t pdg) const {
 }
 
 TLorentzVector ParticleMCbase::Get4VectorInHadronBosonFrame() const {
-  double p_(0.), e_(0.), px_(ptVsGamma), py_(0.), pz_(0.);
+  double p_(0.), e_(0.), px_(ptVsGammaHCM), py_(0.), pz_(0.);
   // Calculate mangitude of momentum from pT and polar angle in
   // hadron-boson frame. If theta is ~parallel to the beam just set
   // p to whatever pT is (not that it makes all that much sense).
-  if (thetaGamma > 1.e-6) {
-    p_ = ptVsGamma / sin(thetaGamma);
+  if (thetaGammaHCM > 1.e-6) {
+    p_ = ptVsGammaHCM / sin(thetaGammaHCM);
   }  // if
   // Deal with virtual particles later, so check if particle is off mass-shell
   if (!(m < 0.)) {
@@ -268,13 +278,13 @@ TLorentzVector ParticleMCbase::Get4VectorInHadronBosonFrame() const {
   }  // if
   // Calculate pZ from pT and theta, unless it's very close to the beam,
   // in which case set it to p.
-  if (thetaGamma > 1.e-6) {
-    pz_ = ptVsGamma / tan(thetaGamma);
+  if (thetaGammaHCM > 1.e-6) {
+    pz_ = ptVsGammaHCM / tan(thetaGammaHCM);
   }  // if
   // Calculate px and py, unless a dummy phi value is present.
   if (phiPrf > -100.) {
-    px_ = ptVsGamma * cos(phiPrf);
-    py_ = ptVsGamma * sin(phiPrf);
+    px_ = ptVsGammaHCM * cos(phiPrf);
+    py_ = ptVsGammaHCM * sin(phiPrf);
   }  // if
   // If we ended up with no energy, it's likely ths is the exchange boson,
   // as nothing will have happened above. If so, try to reference the event
@@ -293,7 +303,7 @@ TLorentzVector ParticleMCbase::Get4VectorInHadronBosonFrame() const {
         e_ = GetEvent()->GetNu();
         // Calculate p, careful about negative mass.
         p_ = sqrt(pow(e_, 2.) + pow(m, 2.));
-        pz_ = p_ * cos(thetaGamma);
+        pz_ = p_ * cos(thetaGammaHCM);
       }  // if
     }  // if
   }  // if

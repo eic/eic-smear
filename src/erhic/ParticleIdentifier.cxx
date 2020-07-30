@@ -93,10 +93,14 @@ bool ParticleIdentifier::SkipParticle(
 bool ParticleIdentifier::IsVirtualPhoton(
          const erhic::VirtualParticle& particle) const {
   const int pdg = abs(particle.Id());
+  auto status = particle.GetStatus();
+  // special case for placeholder particle in ff2ff events
+  if ( particle.GetStatus() == 0 && status ==0 ) return true;
+  
   if (pdg<22) return false;
   if (pdg>24) return false;
-  if ( particle.GetStatus() == 21 ) return true; // pythia6 et al
-  if ( particle.GetStatus() == 13 ) return true; // pythia8
+  if ( status == 21 ) return true; // pythia6 et al
+  if ( status == 13 ) return true; // pythia8
   return false;
 }
 

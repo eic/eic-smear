@@ -507,8 +507,7 @@ DisKinematics* DoubleAngleComputer::Calculate() {
   kin->mX = ComputeX();
   kin->mY = ComputeY();
   // Calculate W^2 from M^2 + (1 - x) * Q^2 / x
-  kin->mW2 = computeW2FromXQ2M(kin->mX, kin->mQ2,
-                               mEvent.BeamHadron()->GetM());
+  kin->mW2 = computeW2FromXQ2M(kin->mX, kin->mQ2, mEvent.BeamHadron()->GetM());
   return kin;
 }
 
