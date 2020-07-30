@@ -133,14 +133,15 @@ const ParticleMC* EventMC::BeamHadron() const {
 }
 
   // See header!
+const ParticleMC* EventMC::ScatteredLepton() const {
+  return GetTrack(2);
+}
+
+  // See header!
 const ParticleMC* EventMC::ExchangeBoson() const {
   return GetTrack(3);
 }
 
-  // See header!
-const ParticleMC* EventMC::ScatteredLepton() const {
-  return GetTrack(2);
-}
 
 void EventMC::Reset() {
   number = -1;

@@ -148,11 +148,12 @@ This will generate additional classes that allow creation of the
 EicTree from within the framework, bypassing the text file generation.
 More detailed documentation of this feature to follow.
 
-* ```BuildTree()``` supports HepMC2 input, if a HepMC3 installation is found by cmake. One can also pass a specific installation directory:
+* ```BuildTree()``` supports HepMC2 and HepMC3 input, if a HepMC3 installation is found by cmake. One can also pass a specific installation directory:
 ```
 cmake ../ -DCMAKE_INSTALL_PREFIX=</path/to/install> -DHepMC3=/path/to/HepMC3
 ```
-The version situation may seem a bit curious. Requiring a HepMC3 installation takes advantage of the included HepMC2 reader and is the more modern version (and paves the way for HepMC3 input support in the near future). However, HepMC2 output is still more dominant for most generators and thus reading such files was the first priority.
+The filename should contain `hepmc`, the reader determines the used
+version automatically.
 
 * For some reason, tab completion inside ROOT currently only works after
 explicitly loading the library

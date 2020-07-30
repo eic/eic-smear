@@ -1,4 +1,20 @@
 Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Thu Jul 30 11:14:44 2020 -0400
+	- Revamped HepMC reader to correctly identify the scattered
+	lepton and treat a missing gamma* gracefully
+	- In BuildTree, allow pseudo-exchange boson with
+	pid=status=P=vertex=0
+	- Changed extended kinematics calculations to use e'-e instead of
+	relying on the existence of a gamma* entry.
+	- Also, in Get4VectorInHadronBosonFrame ptVsGamma and theta now
+	calculated in Hadron Rest Frame
+
+Author: Chris Pinkenburg
+Date:   Wed Jul 29 10:42:46 2020 -0400
+    Merge pull request #5 from pinkenburg/hepmc-3
+    read hepmc2 and hepmc3 formatted files
+
+Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Fri Jul 24 13:26:17 2020 -0400
 	Added eic-smear ROOT wrapper to automatically load libraries
 	and display version information.
