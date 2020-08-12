@@ -1,4 +1,9 @@
 Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Thu Jul 30 15:27:56 2020 +0000
+	Exchange boson fixes
+	Declared v 1.1.0
+
+Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Thu Jul 30 11:14:44 2020 -0400
 	- Revamped HepMC reader to correctly identify the scattered
 	lepton and treat a missing gamma* gracefully
