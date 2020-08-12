@@ -121,6 +121,11 @@ It can also be used for simple one liners:
 echo 'BuildTree ("ep_hiQ2.20x250.small.txt.gz");SmearTree(BuildMatrixDetector_0_1(),"ep_hiQ2.20x250.small.root")' | eic-smear
 ```
 
+One some architectures and ROOT versions, ```TRint``` has an obscure
+bug that will cause segmentation faults when using ```std::cout``` and
+similar commands inside this interpreter. Use printf instead, or just
+load the libraries directly in a generic root instance. 
+
 ##### Notes: #####
 
 * If you see instances of things like
