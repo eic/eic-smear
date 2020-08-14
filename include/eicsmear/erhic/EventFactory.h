@@ -14,6 +14,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <TBranch.h>
 #include <TTree.h>
@@ -90,8 +91,12 @@ class VirtualEventFactory : public TObject {
   typedef std::pair <TString, TObject*> NamedObjects;
   std::vector<NamedObjects> mObjectsToWriteAtTheEnd;
 
+  /** Additional reader information as a name-value map.
+      Also very hacky. But should at least have small footprint
+  **/
+  std::map<std::string, std::string> mAdditionalInformation;
 
-  ClassDef(VirtualEventFactory, 2)
+  ClassDef(VirtualEventFactory, 3)
 };
 
 /**
@@ -134,11 +139,11 @@ class EventFromAsciiFactory : public VirtualEventFactory {
 
   virtual void FindFirstEvent();
 
+ protected:
   std::istream* mInput;  //!
   std::string mLine;  //!
   std::unique_ptr<T> mEvent;  //!
 
- protected:
   /**
    Returns true when an end-of-event marker is encountered in the input stream.
    */
