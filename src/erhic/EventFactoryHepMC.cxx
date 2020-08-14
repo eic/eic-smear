@@ -54,8 +54,6 @@ using std::vector;
 
 namespace erhic {
 
-  int version = 0;
-
   // Use this struct to automatically reset TProcessID object count.
   struct TProcessIdObjectCount {
     // Initialse object with current TProcessID object count.
@@ -77,54 +75,28 @@ namespace erhic {
 
   template<>
   void EventFromAsciiFactory<erhic::EventHepMC>::FindFirstEvent()  {
-    // we (ab)use this method to find out what HepMC version we are dealing with
-    // First we need to save the location in the input stream so we
-    // can reset it to this position after reading the first line to get the version
-    std::streampos oldpos = mInput->tellg();
-    string line;
-    std::getline(*mInput, line);
-    // The first line looks like "HepMC::Version <version>"
-    // strip this, the next character is the major HepMC version
-    string toErase("HepMC::Version ");
-    size_t pos = line.find(toErase);
-    if (pos != std::string::npos)
-      {
-	// If found then erase it from string
-	line.erase(pos, toErase.length());
-      }
-    else
-      {
-	cout << "Cannot parse " << line << endl;
-	throw;
-      }
-    version = std::stoi(line.substr(0,1));
-    mInput->seekg(oldpos);
+    // Just overwrite to make sure the original version isn't used (which skips 6 lines)
   }
-
 
   template<>
   bool EventFromAsciiFactory<erhic::EventHepMC>::AddParticle() {
     try {
-      HepMC3::Reader *adapter2;
-      switch (version)
-	{
-	case 2:
-	  adapter2 = new HepMC3::ReaderAsciiHepMC2(*mInput);
-	  break;
-	case 3:
-	  adapter2 = new HepMC3::ReaderAscii(*mInput);
-	  break;
-	default:
-	  cout << "invalid version " << version << endl;
-	  throw ;
-	}
 
+      string generator = mAdditionalInformation["generator"];      
+      std::shared_ptr<HepMC3::Reader> adapter;
+      if ( generator == "hepmc2" ){
+	adapter = std::make_shared<HepMC3::ReaderAsciiHepMC2>(*mInput);
+      } else if ( generator == "hepmc3" ){
+	adapter = std::make_shared<HepMC3::ReaderAscii>(*mInput);
+      } else {
+	std::cerr << "Couldn't determine or handle HepMC version "<< generator << endl;
+	throw ;
+      }
+      
       if (mEvent.get()) {
         HepMC3::GenEvent evt(HepMC3::Units::GEV,HepMC3::Units::MM);
-	adapter2->read_event(evt);
-	bool adapterfailed = adapter2->failed();
-	delete adapter2;
-	if ( adapterfailed ) return false;
+	adapter->read_event(evt);
+	if ( adapter->failed() ) return false;
 
 	// We could take all particles "in order"
 	// This isn't well defined - depends on traversal of either particles()

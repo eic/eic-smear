@@ -161,6 +161,7 @@ bool Forester::OpenInput() {
     			       " is not from a supported generator");
     }  // for
     mFactory = mFile->CreateEventFactory(*mTextFile);
+    mFactory->mAdditionalInformation["generator"]=mFile->GetGeneratorName();
     return true;
   } // Pass the exception on to be dealt with higher up the food chain.
   catch(std::exception&) {

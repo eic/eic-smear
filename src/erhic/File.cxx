@@ -480,7 +480,13 @@ LogReaderFactory::~LogReaderFactory() {
 }
 
 template<typename T>
-File<T>::File() : t_(new T) { }
+File<T>::File() : t_(new T) {
+  TString name = t_->ClassName();
+  name.ReplaceAll("erhic::", "");
+  name.ReplaceAll("Event", "");
+  name.ToLower();
+  generatorname = name.Data();
+}
 
 template<typename T>
 File<T>::~File() {
@@ -490,38 +496,20 @@ File<T>::~File() {
   }  // if
 }
 
-template<typename T>
-std::string File<T>::GetGeneratorName() const {
-  // The event class name is "EventX" where "X" is the generator
-  // name.
-  TString name = t_->ClassName();
-  name.ReplaceAll("erhic::", "");
-  name.ReplaceAll("Event", "");
-  name.ToLower();
-  return name.Data();
+std::string FileType::GetGeneratorName() const {
+    return generatorname;
+}
+  
+
+void FileType::SetGeneratorName(const std::string newname){
+  generatorname = newname;
+  for (auto & c: generatorname) c = tolower(static_cast<unsigned char>(c));
 }
 
 template<typename T>
 LogReader* File<T>::CreateLogReader() const {
   return LogReaderFactory::GetInstance().CreateReader(*t_);
 }
-/*
-template<>
-std::string File<erhic::EventHepMC>::GetGeneratorName() const {
-  // The event class name is "EventX" where "X" is the generator
-  // name.
-  TString name = t_->ClassName();
-  name.ReplaceAll("erhic::", "");
-  name.ReplaceAll("Event", "");
-  name.ToLower();
-  return name.Data();
-}
-
-template<>
-LogReader* File<erhic::EventHepMC>::CreateLogReader() const {
-  return LogReaderFactory::GetInstance().CreateReader(*t_);
-}
-*/
 
 FileFactory& FileFactory::GetInstance() {
   static FileFactory theInstance;
@@ -529,25 +517,42 @@ FileFactory& FileFactory::GetInstance() {
 }
 
 const FileType* FileFactory::GetFile(const std::string& name) const {
-  const FileType* file(NULL);
+  FileType* file(NULL);
   if (prototypes_.find(name) != prototypes_.end()) {
     file = prototypes_.find(name)->second->Create();
+    if ( TString(name).Contains("hepmc2") )file->SetGeneratorName( "hepmc2");
+    if ( TString(name).Contains("hepmc3") )file->SetGeneratorName( "hepmc3");
   }  // if
+
   return file;
 }
 
 const FileType* FileFactory::GetFile(std::istream& is) const {
   std::string line;
-// the first non empty line in a hepmc file gives the version so
-// we save the initial istream position so we can reset it to
-// this position if we find it is a hepmc file
-  std::streampos oldpos = is.tellg();
-  std::getline(is, line);
-  if (line.empty())
-  {
-    oldpos = is.tellg();
+
+  // Note: This "uses up" the first line, subsequent readers
+  // cannot use it anymore.
+  // This leaves a conundrum. The only information passed to
+  // the event factory comes from
+  //   EventFromAsciiFactory<erhic::EventHepMC>* CreateEventFactory(std::istream& is) const {
+  // return new EventFromAsciiFactory<erhic::EventHepMC>(is);}
+  // So the class only knows the stream
+  // and the Filetype.
+  // We could
+  // - template out further into erhic::EventHepMC2 and erhic::EventHepMC3
+  //   But that means either excessive code duplication or yet another level of abstract interface
+  // - reset the stream. Seekg, tellg don't work for gzstream, and close/open need the name of the file
+  //   which already this class doesnt know
+  // - use globals - no thanks
+  // - Enrich the virtual eventfactory. That seems the most unintrusive way as long as it's a generic
+  //   field meant for additional information. That's what we'll use
+
+
+  // skip empty lines (thanks, hepmc2...)
+  do {
     std::getline(is, line);
-  }
+  } while (line.empty());
+
   // Use TString::ToLower() to convert the input name to all
   // lower case.
   TString str(line);
@@ -574,10 +579,31 @@ const FileType* FileFactory::GetFile(std::istream& is) const {
   } else if (str.Contains("sartre")) {
     file = GetFile("sartre");
   } else if (str.Contains("hepmc")) {
-    file = GetFile("hepmc");
-// put stream position back to first line so we can extract
-// the version from it
-    is.seekg (oldpos);
+    // The first line looks like "HepMC::Version <version>"
+    // strip this, the next character is the major HepMC version
+    std::string toErase("HepMC::Version ");
+    size_t pos = line.find(toErase);
+    if (pos != std::string::npos) {
+      // If found then erase it from string
+      line.erase(pos, toErase.length());
+    } else {
+      std::cerr << "Cannot parse " << line << std::endl;
+      throw;
+    }
+    auto version = std::stoi(line.substr(0,1));
+    switch (version){
+    case 2 :
+      file = GetFile("hepmc2");
+      break;
+    case 3 :
+      file = GetFile("hepmc3");
+      break;
+    default :
+      std::cerr << "Unsupported HepMC version " << version << std::endl;
+      throw;
+      break;
+    }
+    
   }  // if
   return file;
 }
@@ -603,7 +629,9 @@ FileFactory::FileFactory() {
                                     new File<EventSimple>()));
   prototypes_.insert(std::make_pair("sartre",
                                     new File<EventSartre>()));
-  prototypes_.insert(std::make_pair("hepmc",
+  prototypes_.insert(std::make_pair("hepmc2",
+                                    new File<EventHepMC>()));
+  prototypes_.insert(std::make_pair("hepmc3",
                                     new File<EventHepMC>()));
 
 }
