@@ -29,13 +29,6 @@ class EventHepMC : public EventMC {
   EventHepMC();
 
   /**
-   Parses the event information from a text string.
-   
-   The string must have the following format (no newlines):
-   \verbatim
-   "0 eventnumber numTracks weight processId radiativeCorrectionFlag
-   trueX trueQ2 trueY trueT truePhi phi phiResolution reconstructedPhi"
-   \endverbatim
    dummy - the reading is done by a hepmc reader
    */
   virtual bool Parse(const std::string&) {return true;}
