@@ -443,10 +443,17 @@ class FileType : public TObject {
   virtual EventBase* AllocateEvent() const = 0;
 
   /**
-   Returns the name of the generator making this type of file.
+   Returns the name of the generator.
+      Should be entirely in lower case.
    */
-  virtual std::string GetGeneratorName() const = 0;
+  virtual std::string GetGeneratorName() const;
 
+  /**
+   Sets the name of the generator.
+   Should be entirely in lower case.
+   */
+  virtual void SetGeneratorName(const std::string newname="");
+  
   /**
    Returns a reader to process the log file corresponding to this type of file.
    */
@@ -457,7 +464,10 @@ class FileType : public TObject {
    */
   virtual VirtualEventFactory* CreateEventFactory(std::istream&) const = 0;
 
-  ClassDef(erhic::FileType, 1)
+ protected:
+    std::string generatorname;
+  
+  ClassDef(erhic::FileType, 2)
 };
 
 /*
@@ -489,13 +499,7 @@ class File : public FileType {
    Allocates an event of the type for this file.
    */
   virtual T* AllocateEvent() const;
-
-  /**
-   Returns the name of the generator.
-   Entirely in lower case.
-   */
-  virtual std::string GetGeneratorName() const;
-
+  
   /**
    Create a LogReader for this type of Monte Carlo file.
    Returns NULL if the file type is unsupported or has no LogReader
@@ -517,7 +521,7 @@ class File : public FileType {
 
   // Warning: explicitly putting the erhic:: namespace before the class
   // name doesn't seen to work for template classes.
-  ClassDef(File, 1)
+  ClassDef(File, 2)
 };
 
 template<>
@@ -541,22 +545,15 @@ class File<erhic::EventHepMC> : public FileType {
    Returns a new File object.
    */
   virtual File<erhic::EventHepMC>* Create() const {
-  return new File<erhic::EventHepMC>();
-}
-
+    return new File<erhic::EventHepMC>();
+  }
+  
   /**
-   Allocates an event of the type for this file.
+     Allocates an event of the type for this file.
    */
   virtual erhic::EventHepMC* AllocateEvent() const {
-  return new erhic::EventHepMC();
-}
-
-
-  /**
-   Returns the name of the generator.
-   Entirely in lower case.
-   */
-  virtual std::string GetGeneratorName() const {return "HepMC";}
+    return new erhic::EventHepMC();
+  }
 
   /**
    Create a LogReader for this type of Monte Carlo file.
