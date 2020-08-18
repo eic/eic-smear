@@ -18,6 +18,8 @@
 
 #include "eicsmear/smear/Smear.h"  // Definition of KinType
 
+typedef bool (*cutfunc)(const erhic::VirtualParticle&);
+
 class TString;
 
 namespace erhic {
@@ -54,6 +56,19 @@ class Acceptance {
     KinType Kin2;
     double Min;
     double Max;
+  };
+
+  // Allows any function that takes a VirtualParticle
+  // and a parameter vectior (mins and maxes, e.g.) and returns a boolean
+  class CustomCutFunction {
+    // typedef bool (*cutfunc)(const erhic::VirtualParticle& p, std::vector<double> params);
+  public:
+    virtual ~CustomCutFunction();
+    CustomCutFunction( cutfunc func);
+    // bool Contains(const erhic::VirtualParticle& p) const;
+  protected:
+    // std::vector<double> params;
+    cutfunc func;
   };
 
   /**

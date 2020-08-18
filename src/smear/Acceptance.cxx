@@ -98,6 +98,17 @@ Acceptance::CustomCut::CustomCut()
 , Max(TMath::Infinity()) {
 }
 
+Acceptance::CustomCutFunction::~CustomCutFunction() {
+}
+
+Acceptance::CustomCutFunction::CustomCutFunction( cutfunc func )
+ : func(func)
+{ }
+
+// bool Acceptance::CustomCutFunction::Contains(const erhic::VirtualParticle& p) const {
+//   return func ( p );
+// }
+  
 Acceptance::CustomCut::CustomCut(const TString& formula,
                                  double min, double max)
 : mFormula("CustomCutFormula", "0")

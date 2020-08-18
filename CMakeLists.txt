@@ -89,6 +89,7 @@ add_library(
    src/smear/Smear.cxx
    src/smear/SmearTree.cxx
    src/smear/Tracker.cxx
+   src/smear/NumSigmaPid.cxx
    )
 
 
@@ -220,6 +221,8 @@ custom_generate_root_dict( smearDict
   eicsmear/smear/Smear.h
   eicsmear/smear/Smearer.h
   eicsmear/smear/Tracker.h
+  eicsmear/smear/PID.h
+  eicsmear/smear/NumSigmaPid.h
   LINKDEF smearLinkDef.h
   OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
   INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIR}

@@ -26,7 +26,7 @@ class Event;
  A smeared Monte Carlo particle.
  */
 class ParticleMCS : public erhic::VirtualParticle {
-  //  friend class Detector; // This should be removed and all direct access replaced by getters
+
  public:
   /**
    Destructor.
@@ -44,6 +44,11 @@ class ParticleMCS : public erhic::VirtualParticle {
    Construct from an E-p 4-vector, pdg code and status code.
    */
   ParticleMCS(const TLorentzVector&, int pdg, int status);
+
+  // Let's kill all else
+  ParticleMCS(const ParticleMCS&) =delete;
+  ParticleMCS& operator=(const ParticleMCS&) =delete;
+  
 
   // ---------------
   // --- Getters ---
@@ -137,6 +142,16 @@ class ParticleMCS : public erhic::VirtualParticle {
    */
   virtual ::erhic::Pid Id() const;
 
+  /**
+     Returns the numSigma deviation of this particle
+  */
+  double GetNumSigma() const;
+
+  /**
+     Returns the numSigma deviation type (pi_k, k_p) of this particle
+  */
+  int GetNumSigmaType() const;
+
   /** should always be true for a ParticleMCS
       This replaces the brittle mechanism of checking values against 0
       If false, it should indicate an old tree was used.
@@ -150,7 +165,8 @@ class ParticleMCS : public erhic::VirtualParticle {
   virtual bool IsPzSmeared() const; //< P_z smeared?
   virtual bool IsThetaSmeared() const; //< &theta; smeared?
   virtual bool IsPhiSmeared() const; //< &phi; smeared?
-  virtual bool IsIdSmeared() const; //< pdg Id smearyed?
+  virtual bool IsIdSmeared() const; //< pdg Id smeared?
+  virtual bool IsNumSigmaSmeared() const; //< PID numSigma smeared?
 
   // ---------------
   // --- Setters ---
@@ -200,6 +216,14 @@ class ParticleMCS : public erhic::VirtualParticle {
   */
   virtual void SetId(Int_t value, const bool CheckSetSmearFlag=true);
 
+  /** Set the numSigma deviation of this particle
+  */
+  virtual void  SetNumSigma( const double d, const bool CheckSetSmearFlag=true);
+
+  /** Set the numSigma deviation type (pi_k, k_p) of this particle
+  */
+  virtual void  SetNumSigmaType( const int i);
+
   virtual void SetSmeared( bool flag=true);  //< Particle smeared
   virtual void SetESmeared( bool flag=true); //< E smeared
   virtual void SetPSmeared( bool flag=true); //< Total momentum smeared
@@ -210,6 +234,8 @@ class ParticleMCS : public erhic::VirtualParticle {
   virtual void SetThetaSmeared( bool flag=true); //< &theta; smeared
   virtual void SetPhiSmeared( bool flag=true); //< &phi; smeared
   virtual void SetIdSmeared( bool flag=true); //< pdg Id smeared
+  virtual void SetNumSigmaSmeared( bool flag=true); //< PID numSigma smeared
+  
 
   /**
    Dummy one; just need to compile;
@@ -246,26 +272,6 @@ class ParticleMCS : public erhic::VirtualParticle {
 
  protected:
 
-  /** Bit field to check the smearing status of observables.
-      uint32_t (or smaller) would work, but this class offers more functionality
-      and a level of abstraction. On a 64 bit machine, this will always use at least 8 bytes,
-      so we might as well use it all to allow for future additions.
-      Bit correspondence is defined as constants in Smear.h */
-
-  // uint32_t SmearStatus; ///< Bit field, the order of the bits is as follows: (P,Theta,Pt,Pz)
-
-  /* Bit field constants to check the smearing status of observables.*/
-  /* typedef std::bitset<64> SmearStatusType; */
-  /* static constexpr SmearStatusType kIsSmeared    = 1<<0; ///< Should always be set. Separate from older trees that read ParticleMCS::bSmearStatus as 0 */
-  /* static constexpr SmearStatusType kSmearedP     = 1<<1; ///< Momentum amplitude is smeared */
-  /* static constexpr SmearStatusType kSmearedPx    = 1<<2; ///< P_x is smeared */
-  /* static constexpr SmearStatusType kSmearedPy    = 1<<3; ///< P_y is smeared */
-  /* static constexpr SmearStatusType kSmearedPz    = 1<<4; ///< P_z is smeared */
-  /* static constexpr SmearStatusType kSmearedTheta = 1<<5; ///< &theta; is smeared */
-  /* static constexpr SmearStatusType kSmearedPhi   = 1<<6; ///< &phi; is smeared */
-  /* static constexpr SmearStatusType kSmearedE     = 1<<7; ///< E is smeared */
-  // SmearStatusType bSmearStatus;
-
   /** should always be true for a ParticleMCS
       This replaces the brittle mechanism of checking values against 0
       If false, it should indicate an old tree was used.
@@ -280,6 +286,7 @@ class ParticleMCS : public erhic::VirtualParticle {
   bool kThetaSmeared=false;
   bool kPhiSmeared=false;
   bool kIdSmeared=false;
+  bool kNumSigmaSmeared=false;
 
 
   UShort_t   status;      ///< Status code
@@ -293,7 +300,10 @@ class ParticleMCS : public erhic::VirtualParticle {
   Double32_t theta;       ///< Polar angle
   Double32_t phi;         ///< Azimuthal angle
 
-  ClassDef(Smear::ParticleMCS, 2)
+  double  numSigma;       ///< PID: nSigma deviation
+  int numSigmaType;       ///< PID: nSigma deviation type. pi_k == 1, k_p == 2. \TODO: This should be agreed upon and fixed better.
+
+  ClassDef(Smear::ParticleMCS, 3)
 };
 
 

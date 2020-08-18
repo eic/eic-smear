@@ -27,6 +27,8 @@ ParticleMCS::ParticleMCS()
 , p(0.)
 , theta(0.)
 , phi(0.)
+, numSigma( std::nan("") )
+, numSigmaType(0)
 {
 }
 
@@ -41,6 +43,8 @@ ParticleMCS::ParticleMCS(const TLorentzVector& ep, int pdg, int stat)
 , p(ep.P())
 , theta(ep.Theta())
 , phi(ep.Phi())
+, numSigma( std::nan("") )
+, numSigmaType(0)
 {
 }
 
@@ -142,6 +146,14 @@ Double_t ParticleMCS::GetRapidity() const {
     return status;
   }
 
+  double ParticleMCS::GetNumSigma() const {
+    return numSigma;
+  }
+
+  int ParticleMCS::GetNumSigmaType() const {
+    return numSigmaType;
+  }
+
   bool ParticleMCS::IsSmeared() const { return kParticleSmeared; }
   bool ParticleMCS::IsESmeared() const { return kESmeared; }
   bool ParticleMCS::IsPSmeared() const { return kPSmeared; }
@@ -152,7 +164,8 @@ Double_t ParticleMCS::GetRapidity() const {
   bool ParticleMCS::IsThetaSmeared() const { return kThetaSmeared; }
   bool ParticleMCS::IsPhiSmeared() const { return kPhiSmeared; }
   bool ParticleMCS::IsIdSmeared() const { return kIdSmeared; }
-
+  bool ParticleMCS::IsNumSigmaSmeared() const { return kNumSigmaSmeared; }
+  
   // -----------------------------------------------------------
   void ParticleMCS::SetVariable( const double z, const KinType kin) {
     switch (kin) {
@@ -231,6 +244,16 @@ Double_t ParticleMCS::GetRapidity() const {
     status = i;
   }
 
+  void ParticleMCS::SetNumSigma( const double d, const bool CheckSetSmearFlag){
+    if ( kNumSigmaSmeared && CheckSetSmearFlag ) throw std::runtime_error ("Attempting to smear numSigma twice");
+    else kNumSigmaSmeared = true;
+    numSigma = d;
+  }
+
+  void ParticleMCS::SetNumSigmaType( const int i){
+    numSigmaType = i;
+  }
+
   erhic::Pid ParticleMCS::Id() const {
     return ::erhic::Pid(id);
   }
@@ -256,5 +279,6 @@ Double_t ParticleMCS::GetRapidity() const {
   void ParticleMCS::SetThetaSmeared( bool flag) {kThetaSmeared=flag;}
   void ParticleMCS::SetPhiSmeared( bool flag) {kPhiSmeared=flag;}
   void ParticleMCS::SetIdSmeared( bool flag) {kIdSmeared=flag;}
+  void ParticleMCS::SetNumSigmaSmeared( bool flag) {kNumSigmaSmeared=flag;}
 
 }  // namespace Smear
