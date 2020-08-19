@@ -135,7 +135,7 @@ class MeasuredParticle {
       measured->SetM(pdg->Mass());
     }  // if
     std::pair<double, double> ep =
-    CalculateEnergyMomentum(particle, pdg->Mass());
+      CalculateEnergyMomentum(particle, pdg->Mass());
     TLorentzVector vec(0., 0., ep.second, ep.first);
     vec.SetTheta(particle->GetTheta());
     vec.SetPhi(particle->GetPhi());
@@ -197,7 +197,14 @@ class MeasuredParticle {
       ep.second = particle->GetP();
     } else if (particle->GetE() > 0.) {
       ep.first = particle->GetE();
-      ep.second = sqrt(pow(particle->GetE(), 2.) - pow(mass, 2.));
+      // need to catch cases where E was smeared < E
+      // Assign P=0 in this case
+      auto E = particle->GetE();
+      if ( E >= mass ){
+	ep.second = sqrt(pow(E, 2.) - pow(mass, 2.));
+      } else {
+	ep.second = 0;
+      }
     }  // if
     return ep;
   }
