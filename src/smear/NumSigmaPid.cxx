@@ -3,7 +3,7 @@
 namespace Smear {
 
   // -----------------------------------------------------------
-  NumSigmaPid::NumSigmaPid(){};
+  NumSigmaPid::NumSigmaPid(){}
   
   // -----------------------------------------------------------
   void NumSigmaPid::Smear(const erhic::VirtualParticle& prt,
@@ -51,7 +51,7 @@ namespace Smear {
   // -----------------------------------------------------------
   bool NumSigmaPid::valid (double eta, double p ) const {
     return ThePidObject->valid( eta, p);
-  };
+  }
 
   double NumSigmaPid::maxP (double eta, double numSigma, PID::type PID) const{
     return ThePidObject->maxP (eta, numSigma, PID );
@@ -63,12 +63,12 @@ namespace Smear {
 
   std::string NumSigmaPid::name() const {
     return ThePidObject->name();
-  };
+  }
 
   void NumSigmaPid::description() const{
     ThePidObject->description();
-  };
+  }
   // -----------------------------------------------------------
 
   
-};
+}
