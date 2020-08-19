@@ -1,4 +1,11 @@
 Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Wed Aug 19 12:15:11 2020 -0400
+    - Bugfix in Kinematics.cxx for the case of smeared E < mass
+    - Added experimental PID support
+    - Bugfix for gzipped HepMC2 and HepMC3 input
+    - Declared version 1.1.1
+
+Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Thu Jul 30 15:27:56 2020 +0000
 	Exchange boson fixes
 	Declared v 1.1.0
