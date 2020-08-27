@@ -71,18 +71,6 @@ namespace Smear {
     */
     void Smear(const erhic::VirtualParticle&, ParticleMCS&);
 
-    /** Set the numSigma type
-	PID::type is an enumerated constant set 
-	allowing one to choose pi-vs-k or k-vs-p etc.
-    */
-    void SetNumSigmaType( const int i );
-
-    /** Get the numSigma type
-	PID::type is an enumerated constant set 
-	allowing one to choose pi-vs-k or k-vs-p etc.
-     */
-    int GetNumSigmaType( ) const;
-
     /** Needed for TObject
      */
     NumSigmaPid* Clone(const char* = "") const;

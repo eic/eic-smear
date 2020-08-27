@@ -143,14 +143,29 @@ class ParticleMCS : public erhic::VirtualParticle {
   virtual ::erhic::Pid Id() const;
 
   /**
-     Returns the numSigma deviation of this particle
+     Returns the numSigma deviation from electron expectation
   */
-  double GetNumSigma() const;
+  double GetNumSigmaElectron() const;
 
   /**
-     Returns the numSigma deviation type (pi_k, k_p) of this particle
+     Returns the numSigma deviation from pion expectation
   */
-  int GetNumSigmaType() const;
+  double GetNumSigmaPion() const;
+
+  /**
+     Returns the numSigma deviation from proton expectation
+  */
+  double GetNumSigmaProton() const;
+
+  /**
+     Returns the numSigma deviation from kaon expectation
+  */
+  double GetNumSigmaKaon() const;
+
+  /**
+     Returns the numSigma deviation from muon expectation
+  */
+  double GetNumSigmaMuon() const;
 
   /** should always be true for a ParticleMCS
       This replaces the brittle mechanism of checking values against 0
@@ -216,13 +231,25 @@ class ParticleMCS : public erhic::VirtualParticle {
   */
   virtual void SetId(Int_t value, const bool CheckSetSmearFlag=true);
 
-  /** Set the numSigma deviation of this particle
+  /** Set the numSigma deviation from electron expectation
   */
-  virtual void  SetNumSigma( const double d, const bool CheckSetSmearFlag=true);
+  virtual void  SetNumSigmaElectron( const double d, const bool CheckSetSmearFlag=true);
 
-  /** Set the numSigma deviation type (pi_k, k_p) of this particle
+  /** Set the numSigma deviation from pion expectation
   */
-  virtual void  SetNumSigmaType( const int i);
+  virtual void  SetNumSigmaPion( const double d, const bool CheckSetSmearFlag=true);
+
+  /** Set the numSigma deviation from proton expectation
+  */
+  virtual void  SetNumSigmaProton( const double d, const bool CheckSetSmearFlag=true);
+
+  /** Set the numSigma deviation from kaon expectation
+  */
+  virtual void  SetNumSigmaKaon( const double d, const bool CheckSetSmearFlag=true);
+
+  /** Set the numSigma deviation from muon expectation
+  */
+  virtual void  SetNumSigmaMuon( const double d, const bool CheckSetSmearFlag=true);
 
   virtual void SetSmeared( bool flag=true);  //< Particle smeared
   virtual void SetESmeared( bool flag=true); //< E smeared
@@ -300,8 +327,11 @@ class ParticleMCS : public erhic::VirtualParticle {
   Double32_t theta;       ///< Polar angle
   Double32_t phi;         ///< Azimuthal angle
 
-  double  numSigma;       ///< PID: nSigma deviation
-  int numSigmaType;       ///< PID: nSigma deviation type. pi_k == 1, k_p == 2. \TODO: This should be agreed upon and fixed better.
+  double  numSigmaElectron;   ///< PID: nSigma deviation from electron expectation
+  double  numSigmaPion;       ///< PID: nSigma deviation from pion expectation
+  double  numSigmaProton;     ///< PID: nSigma deviation from proton expectation
+  double  numSigmaKaon;       ///< PID: nSigma deviation from kaon expectation
+  double  numSigmaMuon;       ///< PID: nSigma deviation from muon expectation
 
   ClassDef(Smear::ParticleMCS, 3)
 };

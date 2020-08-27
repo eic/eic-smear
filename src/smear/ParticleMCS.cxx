@@ -27,8 +27,11 @@ ParticleMCS::ParticleMCS()
 , p(0.)
 , theta(0.)
 , phi(0.)
-, numSigma( std::nan("") )
-, numSigmaType(0)
+, numSigmaElectron( std::nan("") )
+, numSigmaPion( std::nan("") )
+, numSigmaProton( std::nan("") )
+, numSigmaKaon( std::nan("") )
+, numSigmaMuon( std::nan("") )
 {
 }
 
@@ -43,8 +46,11 @@ ParticleMCS::ParticleMCS(const TLorentzVector& ep, int pdg, int stat)
 , p(ep.P())
 , theta(ep.Theta())
 , phi(ep.Phi())
-, numSigma( std::nan("") )
-, numSigmaType(0)
+, numSigmaElectron( std::nan("") )
+, numSigmaPion( std::nan("") )
+, numSigmaProton( std::nan("") )
+, numSigmaKaon( std::nan("") )
+, numSigmaMuon( std::nan("") )
 {
 }
 
@@ -146,12 +152,24 @@ Double_t ParticleMCS::GetRapidity() const {
     return status;
   }
 
-  double ParticleMCS::GetNumSigma() const {
-    return numSigma;
+  double ParticleMCS::GetNumSigmaElectron() const {
+    return numSigmaElectron;
   }
 
-  int ParticleMCS::GetNumSigmaType() const {
-    return numSigmaType;
+  double ParticleMCS::GetNumSigmaPion() const {
+    return numSigmaPion;
+  }
+
+  double ParticleMCS::GetNumSigmaProton() const {
+    return numSigmaProton;
+  }
+
+  double ParticleMCS::GetNumSigmaKaon() const {
+    return numSigmaKaon;
+  }
+
+  double ParticleMCS::GetNumSigmaMuon() const {
+    return numSigmaMuon;
   }
 
   bool ParticleMCS::IsSmeared() const { return kParticleSmeared; }
@@ -244,16 +262,36 @@ Double_t ParticleMCS::GetRapidity() const {
     status = i;
   }
 
-  void ParticleMCS::SetNumSigma( const double d, const bool CheckSetSmearFlag){
+  void ParticleMCS::SetNumSigmaElectron( const double d, const bool CheckSetSmearFlag){
     if ( kNumSigmaSmeared && CheckSetSmearFlag ) throw std::runtime_error ("Attempting to smear numSigma twice");
     else kNumSigmaSmeared = true;
-    numSigma = d;
+    numSigmaElectron = d;
   }
 
-  void ParticleMCS::SetNumSigmaType( const int i){
-    numSigmaType = i;
+  void ParticleMCS::SetNumSigmaPion( const double d, const bool CheckSetSmearFlag){
+    if ( kNumSigmaSmeared && CheckSetSmearFlag ) throw std::runtime_error ("Attempting to smear numSigma twice");
+    else kNumSigmaSmeared = true;
+    numSigmaPion = d;
   }
 
+  void ParticleMCS::SetNumSigmaProton( const double d, const bool CheckSetSmearFlag){
+    if ( kNumSigmaSmeared && CheckSetSmearFlag ) throw std::runtime_error ("Attempting to smear numSigma twice");
+    else kNumSigmaSmeared = true;
+    numSigmaProton = d;
+  }
+
+  void ParticleMCS::SetNumSigmaKaon( const double d, const bool CheckSetSmearFlag){
+    if ( kNumSigmaSmeared && CheckSetSmearFlag ) throw std::runtime_error ("Attempting to smear numSigma twice");
+    else kNumSigmaSmeared = true;
+    numSigmaKaon = d;
+  }
+
+  void ParticleMCS::SetNumSigmaMuon( const double d, const bool CheckSetSmearFlag){
+    if ( kNumSigmaSmeared && CheckSetSmearFlag ) throw std::runtime_error ("Attempting to smear numSigma twice");
+    else kNumSigmaSmeared = true;
+    numSigmaMuon = d;
+  }
+  
   erhic::Pid ParticleMCS::Id() const {
     return ::erhic::Pid(id);
   }
