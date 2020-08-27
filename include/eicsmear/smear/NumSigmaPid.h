@@ -2,7 +2,7 @@
  \file
  Declaration of base class Smear::numSigmaPid.
  
- \author    Roberto Preghenella, K. Kauder
+ \author    Tom Hemmick, K. Kauder
  \date      2020-08-17
  */
 
