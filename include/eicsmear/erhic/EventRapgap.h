@@ -25,6 +25,24 @@ class EventRapgap : public EventMC {
  public:
   virtual bool Parse(const std::string&);
 
+
+  /**  Returns a pointer to the scattered lepton in the event record.
+       This is the first (only?) particle that matches the following:
+       1) pdg code equals that of incident lepton beam.
+       2) status code is 1 i.e. it's a stable/final-state particle.
+       3) the parent is track 1 or 2
+  */
+  const ParticleMC* ScatteredLepton() const;
+
+  /**
+   Returns a pointer to the exchanged boson.   
+   It would probably be the third track, but we'll go with the first status=21 boson
+   that has particle 1 or 2 as parent
+   */
+  virtual const ParticleMC* ExchangeBoson() const;
+  
+ protected:
+
   Int_t idir;
   Int_t idisdif;
   Int_t genevent;
@@ -44,8 +62,9 @@ class EventRapgap : public EventMC {
   Double32_t phi1;
   Double32_t pt2_hat;
   Double32_t sHat;  // Partonic centre-of-mass energy
-
+      
   ClassDef(erhic::EventRapgap, 1)
+
 };
 
 }  // namespace erhic
