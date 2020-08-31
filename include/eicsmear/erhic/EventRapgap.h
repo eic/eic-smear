@@ -41,6 +41,22 @@ class EventRapgap : public EventMC {
    */
   virtual const ParticleMC* ExchangeBoson() const;
   
+  Double32_t Get_cs() const {return cs;}
+  Double32_t Get_sigma_cs() const {return sigma_cs;}
+  Double32_t Get_s() const {return s;}
+  Double32_t Get_q2() const {return q2;}
+  Double32_t Get_xgam() const {return xgam;}
+  Double32_t Get_xpr() const {return xpr;}
+  Double32_t Get_Pt_h() const {return Pt_h;}
+  Double32_t Get_t() const {return t;}
+  Double32_t Get_x_pom() const {return x_pom;}
+  Double32_t Get_sHat2() const {return sHat2;}
+  Double32_t Get_z() const {return z;}
+  Double32_t Get_x1() const {return x1;}
+  Double32_t Get_phi1() const {return phi1;}
+  Double32_t Get_pt2_hat() const {return pt2_hat;}
+  Double32_t Get_sHat() const {return sHat;}
+
  protected:
 
   Int_t idir;
@@ -63,7 +79,7 @@ class EventRapgap : public EventMC {
   Double32_t pt2_hat;
   Double32_t sHat;  // Partonic centre-of-mass energy
       
-  ClassDef(erhic::EventRapgap, 1)
+  ClassDef(erhic::EventRapgap, 2)
 
 };
 
