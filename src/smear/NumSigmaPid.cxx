@@ -10,11 +10,13 @@ namespace Smear {
 			  ParticleMCS& prtOut) {
     auto p = prt.GetP();
     auto eta = prt.GetEta();
-    // std::cout << "prt is at eta = " << eta << " p= " << p << std::endl;
+    auto pdgtruth = prt.Id().Code();
     if ( ThePidObject->valid(eta,p) ){
-      // std::cout << "--> prt is valid at eta = " << eta << " p= " << p << std::endl;
-      prtOut.SetNumSigma ( ThePidObject->numSigma(eta, p, EnumType) );
-      // std::cout << EnumType << "  " << ThePidObject->numSigma(eta, p, EnumType) << "  " << prtOut.GetNumSigma() << std::endl;
+      prtOut.SetNumSigmaElectron ( ThePidObject->numSigma(eta, p, pdgtruth, PID::kElectron) );
+      prtOut.SetNumSigmaPion     ( ThePidObject->numSigma(eta, p, pdgtruth, PID::kPion), false ); // only check/set the smearing flag the first time
+      prtOut.SetNumSigmaProton   ( ThePidObject->numSigma(eta, p, pdgtruth, PID::kProton), false );
+      prtOut.SetNumSigmaKaon     ( ThePidObject->numSigma(eta, p, pdgtruth, PID::kKaon), false );
+      prtOut.SetNumSigmaMuon     ( ThePidObject->numSigma(eta, p, pdgtruth, PID::kMuon), false );
     }
   }
   
@@ -22,30 +24,6 @@ namespace Smear {
   NumSigmaPid* NumSigmaPid::Clone(const char*) const {
     // TODO: Probably should add a proper copy ctor to hand over type etc.
     return new NumSigmaPid(*this);
-  }
-
-  // -----------------------------------------------------------
-  void NumSigmaPid::SetNumSigmaType( const int i ){    
-    switch ( i ){
-    case 0 :
-      NumSigmaType = 0;
-      EnumType = PID::pi_k;
-      break;
-    case 1 :
-      NumSigmaType = 1;
-      EnumType = PID::k_p;
-      break;
-    default :
-      std::cerr << "Unrecognized NumSigmaType " << i  << std::endl;
-      throw;
-      break;
-    }
-    
-  }
-  
-  // -----------------------------------------------------------
-  int NumSigmaPid::GetNumSigmaType( ) const {
-    return NumSigmaType;
   }
 
   // -----------------------------------------------------------

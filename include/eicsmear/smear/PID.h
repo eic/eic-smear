@@ -37,6 +37,8 @@ public:
   virtual ~PID() {}
 	
   enum type {pi_k , k_p};
+  enum Species { kElectron, kPion, kProton, kKaon, kMuon };
+  virtual double numSigma (double eta, double p, const int pdgtruth, const PID::Species reference)=0;
 
   virtual bool   valid    (double eta, double p                      )=0;
   virtual double numSigma (double eta, double p,        PID::type PID)=0;
