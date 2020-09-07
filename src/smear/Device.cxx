@@ -137,7 +137,7 @@ void Device::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
   }  // else if
   // Ensure E, p are positive definite
   out.HandleBogusValues(mSmeared);
-  if ( isnan( GetVariable (out, mSmeared ) ) ) cout << "Problem. smeared is " << smeared << " but propagated nan in " << mSmeared<< endl;
+  if ( std::isnan( GetVariable (out, mSmeared ) ) ) cout << "Problem. smeared is " << smeared << " but propagated nan in " << mSmeared<< endl;
   // std::cout << "Bye Smear" << std::endl << std::endl;
 }
 

@@ -53,7 +53,7 @@ double Bremsstrahlung::dSigmadK(double *x, double*) {
 bool Bremsstrahlung::SetupPDF() {
   double lower = mEpsilon;
   double upper = mParticle->E - mEpsilon;
-  if (upper < lower || isnan(upper) || isnan(lower)) {
+  if (upper < lower || std::isnan(upper) || std::isnan(lower)) {
     return false;
   }  // if
   mKMin = lower;
@@ -88,7 +88,7 @@ void Bremsstrahlung::SetParticle(const erhic::VirtualParticle& prt) {
 
 void Bremsstrahlung::FixParticleKinematics(ParticleMCS& prt) {
   prt.SetP(sqrt(prt.GetE() * prt.GetE() - prt.GetM() * prt.GetM()) );
-  if (prt.GetP() < 0. || isnan(prt.GetP())) prt.SetP(0.);
+  if (prt.GetP() < 0. || std::isnan(prt.GetP())) prt.SetP(0.);
   prt.SetPt( prt.GetP() * sin(prt.GetTheta() ));
   prt.SetPz( prt.GetP() * cos(prt.GetTheta() ));
 }
