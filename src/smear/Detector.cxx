@@ -181,8 +181,17 @@ ParticleMCS* Detector::Smear(const erhic::VirtualParticle& prt) const {
 	}
       } else if ( MomComponentsChanged + AngComponentsChanged != 3){
 	// - Momentum is exactly defined by three independent quantities, including theta and phi
-	cerr << "Expected 0 (excluding phi, theta) or exactly 3 ((excluding phi, theta) smeared momentum quantities." << endl;
+	cerr << "Expected 0 (excluding phi, theta) or exactly 3 (excluding phi, theta) smeared momentum quantities." << endl;
 	cerr << "For legacy smear scripts, use det.SetLegacyMode ( true );" << endl;
+	cerr << "MomComponentsChanged = " << MomComponentsChanged << endl;
+	cerr << prt.GetEta() << endl;
+	cerr << prtOut->IsPSmeared() << endl;
+	cerr << prtOut->IsPtSmeared() << endl;
+	cerr << prtOut->IsPxSmeared() << endl;
+	cerr << prtOut->IsPySmeared() << endl;
+	cerr << prtOut->IsPzSmeared() << endl;	
+	cerr << "AngComponentsChanged = " << AngComponentsChanged << endl;	
+	cerr << " pid : " << prt.Id() << endl;
 	throw std::runtime_error ("Failed consistency check in Detector::Smear()");
       } else {
 	// We now have exactly three out of P, px, py, pz, pt, phi, theta. Compute the rest.
