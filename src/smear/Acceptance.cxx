@@ -45,9 +45,13 @@ void Acceptance::AddParticle(int n) {
 
 bool Acceptance::Is(const erhic::VirtualParticle& prt) const {
   // Check for genre first (em, hadronic, any)
-  if (PGenre(prt) == 0 || (mGenre != 0 && PGenre(prt) != mGenre)) {
+  // if (PGenre(prt) == 0 || (mGenre != 0 && PGenre(prt) != mGenre)) {
+  //   return false;
+  // }  // if
+  if ( mGenre != 0 && PGenre(prt) != mGenre ) {
     return false;
   }  // if
+
   // Check if the particle charge matches the required value.
   if (mCharge != kAllCharges) { // Don't need to check if accepting all
     // Try to find the particle's charge via its TParticlePDG object.
