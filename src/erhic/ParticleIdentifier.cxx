@@ -112,7 +112,8 @@ bool ParticleIdentifier::isBeamNucleon(
   // Beam?
   if ( particle.GetParentIndex() != 0 ) return false;
   // Hadron?
-  if ( particle.Id() != 2112 && particle.Id() != 2212 ) return false; // may have to change for eA
+  if ( particle.Id() != 2112 && particle.Id() != 2212 // e+P
+       && abs(particle.Id()) < 1000000000 ) return false; // allow ions in eA
   // Beam status?
   switch (particle.GetStatus()){
   case 21 : return true;  // pythia6 et al
