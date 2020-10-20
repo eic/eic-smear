@@ -11,12 +11,26 @@ namespace Smear {
     auto p = prt.GetP();
     auto eta = prt.GetEta();
     auto pdgtruth = prt.Id().Code();
+    PID::Species pidtruth = PID::kElectron;
+    switch ( std::abs(pdgtruth) ){
+    case 11:   pidtruth = PID::kElectron; break;
+    case 211:  pidtruth = PID::kPion;     break;
+    case 2212: pidtruth = PID::kProton;   break;
+    case 321:  pidtruth = PID::kKaon;     break;
+    case 13:   pidtruth = PID::kMuon;     break;
+    default : // not a recognized species. Do nohing.
+      // Warn?
+      std::cerr << "Warning: Not a recognized PID species " << pdgtruth << std::endl;
+      return;
+    }
+
     if ( ThePidObject->valid(eta,p) ){
-      prtOut.SetNumSigmaElectron ( ThePidObject->numSigma(eta, p, pdgtruth, PID::kElectron) );
-      prtOut.SetNumSigmaPion     ( ThePidObject->numSigma(eta, p, pdgtruth, PID::kPion), false ); // only check/set the smearing flag the first time
-      prtOut.SetNumSigmaProton   ( ThePidObject->numSigma(eta, p, pdgtruth, PID::kProton), false );
-      prtOut.SetNumSigmaKaon     ( ThePidObject->numSigma(eta, p, pdgtruth, PID::kKaon), false );
-      prtOut.SetNumSigmaMuon     ( ThePidObject->numSigma(eta, p, pdgtruth, PID::kMuon), false );
+      prtOut.SetNumSigmaElectron ( ThePidObject->numSigma(eta, p, pidtruth, PID::kElectron), false );
+      prtOut.SetNumSigmaPion     ( ThePidObject->numSigma(eta, p, pidtruth, PID::kPion), false ); // only check/set the smearing flag the first time
+      prtOut.SetNumSigmaProton   ( ThePidObject->numSigma(eta, p, pidtruth, PID::kProton), false );
+      prtOut.SetNumSigmaKaon     ( ThePidObject->numSigma(eta, p, pidtruth, PID::kKaon), false );
+      prtOut.SetNumSigmaMuon     ( ThePidObject->numSigma(eta, p, pidtruth, PID::kMuon), false );      
+      
     }
   }
   
