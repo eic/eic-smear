@@ -113,10 +113,9 @@ class Device : public Smearer {
   virtual void Print(Option_t* = "") const;
 
  protected:
-  bool Init(const TString&, const TString&, int);
+  bool Init( const TString& resolutionFunction, int genre);
 
   KinType mSmeared;   ///< Smeared variable
-  TF1* mKinematicFunction;
   FormulaString* mFormula;  ///< Expression for resolution standard deviation
   std::vector<Smear::KinType> mDimensions;  ///< Variables on which smearing
                                             ///< is dependent (up to 4)

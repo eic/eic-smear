@@ -29,56 +29,43 @@ using std::endl;
 namespace Smear {
 
 
-  /// TODO: KK It seems the use of kinematicFunction is unnecessary
-  /// All it does is
-  // - create a string that identifies the smeared observable (say, phi)
-  // - create a string ("phi"), translate it to a TF1 ("x")
-  // - relate the smeared value to the observable using GetX()
-  //But this TF1 is always identity, modulo range restrictions that cause obscure errors
-bool Device::Init(const TString& kinematicFunction,
-                  const TString& resolutionFunction, int genre) {
+bool Device::Init( const TString& resolutionFunction, int genre) {
   Accept.SetGenre(genre);
-  // Use FormulaString to parse the kinematic function,
-  // though we can't use a FormulaString for the kinematic
-  // function as we need TF1 functionality.
-  FormulaString f(kinematicFunction.Data());
-  // The expression has to have exactly one variable.
-  mSmeared = f.Variables().front();
-  // Use UUID for ROOT function name to avoid instances clashing
-  mKinematicFunction = new TF1(TUUID().AsString(),
-                               f.GetString().c_str(), -1e15, 1.e16);
   // Set the resolution function.
   mFormula = new FormulaString(resolutionFunction.Data());
-  // cout << mFormula->GetString() << endl;
-  return mFormula && mKinematicFunction;
+  return mFormula;
 }
 
 Device::Device(KinType type, const TString& formula, EGenre genre)
 : mSmeared(type)
-, mKinematicFunction(NULL)
 , mFormula(NULL) {
   Accept.SetGenre(genre);
-  Init(FormulaString::GetKinName(type), formula, genre);
+  Init(formula, genre);
 }
 
 Device::Device(const TString& variable, const TString& resolution,
                EGenre genre)
 : mSmeared(kInvalidKinType)
-, mKinematicFunction(NULL)
 , mFormula(NULL) {
-  Init(variable, resolution, genre);
+
+  // Parse the "variable" string. It should have exactly one recognized KinType
+  KinType kindummy;
+  // need to make a copy since the string is destroyed
+  TString vtmp = variable;
+  int d = ParseInputFunction( vtmp, mSmeared, kindummy);
+  if (d!=1) {
+    std::cerr<< "Bad use of Device(const TString& variable, ...) constructor. Cannot parse variable" << endl;
+    throw;
+  }
+    
+  Init(resolution, genre);
 }
 
 Device::Device(const Device& that)
 : Smearer(that)
 , mSmeared(that.mSmeared)
-, mKinematicFunction(NULL)
 , mFormula(NULL)
 , mDimensions(that.mDimensions) {
-  if (that.mKinematicFunction) {
-    mKinematicFunction = static_cast<TF1*>(
-        that.mKinematicFunction->Clone(TUUID().AsString()));
-  }  // if
   if (that.mFormula) {
     mFormula = static_cast<FormulaString*>(that.mFormula->Clone());
   }  // if
@@ -88,10 +75,6 @@ Device::~Device() {
   if (mFormula) {
     delete mFormula;
     mFormula = NULL;
-  }  // if
-  if (mKinematicFunction) {
-    delete mKinematicFunction;
-    mKinematicFunction = NULL;
   }  // if
 }
 
@@ -108,7 +91,7 @@ void Device::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
   }  // for
   // Evaluate the quantity to smear and the resolution, then throw
   // a random smeared value.
-  double unsmeared = mKinematicFunction->Eval(GetVariable(prt, mSmeared));
+  double unsmeared = GetVariable(prt, mSmeared);
   double resolution = mFormula->Eval(args);
   double smeared = mDistribution.Generate(unsmeared, resolution);
   // mDistribution.Print();
@@ -122,13 +105,8 @@ void Device::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
     std::cout << "smeared " << smeared << std::endl;
     std::cout << "mSmeared " << mSmeared << std::endl;
   }
-  // mKinematicFunction->Print();
-  if ( mKinematicFunction->GetFormula()->GetExpFormula() != "x" ){
-    std::cerr << "Formula = " << mKinematicFunction->GetFormula()->GetExpFormula() << std::endl;
-    throw -1;
-  }
-  // if ( smeared < 0 || fabs(mKinematicFunction->GetX(smeared)-smeared)>1e-5 ) cout << mKinematicFunction->GetX(smeared) << " " << smeared << endl;
-  out.SetVariable(mKinematicFunction->GetX(smeared), mSmeared);
+
+  out.SetVariable(smeared, mSmeared);
   // Fix angles to the correct ranges.
   if (kTheta == mSmeared) {
     out.SetTheta ( FixTheta(out.GetTheta() ), false);
