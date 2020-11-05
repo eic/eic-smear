@@ -171,6 +171,7 @@ ParticleMCS* Detector::Smear(const erhic::VirtualParticle& prt) const {
 	// all we have to do is ensure phi and theta are explicitly smeared
 	if ( !prtOut->IsPhiSmeared() ) {
 	  cerr << "Phi always needs to be smeared (at least with sigma=0)" << endl;
+	  cerr << "eta = " << prt.GetEta() << "  pt = " << prt.GetPt() << "  Id = " << prt.Id() << endl;
 	  cerr << "For legacy smear scripts, use det.SetLegacyMode ( true );" << endl;
 	  throw std::runtime_error ("Failed consistency check in Detector::Smear()");
 	}
