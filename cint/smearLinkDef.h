@@ -49,6 +49,7 @@
 #pragma link C++ class Smear::Tracker+;
 #pragma link C++ class Smear::PlanarTracker+;
 #pragma link C++ class Smear::RadialTracker+;
+#pragma link C++ class Smear::BarrelCalo+;
 
 // typedefs
 #pragma link C++ class EventS;

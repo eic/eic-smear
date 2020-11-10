@@ -47,7 +47,6 @@ Device::Device(const TString& variable, const TString& resolution,
                EGenre genre)
 : mSmeared(kInvalidKinType)
 , mFormula(NULL) {
-
   // Parse the "variable" string. It should have exactly one recognized KinType
   KinType kindummy;
   // need to make a copy since the string is destroyed

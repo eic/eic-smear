@@ -20,6 +20,10 @@
 #include <TString.h>
 #include <TUUID.h>
 
+using std::cout;
+using std::cerr;
+using std::endl;
+
 namespace {
 
 // Valid patterns for the names of smearing function variables.
