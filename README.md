@@ -2,8 +2,8 @@
 
 ## About
 
-Documentation in the BNL Wiki
-* https://wiki.bnl.gov/eic/index.php/Monte_Carlo_and_Smearing
+Additional documentation can be found on the
+[EIC GitHub pages](https://eic.github.io/software/eicsmear.html). 
 
 Contacts
 * Alexander Kiselev <ayk@bnl.gov>
@@ -29,6 +29,7 @@ The following Monte Carlo generators are supported:
 * Sartre
 * DPMJet
 * gmc_trans
+* Additionally, HepMC2 and HepMC3 files are supported, allowing for example Pythia8 and eSTARlight output to be processed.
 
 Most of these are currently hosted at https://gitlab.com/eic/mceg.
 Please see the associated documentation for further information on
@@ -55,7 +56,13 @@ The output tree, called Smeared, will mirror the behavior of a true
 detector system, i.e. it will only contain entries for particles that
 were smeared (=measured), and only partial information if only parts
 were smeared. E. g., if only momentum is smeared, the energy field will be
-zero reflecting information gathered only by a tracker. In such a
+zero reflecting information gathered only by a tracker.
+Particles further have methods of the form
+```c++
+bool psmeared = p->IsPSmeared();
+```
+to differentiate between "not measured" and "measured as 0".
+In such a
 case, the analyzer can of course rely on the truth level, but a more
 realistic approach would be to make same kind of assumptions that one
 would have to make for a physical detector, such as assuming pion mass
