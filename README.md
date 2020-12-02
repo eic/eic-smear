@@ -278,6 +278,13 @@ not currently in use. The original Subversion repository (not up to date) is at:
  http://svn.racf.bnl.gov/svn/eic/Utilities/eic-smear/trunk eic-smear
 ```
 
+Old source tarballs are still available at
+* [Version 1.0.3](https://wiki.bnl.gov/eic/upload/Eic-smear-1.0.3.tar.bz2)
+* [Version 1.0.2](https://wiki.bnl.gov/eic/upload/Eic-smear-1.0.2.tar.bz2)
+* [Version 1.0.1](https://wiki.bnl.gov/eic/upload/Eic-smear-1.0.1.tar.bz2)
+* [Version 1.0.0](https://wiki.bnl.gov/eic/upload/Eic-smear-1.0.0.tar.bz2)
+
+
 It was configured using autoconf:
 ```sh
 autoreconf --force --install
