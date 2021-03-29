@@ -1,13 +1,13 @@
 /**
  \file
- Implementation of class Smear::BarrelCalo.
+ Implementation of class Smear::EndcapCalo.
  
  \author    Kolja Kauder
  \date      2020-11-05
  \copyright 2020 Brookhaven National Lab
  */
 
-#include "eicsmear/smear/BarrelCalo.h"
+#include "eicsmear/smear/EndcapCalo.h"
 
 #include <algorithm>
 #include <functional>
@@ -28,12 +28,11 @@ using std::endl;
 
 namespace Smear {
 
-BarrelCalo::BarrelCalo(const TString SpatialFormula, const EGenre genre,
-		       const double InnerRadius, const double OuterRadius,	   
+EndcapCalo::EndcapCalo(const TString SpatialFormula, const EGenre genre,
+		       const double Zposition,
 		       const bool Projective, const double ProjPhiAngle, const double ProjThetaAngle,
 		       const TString EResFormula)
-  : mInnerRadius(InnerRadius)
-  , mOuterRadius(OuterRadius)
+  : mZposition(Zposition)
   , mProjective(Projective)
   , mProjPhiAngle(ProjPhiAngle)
   , mProjThetaAngle(ProjThetaAngle)
@@ -48,10 +47,9 @@ BarrelCalo::BarrelCalo(const TString SpatialFormula, const EGenre genre,
   Accept.SetGenre( genre );
 }
 
-BarrelCalo::BarrelCalo(const BarrelCalo& that)
+EndcapCalo::EndcapCalo(const EndcapCalo& that)
 : Device(that)
-, mInnerRadius(that.mInnerRadius)
-, mOuterRadius(that.mOuterRadius)
+, mZposition(that.mZposition)
 , mProjective(that.mProjective)
 , mProjPhiAngle(that.mProjPhiAngle)
 , mProjThetaAngle(that.mProjThetaAngle)
@@ -63,7 +61,7 @@ BarrelCalo::BarrelCalo(const BarrelCalo& that)
 
   
 
-BarrelCalo::~BarrelCalo() {
+EndcapCalo::~EndcapCalo() {
   if (mFormula) {
     delete mFormula;
     mFormula = NULL;
@@ -74,7 +72,7 @@ BarrelCalo::~BarrelCalo() {
   }  // if
 }
 
-void BarrelCalo::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
+void EndcapCalo::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
   // Test for acceptance and do nothing if it fails.
   if (!Accept.Is(prt)) {
     return;
@@ -95,22 +93,19 @@ void BarrelCalo::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
   double spdeltaphi   = mDistribution.Generate(0, spresolution);
   double spdeltatheta = mDistribution.Generate(0, spresolution);
 
-  // adapt for (imperfect) projectivity
-  if ( mProjective ){
-    if ( mProjPhiAngle!=0 ) spdeltaphi = std::sqrt ( pow( spdeltaphi,2 ) + pow ( mRadLength*std::sin( mProjPhiAngle ),2) );
-    if ( mProjThetaAngle!=0 ) spdeltatheta = std::sqrt ( pow( spdeltatheta,2 ) + pow ( mRadLength*std::sin( mProjThetaAngle ),2) );
-  }
+  // // adapt for (imperfect) projectivity
+  // if ( mProjective ){
+  //   if ( mProjPhiAngle!=0 ) spdeltaphi = std::sqrt ( pow( spdeltaphi,2 ) + pow ( mRadLength*std::sin( mProjPhiAngle ),2) );
+  //   if ( mProjThetaAngle!=0 ) spdeltatheta = std::sqrt ( pow( spdeltatheta,2 ) + pow ( mRadLength*std::sin( mProjThetaAngle ),2) );
+  // }
 
   // truth values
   auto phitruth = GetVariable(prt, kPhi);
   auto thetatruth = GetVariable(prt, kTheta);
 
   // translate to angles
-  double deltaphi = spdeltaphi / mInnerRadius;
-  double deltatheta = pow ( std::sin(thetatruth),2)  * spdeltatheta  / mInnerRadius;
-  if ( mProjective ){
-    deltatheta = std::sin(thetatruth)  * spdeltatheta  / mInnerRadius;
-  }
+  double deltaphi = spdeltaphi / (mZposition * std::tan (thetatruth ));
+  double deltatheta = pow ( std::cos(thetatruth),2)  * spdeltatheta  / mZposition;
 
   out.SetVariable(phitruth + deltaphi, kPhi);
   out.SetPhi ( FixPhi(out.GetPhi() ), false);
@@ -120,13 +115,13 @@ void BarrelCalo::Smear(const erhic::VirtualParticle &prt, ParticleMCS &out) {
 
 }
 
-BarrelCalo* BarrelCalo::Clone(const char* /** Unused */) const {
-  return new BarrelCalo(*this);
+EndcapCalo* EndcapCalo::Clone(const char* /** Unused */) const {
+  return new EndcapCalo(*this);
 }
 
-// void BarrelCalo::Print(Option_t* /* option */) const {
+// void EndcapCalo::Print(Option_t* /* option */) const {
 //   const std::string name = FormulaString::GetKinName(mSmeared);
-//   std::cout << "BarrelCalo smearing " << name << " with sigma(" << name <<
+//   std::cout << "EndcapCalo smearing " << name << " with sigma(" << name <<
 //   ") = " << mFormula->GetInputString() << std::endl;
 // }
 

@@ -90,6 +90,7 @@ add_library(
    src/smear/SmearTree.cxx
    src/smear/Tracker.cxx
    src/smear/BarrelCalo.cxx
+   src/smear/EndcapCalo.cxx
    src/smear/NumSigmaPid.cxx
    )
 
@@ -223,6 +224,7 @@ custom_generate_root_dict( smearDict
   eicsmear/smear/Smearer.h
   eicsmear/smear/Tracker.h
   eicsmear/smear/BarrelCalo.h
+  eicsmear/smear/EndcapCalo.h
   eicsmear/smear/PID.h
   eicsmear/smear/NumSigmaPid.h
   LINKDEF smearLinkDef.h

@@ -1,14 +1,14 @@
 /**
  \file
- Declaration of class Smear::BarrelCalo.
+ Declaration of class Smear::EndcapCalo.
  
  \author    Kolja Kauder
  \date      2020-11-05
  \copyright 2020 Brookhaven National Lab
  */
 
-#ifndef INCLUDE_EICSMEAR_SMEAR_BARRELCALO_H_
-#define INCLUDE_EICSMEAR_SMEAR_BARRELCALO_H_
+#ifndef INCLUDE_EICSMEAR_SMEAR_ENDCAPCALO_H_
+#define INCLUDE_EICSMEAR_SMEAR_ENDCAPCALO_H_
 
 #include <Rtypes.h>  // For ClassDef
 
@@ -35,41 +35,43 @@ class ParticleMCS;
  https://indico.bnl.gov/event/8231/contributions/37910/attachments/28335/43607/talk_eic_yr-cal_2020_05.pdf
  plus geometric and material properties 
  */
-class BarrelCalo : public Device {
+class EndcapCalo : public Device {
  public:
   /**
    Constructor. KinType is always kE
    */
-  BarrelCalo(const TString SpatialFormula, const EGenre genre,
-	     const double InnerRadius, const double OuterRadius,	   
-	     const bool Projective=true, const double ProjPhiAngle=0, const double ProjThetaAngle=0,
+  EndcapCalo(const TString SpatialFormula, const EGenre genre,
+	     const double Zposition,
+	     const bool Projective=false, const double ProjPhiAngle=0, const double ProjThetaAngle=0,
 	     const TString EResFormula="");
 
-  // delete default device ctor
-  BarrelCalo(KinType, const TString& formula, EGenre) = delete;
+  // delete standard device ctor
+  EndcapCalo(KinType, const TString& formula, EGenre) = delete;
+
+  /** 
+      Default constructor
+  */
+ EndcapCalo() :
+  EndcapCalo ( "", kAll, 2000 ){};
+  
   
   /**
    Destructor.
    */
-  virtual ~BarrelCalo();
+  virtual ~EndcapCalo();
 
   /**
    Returns a dynamically allocated copy of this object.
    The argument is unused and is present for compatibility with
    ROOT::TObject::Clone().
    */
-  virtual BarrelCalo* Clone(const char* = "") const;
+  virtual EndcapCalo* Clone(const char* = "") const;
 
   /** Copy ctor.
       Important to have, as it's used by Clone(), and Detector uses clones, not originals
    */
-  BarrelCalo(const BarrelCalo& that);
+  EndcapCalo(const EndcapCalo& that);
 
-  /** 
-      Default constructor
-  */
- BarrelCalo() :
-  BarrelCalo ( "", kAll, 1800, 1800 ){};
   
   /**
    Smear the properties of the input particle and store the
@@ -83,24 +85,26 @@ class BarrelCalo : public Device {
   // =====================
   // R = z * tan (theta), where R = distance from z-axis (inner cylinder radius)
   // <==> theta = atan ( R / z ) == atan2 ( R ,  z ) if needed
-  // sigma := sigma_x = sigma_y = sigma_z
+  // ENDCAP: z=const
+  // theta = atan ( sqrt ( x^2 + y^2 ) /z )
+  // phi = atan ( y/x )
+  // with sigma_x = sigma_y =: sigma
 
-  // BARREL: R=const
-  // -- sigma(phi) = sigma / R
-  // -- sigma(theta) non-projective:
-  // sigma(th) = | del theta / del z | sigma
-  //           = R / (R^2 + z^2)  * sigma
-  //           = sin^2(theta) / R * sigma
+  // -- sigma( phi ) = sqrt ( (del phi / del x )^2 + (del phi / del y )^2 ) * sigma = 1/R * sigma 
+  //              = sigma / (z * tan (theta ) ) 
+    
+  // -- sigma(th) =  sqrt ( (del theta / del x )^2 + (del theta / del y )^2 ) * sigma
+  //              = z / (R^2 + z^2)  * sigma
+  //              = cos^2(theta) / z * sigma
+  // https://www.wolframalpha.com/input/?i=diff+%28+atan+%28+R%2Fz%29%2C+R%29
+  // https://www.wolframalpha.com/input/?i=simplify+%28+z+%2F+%28R%5E2%2Bz%5E2%29%2C+R+%3D+z+*+tan%28theta%29%29
+  // 
+  // However, there is uncertainty in the z direction, for non-projective endcap.
+  // again, account for by replacing sigma with sqrt( sigma^2 + (X*sin( angle ))^2)
+  // --> sigma(th) = cos^2(theta)/z * sqrt( sigma^2 + (X*sin( angle ))^2)
+  // where now angle is theta
 
-  // -- sigma(theta) projective: tower is perpendicular to trajectory, removing one sine:
-  // sigma(th) = sin(theta) / R * sigma
-  // 
-  // 
-  // -- for approximately projective cases, replace sigma with sqrt ( sigma^2 + (X*sin( angle ))^2)
-  // while this could be folded over into the constant term, the material choices matter quite a bit
-  //
-  // --> sigma ( phi )   = 1/R            *  sqrt( sigma^2 + (X*sin( angle ))^2)
-  // --> sigma ( theta ) = sin(theta) / R *  sqrt( sigma^2 + (X*sin( angle ))^2)
+
 
  protected:
 
@@ -112,10 +116,12 @@ class BarrelCalo : public Device {
 
   FormulaString* mSpatialFormula; ///< in mm; typically, something like "sqrt ( pow( 3.0, 2 ) / E + pow ( 1.0,2))"
   
-  double mInnerRadius; ///< in mm
-  double mOuterRadius=0; ///< in mm; not needed for calculations, just added for completeness
-
-  bool mProjective;         ///< projective calorimeter?
+  double mZposition; ///< in mm; can be positive or negative
+  
+  // We're currently not foreseeing projective endcaps
+  // and the functionality will not be implemented.
+  // Just using this as a placeholder for future safety
+  bool mProjective=false;         ///< projective calorimeter?
   double mProjPhiAngle=0;    ///< deviation from perfect phi projectivity in radians
   double mProjThetaAngle=0;  ///< deviation from perfect theta projectivity in radians
   
@@ -130,13 +136,13 @@ class BarrelCalo : public Device {
 
  private:
   // Assignment is not supported
-  BarrelCalo& operator=(const BarrelCalo&) { return *this; }
+  EndcapCalo& operator=(const EndcapCalo&) { return *this; }
 
   
   
-  ClassDef(Smear::BarrelCalo, 1)
+  ClassDef(Smear::EndcapCalo, 1)
 };
 
 }  // namespace Smear
 
-#endif  // INCLUDE_EICSMEAR_SMEAR_BARRELCALO_H_
+#endif  // INCLUDE_EICSMEAR_SMEAR_ENDCAPCALO_H_
