@@ -292,8 +292,8 @@ DisKinematics* LeptonKinematicsComputer::Calculate() {
       // Calculate kinematic quantities, making sure to bound
       // the results by physical limits.
       // First, Q-squared.
-      double Q2 = 2. * l.E() * scattered->GetE() *
-      (1. + cos(scattered->GetTheta()));
+      // double Q2 = 2. * l.E() * scattered->GetE() * (1. + cos(scattered->GetTheta()));
+      double Q2 = 2. * ( l.E() * scattered->GetE() +  scattered->GetP()*l.P()*cos(scattered->GetTheta()) - l.M2()*l.M2() );
       kin->mQ2 = std::max(0., Q2);
       // Find scattered lepton energy boosted to the rest
       // frame of the hadron beam. Calculate nu from this.
@@ -311,12 +311,13 @@ DisKinematics* LeptonKinematicsComputer::Calculate() {
       double y = (q.Dot(h)) / (l.Dot(h));
       if ( y<0) y=0; // kk: catching unphysical negative values.
       kin->mY = bounded(y, 0., 1.);
-      // Calculate x from Q^2 = sxy
-      double cme = (l + h).M2();
-      // double x = kin->mQ2 / kin->mY / cme;
       double x = 0;
-      if ( y>0 ) x = kin->mQ2 / kin->mY / cme;
-      if ( x<0) x=0; // kk: catching unphysically negative values.
+      // Calculate x from Q^2 = sxy
+      // double cme = (l + h).M2();
+      // if ( y>0 && cme>0 ) x = kin->mQ2 / kin->mY / cme;
+      // Calculate from x = Q^2 / ( 2 * h*q ), y = h*q / (l * h)
+      if ( y>0 ) x = kin->mQ2 / 2 / y * l.Dot(h);
+      if ( x<0 ) x=0; // kk: catching unphysically negative values.
       kin->mX = bounded(x, 0., 1.);
       kin->mW2 = computeW2FromXQ2M(kin->mX, kin->mQ2, h.M());
       // if ( y > 1 ) std::cout << " NM y = " << y << std::endl;
