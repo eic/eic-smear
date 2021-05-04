@@ -2,8 +2,8 @@
 
 ## About
 
-Documentation in the BNL Wiki
-* https://wiki.bnl.gov/eic/index.php/Monte_Carlo_and_Smearing
+Additional documentation can be found on the
+[EIC GitHub pages](https://eic.github.io/software/eicsmear.html).
 
 Contacts
 * Alexander Kiselev <ayk@bnl.gov>
@@ -29,6 +29,7 @@ The following Monte Carlo generators are supported:
 * Sartre
 * DPMJet
 * gmc_trans
+* Additionally, HepMC2 and HepMC3 files are supported, allowing for example Pythia8 and eSTARlight output to be processed.
 
 Most of these are currently hosted at https://gitlab.com/eic/mceg.
 Please see the associated documentation for further information on
@@ -55,7 +56,13 @@ The output tree, called Smeared, will mirror the behavior of a true
 detector system, i.e. it will only contain entries for particles that
 were smeared (=measured), and only partial information if only parts
 were smeared. E. g., if only momentum is smeared, the energy field will be
-zero reflecting information gathered only by a tracker. In such a
+zero reflecting information gathered only by a tracker.
+Particles further have methods of the form
+```c++
+bool psmeared = p->IsPSmeared();
+```
+to differentiate between "not measured" and "measured as 0".
+In such a
 case, the analyzer can of course rely on the truth level, but a more
 realistic approach would be to make same kind of assumptions that one
 would have to make for a physical detector, such as assuming pion mass
@@ -124,7 +131,7 @@ echo 'BuildTree ("ep_hiQ2.20x250.small.txt.gz");SmearTree(BuildMatrixDetector_0_
 One some architectures and ROOT versions, ```TRint``` has an obscure
 bug that will cause segmentation faults when using ```std::cout``` and
 similar commands inside this interpreter. Use printf instead, or just
-load the libraries directly in a generic root instance. 
+load the libraries directly in a generic root instance.
 
 ##### Notes: #####
 
@@ -185,13 +192,98 @@ doxygen/html/index.html
 ```
 You can obtain doxygen at www.doxygen.nl.
 
-## Historical note
+## Developer Notes
 
-These instructions were used in the context of an older configuration
+### Code Conventions
+
+There are clear style guidelines adhered to in the original code, for ease of maintenance and collaboration. Please adhere to all standards unless there are compelling reasons. Note that due to changing maintainers, rapid reactions to immediate issue requests, and things like replacement of deprecated and now removed features pre C++11, these guidelines aren't followed as strictly anymore. Nevertheless, please do your best.
+
+#### Naming and file structure
+Please observe the following:
+* Header files should have a ```.h``` suffix and implementation files should have a ```.cxx``` suffix (following the ROOT convention).
+* Stick to "one class, one file", or at most a few closely related classes in a single file. A file name should correspond to the class name, with declarations and definitions in separate header and implementation files. e.g. class ```MyAmazingClass``` should be declared in ```MyAmazingClass.h``` and be implemented in ```MyAmazingClass.cxx```.
+* Keep all code in an appropriate namespace e.g. ```namespace erhic``` for general EIC and Monte Carlo code, ```namespace Smear``` for smearing-specific code.
+* Files should be placed in the directory structure to match the namespace in which the code appears e.g. class ```erhic::EventDisplay``` would have its header in ```include/eicsmear/erhic/EventDisplay.h``` and its implementation in ```src/erhic/EventDisplay.cxx```.
+* All names should follow **camelCase**:
+  * Class names (and therefore filenames) and member function names are ```CapitalizedLikeThis```.
+  * Non-class function names are ```capitalizedLikeThis```.
+  * Member variable names are prefixed with a lower-case "m", and capitalized like ```mSomeMember```.
+
+### Documentation
+Make liberal use of [Doxygen](https://www.doxygen.nl/manual/docblocks.html) comments to document the code.
+HTML documentation is generated automatically from these and is part of the central [EIC Doxygen](https://eic.github.io/doxygen/) page.
+At a minimum give a brief description of each file and class, and preferably document all class methods (at least public ones).
+Ask yourself whether a new user would be able to understand the basic purpose of each class or function you write, and how to use it, by looking at the provided comments; if not, write more!
+Comments in the code at complicated or important points are encouraged to aid fellow developers.
+
+#### Coding style
+Beyond naming and file structure, coding conventions closely follow those of [Google](https://google.github.io/styleguide/cppguide.html), with a few exceptions:
+* Streams are permitted, and encouraged in preference to functions such as ```printf()``` and ```scanf()```.
+* Non-const reference function arguments are permitted.
+There is a script, [cpplint](https://github.com/cpplint/cpplint), produced by Google to check files for compliance with style guidelines.
+A (rather old) copy is included in the eicpy directory of the eic-smear distribution.
+Run this to check for code compliance before committing changes.
+It is not perfect, but catches most issues.
+cpplint accepts a ```--filter``` argument to suppress warnings of different types.
+To eliminate the exceptions to the Google style guide listed above, run cpplint as follows
+```
+ cpplint.py --filter=-runtime/references,-readability/streams MyFile.cxx
+```
+
+Some false positives that are known to occur include:
+* Complaining about ROOT- or Doxygen-style inline comments e.g. ```//!``` (ROOT) and ```///<``` (Doxygen).
+* ROOT headers will be misinterpreted as C system headers and cpplint will suggest to place them before C++ headers, but do **not** do so. The order of ```#include``` statements should be as follows:
+  1. (Only in an implementation file) the name of the corresponding header file.
+  1. C system headers.
+  1. C++ system headers.
+  1. 3rd-party package headers (but please think carefully before adding extra external dependencies to eic-smear).
+  1. ROOT headers.
+  1. eic-smear headers.
+
+While cpplint can also be instructed to filter these types of warnings, this is not recommended as one may then miss genuine errors of that type.
+
+#### Contributing
+We follow the standard (GitHub Standard Fork & Pull Request Workflow )[https://gist.github.com/Chaser324/ce0505fbed06b947d962]. Alternatively to Fork'ing, you can also request to be added to the group of contributors and create a branch for a slightly more convenient work flow.
+
+#### Versioning
+Eic-smear is versioned according to (Semantic Versioning)[https://semver.org/], with some relaxation.
+PATCH increases should never break backward compatibility. MINOR increases may make a few changes in existing smearing scripts necessary. MAJOR updates introduce significant new functionality and may seriously break backward-compatibility.
+
+
+
+
+#### Historical, **deprecated** version control and installation instructions
+
+Version control policy follows "best practices" from the SVN guide. To reiterate, as an example assume we have already released version 1.2, and are working on a new release 1.3:
+1. New work is committed to /trunk: new features, bug fixes etc.
+1. When the new release is (nearly) ready, copy /trunk to a release branch /branches/1.3 for final development version 1.3.
+1. Testing of /branches/1.3 continues in parallel with new additions to /trunk. Port fixes for bugs between the two as they are found.
+1. When testing of version 1.3 is complete, fix the new release by copying /branches/1.3 to /tags/1.3.0. *Do not modify * anything in /tags - these a fixed "snapshots" of the code.
+1. Maintain /branches/1.3 with bug fixes ported from /trunk. When enough changes are made to warrant a new release, copy /branches/1.3 to /tags/1.3.1 etc.
+
+To summarize: /trunk contains all newly added features and fixes. /branches/X.Y is the "maintenance" branch for version X.Y. /tags/X.Y.Z are fixed "snapshot" releases. /trunk and /branches/X.Y are modified, while /tags/X.Y.Z remain unchanged.
+
+Feel free to create your own personal branches whenever you want to work on new features and fixes without interfering with /trunk. To make life easier, remember to frequently port changes from /trunk to your branch, to avoid problems when merging the branch back to /trunk. Once you are finished and have ported your new features to /trunk, the personal branch can be deleted.
+
+After porting changes between /trunk and a branch with svn merge, always provide the following information in the message when you commit the change: the file or files modified; the revision from which the change came; a brief summary of the change; the source of the change. e.g.
+```
+  svn commit -m "AUTHORS: ported r3 (added list of names) from branches/1.3"
+  svn commit -m "include/eicsmear/erhic/ParticleMC.h: ported r64 (fixed bug in calculation of Feynman x) from trunk"
+```
+
+
+These installation and version control instructions were used in the context of an older configuration
 not currently in use. The original Subversion repository (not up to date) is at:
 ```
  http://svn.racf.bnl.gov/svn/eic/Utilities/eic-smear/trunk eic-smear
 ```
+
+Old source tarballs are still available at
+* [Version 1.0.3](https://wiki.bnl.gov/eic/upload/Eic-smear-1.0.3.tar.bz2)
+* [Version 1.0.2](https://wiki.bnl.gov/eic/upload/Eic-smear-1.0.2.tar.bz2)
+* [Version 1.0.1](https://wiki.bnl.gov/eic/upload/Eic-smear-1.0.1.tar.bz2)
+* [Version 1.0.0](https://wiki.bnl.gov/eic/upload/Eic-smear-1.0.0.tar.bz2)
+
 
 It was configured using autoconf:
 ```sh
