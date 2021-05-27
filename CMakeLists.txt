@@ -32,8 +32,10 @@ set(
    ${CMAKE_SOURCE_DIR}/cmake/
    )
 
-# Need ROOT first to define some macros
-find_package(ROOT 6.10 REQUIRED)
+ # Need ROOT first to define some macros
+ # 6.16 _should_ be sufficient, but I couldn't test it
+ # Anything before that needs special cmake attention for dictionary generation
+find_package(ROOT 6.18 REQUIRED)
 
 # Is HepMC available?
 find_package(HepMC3 QUIET HINTS ${HepMC3_DIR} ${HepMC3} )
