@@ -32,8 +32,10 @@ set(
    ${CMAKE_SOURCE_DIR}/cmake/
    )
 
-# Need ROOT first to define some macros
-find_package(ROOT 6.10 REQUIRED)
+ # Need ROOT first to define some macros
+ # 6.16 _should_ be sufficient, but I couldn't test it
+ # Anything before that needs special cmake attention for dictionary generation
+find_package(ROOT 6.18 REQUIRED)
 
 # Is HepMC available?
 find_package(HepMC3 QUIET HINTS ${HepMC3_DIR} ${HepMC3} )
@@ -101,7 +103,7 @@ target_include_directories(eicsmear
 
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/cint
-  ${ROOT_INCLUDE_DIR}
+  ${ROOT_INCLUDE_DIRS}
   )
 
 
@@ -142,7 +144,18 @@ message ( "---- You can specify a HepMC3 installation using \"-DHepMC3=[path/to/
 # I tried my best to pull the include directories out of the target
 # but it chokes on $<INSTALL_INTERFACE>,   $<BUILD_INTERFACE>
 # so we're passing them by hand
-include( custom_generate_root_dict )
+# include( custom_generate_root_dict )
+# Get the generate dictionary command from ROOT
+
+if(ROOT_VERSION VERSION_LESS 6.20)
+  include("${ROOT_DIR}/modules/RootNewMacros.cmake")
+else()
+  include("${ROOT_DIR}/RootMacros.cmake")
+endif()
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+# include_directories("${CMAKE_CURRENT_SOURCE_DIR}/")
+# include_directories(${ROOT_INCLUDE_DIRS})
 
 
 # Main eRHIC dictionary.
@@ -180,7 +193,7 @@ set(
 set( ERHIC_INCPATHS
   ${CMAKE_SOURCE_DIR}/include
   ${CMAKE_SOURCE_DIR}/cint
-  ${ROOT_INCLUDE_DIR}
+  ${ROOT_INCLUDE_DIRS}
   )
 
 if(HepMC3_FOUND)
@@ -194,15 +207,16 @@ if(HepMC3_FOUND)
     )
 endif()
    
-custom_generate_root_dict( erhicDict
-  ${ERHIC_HEADERS}
-  LINKDEF LinkDef.h
-  OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
-  INCPATH ${ERHIC_INCPATHS}
+ROOT_GENERATE_DICTIONARY( erhicDict
+  NODEPHEADERS ${ERHIC_HEADERS}
+  LINKDEF cint/LinkDef.h
+  # OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
+  # INCPATH ${ERHIC_INCPATHS}
   )
 
 # Smearing code dictionary.
-custom_generate_root_dict( smearDict
+ROOT_GENERATE_DICTIONARY( smearDict
+  NODEPHEADERS
   eicsmear/smear/Acceptance.h
   eicsmear/smear/Bremsstrahlung.h
   eicsmear/smear/Detector.h
@@ -223,9 +237,9 @@ custom_generate_root_dict( smearDict
   eicsmear/smear/Tracker.h
   eicsmear/smear/PID.h
   eicsmear/smear/NumSigmaPid.h
-  LINKDEF smearLinkDef.h
-  OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
-  INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIR}
+  LINKDEF cint/smearLinkDef.h
+  # OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
+  # INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIRS}
   )
 
 ## Build PYTHIA6-dependent functionality if a library directory was specified.
@@ -235,25 +249,27 @@ if(PYTHIA6_LIBDIR)
   message ( "-- PYTHIA6_LIBDIR specified --> Adding PYTHIA sources and headers" )
 
   # Create the pythia dictionary.
-  custom_generate_root_dict( pythiaDict
+  ROOT_GENERATE_DICTIONARY( pythiaDict
+    NODEPHEADERS
     eicsmear/erhic/Pythia6.h
     eicsmear/erhic/Pythia6EventBuilder.h
     eicsmear/erhic/Pythia6ParticleBuilder.h
-    LINKDEF LinkDefPythia.h
-    OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
-    INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIR}
+    LINKDEF cint/LinkDefPythia.h
+    # OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
+    # INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIRS}
   )
   
   # Create the hadronic dictionary.
-  custom_generate_root_dict( hadronicDict
+  ROOT_GENERATE_DICTIONARY( hadronicDict
+    NODEPHEADERS
     eicsmear/hadronic/EventMC.h
     eicsmear/hadronic/EventPythia.h
     eicsmear/hadronic/ParticleMC.h
     eicsmear/hadronic/Pythia6EventFactory.h
     eicsmear/hadronic/EventSmear.h
-    LINKDEF hadronicLinkDef.h
-    OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
-    INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIR}
+    LINKDEF cint/hadronicLinkDef.h
+    # OPTIONS -rml libeicsmear -rmf libeicsmear.rootmap -s libeicsmear -multiDict
+    # INCPATH ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/cint ${ROOT_INCLUDE_DIRS}
     )
   
   # Additional PYTHIA-related and hadronic source files
@@ -299,7 +315,7 @@ target_compile_options(eic-smear PRIVATE -Wall -Wextra -pedantic -g)
 target_link_libraries(eic-smear eicsmear )
 target_include_directories(eic-smear
   PRIVATE
-  ${ROOT_INCLUDE_DIR}
+  ${ROOT_INCLUDE_DIRS}
   )
 
 # if(${CMAKE_SYSTEM_NAME} MATCHES Linux)
@@ -317,7 +333,7 @@ if ( PYTHIA6_LIBDIR )
 
   target_include_directories(compiled_runpythia
     PRIVATE
-    ${ROOT_INCLUDE_DIR}
+    ${ROOT_INCLUDE_DIRS}
     )
   target_compile_features(compiled_runpythia PUBLIC cxx_std_11)
   target_compile_options(compiled_runpythia PRIVATE -Wall -Wextra -pedantic -g)
@@ -359,9 +375,10 @@ INSTALL(FILES ${CMAKE_SOURCE_DIR}/include/eicsmear/functions.h
   )
 
 INSTALL(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/libeicsmear_erhicDict_rdict.pcm
-  ${CMAKE_CURRENT_BINARY_DIR}/libeicsmear_smearDict_rdict.pcm
-  ${CMAKE_CURRENT_BINARY_DIR}/libeicsmear.rootmap
+  ${CMAKE_CURRENT_BINARY_DIR}/liberhicDict_rdict.pcm
+  ${CMAKE_CURRENT_BINARY_DIR}/libsmearDict_rdict.pcm
+  ${CMAKE_CURRENT_BINARY_DIR}/liberhicDict.rootmap
+  ${CMAKE_CURRENT_BINARY_DIR}/libsmearDict.rootmap
   DESTINATION lib
   )
 
@@ -370,8 +387,10 @@ if(PYTHIA6_LIBDIR)
     DESTINATION include/eicsmear
     )
   INSTALL(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/libeicsmear_pythiaDict_rdict.pcm
-    ${CMAKE_CURRENT_BINARY_DIR}/libeicsmear_hadronicDict_rdict.pcm
+    ${CMAKE_CURRENT_BINARY_DIR}/libpythiaDict_rdict.pcm
+    ${CMAKE_CURRENT_BINARY_DIR}/libhadronicDict_rdict.pcm
+    ${CMAKE_CURRENT_BINARY_DIR}/libpythiaDict.rootmap
+    ${CMAKE_CURRENT_BINARY_DIR}/libhadronicDict.rootmap
     DESTINATION lib
   )
 

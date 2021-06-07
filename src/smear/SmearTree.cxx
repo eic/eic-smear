@@ -58,17 +58,18 @@ int SmearTree(const Smear::Detector& detector, const TString& inFileName,
   std::unique_ptr<erhic::VirtualEventFactory> builder;
   // Need to determine the type of object in the tree to choose
   // the correct smeared event builder.
-  TClass branchClass(mcTree->GetBranch("event")->GetClassName());
-  if (branchClass.InheritsFrom("erhic::EventDis")) {
+  // TClass branchClass(mcTree->GetBranch("event")->GetClassName());
+  TClass* branchClass = TClass::GetClass(mcTree->GetBranch("event")->GetClassName());
+  if (branchClass->InheritsFrom("erhic::EventDis")) {
     builder.reset(new Smear::EventDisFactory(detector,
                                              *(mcTree->GetBranch("event"))));
 #ifdef WITH_PYTHIA6
-  } else if (branchClass.InheritsFrom("erhic::hadronic::EventMC")) {
+  } else if (branchClass->InheritsFrom("erhic::hadronic::EventMC")) {
     builder.reset(new Smear::HadronicEventBuilder(detector,
                                              *(mcTree->GetBranch("event"))));
 #endif
   } else {
-    std::cerr << branchClass.GetName() << " is not supported for smearing" <<
+    std::cerr << branchClass->GetName() << " is not supported for smearing" <<
     std::endl;
   }  // if
   // Open the output file.
