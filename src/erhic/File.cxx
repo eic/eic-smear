@@ -22,6 +22,7 @@
 #include "eicsmear/erhic/EventGmcTrans.h"
 #include "eicsmear/erhic/EventHepMC.h"
 #include "eicsmear/erhic/EventSimple.h"
+#include "eicsmear/erhic/EventDEMP.h"
 #include "eicsmear/erhic/EventSartre.h"
 
 
@@ -409,6 +410,8 @@ LogReader* LogReaderFactory::CreateReader(std::istream& is) const {
     reader = CreateReader("milou");
   } else if (str.Contains("simple")) {
     reader = CreateReader("simple");
+   } else if (str.Contains("demp")) {
+    reader = CreateReader("demp");
   } else if (str.Contains("sartre")) {
     reader = CreateReader("sartre");
   }  // if
@@ -576,6 +579,8 @@ const FileType* FileFactory::GetFile(std::istream& is) const {
     file = GetFile("dpmjet");
   } else if (str.Contains("simple")) {
     file = GetFile("simple");
+  } else if (str.Contains("demp")) {
+    file = GetFile("demp");
   } else if (str.Contains("sartre")) {
     file = GetFile("sartre");
   } else if (str.Contains("hepmc")) {
@@ -627,6 +632,8 @@ FileFactory::FileFactory() {
                                     new File<EventGmcTrans>()));
   prototypes_.insert(std::make_pair("simple",
                                     new File<EventSimple>()));
+  prototypes_.insert(std::make_pair("demp",
+                                    new File<EventDEMP>()));
   prototypes_.insert(std::make_pair("sartre",
                                     new File<EventSartre>()));
   prototypes_.insert(std::make_pair("hepmc2",

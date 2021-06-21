@@ -66,6 +66,7 @@ add_library(
    src/erhic/EventPythia.cxx
    src/erhic/EventRapgap.cxx
    src/erhic/EventSimple.cxx
+   src/erhic/EventDEMP.cxx
    src/erhic/EventSartre.cxx
    src/erhic/File.cxx
    src/erhic/Forester.cxx
@@ -174,6 +175,7 @@ set(
   eicsmear/erhic/EventPythia.h
   eicsmear/erhic/EventRapgap.h
   eicsmear/erhic/EventSimple.h
+  eicsmear/erhic/EventDEMP.h
   eicsmear/erhic/EventSartre.h
   eicsmear/erhic/EventHepMC.h
   eicsmear/erhic/File.h
