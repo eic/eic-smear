@@ -1,3 +1,8 @@
+Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Tue Jun 22 12:19:14 2021 -0400
+	Added Sartre methods for scattered lepton and exchange boson
+	Declared version 1.1.6
+
 Author: Wenliang (Bill) Li <wenliang.billlee@gmail.com>
 Date:   Mon May 21 17:27:00 2021 -0400
     Implemented DEMP Event Reader. Simple Event Reader with weight tracked
