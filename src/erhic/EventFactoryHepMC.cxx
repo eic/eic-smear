@@ -26,6 +26,7 @@
 #include "eicsmear/erhic/EventPepsi.h"
 #include "eicsmear/erhic/EventGmcTrans.h"
 #include "eicsmear/erhic/EventSimple.h"
+#include "eicsmear/erhic/EventDEMP.h"
 #include "eicsmear/erhic/EventSartre.h"
 #include "eicsmear/functions.h"  // For getFirstNonBlank()
 #include "eicsmear/erhic/Kinematics.h"

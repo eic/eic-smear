@@ -26,6 +26,7 @@
 #include "eicsmear/erhic/EventPepsi.h"
 #include "eicsmear/erhic/EventGmcTrans.h"
 #include "eicsmear/erhic/EventSimple.h"
+#include "eicsmear/erhic/EventDEMP.h"
 #include "eicsmear/erhic/EventSartre.h"
 #include "eicsmear/functions.h"  // For getFirstNonBlank()
 #include "eicsmear/erhic/Kinematics.h"
@@ -217,6 +218,7 @@ namespace {
   erhic::EventFromAsciiFactory<erhic::EventPythia> ep;
   erhic::EventFromAsciiFactory<erhic::EventGmcTrans> eg;
   erhic::EventFromAsciiFactory<erhic::EventSimple> es;
+  erhic::EventFromAsciiFactory<erhic::EventDEMP> edp;
   erhic::EventFromAsciiFactory<erhic::EventSartre> esa;
   erhic::EventFromAsciiFactory<erhic::EventBeagle> eb;
 

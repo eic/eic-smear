@@ -46,6 +46,7 @@
 #pragma link C++ class erhic::EventMilou+;
 #pragma link C++ class erhic::EventGmcTrans+;
 #pragma link C++ class erhic::EventSimple+;
+#pragma link C++ class erhic::EventDEMP+;
 #pragma link C++ class erhic::EventSartre+;
 
 // Event building
@@ -61,6 +62,7 @@
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventPythia>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventGmcTrans>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventSimple>+;
+#pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventDEMP>+;
 #pragma link C++ class erhic::EventFromAsciiFactory<erhic::EventSartre>+;
 #pragma link C++ class erhic::EventMCFilterABC+;
 
@@ -78,6 +80,7 @@
 #pragma link C++ class erhic::LogReaderMilou+;
 #pragma link C++ class erhic::LogReaderGmcTrans+;
 #pragma link C++ class erhic::File<erhic::EventSimple>+;
+#pragma link C++ class erhic::File<erhic::EventDEMP>+;
 #pragma link C++ class erhic::File<erhic::EventSartre>+;
 #pragma link C++ class erhic::LogReaderFactory;
 
