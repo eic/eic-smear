@@ -40,10 +40,9 @@ using HepMC3::GenVertexPtr;
 
 
 /**
- This is an example function to generate ROOT files.
- It can be used "out of the box".
- If more control over the output is desired, then the settings of the
- Forester can be tweaked to do so.
+ This function converts our tree format to HepMC3
+ It would be better to skip the ROOT step, but that
+ would require a lot of duplication and/or refactorization
  */
 Long64_t TreeToHepMC(const std::string& inputFileName,
 		     const std::string& outputDirName,
@@ -88,8 +87,10 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   if (branchClass->InheritsFrom("erhic::EventDis")) {
     generatorname.ReplaceAll("erhic::Event","");
   } else {
-    cerr << branchClass->GetName() << " is not supported for smearing" << endl;
+    cerr << branchClass->GetName() << " is not supported." << endl;
+    return -1;
   }  // if
+
   if (branchClass->InheritsFrom("erhic::EventBeagle")) {
     cout << "BeAGLE input is currently not supported (can't fix mother-daughter structure yet)" << endl;
     return -1;    
@@ -116,8 +117,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   // cross-section et al are stored as special strings
   // We don't have incremental information, so attach the full info to the header
   // instead of using HepMC3::GenCrossSection
-  // The super set, not all generators supply all of these
   // crossSection is in mbarn!
+  // The super set, not all generators supply all of these
   std::vector <string> RunAttributes = {"crossSection", "crossSectionError", "nEvents", "nTrials" };
   for ( auto att : RunAttributes ){
     TObjString* ObjString(nullptr);
@@ -220,7 +221,6 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	  auto pN = child->GetParentIndex1();
 	  if ( p1>pN ) std::swap(p1,pN);
 	  if ( p1==0 && pN==0 ){ // child erroneously believes to be motherless
-	    // cout << "hello0" << endl;
 	    child->SetParentIndex( myindex );
 	  } else if ( p1==0 ) { // We are the only parent, is it correctly assigned?
 	    if ( pN != myindex ){
@@ -306,10 +306,9 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       // This may need to be decided on a generator-by-generator basis
       // We can assume final particles already have status 1, because that's
       // what EventMC::FinalState uses (and it's not overridden in existing classes)
-      // CHECK: Do we need to assign 4 by hand or is that automatic from calling them beam particles?
 
       // Catch decayed leptons and hadrons
-      if ( t>3){     // Ignore the beam
+      if ( t>3 ){     // Ignore the beam
 	if (inParticle->GetNChildren() != 0 ){ // ignore final particles
 	  auto pdg = TDatabasePDG::Instance()->GetParticle( inParticle->Id() );
 	  if ( pdg ){ // ignore unknown particles (e.g. pomerons, ions)
