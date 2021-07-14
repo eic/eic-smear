@@ -20,6 +20,7 @@
 // Functions
 
 #pragma link C++ function BuildTree;
+#pragma link C++ function TreeToHepMC;
 
 // Particle classes
 
