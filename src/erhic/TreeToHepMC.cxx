@@ -351,10 +351,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 
     auto boson=inEvent->ExchangeBoson();
     int index_boson = boson->GetIndex();
-    if ( index_boson !=4 ) std::cout << "Warning: Found ExchangeBoson at " << index_boson << endl;
-    if ( boson->GetParentIndex() != index_lepton && boson->GetParentIndex1() != index_lepton ){
-      std::cout << "Warning: ExchangeBoson doesn't recognize the beam as its mother " << endl;
-    }
+    // This happens in Sartre who puts the boson at 3
+    // if ( index_boson !=4 ) std::cout << "Warning: Found ExchangeBoson at " << index_boson << endl;
+    // if ( boson->GetParentIndex() != index_lepton && boson->GetParentIndex1() != index_lepton ){
+    //   // This is common for Sartre, and any others that treat the boson like the beam
+    //   std::cout << "Warning: ExchangeBoson doesn't recognize the beam as its mother " << endl;
+    // }
     auto hep_boson = hepevt_particles.at( index_boson-1);
     // if needed / desired, could force hep_boson->set_status(4);
 
