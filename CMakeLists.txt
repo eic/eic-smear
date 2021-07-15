@@ -117,6 +117,7 @@ if(HepMC3_FOUND)
   target_sources( eicsmear
     PRIVATE
     src/erhic/EventFactoryHepMC.cxx
+    src/erhic/TreeToHepMC.cxx
     )
   target_include_directories(eicsmear
     PRIVATE

@@ -56,12 +56,20 @@ double computeHermesPhiH(const TLorentzVector& hadronInPrf,
 
 /**
  \fn
- Function for generating a ROOT TTree file from a plain-text Monte Carl file.
+ Function for generating a ROOT TTree file from a plain-text Monte Carlo file.
  */
 Long64_t BuildTree(const std::string& inputFileName,
                    const std::string& outputDirName = ".",
                    const Long64_t maxEvent = 0,
                    const std::string& logFileName = "");
+
+/**
+ \fn
+ Function for generating a HepMC file from en EICTree ROOT file.
+ */
+Long64_t TreeToHepMC(const std::string& inputFileName,
+		     const std::string& outputDirName = ".",
+		     Long64_t maxEvent = 0);
 
 /**
  Produces a DOT file describing the particle content of the event.

@@ -141,7 +141,7 @@ Error in cling::AutoloadingVisitor::InsertIntoAutoloadingState:
    Missing FileEntry for eicsmear/smear/Smear.h
    requested to autoload type erhic::VirtualParticle
 ```
-please ```setenv``` or ```export``` the environment variable ROOT_INCLUDE_PATH to point to the include directory in your installation. It should no longer be necessary with recent build improvements, but for ROOT versions above 6.20, the necessity returns.
+please ```setenv``` or ```export``` the environment variable ```ROOT_INCLUDE_PATH``` to point to the include directory in your installation. It should no longer be necessary with recent build improvements, but for ROOT versions above 6.20, the necessity returns.
 
 * If building at BNL, you can get ROOT6 in the following manner
 ```
@@ -166,6 +166,10 @@ cmake ../ -DCMAKE_INSTALL_PREFIX=</path/to/install> -DHepMC3=/path/to/HepMC3
 ```
 The filename should contain `hepmc`, the reader determines the used
 version automatically.
+
+* A recently added script ```TreeToHepMC()``` can be used to transform
+our ROOT trees to HepMC3 format.  TObjStrings for cross section etc. are saved in the RunInfo, all event generator-specific variables are saved in the event info. Parent-child relationships are repaired/reserved as much as possible, motherless particles get attached to the exchange boson.
+
 
 * For some reason, tab completion inside ROOT currently only works after
 explicitly loading the library
