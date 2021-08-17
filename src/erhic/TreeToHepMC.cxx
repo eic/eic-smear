@@ -37,6 +37,8 @@ using HepMC3::GenParticle;
 using HepMC3::GenParticlePtr;
 using HepMC3::GenVertex;
 using HepMC3::GenVertexPtr;
+using HepMC3::GenCrossSection;
+using HepMC3::GenCrossSectionPtr;
 
 
 /**
@@ -115,16 +117,30 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   run->set_weight_names(wnames);
   
   // cross-section et al are stored as special strings
-  // We don't have incremental information, so attach the full info to the header
-  // instead of using HepMC3::GenCrossSection
-  // crossSection is in mbarn!
+  // We don't have incremental information, so attach the full info to the header.
+  // Need to also use HepMC3::GenCrossSection for rivet
+  // Christian Bierlich recommends just using the same for each event
+
+  // crossSection is in mbarn! Converting to HepMC's pb standard
   // The super set, not all generators supply all of these
+  double crossSection = 1.0;
+  double crossSectionError = 0.0;
+  // could also record  accepted_events and attempted_events
+  
   std::vector <string> RunAttributes = {"crossSection", "crossSectionError", "nEvents", "nTrials" };
   for ( auto att : RunAttributes ){
     TObjString* ObjString(nullptr);
     inFile.GetObject(att.c_str(), ObjString);
     if (ObjString) {
       double value = std::atof(ObjString->String());
+      if ( att == "crossSection" ) {
+	value *=1e9;
+	crossSection = value;
+      }
+      if ( att == "crossSectionError" ){
+	value *=1e9;
+	crossSectionError = value;
+      }
       cout << " Adding to the header: " << att << "  " << value << endl;
       run->add_attribute( att, std::make_shared<HepMC3::DoubleAttribute>( value )) ;
     }
@@ -158,6 +174,11 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     hepmc3evt.set_event_number(i);
     hepmc3evt.weights().clear();
     hepmc3evt.weights().push_back(1.0);
+
+    // attach cross section in pb
+    GenCrossSectionPtr xsec = std::make_shared<GenCrossSection>();
+    xsec->set_cross_section( crossSection, crossSectionError);
+    hepmc3evt.set_cross_section(xsec);
 
     // Go through event-wise variables
     // Leaves -> particles but also generator-specific variables
