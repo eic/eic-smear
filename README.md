@@ -133,6 +133,36 @@ bug that will cause segmentation faults when using ```std::cout``` and
 similar commands inside this interpreter. Use printf instead, or just
 load the libraries directly in a generic root instance.
 
+
+#### Creation of HepMC3 output ####
+eic-smear's ROOT trees can be converted to HepMC3 output using the `TreeToHepMC`
+macro, e.g.:
+```
+$ eic-smear
+Using eic-smear version: 1.1.7
+Using these eic-smear libraries :
+/Users/kkauder/software/lib/libeicsmear.dylib
+/Users/kkauder/software/lib/libeicsmeardetectors.dylib
+eic-smear [0] BuildTree("pythia6.txt")
+eic-smear [1] TreeToHepMC("pythia6.root")
+```
+or
+```
+$ echo 'BuildTree("pythia6.txt"); TreeToHepMC("pythia6.root")' | eic-smear
+
+```
+In its current form, BeAGLE input is not yet supported for the converter due to
+BeAGLE's support for multiple parent particles.
+It has been tested to work with HepMC tools and rivet for pythia6 and sartre.
+Any feedback for these or other generators is very welcome!
+
+Note: The necessity to first generate ROOT trees as an intermediate step is
+awkward but currently unavoidable.
+BuildTree() is inextricably linked with many internal classes and functionalities.
+Significant refactorization to eliminate it in the future is possible
+but will take longer.
+
+
 ##### Notes: #####
 
 * If you see instances of things like

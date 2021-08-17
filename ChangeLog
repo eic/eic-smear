@@ -1,4 +1,9 @@
 Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Tue Aug 17 14:02:57 2021 -0400
+	Added a ROOT tree to HepMC3 converter.
+	Declared version 1.1.7
+
+Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Tue Jun 22 12:19:14 2021 -0400
 	Added Sartre methods for scattered lepton and exchange boson
 	Declared version 1.1.6
