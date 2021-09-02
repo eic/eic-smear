@@ -72,6 +72,15 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 		     Long64_t maxEvent = 0);
 
 /**
+ \fn
+ Identical to TreeToHepMC with an added tweak to filter on certain events.
+ Currently, only accept events with a charmed final state
+ */
+Long64_t FilterTreeToHepMC(const std::string& inputFileName,
+			   const std::string& outputDirName = ".",
+			   Long64_t maxEvent = 0);
+
+/**
  Produces a DOT file describing the particle content of the event.
  */
 class EventToDot {

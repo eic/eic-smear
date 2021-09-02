@@ -21,6 +21,7 @@
 
 #pragma link C++ function BuildTree;
 #pragma link C++ function TreeToHepMC;
+#pragma link C++ function FilterTreeToHepMC;
 
 // Particle classes
 
