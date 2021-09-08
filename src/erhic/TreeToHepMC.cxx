@@ -391,7 +391,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     if ( index_hadron !=2 ) std::cout << "Warning: Found BeamHadron at " << index_hadron << endl;
     auto hep_hadron = hepevt_particles.at( index_hadron-1);
     GenVertexPtr v_hadron = std::make_shared<GenVertex>();
-    hep_lepton->set_status(4);
+    hep_hadron->set_status(4);
     v_hadron->add_particle_in (hep_hadron);
     hepmc3evt.add_vertex(v_hadron);
 
