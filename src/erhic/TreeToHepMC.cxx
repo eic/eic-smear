@@ -93,10 +93,10 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     return -1;
   }  // if
 
-  if (branchClass->InheritsFrom("erhic::EventBeagle")) {
-    cout << "BeAGLE input is currently not supported (can't fix mother-daughter structure yet)" << endl;
-    return -1;    
-  }
+  // if (branchClass->InheritsFrom("erhic::EventBeagle")) {
+  //   cout << "BeAGLE input is currently not supported (can't fix mother-daughter structure yet)" << endl;
+  //   return -1;    
+  // }
 
   // Run info
   std::shared_ptr<GenRunInfo> run = std::make_shared<GenRunInfo>();
@@ -256,13 +256,29 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	      // return -1;
 	    }
 	  } else { // We have more than one parent, are they correct?
-	    if ( myindex < p1 || myindex > pN ){
-	      std::cout << "Processing event " << i << std::endl;
-	      std::cout << "Processing track " << t << " with index " << myindex << std::endl;
-	      std::cout << "     Processing child with index " << child->GetIndex() << std::endl;
-	      cerr << "My child thinks its mothers range between " << p1 << " and " << pN
-		   << ", but I am " << myindex << endl;
-	      return -1;
+	    // This would be the logic if p1 and pN _span_
+	    // if ( myindex < p1 || myindex > pN ){
+	    //   std::cout << "Processing event " << i << std::endl;
+	    //   std::cout << "Processing track " << t << " with index " << myindex << std::endl;
+	    //   std::cout << "     Processing child with index " << child->GetIndex() << std::endl;
+	    //   cerr << "My child thinks its mothers range between " << p1 << " and " << pN
+	    // 	   << ", but I am " << myindex << endl;
+	    //   // return -1;
+	    // }
+	    // Instead, it seems that BeAGLE (mostly?) assumes this to mean
+	    // exactly two parents, usually far apart in index
+	    if ( myindex != p1 && myindex != pN ){
+	      // Problematic situation in BeAGLE:
+	      //  I       S        PID       P1       P2       D1       D2
+	      // ==========================================================
+	      //  17     18       2112        0        0      260      261
+	      // ...
+	      // 254     19        111       41      244      260      261
+	      // 255      2       2212       41      244      260      261
+	      // ...
+	      // 260     16       2112       17      254        0        0
+	      // 261     16       2212       17      254        0        0
+
 	    }
 	  }
 	}
