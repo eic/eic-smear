@@ -93,10 +93,13 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     return -1;
   }  // if
 
-  // if (branchClass->InheritsFrom("erhic::EventBeagle")) {
-  //   cout << "BeAGLE input is currently not supported (can't fix mother-daughter structure yet)" << endl;
-  //   return -1;    
-  // }
+  // BeAGLE is currently unfixable; using a kludge to salvage what we can
+  bool beaglemode=false;
+  if (branchClass->InheritsFrom("erhic::EventBeagle")) {
+    cout << "Warning: BeAGLE support is rudimentary. Can't fix mother-daughter structure." << endl;
+    cout << endl;
+    beaglemode=true;
+  }
 
   // Run info
   std::shared_ptr<GenRunInfo> run = std::make_shared<GenRunInfo>();
@@ -219,11 +222,47 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       // ignore everything else, e.g. bool      
     } // leaf list
 
+    // Multiple parents seem to only be in BeAGLE
+    // and somewtimes there seem to be exactly 2 parents, sometimes a range like for daughters.
+    // I cannot differentiate between the two, and for the exact case, it erroneously gives the impression
+    // of a large range, like 17 -- 254 which will wreak havoc on the graph.
+    // "Remedy": pre-burner
+    // - All non-beam particles have the exchange boson as their mother.
+    // - When the graph gets created, we'll separate and add another dummy node to connect
+    //   the boson to via all non-finals
+    //   and the finals one as out-going edges
+    // --> Incorrect vertex information (but I don't see it correctly in the original anyway)
+    // --> No proper handling of decayed hadrons / leptons
+    //     (but I see weird behavior like final J/psi and promptly decayed pi0 anyway)
+    if ( beaglemode ){
+      auto bosonindex=inEvent->ExchangeBoson()->GetIndex();
+      for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
+	Particle* inParticle = inEvent->GetTrack(t);
+	auto myindex = inParticle->GetIndex();
+	// special cases first
+	// beam and e'
+	if ( myindex==inEvent->BeamLepton()->GetIndex()
+	     || myindex==inEvent->BeamHadron()->GetIndex()
+	     || myindex==inEvent->ScatteredLepton()->GetIndex()
+	     ) continue;
+	// boson
+	if ( myindex==bosonindex ){
+	  inParticle->SetChild1Index( 5 );
+	  inParticle->SetChildNIndex( inEvent->GetNTracks() );
+	}
+
+	// everything else
+	inParticle->SetParentIndex( bosonindex );
+	inParticle->SetParent1Index( 0 );
+
+	inParticle->SetChild1Index( 0 );
+	inParticle->SetChildNIndex( 0 );
+
+      }
+    }
+
+
     // First, fix sloppily implemented mother-daughter relations
-    // Note: Multiple parents seem to only be in BeAGLE
-    //       and somewtimes there seem to be exactly 2 parents, sometimes a range like for daughters.
-    //       I cannot differentiate between the two, and for the exact case, it erroneously gives the impression
-    //       of a large range, like 17 -- 254 which will wreak havoc on the graph.
     for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
       const Particle* inParticle = inEvent->GetTrack(t);
       
@@ -255,7 +294,11 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	      // cerr << "My child thinks its mother is " << pN << ", but it should be " << myindex << endl;
 	      // return -1;
 	    }
-	  } else { // We have more than one parent, are they correct?
+	  } else {
+	    // If multiple parents come from non-BeAGLE MC's revisit
+	    cout << "Found more than one parent in a non-BeAGLE file. Please contact the authors." << endl;
+	    return -1;
+	    // We have more than one parent, are they correct?
 	    // This would be the logic if p1 and pN _span_
 	    // if ( myindex < p1 || myindex > pN ){
 	    //   std::cout << "Processing event " << i << std::endl;
@@ -267,19 +310,18 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	    // }
 	    // Instead, it seems that BeAGLE (mostly?) assumes this to mean
 	    // exactly two parents, usually far apart in index
-	    if ( myindex != p1 && myindex != pN ){
-	      // Problematic situation in BeAGLE:
-	      //  I       S        PID       P1       P2       D1       D2
-	      // ==========================================================
-	      //  17     18       2112        0        0      260      261
-	      // ...
-	      // 254     19        111       41      244      260      261
-	      // 255      2       2212       41      244      260      261
-	      // ...
-	      // 260     16       2112       17      254        0        0
-	      // 261     16       2212       17      254        0        0
-
-	    }
+	    // if ( myindex != p1 && myindex != pN ){
+	    //   // Problematic situation in BeAGLE:
+	    //   //  I       S        PID       P1       P2       D1       D2
+	    //   // ==========================================================
+	    //   //  17     18       2112        0        0      260      261
+	    //   // ...
+	    //   // 254     19        111       41      244      260      261
+	    //   // 255      2       2212       41      244      260      261
+	    //   // ...
+	    //   // 260     16       2112       17      254        0        0
+	    //   // 261     16       2212       17      254        0        0
+	    // }
 	  }
 	}
       }
@@ -361,6 +403,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	  }
 	}
       }
+
+      // BeAGLE abuses status 2
+      if ( beaglemode ){
+	if ( statusHepMC==2 ) statusHepMC = 12;
+      }
+      
       // force everything else to be legal
       if ( statusHepMC != 1 && statusHepMC != 2 && statusHepMC != 4 ){
 	while ( statusHepMC <=10 ) statusHepMC+=10;
@@ -407,10 +455,34 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     if ( index_hadron !=2 ) std::cout << "Warning: Found BeamHadron at " << index_hadron << endl;
     auto hep_hadron = hepevt_particles.at( index_hadron-1);
     GenVertexPtr v_hadron = std::make_shared<GenVertex>();
+
     hep_lepton->set_status(4);
     v_hadron->add_particle_in (hep_hadron);
     hepmc3evt.add_vertex(v_hadron);
 
+
+    // For Beagle, use
+    //                  
+    //  e      e'               
+    //   \v1__/                 i1      f1
+    //         \_gamma        /    \   /
+    //                 \ _v2_/__i2__ v3__f2
+    //                 /     \      / \
+    //             proton     \iN /    \fN
+    //
+    // where i1, .., iN are intermediate (!=1) and f1,..fN are final
+
+    // Dummy to act as a catchall for intermediary particles in beagle
+    GenVertexPtr v_beagle_final = std::make_shared<GenVertex>();
+    if ( beaglemode ){
+      v_hadron->add_particle_in(hep_boson);
+      hepmc3evt.add_vertex( v_beagle_final );
+      // We don't have a connection yet, so in the pathological case
+      // that there are no non-final particles at all, this vertex floats free.
+      // That's too unlikely to occur to build in a fail-safe now
+    }
+
+    
     // Now work our way through the remaining particles
     // - Attach each particle that has a mother to their end vertex
     // ---> Create / overwrite production vertex in the process.
@@ -428,6 +500,17 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       if ( index==index_lepton || index==index_boson || index==index_hadron) continue;
       auto hep_in = hepevt_particles.at( index-1);
       
+      if ( beaglemode ){
+	auto statusHepMC = hep_in->status();
+	if ( statusHepMC == 1 ){
+	    v_beagle_final->add_particle_out(hep_in);
+	} else {
+	  v_hadron->add_particle_out(hep_in);
+	  v_beagle_final->add_particle_in(hep_in);
+	}
+	continue;
+      }
+
       // Mother?
       auto hep_mom = hep_boson;
       int momindex = inParticle->GetParentIndex();
