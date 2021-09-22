@@ -275,6 +275,11 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 		      && !TString(pdg->ParticleClass()).Contains("Meson")
 		      ){
 	    inParticle->SetStatus(12);
+	    inParticle->SetParentIndex( bosonindex );
+	    inParticle->SetParentIndex1( 0 );
+	    
+	    inParticle->SetChild1Index( beagle_final_index ); // not needed but logically true
+	    inParticle->SetChildNIndex( 0 );   
 	  } else{
 	    // properly labeled as 2. We better have children
 	    if ( inParticle->GetChild1Index() == 0 ){
@@ -290,7 +295,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	      std::cout << "Processing track " << t << " with index " << inParticle->GetIndex() << std::endl;
 	      std::cout << "Warning: I am a hadron or lepton with status 2, but I have too many parents. "  << std::endl;
 	      std::cout << "Discarding the older one"  << std::endl;
-	      inParticle->SetParentIndex( inParticle->GetParentIndex1() );
+	      // std::cout << inParticle->GetParentIndex() << "  " << inParticle->GetParentIndex1() << endl;
+	      inParticle->SetParentIndex( std::max ( inParticle->GetParentIndex(), inParticle->GetParentIndex1() ) );
 	      inParticle->SetParentIndex1( 0 );
 	    }
 	    auto mom = inParticle->GetParent();
@@ -596,25 +602,19 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       auto hep_mom = hep_boson;
       int momindex = inParticle->GetParentIndex();
       auto statusHepMC = inParticle->GetStatus();
-      
-    //   if ( beaglemode ){
-    // 	if ( momindex == beagle_final_index ){
-    // 	  v_beagle_final->add_particle_out(hep_in);
-    // 	  continue;
-    // 	}
-	
-    // 	if ( momindex == beagle_final_index ){
-    // 	  v_beagle_final->add_particle_out(hep_in);
-    // 	  continue;
-    // 	}
-	
-    //   } else {
-    // 	v_hadron->add_particle_out(hep_in);
-    // 	v_beagle_final->add_particle_in(hep_in);
-    //   }
-    //   continue;
-    // }
 
+      // // DEBUG!
+      // // suppress all the intermediate nucleons
+      // // this may be worth doing anyway  just to reduce filesize
+      // if ( beaglemode && statusHepMC==3 ) continue;
+      // if ( beaglemode && statusHepMC==14 ) continue;
+      // if ( beaglemode && statusHepMC==18 ) continue;
+      // if ( beaglemode && statusHepMC==12 ) continue;
+      // // This is purely for legibility, these particles should stay!
+      // // note: 80000 are lighter ions, without specification
+      // // if ( beaglemode && statusHepMC==1 && momindex == beagle_final_index
+      // // 	   && ( hep_in->pid() == 2112 || hep_in->pid() == 2212 || hep_in->pid() == 80000 ) ) continue;
+      
       // beagle finals 
       if ( momindex == beagle_final_index ){
 	v_beagle_final->add_particle_out(hep_in);
