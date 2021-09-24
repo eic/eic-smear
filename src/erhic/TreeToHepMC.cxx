@@ -546,7 +546,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     v_lepton->add_particle_in  (hep_lepton);
     v_lepton->add_particle_out (hep_boson);
     hepmc3evt.add_vertex(v_lepton);
-      
+
     auto hadron=inEvent->BeamHadron();
     int index_hadron = hadron->GetIndex();
     if ( index_hadron !=2 ) std::cout << "Warning: Found BeamHadron at " << index_hadron << endl;
@@ -597,6 +597,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     // ---> In that case, leave the production vertex location in peace
     // Topological order should just translate to the fact that
     // children always have a higher index than their parents
+
     // Note: Multiple parents would wreak havoc here - have to handle BeAGLE differently
     for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
       const Particle* inParticle = inEvent->GetTrack(t);
@@ -608,7 +609,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       auto hep_mom = hep_boson;
       int momindex = inParticle->GetParentIndex();
       auto statusHepMC = inParticle->GetStatus();
-
+      
       // // DEBUG!
       // // suppress all the intermediate nucleons
       // // this may be worth doing anyway  just to reduce filesize
@@ -633,9 +634,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	v_beagle_final->add_particle_in(hep_in);
       }
       
-
       // Mother?
-      if ( momindex > 1 ){
+      if ( momindex > 0 ){
 	hep_mom = hepevt_particles.at( momindex-1);
       }
       
@@ -656,6 +656,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       }
 
     }
+    
     // Done! Write the event.
     file->write_event(hepmc3evt);
 
