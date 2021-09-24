@@ -118,7 +118,6 @@ if(HepMC3_FOUND)
     PRIVATE
     src/erhic/EventFactoryHepMC.cxx
     src/erhic/TreeToHepMC.cxx
-    src/erhic/FilterTreeToHepMC.cxx
     )
   target_include_directories(eicsmear
     PRIVATE
