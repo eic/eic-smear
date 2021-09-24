@@ -24,6 +24,7 @@
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenCrossSection.h"
 #include "HepMC3/WriterAscii.h"
+#include "HepMC3/WriterAsciiHepMC2.h"
 #include "HepMC3/Attribute.h"
 
 using std::cout;
@@ -48,7 +49,8 @@ using HepMC3::GenCrossSectionPtr;
  */
 Long64_t TreeToHepMC(const std::string& inputFileName,
 		     const std::string& outputDirName,
-		     Long64_t maxEvent) {
+		     Long64_t maxEvent,
+		     const bool createHepMC2) {
 
   // Get the input file name, stripping any leading directory path via
   // use of the BaseName() method from TSystem.
@@ -150,7 +152,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   }
 
   // Open the output file.
-  HepMC3::WriterAscii file(outName.Data(),run);
+  std::shared_ptr<HepMC3::Writer> file;
+  if ( createHepMC2 ){
+    file = std::make_shared<HepMC3::WriterAsciiHepMC2>(outName.Data(),run);
+  } else {
+    file = std::make_shared<HepMC3::WriterAscii>(outName.Data(),run);
+  }
 
   // Event Loop
   if (mcTree->GetEntries() < maxEvent || maxEvent < 1) {
@@ -651,7 +658,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 
     }
     // Done! Write the event.
-    file.write_event(hepmc3evt);
+    file->write_event(hepmc3evt);
 
     // There's a bunch of cleanup one should do now, with all the dynamical
     // vertices and particles. BUT shared_ptr should take care of that. Revisit if there are memory leaks.

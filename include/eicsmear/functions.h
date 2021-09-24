@@ -69,7 +69,8 @@ Long64_t BuildTree(const std::string& inputFileName,
  */
 Long64_t TreeToHepMC(const std::string& inputFileName,
 		     const std::string& outputDirName = ".",
-		     Long64_t maxEvent = 0);
+		     Long64_t maxEvent = 0,
+		     const bool createHepMC2=false);
 
 /**
  \fn
