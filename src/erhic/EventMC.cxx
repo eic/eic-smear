@@ -160,7 +160,19 @@ void EventMC::AddLast(ParticleMC* track) {
   nTracks = particles.GetEntries();
 }
 
-//
+void EventMC::Print( const Option_t *option) const {
+  EventDis::Print();
+  std::cout << "I \t KS \t id \t orig\t daughter \t ldaughter \t "
+    << " px \t py \t pz \t E \t m \t xv \t yv \t zv" 
+    << std::endl;
+
+       for( unsigned int t=0; t<GetNTracks(); ++t) {
+	 const Particle* inParticle = GetTrack(t);
+	 inParticle->Print();
+       }
+}
+  
+  //
 // class Reader
 //
 
