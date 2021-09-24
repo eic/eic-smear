@@ -21,7 +21,7 @@
 #include "eicsmear/erhic/File.h"
 #include "eicsmear/erhic/ParticleIdentifier.h"
 
-#include "gzstream.h"
+#include "eicsmear/gzstream.h"
 
 namespace erhic {
 

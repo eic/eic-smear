@@ -1,5 +1,11 @@
 Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Fri Sep 24 11:45:06 2021 -0400
+	HepMC reader now uses deduce_reader
+	HepMC writer handles scattered lepton correctly
+	declared version 1.1.9
+
+Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Fri Sep 24 11:45:06 2021 -0400
 	HepMC3 conversion works for BeAGLE
 	HepMC2 is also an option
 	Initialize orig1 in ctor

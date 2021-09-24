@@ -35,6 +35,15 @@
 
 #include <HepMC3/ReaderAsciiHepMC2.h>
 #include <HepMC3/ReaderAscii.h>
+// The newer ReaderFactory is header-only and can be used for older versions
+// This file is copied verbatim from https://gitlab.cern.ch/hepmc/HepMC3
+// Copyright (C) 2014-2020 The HepMC collaboration, licensed under GPL3
+#include <HepMC3/Version.h>
+#if HEPMC3_VERSION_CODE < 3002004
+#include <eicsmear/HepMC_3_2_4_ReaderFactory.h>
+#else
+#include <HepMC3/ReaderFactory.h>
+#endif
 
 #include <TVector3.h>
 #include <TParticlePDG.h>
@@ -76,24 +85,27 @@ namespace erhic {
 
   template<>
   void EventFromAsciiFactory<erhic::EventHepMC>::FindFirstEvent()  {
-    // Just overwrite to make sure the original version isn't used (which skips 6 lines)
+    // Can't accept gzstreams
+    auto inputtest = dynamic_cast<std::ifstream*> (mInput);
+    if ( !inputtest ){
+      std::cerr << "HepMC currently only supports ifstream (no compressed files)." << endl;
+      throw;
+    }
+    
+    // return to the top (first line was used to determine the type
+    mInput->clear();
+    mInput->seekg(0, std::ios::beg);
+    
   }
 
   template<>
   bool EventFromAsciiFactory<erhic::EventHepMC>::AddParticle() {
     try {
+      // open only once
+      // otherwise this gets called for every event
+      // and we can't make it a member since we're based on the EventFromAsciiFactory template
+      static std::shared_ptr<HepMC3::Reader> adapter = HepMC3::deduce_reader(*mInput); 
 
-      string generator = mAdditionalInformation["generator"];
-      std::shared_ptr<HepMC3::Reader> adapter;
-      if ( generator == "hepmc2" ){
-	adapter = std::make_shared<HepMC3::ReaderAsciiHepMC2>(*mInput);
-      } else if ( generator == "hepmc3" ){
-	adapter = std::make_shared<HepMC3::ReaderAscii>(*mInput);
-      } else {
-	std::cerr << "Couldn't determine or handle HepMC version "<< generator << endl;
-	throw ;
-      }
-      
       if (mEvent.get()) {
         HepMC3::GenEvent evt(HepMC3::Units::GEV,HepMC3::Units::MM);
 	adapter->read_event(evt);
@@ -149,7 +161,7 @@ namespace erhic {
 	// we can handle one or two only
 	if ( lepton->children().size() >2 || lepton->children().size()==0 ){
 	  cerr << "electron has " << lepton->children().size() << " daughters." << endl;
-	  throw std::runtime_error ("Wrong number of lepton daughters (should be 1 or 2).");
+	  throw std::runtime_error ("Wrong number of lepton daughters; should be 1 (lepton) or 2 (lepton+boson).");
 	}
 
 	// if one exists, it's a daughter of the beam lepton, and its sibling is the lepton (which isn't necessarily final yet though)
@@ -159,7 +171,7 @@ namespace erhic {
 	  if ( scatteredlepton->pid() != 22 && photon->pid() != 22 ){
 	    cerr << "lepton child 1 pid = " << scatteredlepton->pid() << endl;
 	    cerr << "lepton child 2 pid = " << photon->pid() << endl;
-	    throw std::runtime_error ("Found two lepton daughters, none or both of them a photon.");
+	    throw std::runtime_error ("Found two beam lepton daughters, none or both of them a photon.");
 	  }
 	  if ( photon->pid() != 22 ){
 	    std::swap ( photon, scatteredlepton );
@@ -169,6 +181,10 @@ namespace erhic {
 	// no exchange boson
 	if ( lepton->children().size() == 1 ){
 	  scatteredlepton = lepton->children().at(0);
+	  auto pdgs = TDatabasePDG::Instance()->GetParticle( scatteredlepton->pid() );
+	  if ( !TString(pdgs->ParticleClass()).Contains("Lepton") ){
+	    throw std::runtime_error ("Found one beam lepton daughter, and it is not a lepton.");
+	  }
 
 	  // We could play games and make one up:
 	  // auto photonmom = lepton->momentum() - scatteredlepton->momentum();
@@ -195,13 +211,20 @@ namespace erhic {
 	//    or we can go until the status is final, the result should be the same
 	// There's no clear-cut final() method though, so we go through the end and hope!
 	auto spid = scatteredlepton->pid();
+	// avoid endless loop
+	bool foundbranch=true;
 	while ( scatteredlepton->children().size() > 0 ){
+	  if ( !foundbranch ){
+	    throw std::runtime_error ("none of this lepton's children is a lepton.");
+	  }
+	  foundbranch=false;
 	  for ( auto& c : scatteredlepton->children() ){
 	    if ( c->pid() == spid ){
 	      // found the correct branch,
 	      // update and break out of for loop,
 	      // resume while loop with new candidate
 	      scatteredlepton = c;
+	      foundbranch=true;
 	      break;
 	    }
 	  }

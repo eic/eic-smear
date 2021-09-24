@@ -133,6 +133,11 @@ class EventMC : public EventDis {
   virtual void Reset();
 
   /**
+     Quick Event list
+   */
+  void Print( const Option_t *option="" ) const;
+
+  /**
    Clears event contents.
    Event properties are reset to defaults and track list
    is deleted.

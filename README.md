@@ -116,7 +116,7 @@ A wrapper allows to start ROOT with libraries loaded and displays
 version information as well as the library locations.
 ```
 $ eic-smear
-Using eic-smear version: 1.1.8
+Using eic-smear version: 1.1.9
 Using these eic-smear libraries :
 /Users/kkauder/software/lib/libeicsmear.dylib
 /Users/kkauder/software/lib/libeicsmeardetectors.dylib
@@ -134,12 +134,12 @@ similar commands inside this interpreter. Use printf instead, or just
 load the libraries directly in a generic root instance.
 
 
-#### Creation of HepMC3 output ####
-eic-smear's ROOT trees can be converted to HepMC3 output using the `TreeToHepMC`
+#### Creation of HepMC output ####
+eic-smear's ROOT trees can be converted to HepMC output using the `TreeToHepMC`
 macro, e.g.:
 ```
 $ eic-smear
-Using eic-smear version: 1.1.8
+Using eic-smear version: 1.1.9
 Using these eic-smear libraries :
 /Users/kkauder/software/lib/libeicsmear.dylib
 /Users/kkauder/software/lib/libeicsmeardetectors.dylib
@@ -154,8 +154,16 @@ $ echo 'BuildTree("pythia6.txt"); TreeToHepMC("pythia6.root")' | eic-smear
 BeAGLE's structure is flattened. All intermediate particles are there,
 but their parental struture may not be preserved.
 For all generators, including BeAGLE, hadronic and leptonic decays
-should be correct. 
-It has been tested to work with HepMC tools and rivet as well as eAST.
+should be correct.
+
+HepMC2 output is possible via a flag:
+```
+$ eic-smear
+eic-smear [0] TreeToHepMC("beagle_eD.root",".",-1,true);
+```
+
+
+This macro has been tested to work with HepMC tools and rivet as well as eAST.
 Any feedback for these or other generators is very welcome!
 
 Note: The necessity to first generate ROOT trees as an intermediate step is

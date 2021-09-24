@@ -26,7 +26,7 @@ namespace erhic {
   /** 
       Simple namespace-wide constant to determine the version
   */
-  const std::string EicSmearVersionString = "1.1.8";
+  const std::string EicSmearVersionString = "1.1.9";
 
 }
 
