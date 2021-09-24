@@ -256,7 +256,7 @@ namespace erhic {
 	    if ( allparents.size() >= 2){
 	      // smallest and highest are stored
 	      track->SetParentIndex( *min_element(allparents.begin(), allparents.end() ) );
-	      track->SetParent1Index( *max_element(allparents.begin(), allparents.end() ) );
+	      track->SetParentIndex1( *max_element(allparents.begin(), allparents.end() ) );
 	    }
 
 	    // same for children

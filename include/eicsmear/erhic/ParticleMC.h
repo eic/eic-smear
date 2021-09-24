@@ -304,7 +304,7 @@ class ParticleMCbase : public VirtualParticle {
 
   /** Sets the index of this particle's other parent if it has one.
    By default this is zero, indicating no parent. */
-  virtual void SetParent1Index(int i) { orig1 = i; }
+  virtual void SetParentIndex1(int i) { orig1 = i; }
 
   /** Sets the index of this particle's first child. By default this
    is zero, indicating no children. */

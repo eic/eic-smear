@@ -57,6 +57,7 @@ namespace erhic {
 , KS(0)
 , id(0)
 , orig(0)
+, orig1(0)
 , daughter(0)
 , ldaughter(0)
 , px(0.)
@@ -97,7 +98,6 @@ namespace erhic {
 
       ss >>
 	//changed by liang to add particle mother1
-	//    I >> KS >> id >> orig >> daughter >> ldaughter >>
 	I >> KS >> id >> orig1 >> orig >> daughter >> ldaughter >>
 	px >> py >> pz >> E >> m >> xv >> yv >> zv
 	//added by liang to include add particle data structure
@@ -334,61 +334,4 @@ void ParticleMCbase::SetVertex(const TVector3& v) {
   yv = v.Y();
   zv = v.Z();
 }
-
-#if _OLD_
-ParticleMCeA::ParticleMCeA(const std::string& line)
-: /*I(-1)
-, KS(-1)
-, id(std::numeric_limits<Int_t>::min())
-, orig(-1)
-, daughter(-1)
-, ldaughter(-1)
-, px(0.)
-, py(0.)
-, pz(0.)
-, E(0.)
-, m(0.)
-, pt(0.)
-, xv(0.)
-, yv(0.)
-, zv(0.)
-, parentId(std::numeric_limits<Int_t>::min())
-, p(0.)
-, theta(0.)
-, phi(0.)
-, rapidity(0.)
-, eta(0.)
-, z(0.)
-, xFeynman(0.)
-, thetaGamma(0.)
-, ptVsGamma(0.)
-, phiPrf(0.) 
-//added by liang to include add particle data structure
-,*/ orig1(-1)
-, charge(-999)
-, massNum(-999) 
-, NoBam(-999) {
-  // Initialise to nonsense values to make input errors easy to spot
-  if (!line.empty()) {
-    static std::stringstream ss;
-    ss.str("");
-    ss.clear();
-    ss << line;
-    ss >>
-	//changed by liang to add particle mother1
-//    I >> KS >> id >> orig >> daughter >> ldaughter >>
-    I >> KS >> id >> orig1 >> orig >> daughter >> ldaughter >>
-    px >> py >> pz >> E >> m >> xv >> yv >> zv
-	//added by liang to include add particle data structure
-	>> massNum >> charge >> NoBam;
-    // We should have no stream errors and should have exhausted
-    // the whole of the stream filling the particle.
-    if (ss.fail() || !ss.eof()) {
-      throw std::runtime_error("Bad particle input: " + line);
-    }  // if
-    ComputeDerivedQuantities();
-  }  // if
-}
-#endif
-
 }  // namespace erhic

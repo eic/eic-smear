@@ -1,4 +1,11 @@
 Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Fri Sep 24 11:45:06 2021 -0400
+	HepMC3 conversion works for BeAGLE
+	HepMC2 is also an option
+	Initialize orig1 in ctor
+	declared version 1.1.8
+
+Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Tue Aug 17 14:02:57 2021 -0400
 	Added a ROOT tree to HepMC3 converter.
 	Declared version 1.1.7

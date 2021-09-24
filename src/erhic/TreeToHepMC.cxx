@@ -24,6 +24,7 @@
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenCrossSection.h"
 #include "HepMC3/WriterAscii.h"
+#include "HepMC3/WriterAsciiHepMC2.h"
 #include "HepMC3/Attribute.h"
 
 using std::cout;
@@ -48,7 +49,8 @@ using HepMC3::GenCrossSectionPtr;
  */
 Long64_t TreeToHepMC(const std::string& inputFileName,
 		     const std::string& outputDirName,
-		     Long64_t maxEvent) {
+		     Long64_t maxEvent,
+		     const bool createHepMC2) {
 
   // Get the input file name, stripping any leading directory path via
   // use of the BaseName() method from TSystem.
@@ -93,9 +95,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     return -1;
   }  // if
 
+  // BeAGLE is currently unfixable; using a kludge to salvage what we can
+  bool beaglemode=false;
   if (branchClass->InheritsFrom("erhic::EventBeagle")) {
-    cout << "BeAGLE input is currently not supported (can't fix mother-daughter structure yet)" << endl;
-    return -1;    
+    cout << "Warning: BeAGLE support is rudimentary. Can't fix mother-daughter structure." << endl;
+    cout << endl;
+    beaglemode=true;
   }
 
   // Run info
@@ -147,7 +152,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   }
 
   // Open the output file.
-  HepMC3::WriterAscii file(outName.Data(),run);
+  std::shared_ptr<HepMC3::Writer> file;
+  if ( createHepMC2 ){
+    file = std::make_shared<HepMC3::WriterAsciiHepMC2>(outName.Data(),run);
+  } else {
+    file = std::make_shared<HepMC3::WriterAscii>(outName.Data(),run);
+  }
 
   // Event Loop
   if (mcTree->GetEntries() < maxEvent || maxEvent < 1) {
@@ -219,62 +229,210 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       // ignore everything else, e.g. bool      
     } // leaf list
 
-    // First, fix sloppily implemented mother-daughter relations
-    // Note: Multiple parents seem to only be in BeAGLE
-    //       and somewtimes there seem to be exactly 2 parents, sometimes a range like for daughters.
-    //       I cannot differentiate between the two, and for the exact case, it erroneously gives the impression
-    //       of a large range, like 17 -- 254 which will wreak havoc on the graph.
-    for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
-      const Particle* inParticle = inEvent->GetTrack(t);
-      
-      // Do my children know me?
-      auto myindex = inParticle->GetIndex();
-      // std::cout << "Processing track " << t << " with index " << myindex << std::endl;
-      auto c1 = inParticle->GetChild1Index();
-      auto cN = inParticle->GetChildNIndex();
-      if ( cN==0 ) cN =c1;
-      if ( c1>cN ) std::swap(c1,cN);
-      if ( c1>0 ) {
-	for ( UShort_t c = c1; c<=cN; ++c ){ // sigh. index starts at 1, tracks at 0;
-	  Particle* child = inEvent->GetTrack(c-1);
-	  // std::cout << "     Processing child with index " << child->GetIndex() << std::endl;
-	  auto p1 = child->GetParentIndex();
-	  auto pN = child->GetParentIndex1();
-	  if ( p1>pN ) std::swap(p1,pN);
-	  if ( p1==0 && pN==0 ){ // child erroneously believes to be motherless
-	    child->SetParentIndex( myindex );
-	  } else if ( p1==0 ) { // We are the only parent, is it correctly assigned?
-	    if ( pN != myindex ){
-	      // Nothing we can do, e.g. pythia allows multiple parenthood but lacks a way to describe that, see:
-	      // 12     12       2101        5       18       31
-	      // ...
-	      // 16     11          2       10       18       31
-	      // ...
-	      // 26      1       -211       12        0        0
-	      // 27      1        211       16        0        0
-	      // cerr << "My child thinks its mother is " << pN << ", but it should be " << myindex << endl;
-	      // return -1;
-	    }
-	  } else { // We have more than one parent, are they correct?
-	    if ( myindex < p1 || myindex > pN ){
+    // Multiple parents seem to only be in BeAGLE
+    // and somewtimes there seem to be exactly 2 parents, sometimes a range like for daughters.
+    // I cannot differentiate between the two, and for the exact case, it erroneously gives the impression
+    // of a large range, like 17 -- 254 which will wreak havoc on the graph.
+    // "Remedy": pre-burner
+    // - All intermediate non-beam particles have the exchange boson as their mother.
+    // - hadrons and leptons with status 2:
+    //   - if they have exactly one parent with status 2 (decay chain),
+    //     maintain that parent
+    //   - otherwise, they're the start of a decay, treat like a final particle
+    // - hadrons and leptons with status 1:
+    //   - if they have exactly one parent with status 2 (decay product),
+    //     maintain that parent
+    //   - otherwise, they're final, attach to the single final particle vertex
+    // - When the graph gets created, we'll separate and add another dummy node to connect
+    //   the boson to via all non-finals
+    //   and the finals one as out-going edges
+    // --> Incorrect vertex information (but I don't see it correctly in the original anyway)
+
+    // Use a special index to refer to the dummy vertex
+    // Should be ushort_max, but keep it flexible
+    auto beagle_final_index = std::numeric_limits< decltype(inEvent->GetTrack(0)->GetParentIndex())>::max();
+    
+    if ( beaglemode ){
+      auto bosonindex=inEvent->ExchangeBoson()->GetIndex();
+      for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
+	Particle* inParticle = inEvent->GetTrack(t);
+	auto myindex = inParticle->GetIndex();
+	// special cases first
+	// beam and e'
+	if ( myindex==inEvent->BeamLepton()->GetIndex()
+	     || myindex==inEvent->BeamHadron()->GetIndex()
+	     || myindex==inEvent->ScatteredLepton()->GetIndex()
+	     ) continue;
+	// boson
+	if ( myindex==bosonindex ){
+	  inParticle->SetChild1Index( 5 );
+	  inParticle->SetChildNIndex( inEvent->GetNTracks() );
+	}
+	
+	auto pdg = TDatabasePDG::Instance()->GetParticle( inParticle->Id() );
+	// Note: ROOT's table is outdated and doesn't catch, e.g. Delta baryons
+	
+	switch (inParticle->GetStatus() ){
+	case 2 :
+	  // mis-labeled as 2?
+	  if ( !pdg ){ // ignore unknown particles (e.g. pomerons, ions)
+	    inParticle->SetStatus(12);
+	  } else if ( !TString(pdg->ParticleClass()).Contains("Lepton")
+		      && !TString(pdg->ParticleClass()).Contains("Baryon")
+		      && !TString(pdg->ParticleClass()).Contains("Meson")
+		      ){
+	    inParticle->SetStatus(12);
+	    inParticle->SetParentIndex( bosonindex );
+	    inParticle->SetParentIndex1( 0 );
+	    
+	    inParticle->SetChild1Index( beagle_final_index ); // not needed but logically true
+	    inParticle->SetChildNIndex( 0 );   
+	  } else{
+	    // properly labeled as 2. We better have children
+	    if ( inParticle->GetChild1Index() == 0 ){
 	      std::cout << "Processing event " << i << std::endl;
-	      std::cout << "Processing track " << t << " with index " << myindex << std::endl;
-	      std::cout << "     Processing child with index " << child->GetIndex() << std::endl;
-	      cerr << "My child thinks its mothers range between " << p1 << " and " << pN
-		   << ", but I am " << myindex << endl;
+	      std::cout << "Processing track " << t << " with index " << inParticle->GetIndex() << std::endl;
+	      std::cout << "I am a hadron or lepton with status 2, but I do not have children. "  << std::endl;
 	      return -1;
+	    }
+	    // We better have exaxctly one parent
+	    // Alas, this too does happen
+	    if ( inParticle->GetParentIndex1()!=0 ){
+	      std::cout << "Processing event " << i << std::endl;
+	      std::cout << "Processing track " << t << " with index " << inParticle->GetIndex() << std::endl;
+	      std::cout << "Warning: I am a hadron or lepton with status 2, but I have too many parents. "  << std::endl;
+	      std::cout << "Discarding the older one"  << std::endl;
+	      // std::cout << inParticle->GetParentIndex() << "  " << inParticle->GetParentIndex1() << endl;
+	      inParticle->SetParentIndex( std::max ( inParticle->GetParentIndex(), inParticle->GetParentIndex1() ) );
+	      inParticle->SetParentIndex1( 0 );
+	    }
+	    auto mom = inParticle->GetParent();
+	    if ( !mom ){
+	      std::cout << "Processing event " << i << std::endl;
+	      std::cout << "Processing track " << t << " with index " << inParticle->GetIndex() << std::endl;
+	      std::cout << "I am a hadron or lepton with status 2, but I have no parents. "  << std::endl;
+	      return -1;
+	    }
+	    // status of mother?
+	    if ( mom->GetStatus() == 1 ){
+	      std::cout << "Processing event " << i << std::endl;
+	      std::cout << "Processing track " << t << " with index " << inParticle->GetIndex() << std::endl;
+	      std::cout << "I am a hadron or lepton with status 2, but my mother is final. "  << std::endl;
+	      return -1;
+	    }
+	    if ( mom->GetStatus() != 2 ){
+	      // We're the beginning of a decay, attach to "final" vertex
+	      inParticle->SetParentIndex( beagle_final_index );
+	      inParticle->SetParentIndex1( 0 );
+	    }	    
+	  }
+	  break;
+	case 1:
+	  {
+	    // final particles
+	    auto mom = inParticle->GetParent();
+	    if ( mom ){
+	      // status of mother?
+	      if ( mom->GetStatus() == 2 ){
+		// do nothing, we keep this mother as ours
+		inParticle->SetChild1Index( 0 );
+		inParticle->SetChildNIndex( 0 );
+		break;
+	      }
+	    }
+	    // default behavior for finals
+	    inParticle->SetParentIndex( beagle_final_index );
+	    inParticle->SetParentIndex1( 0 );
+	    
+	    inParticle->SetChild1Index( 0 );
+	    inParticle->SetChildNIndex( 0 );
+	    break;
+	  }
+	default : 
+	  // everything else
+	  inParticle->SetParentIndex( bosonindex );
+	  inParticle->SetParentIndex1( 0 );
+	  
+	  inParticle->SetChild1Index( beagle_final_index ); // not needed but logically true
+	  inParticle->SetChildNIndex( 0 );
+	  break;
+	}
+      }
+    }
+
+    // First, fix sloppily implemented mother-daughter relations
+    // Not done for BeAGLE, because of the special vertex
+    if ( !beaglemode ){
+      for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
+	const Particle* inParticle = inEvent->GetTrack(t);
+	
+	// Do my children know me?
+	auto myindex = inParticle->GetIndex();
+	// std::cout << "Processing track " << t << " with index " << myindex << std::endl;
+	auto c1 = inParticle->GetChild1Index();
+	auto cN = inParticle->GetChildNIndex();
+	if ( cN==0 ) cN =c1;
+	if ( c1>cN ) std::swap(c1,cN);
+	if ( c1>0 ) {
+	  for ( UShort_t c = c1; c<=cN; ++c ){ // sigh. index starts at 1, tracks at 0;
+	    Particle* child = inEvent->GetTrack(c-1);
+	    // std::cout << "     Processing child with index " << child->GetIndex() << std::endl;
+	    auto p1 = child->GetParentIndex();
+	    auto pN = child->GetParentIndex1();
+	    if ( p1>pN ) std::swap(p1,pN);
+	    if ( p1==0 && pN==0 ){ // child erroneously believes to be motherless
+	      child->SetParentIndex( myindex );
+	    } else if ( p1==0 ) { // We are the only parent, is it correctly assigned?
+	      if ( pN != myindex ){
+		// Nothing we can do, e.g. pythia allows multiple parenthood but lacks a way to describe that, see:
+		// 12     12       2101        5       18       31
+		// ...
+		// 16     11          2       10       18       31
+		// ...
+		// 26      1       -211       12        0        0
+		// 27      1        211       16        0        0
+		// cerr << "My child thinks its mother is " << pN << ", but it should be " << myindex << endl;
+		// return -1;
+	      }
+	    } else {
+	      // If multiple parents come from non-BeAGLE MC's revisit
+	      cout << "Found more than one parent in a non-BeAGLE file. Please contact the authors." << endl;
+	      return -1;
+	      // We have more than one parent, are they correct?
+	      // This would be the logic if p1 and pN _span_
+	      // if ( myindex < p1 || myindex > pN ){
+	      //   std::cout << "Processing event " << i << std::endl;
+	      //   std::cout << "Processing track " << t << " with index " << myindex << std::endl;
+	      //   std::cout << "     Processing child with index " << child->GetIndex() << std::endl;
+	      //   cerr << "My child thinks its mothers range between " << p1 << " and " << pN
+	      // 	   << ", but I am " << myindex << endl;
+	      //   // return -1;
+	      // }
+	      // Instead, it seems that BeAGLE (mostly?) assumes this to mean
+	      // exactly two parents, usually far apart in index
+	      // if ( myindex != p1 && myindex != pN ){
+	      //   // Problematic situation in BeAGLE:
+	      //   //  I       S        PID       P1       P2       D1       D2
+	      //   // ==========================================================
+	      //   //  17     18       2112        0        0      260      261
+	      //   // ...
+	      //   // 254     19        111       41      244      260      261
+	      //   // 255      2       2212       41      244      260      261
+	      //   // ...
+	      //   // 260     16       2112       17      254        0        0
+	      //   // 261     16       2212       17      254        0        0
+	      // }
 	    }
 	  }
 	}
-      }
-      // Do my parents acknowledge me?
-      auto p1 = inParticle->GetParentIndex();
-      auto pN = inParticle->GetParentIndex1();
-      if ( p1>pN ) std::swap(p1,pN);
-      if ( p1==0 ) p1 =pN;
-      // Do all my parents acknowledge me?
-      if (pN > 0){
-	for ( unsigned int p = p1; p<=pN ; ++p ){
+	// Do my parents acknowledge me?
+	auto p1 = inParticle->GetParentIndex();
+	auto pN = inParticle->GetParentIndex1();
+	if ( p1>pN ) std::swap(p1,pN);
+	if ( p1==0 ) p1 =pN;
+	// Do all my parents acknowledge me?
+	if (pN > 0){
+	  for ( unsigned int p = p1; p<=pN ; ++p ){
 	  Particle* parent = inEvent->GetTrack(p-1);
 	  auto pc1 = parent->GetChild1Index();
 	  auto pcN = parent->GetChildNIndex();
@@ -287,10 +445,11 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	    // cout << "hello2" << endl;
 	    parent->SetChildNIndex( myindex );
 	  }
-	}
-      }      
-    }
-
+	  }
+	}      
+      }
+    } // graph repair for !beaglemode
+      
     // Perform consistency checks and collect particles
     std::vector<GenParticlePtr> hepevt_particles;
     hepevt_particles.reserve( inEvent->GetNTracks() );
@@ -305,7 +464,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	  inParticle->Print();
 	} 
       }
-
+      
       // // All child-less particles should have a "safe" status (like 21), best would be 1
       // if (inParticle->GetNChildren() == 0 ){
       // 	if ( status !=1 && status !=21 ){
@@ -329,7 +488,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       // what EventMC::FinalState uses (and it's not overridden in existing classes)
 
       // Catch decayed leptons and hadrons
-      if ( t>3 ){     // Ignore the beam
+      // doesn't work for BeAGLE
+      if ( ! beaglemode && t>3 ){     // Ignore the beam
 	if (inParticle->GetNChildren() != 0 ){ // ignore final particles
 	  auto pdg = TDatabasePDG::Instance()->GetParticle( inParticle->Id() );
 	  if ( pdg ){ // ignore unknown particles (e.g. pomerons, ions)
@@ -345,6 +505,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	  }
 	}
       }
+
       // force everything else to be legal
       if ( statusHepMC != 1 && statusHepMC != 2 && statusHepMC != 4 ){
 	while ( statusHepMC <=10 ) statusHepMC+=10;
@@ -390,11 +551,44 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     int index_hadron = hadron->GetIndex();
     if ( index_hadron !=2 ) std::cout << "Warning: Found BeamHadron at " << index_hadron << endl;
     auto hep_hadron = hepevt_particles.at( index_hadron-1);
-    GenVertexPtr v_hadron = std::make_shared<GenVertex>();
     hep_hadron->set_status(4);
+    GenVertexPtr v_hadron = std::make_shared<GenVertex>();
+
     v_hadron->add_particle_in (hep_hadron);
     hepmc3evt.add_vertex(v_hadron);
 
+
+    // For Beagle, use
+    //                  
+    //  e      e'               
+    //   \v1__/                 i1      f1
+    //         \_gamma        /    \   /
+    //                 \ _v2_/__i2__ v3__f2
+    //                 /     \      / \
+    //             proton     \iN /    \fN
+    //
+    // where i1, .., iN are intermediate (!=1) and f1,..fN are final
+    // v2 == v_hadron, v3 == v_beagle_final
+
+    // Addendum: BeAGLE does support hadron/lepton decay. Attach the root to v3,
+    // and keep their children, e.g.:
+    // 
+    //   v2_/__i2__ v3__J/psi__e
+    //                \      \
+    //                 \fN    e
+    //
+    // (But also keep decay chains)
+    
+    // Dummy to act as a catchall for intermediary particles in beagle
+    GenVertexPtr v_beagle_final = std::make_shared<GenVertex>();
+    if ( beaglemode ){
+      v_hadron->add_particle_in(hep_boson);
+      hepmc3evt.add_vertex( v_beagle_final );
+      // We don't have a connection yet, so in the pathological case
+      // that there are no non-final particles at all, this vertex floats free.
+      // That's too unlikely to occur to build in a fail-safe now
+    }
+    
     // Now work our way through the remaining particles
     // - Attach each particle that has a mother to their end vertex
     // ---> Create / overwrite production vertex in the process.
@@ -403,7 +597,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     // ---> In that case, leave the production vertex location in peace
     // Topological order should just translate to the fact that
     // children always have a higher index than their parents
-    // Note: Multiple parents would wreak havoc here - need to think more about BeAGLE
+    // Note: Multiple parents would wreak havoc here - have to handle BeAGLE differently
     for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
       const Particle* inParticle = inEvent->GetTrack(t);
 
@@ -411,10 +605,36 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       int index = inParticle->GetIndex();
       if ( index==index_lepton || index==index_boson || index==index_hadron) continue;
       auto hep_in = hepevt_particles.at( index-1);
-      
-      // Mother?
       auto hep_mom = hep_boson;
       int momindex = inParticle->GetParentIndex();
+      auto statusHepMC = inParticle->GetStatus();
+
+      // // DEBUG!
+      // // suppress all the intermediate nucleons
+      // // this may be worth doing anyway  just to reduce filesize
+      // if ( beaglemode && statusHepMC==3 ) continue;
+      // if ( beaglemode && statusHepMC==14 ) continue;
+      // if ( beaglemode && statusHepMC==18 ) continue;
+      // if ( beaglemode && statusHepMC==12 ) continue;
+      // // This is purely for legibility, these particles should stay!
+      // // note: 80000 are lighter ions, without specification
+      // // if ( beaglemode && statusHepMC==1 && momindex == beagle_final_index
+      // // 	   && ( hep_in->pid() == 2112 || hep_in->pid() == 2212 || hep_in->pid() == 80000 ) ) continue;
+      
+      // beagle finals 
+      if ( momindex == beagle_final_index ){
+	v_beagle_final->add_particle_out(hep_in);
+	continue;
+      }
+
+      // beagle intermediates
+      // out will be handled, but need to attach as incoming
+      if ( beaglemode && statusHepMC!=1 && statusHepMC!=2  ){
+	v_beagle_final->add_particle_in(hep_in);
+      }
+      
+
+      // Mother?
       if ( momindex > 1 ){
 	hep_mom = hepevt_particles.at( momindex-1);
       }
@@ -437,7 +657,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 
     }
     // Done! Write the event.
-    file.write_event(hepmc3evt);
+    file->write_event(hepmc3evt);
 
     // There's a bunch of cleanup one should do now, with all the dynamical
     // vertices and particles. BUT shared_ptr should take care of that. Revisit if there are memory leaks.
