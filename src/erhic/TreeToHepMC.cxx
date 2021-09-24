@@ -554,7 +554,6 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     hep_hadron->set_status(4);
     GenVertexPtr v_hadron = std::make_shared<GenVertex>();
 
-    hep_lepton->set_status(4);
     v_hadron->add_particle_in (hep_hadron);
     hepmc3evt.add_vertex(v_hadron);
 
