@@ -83,7 +83,7 @@ namespace erhic {
   bool EventFromAsciiFactory<erhic::EventHepMC>::AddParticle() {
     try {
 
-      string generator = mAdditionalInformation["generator"];      
+      string generator = mAdditionalInformation["generator"];
       std::shared_ptr<HepMC3::Reader> adapter;
       if ( generator == "hepmc2" ){
 	adapter = std::make_shared<HepMC3::ReaderAsciiHepMC2>(*mInput);
@@ -277,8 +277,13 @@ namespace erhic {
 	// Update run-wise information.
 	// Wasteful, since it's only written out for the final event, but
 	// this class doesn't know when that happens
-	TString xsec = ""; xsec += evt.cross_section()->xsec();
-	TString xsecerr = ""; xsecerr += evt.cross_section()->xsec_err();
+	TString xsec = ""; 
+	TString xsecerr = "";
+	if ( auto xsecinfo=evt.cross_section() ){
+	  // not all generators have this info
+	  xsec += xsecinfo->xsec();
+	  xsecerr += xsecinfo->xsec_err();
+	}
 	TObjString* Xsec;
 	TObjString* Xsecerr;
 
