@@ -373,7 +373,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	  break;
 	}
       }
-    }
+    } // if ( beaglemode )
 
     
     // First, fix sloppily implemented mother-daughter relations
@@ -611,6 +611,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     //      If it's inconsistent, there's not much we can do
     // - attach motherless particles to the exchange boson
     // ---> In that case, leave the production vertex location in peace
+    // ---> Also note that ISR photons are motherless and thus
+    //      get attached to the exchange boson as well
     // Topological order should just translate to the fact that
     // children always have a higher index than their parents
 
