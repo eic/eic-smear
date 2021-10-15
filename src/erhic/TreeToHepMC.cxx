@@ -103,6 +103,13 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     beaglemode=true;
   }
 
+  // Older Milou files need special treatment
+  bool legacymilou=false;
+  bool milouwarn=false; // Need to enter event loop to determine, but warn only once
+  if (branchClass->InheritsFrom("erhic::EventMilou")) {
+    legacymilou=true;
+  }
+
   // Run info
   std::shared_ptr<GenRunInfo> run = std::make_shared<GenRunInfo>();
   struct GenRunInfo::ToolInfo generator={
@@ -375,6 +382,48 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       }
     } // if ( beaglemode )
 
+    if ( legacymilou && inEvent->BeamLepton()->GetChild1Index()==0 ){
+      if ( !milouwarn ){
+	cout << "Warning: Trying to repair legay Milou's parentage issues." << endl;
+	cout << endl;
+	milouwarn=true;	
+      }
+
+      // e
+      inEvent->GetTrack(1-1)->SetChild1Index(3);
+      inEvent->GetTrack(1-1)->SetChildNIndex(4);
+
+      // p
+      inEvent->GetTrack(2-1)->SetChild1Index(6);
+      inEvent->GetTrack(2-1)->SetChildNIndex(0);
+
+      // e'
+      inEvent->GetTrack(3-1)->SetParentIndex(1);
+      inEvent->GetTrack(3-1)->SetChild1Index(0);
+      inEvent->GetTrack(3-1)->SetChildNIndex(0);
+
+      // gamma*
+      inEvent->GetTrack(4-1)->SetParentIndex(1);
+      inEvent->GetTrack(4-1)->SetChild1Index(5);
+      inEvent->GetTrack(4-1)->SetChildNIndex(0);
+      
+      // gamma
+      inEvent->GetTrack(5-1)->SetParentIndex(4);
+      inEvent->GetTrack(5-1)->SetChild1Index(0);
+      inEvent->GetTrack(5-1)->SetChildNIndex(0);
+      
+      // p'
+      inEvent->GetTrack(6-1)->SetParentIndex(2);
+      inEvent->GetTrack(6-1)->SetChild1Index(0);
+      inEvent->GetTrack(6-1)->SetChildNIndex(0);
+
+      // ISR 
+      if (inEvent->GetTrack(7-1) ){ 
+	inEvent->GetTrack(7-1)->SetParentIndex(0);
+	inEvent->GetTrack(7-1)->SetChild1Index(0);
+	inEvent->GetTrack(7-1)->SetChildNIndex(0);
+      }
+    }
     
     // First, fix sloppily implemented mother-daughter relations
     // Not done for BeAGLE, because of the special vertex
