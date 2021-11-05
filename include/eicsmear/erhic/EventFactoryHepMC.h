@@ -17,6 +17,13 @@ namespace erhic {
    */
   void HandleHepmcParticle( const HepMC3::GenParticlePtr& p, std::map < HepMC3::GenParticlePtr, int >& hepmcp_index, int& particleindex, std::unique_ptr<erhic::EventHepMC>& mEvent );
 
+  /**
+     Update run-wise information.
+   */
+  void UpdateRuninfo( std::vector<VirtualEventFactory::NamedObjects>& mObjectsToWriteAtTheEnd, 
+		      const HepMC3::GenEvent& evt );
+
+
 }  // namespace erhic
 
 #endif  // INCLUDE_EICSMEAR_ERHIC_EVENTFACTORY_H_

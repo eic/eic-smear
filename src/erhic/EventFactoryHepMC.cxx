@@ -35,6 +35,7 @@
 
 #include <HepMC3/ReaderAsciiHepMC2.h>
 #include <HepMC3/ReaderAscii.h>
+#include "HepMC3/GenVertex.h"
 // The newer ReaderFactory is header-only and can be used for older versions
 // This file is copied verbatim from https://gitlab.cern.ch/hepmc/HepMC3
 // Copyright (C) 2014-2020 The HepMC collaboration, licensed under GPL3
@@ -129,13 +130,55 @@ namespace erhic {
 	// map each HepMC particle onto its corresponding particleindex
 	std::map < HepMC3::GenParticlePtr, int > hepmcp_index;
 	hepmcp_index.clear();
-
+	
 	// start with the beam
 	// Boring determination of the order:
 	auto beams = evt.beams();
 	assert ( beams.size() == 2 );
 	auto hadron = beams.at(0); // or nucleon
 	auto lepton = beams.at(1);
+
+	// Before going on to handle normal events, 
+	// catch special beam-gas-only events
+	if ( hadron->pid()==22 || lepton->pid()==22 ){
+	  if ( evt.particles().size() > 2 ){
+	    cout << "Warning: Treating the event as beam gas but found "
+		 << evt.particles().size() << " particles" << endl;
+	  }
+	  auto photon=hadron; // for clarity use the right name
+	  if ( lepton->pid()==22 ) {
+	    std::swap (lepton, photon);
+	  }
+
+	  
+	  // Still need beam particles (otherwise fun4all is confused)
+	  auto beam_e_mom = lepton->momentum() + photon->momentum();
+	  // cout << beam_e_mom.x() << " "  
+	  //      << beam_e_mom.y() << " "
+	  //      << beam_e_mom.z() << " "
+	  //      << beam_e_mom.e() << endl;
+	  auto beam_e = std::make_shared<HepMC3::GenParticle>( beam_e_mom, 11, 21 );
+	  auto v = lepton->production_vertex();
+	  v->add_particle_in  (beam_e);
+
+	  // make up a proton
+	  auto pz_p = -10.0 *beam_e_mom.z();
+	  auto e_p = sqrt ( pow(pz_p,2) + pow(0.938,2) );
+	  HepMC3::FourVector beam_p_mom ( 0,0,pz_p, e_p);
+	  auto beam_p = std::make_shared<HepMC3::GenParticle>( beam_p_mom, 2212, 21 );
+
+	  HandleHepmcParticle( beam_e, hepmcp_index, particleindex, mEvent );
+	  HandleHepmcParticle( beam_p, hepmcp_index, particleindex, mEvent );
+	  
+	  HandleHepmcParticle( lepton, hepmcp_index, particleindex, mEvent );
+	  HandleHepmcParticle( photon, hepmcp_index, particleindex, mEvent );
+
+	  // x-setion etc.
+	  UpdateRuninfo( mObjectsToWriteAtTheEnd, evt );
+	  // We're done. Avoid FinishEvent()
+	  return true;
+	}
+	     
 	// Find the lepton
 	auto pdgl = TDatabasePDG::Instance()->GetParticle( lepton->pid() );
 	auto pdgh = TDatabasePDG::Instance()->GetParticle( hadron->pid() );
@@ -297,43 +340,8 @@ namespace erhic {
 	    }
 	  }
 	}
-	// Update run-wise information.
-	// Wasteful, since it's only written out for the final event, but
-	// this class doesn't know when that happens
-	TString xsec = ""; 
-	TString xsecerr = "";
-	if ( auto xsecinfo=evt.cross_section() ){
-	  // not all generators have this info
-	  xsec += xsecinfo->xsec();
-	  xsecerr += xsecinfo->xsec_err();
-	}
-	TObjString* Xsec;
-	TObjString* Xsecerr;
-
-	// // not saved in the examples I used.
-	// TString trials = ""; trials+= evt.cross_section()->get_attempted_events();
-	// TString nevents = ""; nevents += evt.cross_section()->get_accepted_events();
-	// TObjString* Trials;
-	// TObjString* Nevents;
-
-	if ( mObjectsToWriteAtTheEnd.size() == 0 ){
-	  Xsec = new TObjString;
-	  Xsecerr = new TObjString;
-	  mObjectsToWriteAtTheEnd.push_back ( NamedObjects( "crossSection", Xsec) );
-	  mObjectsToWriteAtTheEnd.push_back ( NamedObjects( "crossSectionError", Xsecerr) );
-	  // Trials = new TObjString;
-	  // Nevents = new TObjString;
-	  // mObjectsToWriteAtTheEnd.push_back ( NamedObjects( "nTrials", Trials) );
-	  // mObjectsToWriteAtTheEnd.push_back ( NamedObjects( "nEvents", Nevents) );
-	}
-	Xsec = (TObjString*) mObjectsToWriteAtTheEnd.at(0).second;
-	Xsec->String() = xsec;
-	Xsecerr = (TObjString*) mObjectsToWriteAtTheEnd.at(1).second;
-	Xsecerr->String() = xsecerr;
-	// Trials = (TObjString*) mObjectsToWriteAtTheEnd.at(2).second;
-	// Trials->String() = trials;
-	// Nevents = (TObjString*) mObjectsToWriteAtTheEnd.at(3).second;
-	// Nevents->String() = nevents;
+	// x-setion etc.
+	UpdateRuninfo( mObjectsToWriteAtTheEnd, evt );
       }  // if
 
       auto finished = FinishEvent(); // 0 is success
@@ -365,7 +373,9 @@ namespace erhic {
     // Create the particle
     ParticleMC particle;
     auto v = p->production_vertex();
-    TVector3 vertex(v->position().x(),v->position().y(),v->position().z());
+    TVector3 vertex;
+    if ( v ) vertex = TVector3(v->position().x(),v->position().y(),v->position().z());
+
     particle.SetVertex(vertex);
     // takes care of  xv, yv, zv;
 
@@ -390,6 +400,47 @@ namespace erhic {
     mEvent->AddLast(&particle);
   }
 
+  // -----------------------------------------------------------------------
+  void UpdateRuninfo( std::vector<VirtualEventFactory::NamedObjects>& mObjectsToWriteAtTheEnd, 
+		      const HepMC3::GenEvent& evt ){
+    // Wasteful, since it's only written out for the final event, but
+    // this class doesn't know when that happens
+    TString xsec = ""; 
+    TString xsecerr = "";
+    if ( auto xsecinfo=evt.cross_section() ){
+      // not all generators have this info
+      xsec += xsecinfo->xsec();
+      xsecerr += xsecinfo->xsec_err();
+    }
+    TObjString* Xsec;
+    TObjString* Xsecerr;
+    
+    // // not saved in the examples I used.
+    // TString trials = ""; trials+= evt.cross_section()->get_attempted_events();
+    // TString nevents = ""; nevents += evt.cross_section()->get_accepted_events();
+    // TObjString* Trials;
+    // TObjString* Nevents;
+    
+    if ( mObjectsToWriteAtTheEnd.size() == 0 ){
+      Xsec = new TObjString;
+      Xsecerr = new TObjString;
+      mObjectsToWriteAtTheEnd.push_back ( VirtualEventFactory::NamedObjects( "crossSection", Xsec) );
+      mObjectsToWriteAtTheEnd.push_back ( VirtualEventFactory::NamedObjects( "crossSectionError", Xsecerr) );
+      // Trials = new TObjString;
+      // Nevents = new TObjString;
+      // mObjectsToWriteAtTheEnd.push_back ( VirtualEventFactory::NamedObjects( "nTrials", Trials) );
+      // mObjectsToWriteAtTheEnd.push_back ( VirtualEventFactory::NamedObjects( "nEvents", Nevents) );
+    }
+    Xsec = (TObjString*) mObjectsToWriteAtTheEnd.at(0).second;
+    Xsec->String() = xsec;
+    Xsecerr = (TObjString*) mObjectsToWriteAtTheEnd.at(1).second;
+    Xsecerr->String() = xsecerr;
+    // Trials = (TObjString*) mObjectsToWriteAtTheEnd.at(2).second;
+    // Trials->String() = trials;
+    // Nevents = (TObjString*) mObjectsToWriteAtTheEnd.at(3).second;
+    // Nevents->String() = nevents;
+  }
+  
 }  // namespace erhic
 
 namespace {
