@@ -23,9 +23,13 @@
 #include "HepMC3/GenVertex.h"
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenCrossSection.h"
+#include "HepMC3/Attribute.h"
+#include "HepMC3/Version.h"
 #include "HepMC3/WriterAscii.h"
 #include "HepMC3/WriterAsciiHepMC2.h"
-#include "HepMC3/Attribute.h"
+#include "HepMC3/WriterRoot.h"
+#include "HepMC3/WriterRootTree.h"
+
 
 using std::cout;
 using std::cerr;
@@ -41,6 +45,22 @@ using HepMC3::GenVertexPtr;
 using HepMC3::GenCrossSection;
 using HepMC3::GenCrossSectionPtr;
 
+// see include/eicsmear/functions.h for declaration and default values
+
+Long64_t TreeToHepMC(const int dummy,
+		     const std::string& inputFileName,
+		     const std::string& outputDirName,
+		     Long64_t maxEvent,
+		     const erhic::HepMC_outtype outtype) {
+  if ( outtype == erhic::HepMC_outtype::HepMC3 ) {
+    return TreeToHepMC(inputFileName, outputDirName,maxEvent,false);
+  }
+  if ( outtype == erhic::HepMC_outtype::HepMC2 ) {
+    return TreeToHepMC(inputFileName, outputDirName,maxEvent,true);
+  }
+  return -1;
+}
+
 
 /**
  This function converts our tree format to HepMC3
@@ -51,7 +71,6 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 		     const std::string& outputDirName,
 		     Long64_t maxEvent,
 		     const bool createHepMC2) {
-
   // Get the input file name, stripping any leading directory path via
   // use of the BaseName() method from TSystem.
   TString outName = gSystem->BaseName(inputFileName.c_str());
@@ -165,6 +184,9 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   } else {
     file = std::make_shared<HepMC3::WriterAscii>(outName.Data(),run);
   }
+  // outName.Append(".root");
+  // file = std::make_shared<HepMC3::WriterRootTree>(outName.Data(),run);
+  // file = std::make_shared<HepMC3::WriterRootTree>(outName.Data(),"tree","event",run);
 
   // Event Loop
   if (mcTree->GetEntries() < maxEvent || maxEvent < 1) {
@@ -179,6 +201,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   std::cout <<
   "/-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/"
   << std::endl;
+  maxEvent=10;
   for (Long64_t i(0); i < maxEvent; i++) {
     if (i % 10000 == 0 && i != 0) {
       std::cout << "Processing event " << i << std::endl;
@@ -518,7 +541,6 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     // Perform consistency checks and collect particles
     std::vector<GenParticlePtr> hepevt_particles;
     hepevt_particles.reserve( inEvent->GetNTracks() );
-
     for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
       const Particle* inParticle = inEvent->GetTrack(t);
       // Particles with status 1 cannot have children
@@ -622,7 +644,6 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     v_hadron->add_particle_in (hep_hadron);
     hepmc3evt.add_vertex(v_hadron);
 
-
     // For Beagle, use
     //                  
     //  e      e'               
@@ -720,19 +741,18 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	auto vnew = inParticle->GetVertex();
 	momend->set_position( FourVector( vnew.x(), vnew.y(), vnew.z(), 0));
       }
-
+      // file->write_event(hepmc3evt);
     }
-    
+
     // Done! Write the event.
     file->write_event(hepmc3evt);
-
     // There's a bunch of cleanup one should do now, with all the dynamical
     // vertices and particles. BUT shared_ptr should take care of that. Revisit if there are memory leaks.
-			      
+    // break;
     
   }  // event loop
 
-    
+  file->close();
   
   Long64_t result = 0;
   

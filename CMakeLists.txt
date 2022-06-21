@@ -318,7 +318,7 @@ else (PYTHIA6_LIBDIR)
 endif(PYTHIA6_LIBDIR)
 
 if(HepMC3_FOUND)
-  target_link_libraries(eicsmear ${HEPMC3_LIB} )
+  target_link_libraries(eicsmear ${HEPMC3_LIBRARIES} )
 endif()
 
 ##############################################################################################################

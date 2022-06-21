@@ -72,6 +72,19 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 		     Long64_t maxEvent = 0,
 		     const bool createHepMC2=false);
 
+namespace erhic{
+  enum HepMC_outtype {HepMC3, HepMC2 };
+}
+
+Long64_t TreeToHepMC(const int dummy,
+const std::string& inputFileName,
+		     const std::string& outputDirName = ".",
+		     Long64_t maxEvent = 0,
+		     const erhic::HepMC_outtype outtype = erhic::HepMC_outtype::HepMC3);
+
+
+
+
 /**
  \fn
  Identical to TreeToHepMC with an added tweak to filter on certain events.
