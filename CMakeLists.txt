@@ -35,20 +35,22 @@ set(
  # Need ROOT first to define some macros
  # 6.16 _should_ be sufficient, but I couldn't test it
  # Anything before that needs special cmake attention for dictionary generation
-find_package(ROOT 6.18 CONFIG REQUIRED)
+ # Bumping it up further toi 6.20 for smoother cmake support
+ find_package(ROOT 6.20 CONFIG REQUIRED)
 
-string(SUBSTRING ${ROOT_VERSION} 0 1 ROOT_MAJOR)
-string(SUBSTRING ${ROOT_VERSION} 2 2 ROOT_MINOR)
-message ( " ROOT_VERSION = " ${ROOT_VERSION})
-message ( " ROOT_MAJOR = " ${ROOT_MAJOR})
-message ( " ROOT_MINOR = " ${ROOT_MINOR})
-IF(${ROOT_MINOR} GREATER 24)
-  if(NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 14)
-  endif()
-ENDIF()
+ message ( " ROOT Libraries = " ${ROOT_LIBRARIES} )
 
-
+# # Clumsy hack if we ever need it again
+# string(SUBSTRING ${ROOT_VERSION} 0 1 ROOT_MAJOR)
+# string(SUBSTRING ${ROOT_VERSION} 2 2 ROOT_MINOR)
+# message ( " ROOT_VERSION = " ${ROOT_VERSION})
+# message ( " ROOT_MAJOR = " ${ROOT_MAJOR})
+# message ( " ROOT_MINOR = " ${ROOT_MINOR})
+# IF(${ROOT_MINOR} GREATER 24)
+#   if(NOT DEFINED CMAKE_CXX_STANDARD)
+#     set(CMAKE_CXX_STANDARD 14)
+#   endif()
+# ENDIF()
 
 # Is HepMC available?
 find_package(HepMC3 QUIET HINTS ${HepMC3_DIR} ${HepMC3} )
@@ -117,7 +119,6 @@ target_include_directories(eicsmear
   ${ROOT_INCLUDE_DIRS}
   )
 
-
 # Require at least c++11. Could require individual features instead too
 target_compile_features(eicsmear PUBLIC cxx_std_11)
 
@@ -161,11 +162,13 @@ message ( "---- You can specify a HepMC3 installation using \"-DHepMC3=[path/to/
 ## Note, Even using MULTIDICT option, I end up with duplicate symbols if trying to spread one library over multiple dictionaries
 ## Not worth the trouble, combining them all into one. 
 
-if(ROOT_VERSION VERSION_LESS 6.20)
-  include("${ROOT_DIR}/modules/RootNewMacros.cmake")
-else()
-  include("${ROOT_DIR}/RootMacros.cmake")
-endif()
+# if(ROOT_VERSION VERSION_LESS 6.20)
+#   include("${ROOT_DIR}/modules/RootNewMacros.cmake")
+# else()
+#   include("${ROOT_DIR}/RootMacros.cmake")
+# endif()
+
+include("${ROOT_DIR}/RootMacros.cmake")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -311,10 +314,10 @@ endif(PYTHIA6_LIBDIR)
 ## Build the library
 ## this can be improved with newer root versions
 
+target_link_libraries(eicsmear ROOT::Core ROOT::RIO ROOT::Rint ROOT::Tree ROOT::EG -lz )
+
 if(PYTHIA6_LIBDIR)
-  target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lz -lEG -lEGPythia6 -lEve )
-else (PYTHIA6_LIBDIR)
-  target_link_libraries(eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lz -lEG )
+  target_link_libraries(eicsmear ROOT::EGPythia6 ROOT::Eve )
 endif(PYTHIA6_LIBDIR)
 
 if(HepMC3_FOUND)
@@ -340,7 +343,6 @@ target_include_directories(eic-smear
 # endif()
 install(TARGETS eic-smear DESTINATION bin)
 
-
 ## pythia6:
 if ( PYTHIA6_LIBDIR )
   add_executable(compiled_runpythia
@@ -357,7 +359,7 @@ if ( PYTHIA6_LIBDIR )
 
   
 target_link_libraries(compiled_runpythia
-    eicsmear ${ROOT_LIBRARIES} -L${ROOT_LIBRARY_DIR} -lEG -lEGPythia6 -lEve
+    eicsmear ROOT::Core ROOT::RIO ROOT::Rint ROOT::Tree ROOT::EG ROOT::EGPythia6 ROOT::Eve
     )
 endif(PYTHIA6_LIBDIR)
 
