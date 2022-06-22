@@ -37,6 +37,19 @@ set(
  # Anything before that needs special cmake attention for dictionary generation
 find_package(ROOT 6.18 CONFIG REQUIRED)
 
+string(SUBSTRING ${ROOT_VERSION} 0 1 ROOT_MAJOR)
+string(SUBSTRING ${ROOT_VERSION} 2 2 ROOT_MINOR)
+message ( " ROOT_VERSION = " ${ROOT_VERSION})
+message ( " ROOT_MAJOR = " ${ROOT_MAJOR})
+message ( " ROOT_MINOR = " ${ROOT_MINOR})
+IF(${ROOT_MINOR} GREATER 24)
+  if(NOT DEFINED CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 14)
+  endif()
+ENDIF()
+
+
+
 # Is HepMC available?
 find_package(HepMC3 QUIET HINTS ${HepMC3_DIR} ${HepMC3} )
 
@@ -305,7 +318,7 @@ else (PYTHIA6_LIBDIR)
 endif(PYTHIA6_LIBDIR)
 
 if(HepMC3_FOUND)
-  target_link_libraries(eicsmear ${HEPMC3_LIB} )
+  target_link_libraries(eicsmear ${HEPMC3_LIBRARIES} )
 endif()
 
 ##############################################################################################################

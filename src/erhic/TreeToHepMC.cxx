@@ -23,9 +23,14 @@
 #include "HepMC3/GenVertex.h"
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenCrossSection.h"
+#include "HepMC3/Attribute.h"
+#include "HepMC3/Version.h"
 #include "HepMC3/WriterAscii.h"
 #include "HepMC3/WriterAsciiHepMC2.h"
-#include "HepMC3/Attribute.h"
+#include "HepMC3/WriterRoot.h"
+#include "HepMC3/WriterRootTree.h"
+
+#include <map>
 
 using std::cout;
 using std::cerr;
@@ -41,6 +46,7 @@ using HepMC3::GenVertexPtr;
 using HepMC3::GenCrossSection;
 using HepMC3::GenCrossSectionPtr;
 
+// see include/eicsmear/functions.h for declaration and default values
 
 /**
  This function converts our tree format to HepMC3
@@ -50,25 +56,13 @@ using HepMC3::GenCrossSectionPtr;
 Long64_t TreeToHepMC(const std::string& inputFileName,
 		     const std::string& outputDirName,
 		     Long64_t maxEvent,
-		     const bool createHepMC2) {
-
-  // Get the input file name, stripping any leading directory path via
-  // use of the BaseName() method from TSystem.
-  TString outName = gSystem->BaseName(inputFileName.c_str());
+		     const erhic::HepMC_outtype outtype) {
   
   // Make sure this is a root file, 
-  if ( !outName.EndsWith(".root", TString::kIgnoreCase) ){
+  if ( !TString(inputFileName).EndsWith(".root", TString::kIgnoreCase) ){
     cerr << "Warning: " << inputFileName << " does not end with .root" << endl;
   }
   
-  // Replace the extension
-  outName.Replace(outName.Last('.'), outName.Length(), "");
-  outName.Append(".hepmc");
-
-  TString outDir(outputDirName);
-  if (!outDir.EndsWith("/")) outDir.Append('/');
-  outName.Prepend(outDir);
-
   // Open the input file and get the Monte Carlo tree from it.
   // Complain and quit if we don't find the file or the tree.
   TFile inFile(inputFileName.c_str(), "READ");
@@ -158,14 +152,45 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     }
   }
 
+  // Construct the output from the input file name,
+  // stripping any leading directory path via
+  // use of the BaseName() method from TSystem.
+  TString outName = gSystem->BaseName(inputFileName.c_str());
+  // Replace the extension
+  outName.Replace(outName.Last('.'), outName.Length(), "");
+  outName.Append(".hepmc");
+
+  TString outDir(outputDirName);
+  if (!outDir.EndsWith("/")) outDir.Append('/');
+  outName.Prepend(outDir);
+
+  // Could also use a std::map<HepMC_outtype,std::shared_ptr<HepMC3::Writer> or somesuch
   // Open the output file.
   std::shared_ptr<HepMC3::Writer> file;
-  if ( createHepMC2 ){
+  switch ( outtype ) {
+  case erhic::HepMC_outtype::HepMC2 :
     file = std::make_shared<HepMC3::WriterAsciiHepMC2>(outName.Data(),run);
-  } else {
+    break;
+  case erhic::HepMC_outtype::HepMC3 :
     file = std::make_shared<HepMC3::WriterAscii>(outName.Data(),run);
+    break;
+  case erhic::HepMC_outtype::RootTree :
+    // a tree of (serialized, rootified) GenEvents
+    outName.Append(".root");
+    file = std::make_shared<HepMC3::WriterRootTree>(outName.Data(),run);
+    // file = std::make_shared<HepMC3::WriterRootTree>(outName.Data(),"tree","event",run);
+    break;
+  case erhic::HepMC_outtype::Root :
+    // a flat collection of N (serialized, rootified) GenEvents
+    outName.Append(".root");
+    file = std::make_shared<HepMC3::WriterRoot>(outName.Data(),run);
+    break;
+  default :
+    cerr << "Unknown HepMC_outtype" << endl;
+    return -1;
+    break; // Unneeded, except sometimes cint gets confused
   }
-
+  
   // Event Loop
   if (mcTree->GetEntries() < maxEvent || maxEvent < 1) {
     maxEvent = mcTree->GetEntries();
@@ -179,6 +204,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   std::cout <<
   "/-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/"
   << std::endl;
+
   for (Long64_t i(0); i < maxEvent; i++) {
     if (i % 10000 == 0 && i != 0) {
       std::cout << "Processing event " << i << std::endl;
@@ -518,7 +544,6 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     // Perform consistency checks and collect particles
     std::vector<GenParticlePtr> hepevt_particles;
     hepevt_particles.reserve( inEvent->GetNTracks() );
-
     for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
       const Particle* inParticle = inEvent->GetTrack(t);
       // Particles with status 1 cannot have children
@@ -622,7 +647,6 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     v_hadron->add_particle_in (hep_hadron);
     hepmc3evt.add_vertex(v_hadron);
 
-
     // For Beagle, use
     //                  
     //  e      e'               
@@ -720,21 +744,56 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	auto vnew = inParticle->GetVertex();
 	momend->set_position( FourVector( vnew.x(), vnew.y(), vnew.z(), 0));
       }
-
+      // file->write_event(hepmc3evt);
     }
-    
+
     // Done! Write the event.
     file->write_event(hepmc3evt);
-
     // There's a bunch of cleanup one should do now, with all the dynamical
     // vertices and particles. BUT shared_ptr should take care of that. Revisit if there are memory leaks.
-			      
+    // break;
     
   }  // event loop
 
-    
+  file->close();
   
   Long64_t result = 0;
   
   return result;
 }
+
+
+/**
+Deprecated legacy wrapper */
+
+Long64_t TreeToHepMC(const std::string& inputFileName,
+		     const std::string& outputDirName,
+		     Long64_t maxEvent,
+		     const bool createHepMC2){
+  if ( createHepMC2 ) {
+    cout << "Warning, this interface is deprecated, please use:" << endl;
+    cout << "TreeToHepMC(\""<< inputFileName<< "\",\""<< outputDirName
+	 << "\","<< maxEvent << ","
+	 << "erhic::HepMC_outtype::HepMC2)"
+	 << endl;
+    return TreeToHepMC(inputFileName,outputDirName,maxEvent,erhic::HepMC_outtype::HepMC2);
+  } else {
+    cout << "Warning, this interface is deprecated, please use:" << endl;
+    cout << "TreeToHepMC(\""<< inputFileName<< "\",\""<< outputDirName
+	 << "\","<< maxEvent << ","
+	 << "erhic::HepMC_outtype::HepMC3)"
+	 << endl;
+    return TreeToHepMC(inputFileName,outputDirName,maxEvent,erhic::HepMC_outtype::HepMC3);
+  }
+
+      
+  //   outtype == erhic::HepMC_outtype::HepMC3 ) {
+  //   return TreeToHepMC(inputFileName, outputDirName,maxEvent,false);
+  // }
+  // if ( outtype == erhic::HepMC_outtype::HepMC2 ) {
+  //   return TreeToHepMC(inputFileName, outputDirName,maxEvent,true);
+  // }
+  return -1;
+}
+
+
