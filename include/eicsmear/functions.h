@@ -64,35 +64,30 @@ Long64_t BuildTree(const std::string& inputFileName,
                    const std::string& logFileName = "");
 
 /**
+ \enum
+ Allows to choose various output formats supported by HepMC
+ */
+namespace erhic{
+  enum HepMC_outtype {HepMC3, HepMC2, RootTree, Root };
+}
+
+/**
  \fn
  Function for generating a HepMC file from en EICTree ROOT file.
  */
 Long64_t TreeToHepMC(const std::string& inputFileName,
 		     const std::string& outputDirName = ".",
 		     Long64_t maxEvent = 0,
-		     const bool createHepMC2=false);
-
-namespace erhic{
-  enum HepMC_outtype {HepMC3, HepMC2 };
-}
-
-Long64_t TreeToHepMC(const int dummy,
-const std::string& inputFileName,
-		     const std::string& outputDirName = ".",
-		     Long64_t maxEvent = 0,
 		     const erhic::HepMC_outtype outtype = erhic::HepMC_outtype::HepMC3);
-
-
-
 
 /**
  \fn
- Identical to TreeToHepMC with an added tweak to filter on certain events.
- Currently, only accept events with a charmed final state
+ Deprecated legacy wrapper
  */
-Long64_t FilterTreeToHepMC(const std::string& inputFileName,
-			   const std::string& outputDirName = ".",
-			   Long64_t maxEvent = 0);
+Long64_t TreeToHepMC(const std::string& inputFileName,
+		     const std::string& outputDirName = ".",
+		     Long64_t maxEvent = 0,
+		     const bool createHepMC2=false);
 
 /**
  Produces a DOT file describing the particle content of the event.
