@@ -467,6 +467,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	if ( c1>0 ) {
 	  for ( UShort_t c = c1; c<=cN; ++c ){ // sigh. index starts at 1, tracks at 0;
 	    Particle* child = inEvent->GetTrack(c-1);
+	    if ( !child ) {
+	      cerr << "Trying to access a non-existant child" << endl;
+	      cerr << "Event is " << i << "  Problem index is " << c << endl;
+	      throw;
+	    }
+ 
 	    // std::cout << "     Processing child with index " << child->GetIndex() << std::endl;
 	    auto p1 = child->GetParentIndex();
 	    auto pN = child->GetParentIndex1();
@@ -596,6 +602,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	}
       }
 
+      // // catch DJANGOH trying to assign 4 to non beams
+      // if ( t>3  && (statusHepMC == 4 ) ){
+      // 	  cout << "Naughty Djangoh" << endl;
+      // 	  statusHepMC=14;
+      // }
+      
       // force everything else to be legal
       if ( statusHepMC != 1 && statusHepMC != 2 && statusHepMC != 4 ){
 	while ( statusHepMC <=10 ) statusHepMC+=10;
