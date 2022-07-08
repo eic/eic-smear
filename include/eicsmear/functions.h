@@ -85,8 +85,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
  Deprecated legacy wrapper
  */
 Long64_t TreeToHepMC(const std::string& inputFileName,
-		     const std::string& outputDirName = ".",
-		     Long64_t maxEvent = 0,
+		     const std::string& outputDirName,
+		     Long64_t maxEvent,
 		     const bool createHepMC2=false);
 
 /**
