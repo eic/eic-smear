@@ -499,6 +499,19 @@ File<T>::~File() {
   }  // if
 }
 
+template class File<EventDjangoh>;
+template class File<EventDpmjet>;
+template class File<EventMilou>;
+template class File<EventPepsi>;
+template class File<EventPythia>;
+template class File<EventBeagle>;
+template class File<EventRapgap>;
+template class File<EventGmcTrans>;
+template class File<EventSimple>;
+template class File<EventDEMP>;
+template class File<EventSartre>;
+// File<EventHepMC> is specialized in the File.h
+
 std::string FileType::GetGeneratorName() const {
     return generatorname;
 }
