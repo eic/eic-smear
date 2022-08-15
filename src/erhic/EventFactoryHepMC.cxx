@@ -282,7 +282,7 @@ namespace erhic {
 	// Now the map has built up full 1-1 correspondence between all hepmc particles
 	// and the ParticleMC index.
 	// So we can loop over the particles again, find their parents and offspring, and map accordingly.
-	// We explicitly take advantage of particleid = Event entry # +1
+	// We explicitly take advantage of particle index = Event entry # +1
 	// If that changes, we'll need to maintain a second map
 	// Note: the beam proton appears twice; that's consistent with the behavior of pythia6
 	for (auto& v : evt.vertices() ){

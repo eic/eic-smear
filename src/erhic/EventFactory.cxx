@@ -130,12 +130,9 @@ namespace erhic {
 
   template<typename T>
   Int_t EventFromAsciiFactory<T>::FinishEvent() {
-    std::unique_ptr<DisKinematics> nm(
-				      LeptonKinematicsComputer(*mEvent).Calculate());
-    std::unique_ptr<DisKinematics> jb(
-				      JacquetBlondelComputer(*mEvent).Calculate());
-    std::unique_ptr<DisKinematics> da(
-				      DoubleAngleComputer(*mEvent).Calculate());
+    std::unique_ptr<DisKinematics> nm( LeptonKinematicsComputer(*mEvent).Calculate());
+    std::unique_ptr<DisKinematics> jb( JacquetBlondelComputer(*mEvent).Calculate());
+    std::unique_ptr<DisKinematics> da( DoubleAngleComputer(*mEvent).Calculate());
     if (nm.get()) {
       mEvent->SetLeptonKinematics(*nm);
     }  // if
@@ -153,10 +150,8 @@ namespace erhic {
     // Find the beams, exchange boson, scattered lepton.
     BeamParticles beams;
     if (!ParticleIdentifier::IdentifyBeams(*mEvent, beams)) {
-      std::cerr <<
-	"EventFromAsciiFactory::FinishEvent(): failed to find beams"
-		<< std::endl;
-      return 0;
+      std::cerr << "EventFromAsciiFactory::FinishEvent(): failed to find beams"	<< std::endl;
+      return -1;
     }  // if
     const TLorentzVector h = beams.BeamHadron();
     TLorentzVector l = beams.BeamLepton();
