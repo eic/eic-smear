@@ -86,17 +86,7 @@ namespace erhic {
 
   template<>
   void EventFromAsciiFactory<erhic::EventHepMC>::FindFirstEvent()  {
-    // Can't accept gzstreams
-    auto inputtest = dynamic_cast<std::ifstream*> (mInput);
-    if ( !inputtest ){
-      std::cerr << "HepMC currently only supports ifstream (no compressed files)." << endl;
-      throw;
-    }
-    
-    // return to the top (first line was used to determine the type
-    mInput->clear();
-    mInput->seekg(0, std::ios::beg);
-    
+    // nothing to do
   }
 
   template<>

@@ -15,6 +15,7 @@
 
 #include <TSystem.h>
 
+#include "eicsmear/gzstream.h"
 #include "eicsmear/erhic/EventPepsi.h"
 #include "eicsmear/erhic/EventDjangoh.h"
 #include "eicsmear/erhic/EventDpmjet.h"
@@ -24,6 +25,12 @@
 #include "eicsmear/erhic/EventSimple.h"
 #include "eicsmear/erhic/EventDEMP.h"
 #include "eicsmear/erhic/EventSartre.h"
+
+#include <HepMC3/Version.h>
+
+using std::cout;
+using std::cerr;
+using std::endl;
 
 
 static void LogLineParse(std::string line, const std::string searchPattern, std::string& toupdate, const double rescale=1 ){
@@ -536,14 +543,13 @@ const FileType* FileFactory::GetFile(const std::string& name) const {
   FileType* file(NULL);
   if (prototypes_.find(name) != prototypes_.end()) {
     file = prototypes_.find(name)->second->Create();
-    if ( TString(name).Contains("hepmc2") )file->SetGeneratorName( "hepmc2");
-    if ( TString(name).Contains("hepmc3") )file->SetGeneratorName( "hepmc3");
+    if ( TString(name).Contains("hepmc") )file->SetGeneratorName( "hepmc");
   }  // if
 
   return file;
 }
 
-const FileType* FileFactory::GetFile(std::istream& is) const {
+const FileType* FileFactory::GetFile(std::shared_ptr<std::istream>& isp, const std::string fileName) const {
   std::string line;
 
   // Note: This "uses up" the first line, subsequent readers
@@ -555,8 +561,6 @@ const FileType* FileFactory::GetFile(std::istream& is) const {
   // So the class only knows the stream
   // and the Filetype.
   // We could
-  // - template out further into erhic::EventHepMC2 and erhic::EventHepMC3
-  //   But that means either excessive code duplication or yet another level of abstract interface
   // - reset the stream. Seekg, tellg don't work for gzstream, and close/open need the name of the file
   //   which already this class doesnt know
   // - use globals - no thanks
@@ -566,7 +570,7 @@ const FileType* FileFactory::GetFile(std::istream& is) const {
 
   // skip empty lines (thanks, hepmc2...)
   do {
-    std::getline(is, line);
+    std::getline(*isp, line);
   } while (line.empty());
 
   // Use TString::ToLower() to convert the input name to all
@@ -597,32 +601,37 @@ const FileType* FileFactory::GetFile(std::istream& is) const {
   } else if (str.Contains("sartre")) {
     file = GetFile("sartre");
   } else if (str.Contains("hepmc")) {
-    // The first line looks like "HepMC::Version <version>"
-    // strip this, the next character is the major HepMC version
-    std::string toErase("HepMC::Version ");
-    size_t pos = line.find(toErase);
-    if (pos != std::string::npos) {
-      // If found then erase it from string
-      line.erase(pos, toErase.length());
+
+    // We have to repair the stream by reading it fresh
+    // Open the input file for reading.
+    if ( TString(fileName).EndsWith("gz", TString::kIgnoreCase) ||
+	 TString(fileName).EndsWith("zip", TString::kIgnoreCase)){
+#if HEPMC3_VERSION_CODE < 3002005      
+      // Can't accept gzstreams before 3.2.5
+      std::cerr << "HepMC before v 3.2.5 only supports ifstream (no compressed files)." << endl;
+      throw;
+#endif // HEPMC3_VERSION_CODE < 3002004
+      
+      auto tmp = std::make_shared<igzstream>();
+      tmp->open(fileName.c_str());
+      // Throw a runtime_error if the file could not be opened.
+      if (!tmp->good()) {
+	std::string message("Unable to open file ");
+	throw std::runtime_error(message.append(fileName));
+      }  // if
+      isp=tmp;
     } else {
-      std::cerr << "Cannot parse " << line << std::endl;
-      throw;
-    }
-    auto version = std::stoi(line.substr(0,1));
-    switch (version){
-    case 2 :
-      file = GetFile("hepmc2");
-      break;
-    case 3 :
-      file = GetFile("hepmc3");
-      break;
-    default :
-      std::cerr << "Unsupported HepMC version " << version << std::endl;
-      throw;
-      break;
-    }
-    
-  }  // if
+      auto tmp = std::make_shared<std::ifstream>();
+      tmp->open(fileName.c_str());
+      // Throw a runtime_error if the file could not be opened.
+      if (!isp->good()) {
+	std::string message("Unable to open file ");
+	throw std::runtime_error(message.append(fileName));
+      }  // if
+      isp=tmp;
+    }  // if
+    file = GetFile("hepmc");
+  }
   return file;
 }
 
@@ -649,9 +658,7 @@ FileFactory::FileFactory() {
                                     new File<EventDEMP>()));
   prototypes_.insert(std::make_pair("sartre",
                                     new File<EventSartre>()));
-  prototypes_.insert(std::make_pair("hepmc2",
-                                    new File<EventHepMC>()));
-  prototypes_.insert(std::make_pair("hepmc3",
+  prototypes_.insert(std::make_pair("hepmc",
                                     new File<EventHepMC>()));
 
 }

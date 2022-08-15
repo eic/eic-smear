@@ -155,7 +155,9 @@ bool Forester::OpenInput() {
     }
     
     // Determine which Monte Carlo generator produced the file.
-    mFile = erhic::FileFactory::GetInstance().GetFile(*mTextFile);
+    // hand over file name too, because the next function is destructive to the stream
+    // and gzipped hepmc files need to reopen the stream
+    mFile = erhic::FileFactory::GetInstance().GetFile(mTextFile, GetInputFileName());
     if (!mFile) {
       throw std::runtime_error(GetInputFileName() +
     			       " is not from a supported generator");

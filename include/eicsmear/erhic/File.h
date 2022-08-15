@@ -601,7 +601,7 @@ class FileFactory {
   /**
    Returns a FileType object, determining the generator type from a stream.
    */
-  const FileType* GetFile(std::istream&) const;
+  const FileType* GetFile(std::shared_ptr<std::istream>& isp, const std::string fileName="") const;
 
  protected:
   /**
