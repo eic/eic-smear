@@ -243,7 +243,6 @@ namespace erhic {
 	// -> we can go until we run out of children, the lepton won't decay
 	//    or we can go until the status is final, the result should be the same
 	// There's no clear-cut final() method though, so we go through the end and hope!
-	auto spid = scatteredlepton->pid();
 	// avoid endless loop
 	bool foundbranch=true;
 	while ( scatteredlepton->children().size() > 0 ){
@@ -252,7 +251,8 @@ namespace erhic {
 	  }
 	  foundbranch=false;
 	  for ( auto& c : scatteredlepton->children() ){
-	    if ( c->pid() == spid ){
+	    auto pdgl = TDatabasePDG::Instance()->GetParticle( c->pid() );
+	    if ( string(pdgl->ParticleClass()) == "Lepton" ){
 	      // found the correct branch,
 	      // update and break out of for loop,
 	      // resume while loop with new candidate
@@ -261,12 +261,6 @@ namespace erhic {
 	      break;
 	    }
 	  }
-	}
-
-	if ( scatteredlepton->pid() != lepton->pid() ){
-	  cerr << "lepton  pid = " << lepton->pid() << endl;
-	  cerr << "scattered lepton  pid = " << scatteredlepton->pid() << endl;
-	  throw std::runtime_error ("Scattered lepton pid mismatch.");
 	}
 
 	// Now add all four in the right order

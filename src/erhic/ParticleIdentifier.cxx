@@ -12,9 +12,14 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <string>
+
+#include <TParticlePDG.h>
+#include <TDatabasePDG.h>
 
 #include "eicsmear/erhic/EventMC.h"
 
+using std::string;
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -50,9 +55,12 @@ bool ParticleIdentifier::isBeamLepton(
 // =============================================================================
 // Identify the scattered lepton
 // =============================================================================
-bool ParticleIdentifier::isScatteredLepton(
-         const erhic::VirtualParticle& particle) const {
-  return ( particle.GetStatus() == 1  && particle.Id()==mScatteredPdgCode);
+bool ParticleIdentifier::isScatteredLepton(const erhic::VirtualParticle& particle) const {
+  auto pdgl = TDatabasePDG::Instance()->GetParticle( particle.Id() );
+  
+  return ( particle.GetStatus() == 1  && string(pdgl->ParticleClass()) == "Lepton" );
+  // the old version here ignores flavor change, such as charged current dis
+  // return ( particle.GetStatus() == 1  && particle.Id()==mScatteredPdgCode);
 }
 
 // =============================================================================
