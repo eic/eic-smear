@@ -314,7 +314,7 @@ endif(PYTHIA6_LIBDIR)
 ## Build the library
 ## this can be improved with newer root versions
 
-target_link_libraries(eicsmear ROOT::Core ROOT::RIO ROOT::Rint ROOT::Tree ROOT::EG -lz )
+target_link_libraries(eicsmear ROOT::Core ROOT::RIO ROOT::Rint ROOT::Tree ROOT::EG ROOT::Physics -lz )
 
 if(PYTHIA6_LIBDIR)
   target_link_libraries(eicsmear ROOT::EGPythia6 ROOT::Eve )
