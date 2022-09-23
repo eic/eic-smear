@@ -26,7 +26,7 @@ bool EventDjangoh::Parse(const std::string& line) {
   dtrueY >> dtrueQ2 >> dtrueX >> dtrueW2 >> dtrueNu >>
   sigTot >> sigTotErr >> D >> F1NC >> F3NC >> G1NC >> G3NC >>
   A1NC >> F1CC >> F3CC >> G1CC >> G5CC >>
-  nTracks;
+  nTracks >> evtstatus;
   // Protect against errors in the input file or the stream
   return !ss.fail();
 }
