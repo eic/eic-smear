@@ -1,4 +1,12 @@
 Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Wed Nov 30 14:25:06 2022 -0400
+	Declared version 1.1.10
+
+Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Mon Aug 15 10:50:40 2022 -0400
+	Added support for gzipped files if HepMC3 version is at least 3.2.5
+
+Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Fri Sep 24 11:45:06 2021 -0400
 	HepMC reader now uses deduce_reader
 	HepMC writer handles scattered lepton correctly
