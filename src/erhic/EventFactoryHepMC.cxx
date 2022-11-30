@@ -124,6 +124,11 @@ namespace erhic {
 	// start with the beam
 	// Boring determination of the order:
 	auto beams = evt.beams();
+	// for ( auto& p : beams ){
+	//   cout << p << endl;
+	// }
+	// cout << beams.size() << endl;
+	// throw(-1);
 	assert ( beams.size() == 2 );
 	auto hadron = beams.at(0); // or nucleon
 	auto lepton = beams.at(1);
