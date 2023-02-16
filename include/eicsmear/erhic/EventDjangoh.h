@@ -57,6 +57,7 @@ class EventDjangoh : public EventMC {
   Int_t dprocess;
   Int_t dstruckparton;
   Int_t dpartontrck;
+  Int_t evtstatus;
   Double32_t dY;
   Double32_t dQ2;
   Double32_t dX;
