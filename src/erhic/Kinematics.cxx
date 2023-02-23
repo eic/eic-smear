@@ -66,46 +66,6 @@ double bounded(double x, double minimum, double maximum) {
   // return std::max(minimum, std::min(x, maximum));
 }
 
-// ==========================================================================
-// Returns the energy of a particle based on either its stored energy or
-// its total momentum and its mass.
-// If the particle's momentum is greater than zero, tracking information is
-// assumed to have been present and the particle's momentum is used to
-// calculate energy, via E^2 = p^2 + m^2.
-// For mass, if the particle ID is available, use the mass of that particle.
-// If not, assume the charged pion mass.
-// If momentum is not greater than zero, returns the stored energy of the
-// particle (only calorimeter information is assumed to be available).
-// ==========================================================================
-struct EnergyFromMomentumAndId : public std::unary_function<const Particle*,
-                                                            double> {
-  double operator()(const Particle* p) const {
-    if (!p) {
-      return 0.;
-    }  // if
-       // Use the stored energy and zero mass as the default.
-    double energy(p->GetE());
-    double mass(0.);
-    // If momentum greater than zero, we assume the particle represents
-    // data where tracking information was available, and we use the
-    // momentum to compute energy.
-    if (p->GetP() > 0.) {
-      TParticlePDG* pdg = p->Id().Info();
-      // Skip pid of 0 (the default) as this is a dummy "ROOTino".
-      if (pdg && p->Id() != 0) {
-        mass = pdg->Mass();
-      } else {
-        // The particle must be charged to have tracking information
-        // so set the assumed mass to that of a charged pion.
-        mass = chargedPionMass;
-      }  // if
-         // Compute energy from p and m
-      energy = sqrt(pow(p->GetP(), 2.) + pow(mass, 2.));
-    }  // if
-    return energy;
-  }
-};
-
 /*
  Calculates kinematic information that is knowable by a detector.
  
@@ -207,38 +167,6 @@ class MeasuredParticle {
       }
     }  // if
     return ep;
-  }
-};
-
-// ==========================================================================
-// Returns the energy-momentum 4-vector of a particle.
-// The returned energy is that computed using EnergyFromMomentumAndId, not
-// the stored energy of the particle.
-// ==========================================================================
-struct EnergyMomentum4Vector : public std::unary_function<const Particle*,
-                                                          TLorentzVector> {
-  TLorentzVector operator()(const Particle* p) const {
-    TLorentzVector ep;
-    if (p) {
-      ep = p->Get4Vector();
-      // Attempt to calculate a (hopefully more precise) energy
-      // using momentum and mass.
-      ep.SetE(EnergyFromMomentumAndId()(p));
-    }  // if
-    return ep;
-  }
-};
-
-// ==========================================================================
-// Helper functor for calculating E - p_z of a particle.
-// ==========================================================================
-struct EMinusPz : public std::unary_function<const Particle*, double> {
-  double operator()(const Particle* p) const {
-    TLorentzVector fourMomentum(0., 0., 0., 0.);
-    if (p) {
-      fourMomentum = EnergyMomentum4Vector()(p);
-    }  // if
-    return fourMomentum.E() - fourMomentum.Pz();
   }
 };
 
