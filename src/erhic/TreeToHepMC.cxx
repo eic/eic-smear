@@ -665,7 +665,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     //   \v1__/                 i1      f1
     //         \_gamma        /    \   /
     //                 \ _v2_/__i2__ v3__f2
-    //                 /     \      / \
+    //                 /     \      / \                (*)
     //             proton     \iN /    \fN
     //
     // where i1, .., iN are intermediate (!=1) and f1,..fN are final
@@ -675,10 +675,11 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     // and keep their children, e.g.:
     // 
     //   v2_/__i2__ v3__J/psi__e
-    //                \      \
+    //                \      \                          (*)
     //                 \fN    e
     //
     // (But also keep decay chains)
+    // (*) comment lines ending in "\" generate compiler warnings 
     
     // Dummy to act as a catchall for intermediary particles in beagle
     GenVertexPtr v_beagle_final = std::make_shared<GenVertex>();
