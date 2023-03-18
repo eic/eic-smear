@@ -465,13 +465,18 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	if ( cN==0 ) cN =c1;
 	if ( c1>cN ) std::swap(c1,cN);
 	if ( c1>0 ) {
-	  bool evtokay=true;
+	  
+	  //In a small number of Djangoh events, the particle list will be incomplete.
+	  //A particle will have a child which is not included in the particle list.
+	  bool djangohproblem = false;
+
 	  for ( UShort_t c = c1; c<=cN; ++c ){ // sigh. index starts at 1, tracks at 0;
 	    Particle* child = inEvent->GetTrack(c-1);
 	    if ( !child ) {
 	      cerr << "Trying to access a non-existant child" << endl;
 	      cerr << "Event is " << i << "  Problem index is " << c << endl;
-	      evtokay=false;
+	      cerr << "If this is not a djangoh file, please contact the eic-smear developers"<<endl;
+	      djangohproblem = true;
 	      break;
 	    }
  
@@ -523,7 +528,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	      // }
 	    }
 	  }
-	  if(!evtokay) continue;
+	  if(djangohproblem) continue;
 	}
 	// Do my parents acknowledge me?
 	auto p1 = inParticle->GetParentIndex();
