@@ -718,7 +718,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       int index = inParticle->GetIndex();
       if ( index==index_lepton || index==index_boson || index==index_hadron) continue;
       auto hep_in = hepevt_particles.at( index-1);
-      auto hep_mom = hep_boson;
+      // auto hep_mom = hep_boson;
+      auto hep_mom = hep_hadron;
       int momindex = inParticle->GetParentIndex();
       auto statusHepMC = inParticle->GetStatus();
       
