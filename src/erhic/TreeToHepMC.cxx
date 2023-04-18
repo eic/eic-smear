@@ -722,6 +722,18 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       auto hep_mom = hep_hadron;
       int momindex = inParticle->GetParentIndex();
       auto statusHepMC = inParticle->GetStatus();
+
+      //if( (statusHepMC==1) && (abs(inParticle->Id())==1 || abs(inParticle->Id())==2 || abs(inParticle->Id())==3) ){
+	//cout << "Event is " << i << endl;
+	//cout<<"Found a final-state quark!!"<<endl; 
+      //}
+      
+      if( statusHepMC==1 && 
+	  (abs(inParticle->Id())==1 || abs(inParticle->Id())==2 || abs(inParticle->Id())==3 || 
+	   abs(inParticle->Id())==90 || inParticle->Id()==91 || inParticle->Id()==92)
+	){
+		if(momindex==1) momindex+=1;	
+	}
       
       // suppress all the intermediate nucleons
       // this may be worth doing anyway  just to reduce filesize
