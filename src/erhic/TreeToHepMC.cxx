@@ -723,17 +723,15 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       int momindex = inParticle->GetParentIndex();
       auto statusHepMC = inParticle->GetStatus();
 
-      //if( (statusHepMC==1) && (abs(inParticle->Id())==1 || abs(inParticle->Id())==2 || abs(inParticle->Id())==3) ){
-	//cout << "Event is " << i << endl;
-	//cout<<"Found a final-state quark!!"<<endl; 
-      //}
-      
-      if( statusHepMC==1 && 
+      //For Djangoh events which fail to hadronize, shift the parent of the
+      //final-state parton from the incoming electron beam to th hadron beam     
+      if (branchClass->InheritsFrom("erhic::EventDjangoh")){
+      	if( statusHepMC==1 && momindex==1 &&
 	  (abs(inParticle->Id())==1 || abs(inParticle->Id())==2 || abs(inParticle->Id())==3 || 
-	   abs(inParticle->Id())==90 || inParticle->Id()==91 || inParticle->Id()==92)
-	){
-		if(momindex==1) momindex+=1;	
+	   abs(inParticle->Id())==90 || inParticle->Id()==91 || inParticle->Id()==92) ){ 
+		momindex+=1;
 	}
+      }
       
       // suppress all the intermediate nucleons
       // this may be worth doing anyway  just to reduce filesize
