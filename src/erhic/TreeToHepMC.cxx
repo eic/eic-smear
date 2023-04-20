@@ -622,6 +622,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	while ( statusHepMC >200 ) statusHepMC-=10;
       }
 
+      //In the Pythia 6 convention, status=4 indicates a particle which could
+      //have decayed but did not within the allowed volume around the vertex.
+      //We adjust these particles to have status=1 in the HepMC file to avoid
+      //confusion with the beam particles.
+      if( statusHepMC == 4) statusHepMC = 1;
+
       // Create GenParticle
       hepevt_particles.push_back( std::make_shared<GenParticle>( pv, inParticle->Id(), statusHepMC ));
       hepevt_particles.back()->set_generated_mass( inParticle->GetM() );
