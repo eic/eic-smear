@@ -465,12 +465,19 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	if ( cN==0 ) cN =c1;
 	if ( c1>cN ) std::swap(c1,cN);
 	if ( c1>0 ) {
+	  
+	  //In a small number of Djangoh events, the particle list will be incomplete.
+	  //A particle will have a child which is not included in the particle list.
+	  bool djangohproblem = false;
+
 	  for ( UShort_t c = c1; c<=cN; ++c ){ // sigh. index starts at 1, tracks at 0;
 	    Particle* child = inEvent->GetTrack(c-1);
 	    if ( !child ) {
 	      cerr << "Trying to access a non-existant child" << endl;
 	      cerr << "Event is " << i << "  Problem index is " << c << endl;
-	      throw;
+	      cerr << "If this is not a djangoh file, please contact the eic-smear developers"<<endl;
+	      djangohproblem = true;
+	      break;
 	    }
  
 	    // std::cout << "     Processing child with index " << child->GetIndex() << std::endl;
@@ -521,6 +528,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	      // }
 	    }
 	  }
+	  if(djangohproblem) continue;
 	}
 	// Do my parents acknowledge me?
 	auto p1 = inParticle->GetParentIndex();
@@ -613,6 +621,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	while ( statusHepMC <=10 ) statusHepMC+=10;
 	while ( statusHepMC >200 ) statusHepMC-=10;
       }
+
+      //In the Pythia 6 convention, status=4 indicates a particle which could
+      //have decayed but did not within the allowed volume around the vertex.
+      //We adjust these particles to have status=1 in the HepMC file to avoid
+      //confusion with the beam particles.
+      if( statusHepMC == 4) statusHepMC = 1;
 
       // Create GenParticle
       hepevt_particles.push_back( std::make_shared<GenParticle>( pv, inParticle->Id(), statusHepMC ));
@@ -710,9 +724,20 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       int index = inParticle->GetIndex();
       if ( index==index_lepton || index==index_boson || index==index_hadron) continue;
       auto hep_in = hepevt_particles.at( index-1);
-      auto hep_mom = hep_boson;
+      // auto hep_mom = hep_boson;
+      auto hep_mom = hep_hadron;
       int momindex = inParticle->GetParentIndex();
       auto statusHepMC = inParticle->GetStatus();
+
+      //For Djangoh events which fail to hadronize, shift the parent of the
+      //final-state parton from the incoming electron beam to th hadron beam     
+      if (branchClass->InheritsFrom("erhic::EventDjangoh")){
+      	if( statusHepMC==1 && momindex==1 &&
+	  (abs(inParticle->Id())==1 || abs(inParticle->Id())==2 || abs(inParticle->Id())==3 || 
+	   abs(inParticle->Id())==90 || inParticle->Id()==91 || inParticle->Id()==92) ){ 
+		momindex+=1;
+	}
+      }
       
       // suppress all the intermediate nucleons
       // this may be worth doing anyway  just to reduce filesize
