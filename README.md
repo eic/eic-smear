@@ -96,7 +96,7 @@ Configure using cmake. Optionally, you can specify a location where to
 install include files and libraries:
 We'll assume that the installation path is in $EICDIRECTORY
 ```
-setenv EICDIRECTORY=</path/to/install>
+setenv EICDIRECTORY </path/to/install>
 cmake ../ -DCMAKE_INSTALL_PREFIX=$EICDIRECTORY
 ```
 
