@@ -185,8 +185,8 @@ please ```setenv``` or ```export``` the environment variable ```ROOT_INCLUDE_PAT
 
 * If building at BNL, you can get ROOT6 in the following manner
 ```
+setenv EIC_LEVEL dev
 source /afs/rhic.bnl.gov/eic/restructured/etc/eic_cshrc.csh
-setenv EIC_LEVEL pro
 #verify
 which root
 ```
