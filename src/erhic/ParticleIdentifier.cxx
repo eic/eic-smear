@@ -42,7 +42,7 @@ bool ParticleIdentifier::isBeamLepton(
   // Beam?
   if ( particle.GetParentIndex() != 0 ) return false;
   // Lepton?
-  if ( particle.Id() != GetLeptonBeamPdgCode() ) return false;
+  //if ( particle.Id() != GetLeptonBeamPdgCode() ) return false;
   // Beam status?
   switch (particle.GetStatus()){
   case 21 : return true;  // pythia6 et al
