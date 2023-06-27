@@ -206,7 +206,6 @@ LeptonKinematicsComputer::LeptonKinematicsComputer(const EventDis& event) {
 DisKinematics* LeptonKinematicsComputer::Calculate() {
   // Create kinematics with default values.
   DisKinematics* kin = new DisKinematics;
-  /*
   try {
     // Use E, p and ID of scattered lepton to create "best-guess" kinematics.
     // MeasuredParticle::Create will throw an exception in case of a NULL
@@ -258,7 +257,6 @@ DisKinematics* LeptonKinematicsComputer::Calculate() {
     // In case of no scattered lepton return default values.
     std::cerr << "No lepton for kinematic calculations" << std::endl;
   }  // catch
-  */
   return kin;
 }
 
