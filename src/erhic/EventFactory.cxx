@@ -130,7 +130,15 @@ namespace erhic {
 
   template<typename T>
   Int_t EventFromAsciiFactory<T>::FinishEvent() {
-    /*
+    // First, find the beams, exchange boson, scattered lepton.
+    // if this isn't a DIS event, skip Kinematics computation    
+    BeamParticles beams;
+    if (!ParticleIdentifier::IdentifyBeams(*mEvent, beams)) {
+      return 0;  // must not signal error. 
+      // std::cerr << "EventFromAsciiFactory::FinishEvent(): failed to find beams"	<< std::endl;
+      // return -1;
+    }  // if
+
     std::unique_ptr<DisKinematics> nm( LeptonKinematicsComputer(*mEvent).Calculate());
     std::unique_ptr<DisKinematics> jb( JacquetBlondelComputer(*mEvent).Calculate());
     std::unique_ptr<DisKinematics> da( DoubleAngleComputer(*mEvent).Calculate());
@@ -149,13 +157,6 @@ namespace erhic {
 	
     // We also have to set the remaining variables not taken care of
     // by the general DIS event kinematic computations.
-    // Find the beams, exchange boson, scattered lepton.
-    
-    BeamParticles beams;
-    if (!ParticleIdentifier::IdentifyBeams(*mEvent, beams)) {
-      std::cerr << "EventFromAsciiFactory::FinishEvent(): failed to find beams"	<< std::endl;
-      return -1;
-    }  // if
     const TLorentzVector h = beams.BeamHadron();
     TLorentzVector l = beams.BeamLepton();
     TLorentzVector s = beams.ScatteredLepton();
@@ -164,7 +165,6 @@ namespace erhic {
     s.Boost(boost);
     mEvent->SetELeptonInNuclearFrame(l.E());
     mEvent->SetEScatteredInNuclearFrame(s.E());
-    */
     return 0;
   }
 
