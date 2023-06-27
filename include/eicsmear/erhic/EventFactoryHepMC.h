@@ -15,9 +15,16 @@ namespace erhic {
      Helper. This clumsy construction would be much better handled with private members, but
      it doesn't work like that if we want to specialize from EventFromAsciiFactory while keeping some functions.
    */
-  void HandleHepmcParticle( const HepMC3::GenParticlePtr& p, std::map < HepMC3::GenParticlePtr, int >& hepmcp_index, int& particleindex, std::unique_ptr<erhic::EventHepMC>& mEvent );
+    void HandleHepmcParticle( const HepMC3::GenParticlePtr& p, std::map < HepMC3::GenParticlePtr, int >& hepmcp_index, int& particleindex, std::unique_ptr<erhic::EventHepMC>& mEvent );
+
 
   /**
+     Helper. This clumsy construction would be much better handled with private members, but
+     it doesn't work like that if we want to specialize from EventFromAsciiFactory while keeping some functions.
+   */
+  void HandleAllVertices( HepMC3::GenEvent& evt, std::map < HepMC3::GenParticlePtr, int >& hepmcp_index, int& particleindex, std::unique_ptr<erhic::EventHepMC>& mEvent );
+
+    /**
      Update run-wise information.
    */
   void UpdateRuninfo( std::vector<VirtualEventFactory::NamedObjects>& mObjectsToWriteAtTheEnd, 
