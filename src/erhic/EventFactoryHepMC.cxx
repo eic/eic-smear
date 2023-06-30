@@ -133,8 +133,9 @@ namespace erhic {
 	auto hadron = beams.at(0); // or nucleon
 	auto lepton = beams.at(1);
 
-	// Before going on to handle normal events, 
-	// catch special beam-gas-only events
+	// Before going on to handle normal events, catch special cases
+	
+	// Special beam-gas-only events
 	if ( hadron->pid()==22 || lepton->pid()==22 ){
 	  if ( evt.particles().size() > 2 ){
 	    cout << "Warning: Treating the event as beam gas but found "
@@ -181,10 +182,21 @@ namespace erhic {
 	// Could test individual pid's instead.
 	bool b0islepton = (string(pdgl->ParticleClass()) == "Lepton");
 	bool b1islepton = (string(pdgh->ParticleClass()) == "Lepton");
+
+	// Catch h+h (and, untested, l+l) collisions. Avoid DIS stuff altogether
 	if ( b0islepton == b1islepton ){
-	  // exactly one of them should be a lepton.
-	  throw std::runtime_error ("Exactly one beam should be a lepton - please contact the authors for ff or hh beams");
+	  // // exactly one of them should be a lepton.
+	  // throw std::runtime_error ("Exactly one beam should be a lepton - please contact the authors for ff or hh beams");
+
+	  // Just go over all vertices and handle the rest.
+	  HandleAllVertices(evt, hepmcp_index, particleindex, mEvent);
+
+	  // x-setion etc.
+	  UpdateRuninfo( mObjectsToWriteAtTheEnd, evt );
+	  // We're done. Avoid FinishEvent()
+	  return true;
 	}
+	
 	if ( !b0islepton ) {
 	  std::swap (lepton, hadron);
 	}
@@ -276,62 +288,12 @@ namespace erhic {
 
 	// Now go over all vertices and handle the rest.
 	// Note that by default this could double-count what we just did
-	// Instead of trying to find out which vertex to skip, just use the lookup table
-	// (inside HandleHepmcParticle) to avoid this.
-	for (auto& v : evt.vertices() ){
-	  for (auto& p : v->particles_out() ) {
-	    HandleHepmcParticle( p, hepmcp_index, particleindex, mEvent );
-	  }
-	}
+	// But the method takes care of this with a lookup table
+	HandleAllVertices(evt, hepmcp_index, particleindex, mEvent);
 
-	// Now the map has built up full 1-1 correspondence between all hepmc particles
-	// and the ParticleMC index.
-	// So we can loop over the particles again, find their parents and offspring, and map accordingly.
-	// We explicitly take advantage of particle index = Event entry # +1
-	// If that changes, we'll need to maintain a second map
-	// Note: the beam proton appears twice; that's consistent with the behavior of pythia6
-	for (auto& v : evt.vertices() ){
-	  for (auto& p : v->particles_out() ) {
-	    // corresponding ParticleMC is at
-	    int treeindex = hepmcp_index[p]-1;
-	    assert ( treeindex >=0 ); // Not sure if that can happen. If it does, we could probably just continue;
-	    auto track = mEvent->GetTrack(treeindex);
-
-	    // collect all parents
-	    vector<int> allparents;
-	    for (auto& parent : p->parents() ) {
-	      allparents.push_back( hepmcp_index[parent] );
-	    }
-	    // orig and orig1 aren't very intuitively named...
-	    // For pythia6, orig is the default, and orig1 seems purely a placeholder
-	    // trying to mimick that here.
-	    if ( allparents.size() == 1){
-	      track->SetParentIndex( allparents.at(0) );
-	    }
-	    if ( allparents.size() >= 2){
-	      // smallest and highest are stored
-	      track->SetParentIndex( *min_element(allparents.begin(), allparents.end() ) );
-	      track->SetParentIndex1( *max_element(allparents.begin(), allparents.end() ) );
-	    }
-
-	    // same for children
-	    vector<int> allchildren;
-	    for (auto& child : p->children() ) {
-	      allchildren.push_back( hepmcp_index[child] );
-	    }
-	    if ( allchildren.size() == 1){
-	      track->SetChild1Index( allchildren.at(0) );
-	    }
-	    if ( allchildren.size() >= 2){
-	      // smallest and highest are stored
-	      track->SetChild1Index( *min_element(allchildren.begin(), allchildren.end() ) );
-	      track->SetChildNIndex( *max_element(allchildren.begin(), allchildren.end() ) );
-	    }
-	  }
-	}
 	// x-setion etc.
 	UpdateRuninfo( mObjectsToWriteAtTheEnd, evt );
-      }  // if
+      }  // if ( mEvent.get() )
 
       auto finished = FinishEvent(); // 0 is success
       return (finished==0);
@@ -353,7 +315,8 @@ namespace erhic {
 
     return mEvent.release();
   }
-
+  // -----------------------------------------------------------------------
+  
   void HandleHepmcParticle( const HepMC3::GenParticlePtr& p, std::map < HepMC3::GenParticlePtr, int >& hepmcp_index, int& particleindex, std::unique_ptr<erhic::EventHepMC>& mEvent ){
     // do nothing if we already used this particle
     auto it = hepmcp_index.find(p);
@@ -388,6 +351,65 @@ namespace erhic {
     particle.SetEvent(mEvent.get());
     mEvent->AddLast(&particle);
   }
+
+  // -----------------------------------------------------------------------
+  void HandleAllVertices( HepMC3::GenEvent& evt, std::map < HepMC3::GenParticlePtr, int >& hepmcp_index, int& particleindex, std::unique_ptr<erhic::EventHepMC>& mEvent ){
+    // Note that by default this could double-count previous addiions
+    // Instead of trying to find out which vertex to skip, just use the lookup table
+    // (inside HandleHepmcParticle) to avoid this.
+    for (auto& v : evt.vertices() ){
+      for (auto& p : v->particles_out() ) {
+	HandleHepmcParticle( p, hepmcp_index, particleindex, mEvent );
+      }
+    }
+    
+    // Now the map has built up full 1-1 correspondence between all hepmc particles
+    // and the ParticleMC index.
+    // So we can loop over the particles again, find their parents and offspring, and map accordingly.
+    // We explicitly take advantage of particle index = Event entry # +1
+    // If that changes, we'll need to maintain a second map
+    // Note: the beam proton appears twice; that's consistent with the behavior of pythia6
+    for (auto& v : evt.vertices() ){
+      for (auto& p : v->particles_out() ) {
+	// corresponding ParticleMC is at
+	int treeindex = hepmcp_index[p]-1;
+	assert ( treeindex >=0 ); // Not sure if that can happen. If it does, we could probably just continue;
+	auto track = mEvent->GetTrack(treeindex);
+	
+	// collect all parents
+	vector<int> allparents;
+	for (auto& parent : p->parents() ) {
+	  allparents.push_back( hepmcp_index[parent] );
+	}
+	// orig and orig1 aren't very intuitively named...
+	// For pythia6, orig is the default, and orig1 seems purely a placeholder
+	// trying to mimick that here.
+	if ( allparents.size() == 1){
+	  track->SetParentIndex( allparents.at(0) );
+	}
+	if ( allparents.size() >= 2){
+	  // smallest and highest are stored
+	  track->SetParentIndex( *min_element(allparents.begin(), allparents.end() ) );
+	  track->SetParentIndex1( *max_element(allparents.begin(), allparents.end() ) );
+	}
+	
+	// same for children
+	vector<int> allchildren;
+	for (auto& child : p->children() ) {
+	  allchildren.push_back( hepmcp_index[child] );
+	}
+	if ( allchildren.size() == 1){
+	  track->SetChild1Index( allchildren.at(0) );
+	}
+	if ( allchildren.size() >= 2){
+	  // smallest and highest are stored
+	  track->SetChild1Index( *min_element(allchildren.begin(), allchildren.end() ) );
+	  track->SetChildNIndex( *max_element(allchildren.begin(), allchildren.end() ) );
+	}
+      }
+    }
+  }
+  
 
   // -----------------------------------------------------------------------
   void UpdateRuninfo( std::vector<VirtualEventFactory::NamedObjects>& mObjectsToWriteAtTheEnd, 
