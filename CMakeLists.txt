@@ -35,7 +35,7 @@ set(
  # Need ROOT first to define some macros
  # 6.16 _should_ be sufficient, but I couldn't test it
  # Anything before that needs special cmake attention for dictionary generation
- # Bumping it up further toi 6.20 for smoother cmake support
+ # Bumping it up further to 6.20 for smoother cmake support
  find_package(ROOT 6.20 CONFIG REQUIRED)
 
  message ( " ROOT Libraries = " ${ROOT_LIBRARIES} )
