@@ -116,7 +116,7 @@ A wrapper allows to start ROOT with libraries loaded and displays
 version information as well as the library locations.
 ```
 $ eic-smear
-Using eic-smear version: 1.1.9
+Using eic-smear version: 1.1.11
 Using these eic-smear libraries :
 /Users/kkauder/software/lib/libeicsmear.dylib
 /Users/kkauder/software/lib/libeicsmeardetectors.dylib
@@ -139,7 +139,7 @@ eic-smear's ROOT trees can be converted to HepMC output using the `TreeToHepMC`
 macro, e.g.:
 ```
 $ eic-smear
-Using eic-smear version: 1.1.9
+Using eic-smear version: 1.1.11
 Using these eic-smear libraries :
 /Users/kkauder/software/lib/libeicsmear.dylib
 /Users/kkauder/software/lib/libeicsmeardetectors.dylib

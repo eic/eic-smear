@@ -22,7 +22,7 @@
 # from the cmake build directory.
 
 cmake_minimum_required(VERSION 3.10)
-project(eicsmear VERSION 1.1.10 LANGUAGES CXX )
+project(eicsmear VERSION 1.1.11 LANGUAGES CXX )
 
 # cmake needs a bit of help to find modules
 set(
