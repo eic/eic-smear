@@ -1,4 +1,30 @@
 Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Fri Aug 18 2:30:00 2023 -0400
+	Declared version 1.1.11
+
+Author: kkauder <kkauder@gmail.com>
+Date:   Fri Jun 30 13:19:52 2023 -0400
+    Hack for beam gas pp collisions (#25)
+    * performed hack to allow beamgas events in pythia6 LUND format to be processed
+    * pp (and ee) HepMC evens should work now
+    Co-authored-by: Alexander Jentsch <ajentsch@bnl.gov>
+
+Author: Barak Schmookler <bschmookler1@gmail.com>
+Date:   Tue May 2 07:54:13 2023 -0700
+    * handle incomplete Djangoh events
+    * Updated Djangoh fix for non-hadronizing events.
+    * Updated the status of long-lived particles
+    Co-authored-by: Kolja Kauder <kkauder@gmail.com>
+
+Author: kkauder <kkauder@gmail.com>
+Date:   Thu Feb 16 15:42:39 2023 -0500
+    Add optional Djangoh event status (#23)
+    * Added Djangoh status flag
+    * Added default value for evtstatus
+	Co-authored-by: Barak Schmookler <bschmookler1@gmail.com>
+
+
+Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Wed Nov 30 14:25:06 2022 -0400
 	Declared version 1.1.10
 
