@@ -127,12 +127,11 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   // Need to also use HepMC3::GenCrossSection for rivet
   // Christian Bierlich recommends just using the same for each event
 
-  // crossSection is in mbarn! Converting to HepMC's pb standard
-  // The super set, not all generators supply all of these
   double crossSection = 1.0;
   double crossSectionError = 0.0;
-  // could also record  accepted_events and attempted_events
   
+  // The super set, not all generators supply all of these
+  // could also record  accepted_events and attempted_events
   std::vector <string> RunAttributes = {"crossSection", "crossSectionError", "nEvents", "nTrials" };
   for ( auto att : RunAttributes ){
     TObjString* ObjString(nullptr);
@@ -140,11 +139,13 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     if (ObjString) {
       double value = std::atof(ObjString->String());
       if ( att == "crossSection" ) {
-	value *=1e9;
+	// crossSection is in microbarn! Converting to HepMC's pb standard
+	value *=1e6;
 	crossSection = value;
       }
       if ( att == "crossSectionError" ){
-	value *=1e9;
+	// crossSection is in microbarn! Converting to HepMC's pb standard
+	value *=1e6;
 	crossSectionError = value;
       }
       cout << " Adding to the header: " << att << "  " << value << endl;
