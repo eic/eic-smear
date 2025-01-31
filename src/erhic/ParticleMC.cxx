@@ -132,6 +132,7 @@ void ParticleMCbase::Print(Option_t* /* option */) const {
   std::endl;
 }
 
+//Need to add photon eta fix here
 void ParticleMCbase::ComputeDerivedQuantities() {
   // Calculate quantities that depend only on the properties already read.
   pt = sqrt(pow(px, 2.) + pow(py, 2.));
