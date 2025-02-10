@@ -202,6 +202,8 @@ namespace erhic {
       }
   }
 
+  // Explicitly needed by gcc to not optimize it away and bug out
+  template Int_t EventFromAsciiFactory<erhic::EventHepMC>::FinishEvent();
     
 }  // namespace erhic
 
