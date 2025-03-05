@@ -144,14 +144,18 @@ void ParticleMCbase::ComputeDerivedQuantities() {
   Double_t Pminuspz = p - pz;
   if (Eminuspz <= 0.0 || Pminuspz == 0.0 ||
      Ppluspz == 0.0 || Epluspz <= 0.0) {
-    // Dummy values to avoid zero or infinite arguments in calculations
+    // (previous) Dummy values to avoid zero or infinite arguments in calculations
+    // calculating pseudorapidity (eta) with the polarangle
+    // leaving rapidity untouched for now
     rapidity = -19.;
-    eta = -19.;
+
   } else {
     rapidity = 0.5 * log(Epluspz / Eminuspz);
-    eta = 0.5 * log(Ppluspz / Pminuspz);
+    //eta = 0.5 * log(Ppluspz / Pminuspz);
+
   }  // if
   theta = atan2(pt, pz);
+  eta = (-1) * log(tan(theta/2));
   phi = TVector2::Phi_0_2pi(atan2(py, px));
 }
 
