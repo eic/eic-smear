@@ -132,7 +132,6 @@ void ParticleMCbase::Print(Option_t* /* option */) const {
   std::endl;
 }
 
-//Need to add photon eta fix here
 void ParticleMCbase::ComputeDerivedQuantities() {
   // Calculate quantities that depend only on the properties already read.
   pt = sqrt(pow(px, 2.) + pow(py, 2.));
@@ -142,20 +141,29 @@ void ParticleMCbase::ComputeDerivedQuantities() {
   Double_t Eminuspz = E - pz;
   Double_t Ppluspz = p + pz;
   Double_t Pminuspz = p - pz;
+
+  // rapidity
   if (Eminuspz <= 0.0 || Pminuspz == 0.0 ||
      Ppluspz == 0.0 || Epluspz <= 0.0) {
-    // (previous) Dummy values to avoid zero or infinite arguments in calculations
+    // Dummy values to avoid zero or infinite arguments in calculations
     // calculating pseudorapidity (eta) with the polarangle
     // leaving rapidity untouched for now
-    rapidity = -19.;
+    rapidity = -20.;
 
   } else {
     rapidity = 0.5 * log(Epluspz / Eminuspz);
-    //eta = 0.5 * log(Ppluspz / Pminuspz);
-
-  }  // if
+  }  // end if
+  // pseudorapidity 
   theta = atan2(pt, pz);
-  eta = (-1) * log(tan(theta/2));
+  if (theta < std::numeric_limits<float>::epsilon()){
+	  // dummy values to avoid infinity or zero in calculations 
+	  eta = 20.;
+  } else if ((M_PI - theta) < std::numeric_limits<float>::epsilon()){
+	  eta = -20.;
+  } else {
+	  eta = (-1) * log(tan(theta/2));
+  }
+
   phi = TVector2::Phi_0_2pi(atan2(py, px));
 }
 
