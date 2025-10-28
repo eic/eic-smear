@@ -784,7 +784,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 	
 	// recalcuate vertex time using: dt = (SV-PV).Mag()/(pMother/eMother)
         // we assume primary vertex is at (0,0,0) with time = 0
-        // this is done for any secondary vertices 10 um away from primary vertex
+        // this is done for any secondary vertices 1 um away from primary vertex
         double decay_length = vnew.Mag(); // unit: cm
         double dt = 0;
         if(decay_length>1e-4){
