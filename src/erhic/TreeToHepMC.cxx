@@ -780,20 +780,25 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
         
       // update prod vertex?
       if ( momindex > 1){
-        auto vnew = inParticle->GetVertex();
+	auto vnew = inParticle->GetVertex();
 	
 	// recalcuate vertex time using: dt = (SV-PV).Mag()/(pMother/eMother)
-        // we assume primary vertex is at (0,0,0) with time = 0
-        // this is done for any secondary vertices 1 um away from primary vertex
-        double decay_length = vnew.Mag(); // unit: cm
-        double dt = 0;
-        if(decay_length>1e-4){
-	  const Particle* mother = inParticle->GetParent();
-	  double pMother = mother->GetP();
-	  double eMother = mother->GetE();
-	  dt = decay_length/(pMother/eMother); 
-	}
-        momend->set_position( FourVector( vnew.x(), vnew.y(), vnew.z(), dt));
+	// where PV is the mother vertex
+	// this is done for vertices with at least 1 um decay length
+	const Particle* mother = inParticle->GetParent();
+        double decay_length = (vnew-mother->GetVertex()).Mag();
+	double dt = 0;
+	if(decay_length>1e-3)
+	  {
+	    double pMother = mother->GetP();
+	    double eMother = mother->GetE();
+	    dt = decay_length/(pMother/eMother);
+	  }
+	
+	if(beaglemode)
+	  momend->set_position( FourVector( vnew.x()*0.1, vnew.y()*0.1, vnew.z()*0.1, dt*0.1)); // BeAGLE uses mm and convert it to cm
+	else
+	  momend->set_position( FourVector( vnew.x(), vnew.y(), vnew.z(), dt));
       }
       // file->write_event(hepmc3evt);
     }
