@@ -213,8 +213,10 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     mcTree->GetEntry(i);
     
     // Construct new empty HepMC3 event and fill it.
-    // Using GeV and cm (!)
-    GenEvent hepmc3evt( HepMC3::Units::GEV, HepMC3::Units::CM );
+    // Using GeV and mm (!) as that's what afterburner for beam effects expect
+    // It has been confirmed that BeAGLE uses MM
+    // Need to check for other models as well
+    GenEvent hepmc3evt( HepMC3::Units::GEV, HepMC3::Units::MM );
     hepmc3evt.set_event_number(i);
     hepmc3evt.weights().clear();
     hepmc3evt.weights().push_back(1.0);
@@ -784,20 +786,25 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
         
         // recalcuate vertex time using: dt = (SV-PV).Mag()/(pMother/eMother)
         // where PV is the mother vertex
-        // this is done for vertices with at least 1 um decay length
-        const Particle* mother = inParticle->GetParent();
-        double decay_length = (vnew-mother->GetVertex()).Mag();
+        // add mother decay time recursively to account for cascading decays
+
+        int daughter_index = inParticle->GetIndex();
+        int mother_index = momindex;
         double dt = 0;
-        if(decay_length>1e-3){
-            double pMother = mother->GetP();
-            double eMother = mother->GetE();
-            dt = decay_length * eMother / pMother; // E/p = 1/beta; this order of operations is numerically more stable
+        while (mother_index > 1 && mother_index != beagle_final_index){
+          const Particle* daughter = inEvent->GetTrack(daughter_index-1);
+          const Particle* mother = inEvent->GetTrack(mother_index-1);
+          double decay_length = (daughter->GetVertex()-mother->GetVertex()).Mag();
+	  if(decay_length>1e-3){
+	    double pMother = mother->GetP();
+	    double eMother = mother->GetE();
+	    dt += decay_length * eMother / pMother; // E/p = 1/beta; this order of operations is numerically more stable
           }
-        
-        if(beaglemode)
-          momend->set_position( FourVector( vnew.x()*0.1, vnew.y()*0.1, vnew.z()*0.1, dt*0.1)); // BeAGLE uses mm and convert it to cm
-        else
-          momend->set_position( FourVector( vnew.x(), vnew.y(), vnew.z(), dt));
+	  
+          daughter_index = mother_index;
+          mother_index = mother->GetParentIndex();
+        }
+        momend->set_position( FourVector( vnew.x(), vnew.y(), vnew.z(), dt));
       }
       // file->write_event(hepmc3evt);
     }
