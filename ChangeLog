@@ -1,3 +1,10 @@
+Author: Rongrong Ma <marrpku@gmail.com>
+Date:   Mon Nov 3 11:08:10 2025 -0500
+    Add time for decay vertices (#31)
+	Calculate time for decay vertices which will be used by GEANT
+	Add mother decay time to daughter
+	Use MM as default as this is what the afterburner for beam effects expects
+
 Author: kkauder <kkauder@gmail.com>
 Date:   Mon Feb 10 16:35:59 2025 -0500
 	Added an explicit template instantiation that otherwise can get optimized away and lead to a linker error in gcc (#29)
