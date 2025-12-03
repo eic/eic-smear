@@ -314,14 +314,14 @@ endif(PYTHIA6_LIBDIR)
 ## Build the library
 ## this can be improved with newer root versions
 
-target_link_libraries(eicsmear ROOT::Core ROOT::RIO ROOT::Rint ROOT::Tree ROOT::EG ROOT::Physics -lz )
+target_link_libraries(eicsmear PUBLIC ROOT::Core ROOT::RIO ROOT::Rint ROOT::Tree ROOT::EG ROOT::Physics -lz )
 
 if(PYTHIA6_LIBDIR)
-  target_link_libraries(eicsmear ROOT::EGPythia6 ROOT::Eve )
+  target_link_libraries(eicsmear PUBLIC ROOT::EGPythia6 ROOT::Eve )
 endif(PYTHIA6_LIBDIR)
 
 if(HepMC3_FOUND)
-  target_link_libraries(eicsmear ${HEPMC3_LIBRARIES} )
+  target_link_libraries(eicsmear PUBLIC ${HEPMC3_LIBRARIES} )
 endif()
 
 ##############################################################################################################
@@ -332,7 +332,7 @@ endif()
 add_executable(eic-smear scripts/eic-smear.cxx)
 target_compile_features(eic-smear PUBLIC cxx_std_11)
 target_compile_options(eic-smear PRIVATE -Wall -Wextra -pedantic -g)
-target_link_libraries(eic-smear eicsmear )
+target_link_libraries(eic-smear PUBLIC eicsmear )
 target_include_directories(eic-smear
   PRIVATE
   ${ROOT_INCLUDE_DIRS}
@@ -358,7 +358,7 @@ if ( PYTHIA6_LIBDIR )
   target_compile_options(compiled_runpythia PRIVATE -Wall -Wextra -pedantic -g)
 
   
-target_link_libraries(compiled_runpythia
+target_link_libraries(compiled_runpythia PUBLIC
     eicsmear ROOT::Core ROOT::RIO ROOT::Rint ROOT::Tree ROOT::EG ROOT::EGPythia6 ROOT::Eve
     )
 endif(PYTHIA6_LIBDIR)
