@@ -1,0 +1,33 @@
+name: Build against eic-shell
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  platform: 'eic_xl'
+  release: 'nightly'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Build
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        run: |
+          cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install
+          cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target install
