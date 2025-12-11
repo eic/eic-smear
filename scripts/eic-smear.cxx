@@ -68,7 +68,7 @@ int main(int argc, char** argv)
   auto libeicsmearpath=gSystem->DynamicPathName("libeicsmear");
   // auto libdetectorpath="libeicsmeardetectors not found";
   auto libdetectorpath="";
-  if ( smeardets>0 ) {
+  if ( smeardets>=0 ) {
       libdetectorpath=gSystem->DynamicPathName("libeicsmeardetectors");
     }
   std::cout << "Using these eic-smear libraries : "<< std::endl
