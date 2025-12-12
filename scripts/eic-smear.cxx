@@ -60,9 +60,16 @@ int main(int argc, char** argv)
       return 0;
     }
   }    
-  gSystem->Load("libeicsmeardetectors");
+  auto ErrorIgnoreLevel=gErrorIgnoreLevel;
+  gErrorIgnoreLevel = kFatal; 
+  auto smeardets=gSystem->Load("libeicsmeardetectors");
+  gErrorIgnoreLevel = ErrorIgnoreLevel;
+  
   auto libeicsmearpath=gSystem->DynamicPathName("libeicsmear");
-  auto libdetectorpath=gSystem->DynamicPathName("libeicsmeardetectors");
+  auto libdetectorpath="";
+  if ( smeardets>=0 ) {
+      libdetectorpath=gSystem->DynamicPathName("libeicsmeardetectors");
+    }
   std::cout << "Using these eic-smear libraries : "<< std::endl
 	    << libeicsmearpath << std::endl
 	    << libdetectorpath << std::endl;
