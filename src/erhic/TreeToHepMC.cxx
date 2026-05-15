@@ -232,7 +232,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     for ( int l = 0 ; l < leaves->GetEntries(); ++l ){
       TLeaf* leaf = (TLeaf*) leaves->At(l);
       TString lname = leaf->GetName();
-      TString c = leaf->GetTypeName();
+      TString ltype = leaf->GetTypeName();
       if ( lname.BeginsWith("particles") ) continue;
       // cout << lname << "  " << leaf->GetValue() << endl;
 
@@ -243,25 +243,31 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
         continue;
       }
       // Store generator variables - upconvert types
-      if ( lname.Contains( "char", TString::kIgnoreCase) ) {
+      if ( ltype.Contains( "char", TString::kIgnoreCase) ) {
         // This can be a char type or a C string. I'm not aware
         // of either use case, so don't waste time to differentiate, just ignore
+        // cerr << lname << " is char ignored" << endl;
         continue;
       }
-      if ( lname.Contains( "long", TString::kIgnoreCase) ) {
+      if ( ltype.Contains( "long", TString::kIgnoreCase) ) {
         hepmc3evt.add_attribute(lname.Data(),std::make_shared<HepMC3::LongAttribute>( leaf->GetValue() )) ;
+        cerr << lname << " is long" << endl;
         continue;
       }
-      if ( lname.Contains( "int", TString::kIgnoreCase) 
-           || lname.Contains( "short", TString::kIgnoreCase) ) {
+      if ( ltype.Contains( "int", TString::kIgnoreCase) 
+           || ltype.Contains( "short", TString::kIgnoreCase) ) {
         hepmc3evt.add_attribute(lname.Data(),std::make_shared<HepMC3::IntAttribute>( leaf->GetValue() )) ;
+        // cerr << lname << " is int or short" << endl;
         continue;
       }
-      if ( lname.Contains( "float", TString::kIgnoreCase)
-           || lname.Contains( "double", TString::kIgnoreCase) ) {
+      if ( ltype.Contains( "float", TString::kIgnoreCase)
+           || ltype.Contains( "double", TString::kIgnoreCase) ) {
         hepmc3evt.add_attribute(lname.Data(),std::make_shared<HepMC3::DoubleAttribute>( leaf->GetValue() )) ;
+        // cerr << lname << " is float or double" << endl;
         continue;
       }
+      // cerr << lname << " is " << ltype << "  - ignored" << endl;
+
       // ignore everything else, e.g. bool      
     } // leaf list
 
