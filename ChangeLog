@@ -1,3 +1,9 @@
+commit 33f7a8aa0a492e24b00146ee1d2a2214f7275083 (HEAD -> master, origin/master, origin/HEAD)
+Author: kkauder <kkauder@gmail.com>
+Date:   Fri Dec 12 11:08:12 2025 -0500
+	Declared version 1.1.16
+    Suppress error message when not finding libsmeardetectors (#36)
+
 Author: Rongrong Ma <marrpku@gmail.com>
 Date:   Mon Nov 3 11:08:10 2025 -0500
     Add time for decay vertices (#31)

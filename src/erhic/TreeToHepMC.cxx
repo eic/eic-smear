@@ -750,10 +750,10 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       
       // suppress all the intermediate nucleons
       // this may be worth doing anyway  just to reduce filesize
-      if ( beaglemode && statusHepMC==3 ) continue;
-      if ( beaglemode && statusHepMC==14 ) continue;
-      if ( beaglemode && statusHepMC==18 ) continue;
-      if ( beaglemode && statusHepMC==12 ) continue;
+      // if ( beaglemode && statusHepMC==3 ) continue;
+      // if ( beaglemode && statusHepMC==14 ) continue;
+      // if ( beaglemode && statusHepMC==18 ) continue;
+      // if ( beaglemode && statusHepMC==12 ) continue;
       // This is purely for legibility, these particles should stay!
       // note: 80000 are lighter ions, without specification
       // if ( beaglemode && statusHepMC==1 && momindex == beagle_final_index
