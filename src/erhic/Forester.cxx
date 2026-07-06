@@ -164,6 +164,8 @@ bool Forester::OpenInput() {
     }  // for
     mFactory = mFile->CreateEventFactory(*mTextFile);
     mFactory->mAdditionalInformation["generator"]=mFile->GetGeneratorName();
+    mFactory->mAdditionalInformation.insert(mFile->mAdditionalInformation.begin(),
+                                            mFile->mAdditionalInformation.end());
     return true;
   } // Pass the exception on to be dealt with higher up the food chain.
   catch(std::exception&) {

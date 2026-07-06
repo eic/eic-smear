@@ -464,6 +464,8 @@ class FileType : public TObject {
    */
   virtual VirtualEventFactory* CreateEventFactory(std::istream&) const = 0;
 
+  std::map<std::string, std::string> mAdditionalInformation;
+
  protected:
     std::string generatorname;
   

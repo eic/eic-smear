@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 
+using std::cout, std::endl;
 namespace erhic {
 
 EventSartre::EventSartre()
@@ -37,6 +38,14 @@ bool EventSartre::Parse(const std::string& line) {
   genevent >>
   trueT >> trueQ2 >> trueX >> trueY >> trueW2 >> trueNu >>
   trueXpom >> s_cm >> pol >> dmode >> bup;
+  if (mSartreVersion == 2) {
+    cout << "EventSartre::Parse: Sartre version 2 detected, reading beta, z, MX" << endl;
+    ss >> beta >> z >> MX;
+    cout << "EventSartre::Parse: beta = " << beta << ", z = " << z << ", MX = " << MX << endl;
+  } else {
+    cout << "EventSartre::Parse: Sartre version " << mSartreVersion << " detected, skipping beta, z, MX" << endl;
+  }
+
   // Protect against errors in the input file or the stream
   return !ss.fail();
 }
@@ -92,6 +101,3 @@ bool EventSartre::Parse(const std::string& line) {
   }
 
 }  // namespace erhic
-
-
-
