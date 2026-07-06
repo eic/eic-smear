@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 
+using std::cout, std::endl;
 namespace erhic {
 
 EventSartre::EventSartre()
@@ -37,6 +38,10 @@ bool EventSartre::Parse(const std::string& line) {
   genevent >>
   trueT >> trueQ2 >> trueX >> trueY >> trueW2 >> trueNu >>
   trueXpom >> s_cm >> pol >> dmode >> bup;
+  if (mSartreVersion == 2) {
+    ss >> beta >> z >> MX;
+  }
+
   // Protect against errors in the input file or the stream
   return !ss.fail();
 }
@@ -92,6 +97,3 @@ bool EventSartre::Parse(const std::string& line) {
   }
 
 }  // namespace erhic
-
-
-

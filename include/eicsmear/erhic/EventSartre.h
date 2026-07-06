@@ -1,5 +1,5 @@
 /**
- \file      Declaration of class erhic::EventSartre. 
+ \file      Declaration of class erhic::EventSartre.
  \author    Barak Schmookler
  \date      2020-04-20
  */
@@ -50,6 +50,11 @@ class EventSartre : public EventMC {
   */
   virtual const ParticleMC* ExchangeBoson() const;
 
+  /**
+   * Sets the version of the sartre event, to handle different formats.
+   * @param version The version number (e.g. 1 or 2).
+   */
+  void SetSartreVersion(int version) { mSartreVersion = version; }
 
  protected:
   Int_t       genevent;         ///< Trials required for this event (dummy right now)
@@ -64,8 +69,16 @@ class EventSartre : public EventMC {
   Int_t       pol;
   Int_t       dmode;
   Int_t       bup; 
+  
+  // Extra variables for Sartre_INCLDIFF
+  Double32_t  beta = 0.;
+  Double32_t  z = 0.;
+  Double32_t  MX = 0.;
 
-  ClassDef(erhic::EventSartre, 1)
+ private:
+  Int_t mSartreVersion = 1; ///< Version of the Sartre event format (1 for default, 2 for Inclusive Diffraction - INCLDIFF).
+
+  ClassDef(erhic::EventSartre, 2)
 };
 
 }  // namespace erhic

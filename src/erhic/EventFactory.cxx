@@ -74,6 +74,12 @@ namespace erhic {
     // Save current object count. Will reset it when this function returns.
     TProcessIdObjectCount objectCount;
     mEvent.reset(new T);
+    const auto version = mAdditionalInformation.find("sartreVersion");
+    if (version != mAdditionalInformation.end() && version->second == "2") {
+      if (EventSartre* event = dynamic_cast<EventSartre*>(mEvent.get())) {
+        event->SetSartreVersion(2);
+      }  // if
+    }  // if
     // We use this flag to check input doesn't end mid-event.
     // Initialised finished flag to "success" in case of no input.
     int finished(0);

@@ -1,3 +1,10 @@
+commit 44b31cc840d627a400f97b58f85bee8265a8f676 (HEAD -> master)
+Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Mon Jul 6 15:27:54 2026 -0400
+	Declared version 1.2.1
+    Strip trailing whitespace in line read; support additional event variables in inclusive sartre processes
+
+
 commit 33f7a8aa0a492e24b00146ee1d2a2214f7275083 (HEAD -> master, origin/master, origin/HEAD)
 Author: kkauder <kkauder@gmail.com>
 Date:   Fri Dec 12 11:08:12 2025 -0500

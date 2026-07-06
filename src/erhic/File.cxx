@@ -600,6 +600,9 @@ const FileType* FileFactory::GetFile(std::shared_ptr<std::istream>& isp, const s
     file = GetFile("demp");
   } else if (str.Contains("sartre")) {
     file = GetFile("sartre");
+    if (str.Contains("incldiff")) {
+      const_cast<FileType*>(file)->mAdditionalInformation["sartreVersion"] = "2";
+    }  // if
   } else if (str.Contains("hepmc")) {
 
     // We have to repair the stream by reading it fresh

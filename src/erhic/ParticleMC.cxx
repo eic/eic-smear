@@ -92,6 +92,7 @@ namespace erhic {
     static std::stringstream ss;
     ss.str("");
     ss.clear();
+    ss << "  ";
     ss << line;
     if (eAflag) {
       eA = new ParticleMCeA();
@@ -105,13 +106,13 @@ namespace erhic {
 
       //eA->pz = pz; orig1 = eA->orig1; 
     } else {
-      ss >>
-	I >> KS >> id >> orig >> daughter >> ldaughter >>
-	px >> py >> pz >> E >> m >> xv >> yv >> zv;
+      ss >> I >> KS >> id >> orig >> daughter >> ldaughter
+         >> px >> py >> pz >> E >> m >> xv >> yv >> zv;
       orig1 = 0;
     } //if
-      // We should have no stream errors and should have exhausted
-      // the whole of the stream filling the particle.
+    ss>> std::ws; // eat up any whitespace
+    // We should have no stream errors and should have exhausted
+    // the whole of the stream filling the particle.
     if (ss.fail() || !ss.eof()) {
       throw std::runtime_error("Bad particle input: " + line);
     }  // if
