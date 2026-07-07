@@ -22,7 +22,7 @@
 # from the cmake build directory.
 
 cmake_minimum_required(VERSION 3.10)
-project(eicsmear VERSION 1.2.1 LANGUAGES CXX )
+project(eicsmear VERSION 1.2.2 LANGUAGES CXX )
 
 # cmake needs a bit of help to find modules
 set(
@@ -440,4 +440,3 @@ message( " !! After installation, you should also install detectors and tests fr
 #     set(CMAKE_CXX_STANDARD 11)
 #   endif()
 #ENDIF()
-
