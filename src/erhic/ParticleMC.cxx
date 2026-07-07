@@ -110,7 +110,7 @@ namespace erhic {
          >> px >> py >> pz >> E >> m >> xv >> yv >> zv;
       orig1 = 0;
     } //if
-    ss>> std::ws; // eat up any whitespace
+    // ss>> std::ws; // eat up any whitespace
     // We should have no stream errors and should have exhausted
     // the whole of the stream filling the particle.
     if (ss.fail() || !ss.eof()) {
