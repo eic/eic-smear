@@ -97,12 +97,12 @@ namespace erhic {
     if (eAflag) {
       eA = new ParticleMCeA();
 
+      //changed by liang to add particle mother1
       ss >>
-	//changed by liang to add particle mother1
-	I >> KS >> id >> orig1 >> orig >> daughter >> ldaughter >>
-	px >> py >> pz >> E >> m >> xv >> yv >> zv
-	//added by liang to include add particle data structure
-	 >> eA->massNum >> eA->charge >> eA->NoBam;
+      I >> KS >> id >> orig1 >> orig >> daughter >> ldaughter >>
+      px >> py >> pz >> E >> m >> xv >> yv >> zv
+      //added by liang to include add particle data structure
+	    >> eA->massNum >> eA->charge >> eA->NoBam;
 
       //eA->pz = pz; orig1 = eA->orig1; 
     } else {
@@ -110,14 +110,22 @@ namespace erhic {
          >> px >> py >> pz >> E >> m >> xv >> yv >> zv;
       orig1 = 0;
     } //if
-    // ss>> std::ws; // eat up any whitespace
+
+    // try to eat up any whitespace at the end of thwe line first
+    if (!ss.eof()) {
+      ss>> std::ws; 
+    }
+    
     // We should have no stream errors and should have exhausted
     // the whole of the stream filling the particle.
-    if (ss.fail() || !ss.eof()) {
+    if (ss.fail()) {
       throw std::runtime_error("Bad particle input: " + line);
-    }  // if
+    }
+    if (!ss.eof()) {
+      throw std::runtime_error("Extra particle input: " + line);
+    }
     ComputeDerivedQuantities();
-  }  // if
+  }  // if line is not empty
 }
 
 ParticleMC::~ParticleMC() 
