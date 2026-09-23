@@ -568,13 +568,18 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     std::vector<GenParticlePtr> hepevt_particles;
     hepevt_particles.reserve( inEvent->GetNTracks() );
     for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
-      const Particle* inParticle = inEvent->GetTrack(t);
+      Particle* inParticle = inEvent->GetTrack(t); // Can't be const because we may need to fix it
       // Particles with status 1 cannot have children
       auto status = inParticle->GetStatus();
       if ( status==1 ){
         if (inParticle->GetNChildren() != 0 ){
           cout << "Status is 1 but we have children?" << endl;
           inParticle->Print();
+          if (inParticle->GetChild1Index()== 1 && inParticle->GetChildNIndex() == 1){
+            cout << "This looks like a known DJANGOH problem. Fixing the child indices to 0" << endl;
+            inParticle->SetChild1Index( 0 );
+            inParticle->SetChildNIndex( 0 );
+          }
         } 
       }
       
@@ -610,9 +615,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
                  || TString(pdg->ParticleClass()).Contains("Baryon")
                  || TString(pdg->ParticleClass()).Contains("Meson")
                  ){
-              // Now our status should be 2!
-              // cout << statusHepMC << endl;
-              // inParticle->Print();
+              // Our status should be 2
+              cout << "Event: " << i << " -- We have a decayed hadron or lepton with status " << statusHepMC << endl;
               statusHepMC = 2;
             }
           }
