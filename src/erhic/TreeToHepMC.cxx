@@ -571,6 +571,19 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       Particle* inParticle = inEvent->GetTrack(t); // Can't be const because we may need to fix it
       // Particles with status 1 cannot have children
       auto status = inParticle->GetStatus();
+      // Djangoh has two known problems, fixing those first
+      // I   K(I,1)  K(I,2)  K(I,3)  K(I,4)  K(I,5)
+      // 6      13        1       0       6       0         // self-parentage
+      // 8       1     2212       2       1       1         // child index is the beam electron
+      if (inParticle->GetNChildren() != 0 ){
+        if (    inParticle->GetChild1Index()==t+1
+            || (inParticle->GetChild1Index()== 1 && inParticle->GetChildNIndex() == 1) ) {
+          cout << "This looks like a known DJANGOH problem. Fixing the child indices to 0" << endl;
+          inParticle->SetChild1Index( 0 );
+          inParticle->SetChildNIndex( 0 );
+        }
+      }
+
       if ( status==1 ){
         if (inParticle->GetNChildren() != 0 ){
           cout << "Status is 1 but we have children?" << endl;
