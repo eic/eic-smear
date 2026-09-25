@@ -464,7 +464,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     // Not done for BeAGLE, because of the special vertex
     if ( !beaglemode ){
       for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
-        const Particle* inParticle = inEvent->GetTrack(t);
+        Particle* inParticle = inEvent->GetTrack(t);
         
         // Do my children know me?
         auto myindex = inParticle->GetIndex();
@@ -479,7 +479,21 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
           //A particle will have a child which is not included in the particle list.
           bool djangohproblem = false;
 
-          for ( UShort_t c = c1; c<=cN; ++c ){ // sigh. index starts at 1, tracks at 0;
+          // Djangoh has two more known problems
+          // I   K(I,1)  K(I,2)  K(I,3)  K(I,4)  K(I,5)
+          // 6      13        1       0       6       0         // self-parentage
+          // 8       1     2212       2       1       1         // child index is the beam electron
+          if (    inParticle->GetChild1Index()==t+1
+                || (inParticle->GetChild1Index()== 1 && inParticle->GetChildNIndex() == 1) ) {
+              cout << "This looks like a known DJANGOH problem. Fixing the child indices to 0" << endl;
+              inParticle->Print();
+              inParticle->SetChild1Index( 0 );
+              inParticle->SetChildNIndex( 0 );
+              continue;
+          }
+          
+
+      for ( UShort_t c = c1; c<=cN; ++c ){ // sigh. index starts at 1, tracks at 0;
             Particle* child = inEvent->GetTrack(c-1);
             if ( !child ) {
               cerr << "Trying to access a non-existant child" << endl;
@@ -568,13 +582,15 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     std::vector<GenParticlePtr> hepevt_particles;
     hepevt_particles.reserve( inEvent->GetNTracks() );
     for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
-      const Particle* inParticle = inEvent->GetTrack(t);
+      Particle* inParticle = inEvent->GetTrack(t); // Can't be const because we may need to fix it
       // Particles with status 1 cannot have children
-      auto status = inParticle->GetStatus();
+      const auto status = inParticle->GetStatus();
+
       if ( status==1 ){
         if (inParticle->GetNChildren() != 0 ){
           cout << "Status is 1 but we have children?" << endl;
-          inParticle->Print();
+          //inParticle->Print();
+          // Not doing anything about it at this point
         } 
       }
       
@@ -610,10 +626,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
                  || TString(pdg->ParticleClass()).Contains("Baryon")
                  || TString(pdg->ParticleClass()).Contains("Meson")
                  ){
-              // Now our status should be 2!
-              // cout << statusHepMC << endl;
-              // inParticle->Print();
-              statusHepMC = 2;
+              // Our status should be 2
+              cout << "Event: " << i << " -- Decayed hadron or lepton with status " << statusHepMC << endl;
+              if ( statusHepMC <=10 ){
+                cout <<  " --> Setting it to 2" <<  endl;
+                statusHepMC = 2;
+              }
             }
           }
         }
