@@ -62,9 +62,12 @@ computeHermesPhiH(const TLorentzVector& hadronInPrf,
   if (::fabs(qCrossKDotPh) < 1.0e-5) return -999.0;
 
   // First get phi in the range [0,pi]:
-  double phi = TMath::ACos(qCrossK.Dot(qCrossPh)
-                           / qCrossK.Mag()
-                           / qCrossPh.Mag());
+  // Clamp to [-1,1] to guard against floating-point overshoot
+  // (e.g. 1.0000000000000002) that would otherwise send ACos to NaN.
+  double cosPhi = qCrossK.Dot(qCrossPh) / qCrossK.Mag() / qCrossPh.Mag();
+  if (cosPhi > 1.0) cosPhi = 1.0;
+  if (cosPhi < -1.0) cosPhi = -1.0;
+  double phi = TMath::ACos(cosPhi);
 
   // Handle spin direction to get result in range [-pi,pi] by
   // scaling by [-1,+1], depending on hemisphere.
