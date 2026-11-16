@@ -31,6 +31,9 @@
 #include "HepMC3/WriterRootTree.h"
 
 #include <map>
+#include <vector>
+#include <algorithm>
+#include <limits>
 
 using std::cout;
 using std::cerr;
@@ -93,6 +96,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   bool beaglemode=false;
   if (branchClass->InheritsFrom("erhic::EventBeagle")) {
     cout << "Warning: BeAGLE support is rudimentary. Can't fix mother-daughter structure." << endl;
+    cout << "         The intranuclear cascade is flattened, only displaced decays are kept." << endl;
     cout << endl;
     beaglemode=true;
   }
@@ -271,39 +275,58 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       // ignore everything else, e.g. bool      
     } // leaf list
 
-    // Multiple parents seem to only be in BeAGLE
-    // and somewtimes there seem to be exactly 2 parents, sometimes a range like for daughters.
-    // I cannot differentiate between the two, and for the exact case, it erroneously gives the impression
-    // of a large range, like 17 -- 254 which will wreak havoc on the graph.
-    // "Remedy": pre-burner
-    // - All intermediate non-beam particles have the exchange boson as their mother.
-    // - hadrons and leptons with status 2:
-    //   - if they have exactly one parent with status 2 (decay chain),
-    //     maintain that parent
-    //   - otherwise, they're the start of a decay, treat like a final particle
-    // - hadrons and leptons with status 1:
-    //   - if they have exactly one parent with status 2 (decay product),
-    //     maintain that parent
-    //   - otherwise, they're final, attach to the single final particle vertex
-    // - When the graph gets created, we'll separate and add another dummy node to connect
-    //   the boson to via all non-finals
-    //   and the finals one as out-going edges
-    // --> Incorrect vertex information (but I don't see it correctly in the original anyway)
+    // BeAGLE's mother-daughter information can't be fully trusted. The intranuclear cascade
+    // is recorded with the same status codes as decays (status 2 hadrons with children,
+    // sometimes with two parents or a parent range that can't be told apart).
+    // We can't reconstruct the cascade, so we flatten it and only keep genuine decays:
+    // - All intermediate particles get the exchange boson as their mother.
+    //   When the graph gets created, they all feed into one dummy vertex.
+    // - Final particles (status 1) come out of that dummy vertex,
+    //   unless they are the product of a genuine decay.
+    // - A status 2 hadron or lepton is a genuine decay if
+    //   - it is a decay product of a genuine decay (we keep the whole chain), or
+    //   - its decay vertex, i.e. the production vertex of all its children, is displaced
+    //     by more than beagle_min_decay_length from its own production vertex.
+    //     The cascade happens on the fm scale, the decays whose vertex matters don't.
+    //     The roots of these chains come out of the dummy vertex.
+    //   Strong decays (rho, K*, Delta, ...) generally fail this test and get flattened.
+    //   That's harmless, their daughters are produced at the same point to within fm.
+    // - Status 2 particles that are not genuine decays become intermediates with status 12.
+    // Note: This relies on children having a higher index than their parents.
+    // --> Incorrect vertex information for the cascade (but I don't see it correctly in the original anyway)
 
     // Use a special index to refer to the dummy vertex
     // Should be ushort_max, but keep it flexible
     auto beagle_final_index = std::numeric_limits< decltype(inEvent->GetTrack(0)->GetParentIndex())>::max();
-    
+    // 100 fm, well above nuclear radii but below any decay length that matters
+    const double beagle_min_decay_length = 1e-10; // mm
+
     if ( beaglemode ){
       auto bosonindex=inEvent->ExchangeBoson()->GetIndex();
       // IMPORTANT! ScatteredLepton() will segfault after we change its lineage!
       // Last time we can use it.
       auto scatteredindex = inEvent->ScatteredLepton()->GetIndex();
-      
-      for( unsigned int t=0; t<inEvent->GetNTracks(); ++t) {
+      const unsigned int ntracks = inEvent->GetNTracks();
+
+      // Index of the genuine decay a particle came from, 0 if none
+      std::vector<UShort_t> decayparent( ntracks+1, 0 );
+
+      // Do all children come from a displaced vertex?
+      auto isdisplaceddecay = [&]( const Particle* p ){
+        const unsigned int c1 = p->GetChild1Index();
+        const unsigned int cN = std::max( c1, (unsigned int) p->GetChildNIndex() );
+        if ( c1 == 0 || cN > ntracks ) return false;
+        for ( auto c = c1; c <= cN; ++c ){
+          const Particle* child = inEvent->GetTrack(c-1);
+          if ( (child->GetVertex() - p->GetVertex()).Mag() < beagle_min_decay_length ) return false;
+        }
+        return true;
+      };
+
+      for( unsigned int t=0; t<ntracks; ++t) {
         Particle* inParticle = inEvent->GetTrack(t);
         auto myindex = inParticle->GetIndex();
-        
+
         // special cases first
         // beam
         if ( myindex==inEvent->BeamLepton()->GetIndex()
@@ -319,100 +342,51 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
           inParticle->SetChildNIndex( 0 );
           continue;
         }
-        
+
         // boson
         if ( myindex==bosonindex ){
           inParticle->SetChild1Index( 5 );
           inParticle->SetChildNIndex( inEvent->GetNTracks() );
           continue;
         }
-        
-        auto pdg = TDatabasePDG::Instance()->GetParticle( inParticle->Id() );
-        // Note: ROOT's table is outdated and doesn't catch, e.g. Delta baryons 
-        switch (inParticle->GetStatus() ){
-        case 2 :
-          // mis-labeled as 2?
-          if ( !pdg ){ // ignore unknown particles (e.g. pomerons, ions)
-            inParticle->SetStatus(12);
-          } else if ( !TString(pdg->ParticleClass()).Contains("Lepton")
-                      && !TString(pdg->ParticleClass()).Contains("Baryon")
-                      && !TString(pdg->ParticleClass()).Contains("Meson")
-                      ){
-            inParticle->SetStatus(12);
-            inParticle->SetParentIndex( bosonindex );
-            inParticle->SetParentIndex1( 0 );
-            
-            inParticle->SetChild1Index( beagle_final_index ); // not needed but logically true
-            inParticle->SetChildNIndex( 0 );   
-          } else{
-            // properly labeled as 2. We better have children
-            if ( inParticle->GetChild1Index() == 0 ){
-              std::cout << "Processing event " << i << std::endl;
-              std::cout << "Processing track " << t << " with index " << inParticle->GetIndex() << std::endl;
-              std::cout << "I am a hadron or lepton with status 2, but I do not have children. "  << std::endl;
-              return -1;
-            }
-            // We better have exaxctly one parent
-            // Alas, this too does happen
-            if ( inParticle->GetParentIndex1()!=0 ){
-              std::cout << "Processing event " << i << std::endl;
-              std::cout << "Processing track " << t << " with index " << inParticle->GetIndex() << std::endl;
-              std::cout << "Warning: I am a hadron or lepton with status 2, but I have too many parents. "  << std::endl;
-              std::cout << "Discarding the older one"  << std::endl;
-              // std::cout << inParticle->GetParentIndex() << "  " << inParticle->GetParentIndex1() << endl;
-              inParticle->SetParentIndex( std::max ( inParticle->GetParentIndex(), inParticle->GetParentIndex1() ) );
-              inParticle->SetParentIndex1( 0 );
-            }
-            auto mom = inParticle->GetParent();
-            if ( !mom ){
-              std::cout << "Processing event " << i << std::endl;
-              std::cout << "Processing track " << t << " with index " << inParticle->GetIndex() << std::endl;
-              std::cout << "I am a hadron or lepton with status 2, but I have no parents. "  << std::endl;
-              return -1;
-            }
-            // status of mother?
-            if ( mom->GetStatus() == 1 ){
-              std::cout << "Processing event " << i << std::endl;
-              std::cout << "Processing track " << t << " with index " << inParticle->GetIndex() << std::endl;
-              std::cout << "I am a hadron or lepton with status 2, but my mother is final. "  << std::endl;
-              return -1;
-            }
-            if ( mom->GetStatus() != 2 ){
-              // We're the beginning of a decay, attach to "final" vertex
-              inParticle->SetParentIndex( beagle_final_index );
-              inParticle->SetParentIndex1( 0 );
-            }       
+
+        const auto status = inParticle->GetStatus();
+        bool isdecay = false;
+        if ( status == 2 ){
+          auto pdg = TDatabasePDG::Instance()->GetParticle( inParticle->Id() );
+          // Note: ROOT's table is outdated and doesn't catch, e.g. Delta baryons. They get flattened.
+          const bool ishadronorlepton = pdg && ( TString(pdg->ParticleClass()).Contains("Lepton")
+                                                 || TString(pdg->ParticleClass()).Contains("Baryon")
+                                                 || TString(pdg->ParticleClass()).Contains("Meson") );
+          if ( ishadronorlepton && inParticle->GetChild1Index() == 0 ){
+            cout << "Event " << i << " -- Status 2 particle " << inParticle->Id() << " with index " << myindex
+                 << " has no children. Treating it as an intermediate." << endl;
           }
-          break;
-        case 1:
-          {
-            // final particles
-            auto mom = inParticle->GetParent();
-            if ( mom ){
-              // status of mother?
-              if ( mom->GetStatus() == 2 ){
-                // do nothing, we keep this mother as ours
-                inParticle->SetChild1Index( 0 );
-                inParticle->SetChildNIndex( 0 );
-                break;
-              }
-            }
-            // default behavior for finals
-            inParticle->SetParentIndex( beagle_final_index );
-            inParticle->SetParentIndex1( 0 );
-            
+          isdecay = ishadronorlepton && inParticle->GetChild1Index() != 0
+            && ( decayparent.at(myindex) != 0 || isdisplaceddecay( inParticle ) );
+          if ( !isdecay ) inParticle->SetStatus(12);
+        }
+
+        if ( isdecay || status == 1 ){
+          // Attach to the decay we came from, or to the dummy vertex
+          inParticle->SetParentIndex( decayparent.at(myindex) != 0 ? decayparent.at(myindex) : beagle_final_index );
+          inParticle->SetParentIndex1( 0 );
+          if ( isdecay ){
+            // claim the children
+            const unsigned int c1 = inParticle->GetChild1Index();
+            const unsigned int cN = std::max( c1, (unsigned int) inParticle->GetChildNIndex() );
+            for ( auto c = c1; c <= cN && c <= ntracks; ++c ) decayparent.at(c) = myindex;
+          } else {
             inParticle->SetChild1Index( 0 );
             inParticle->SetChildNIndex( 0 );
-            break;
           }
-        default : 
-          // everything else
+        } else {
+          // everything else is an intermediate
           inParticle->SetParentIndex( bosonindex );
           inParticle->SetParentIndex1( 0 );
-          
+
           inParticle->SetChild1Index( beagle_final_index ); // not needed but logically true
           inParticle->SetChildNIndex( 0 );
-          break;
         }
       }
     } // if ( beaglemode )
@@ -713,8 +687,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     // where i1, .., iN are intermediate (!=1) and f1,..fN are final
     // v2 == v_hadron, v3 == v_beagle_final
 
-    // Addendum: BeAGLE does support hadron/lepton decay. Attach the root to v3,
-    // and keep their children, e.g.:
+    // Addendum: BeAGLE does support hadron/lepton decay. For genuine (displaced) decays,
+    // attach the root to v3, and keep their children, e.g.:
     // 
     //   v2_/__i2__ v3__J/psi__e
     //                \      \                          (*)
