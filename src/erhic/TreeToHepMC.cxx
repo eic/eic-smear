@@ -591,7 +591,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
           cout << "Status is 1 but we have children?" << endl;
           //inParticle->Print();
           // Not doing anything about it at this point
-        } 
+          // (except for radiating DJANGOH leptons, see below)
+        }
       }
       
       // // All child-less particles should have a "safe" status (like 21), best would be 1
@@ -831,6 +832,40 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
         momend->set_position( FourVector( vnew.x(), vnew.y(), vnew.z(), dt));
       }
       // file->write_event(hepmc3evt);
+    }
+
+    // DJANGOH attaches final-state radiation photons to the scattered lepton.
+    // That lepton is final (status 1) and already carries the momentum after
+    // radiation; the lepton before radiation is not in the record:
+    //   e --> e' (1) --> gamma (1)
+    // Simulation frontends do not look at children of final particles (e.g. DD4hep
+    // makes e' a primary and never sees the photon), so the photon would be lost.
+    // Insert the missing lepton as an intermediate (status 2), with the momentum
+    // of the final lepton plus its children, and make those its children:
+    //   e --> e* (2) --> e' (1)
+    //                \-> gamma (1)
+    // The final lepton keeps its place in the record.
+    if (branchClass->InheritsFrom("erhic::EventDjangoh")){
+      for ( auto& hep_final : hepevt_particles ){
+        auto vend = hep_final->end_vertex();
+        if ( hep_final->status() != 1 || !vend ) continue;
+        auto vprod = hep_final->production_vertex();
+        auto pid = std::abs( hep_final->pid() );
+        if ( !vprod || ( pid != 11 && pid != 13 && pid != 15 ) ) continue;
+
+        FourVector pstar = hep_final->momentum();
+        for ( const auto& child : vend->particles_out() ){
+          pstar += child->momentum();
+        }
+        auto hep_star = std::make_shared<GenParticle>( pstar, hep_final->pid(), 2 );
+        hep_star->set_generated_mass( hep_final->generated_mass() );
+
+        vprod->remove_particle_out( hep_final );
+        vend->remove_particle_in( hep_final );
+        vprod->add_particle_out( hep_star );
+        vend->add_particle_in( hep_star );
+        vend->add_particle_out( hep_final );
+      }
     }
 
     // Done! Write the event.
