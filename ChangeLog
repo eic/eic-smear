@@ -1,3 +1,16 @@
+commit 33aef84b504afdcfda77718a661e12b9301eb9d1
+Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Mon Nov 16 2026
+	Declared version 1.2.4
+    TreeToHepMC: insert intermediate lepton before DJANGOH FSR so the FSR photon is simulated (#40)
+    Fix ACos call in HermesPhiH
+
+commit 7f774c93f3456e040c7449e4c31a074c44a64742
+Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Fri Sep 25 10:50:04 2026 -0400
+	Declared version 1.2.3
+    Catching HepMC problems where djangoh assigns daughters to final hadrons (#39)
+
 commit b58408ff86402d735f9ed419c37375a551052576 (HEAD -> master, origin/master, origin/HEAD)
 Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Tue Jul 7 14:04:26 2026 -0400
