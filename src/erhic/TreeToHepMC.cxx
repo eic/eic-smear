@@ -49,6 +49,29 @@ using HepMC3::GenVertexPtr;
 using HepMC3::GenCrossSection;
 using HepMC3::GenCrossSectionPtr;
 
+namespace {
+  /**
+     Rate-limits repeated warnings. Each kind of warning (identified by its key)
+     is printed in full the first maxprint times, then suppressed.
+     summary() reports how often each kind occurred.
+     Usage: if ( warn("some problem") ) cerr << "details" << endl;
+  */
+  struct WarnCounter {
+    std::map<std::string, Long64_t> counts;
+    Long64_t maxprint = 3;
+    bool operator()( const std::string& key ){
+      auto n = ++counts[key];
+      if ( n == maxprint + 1 ) cerr << "[" << key << "] further occurrences suppressed" << endl;
+      return n <= maxprint;
+    }
+    void summary() const {
+      if ( counts.empty() ) return;
+      cerr << "Warning summary:" << endl;
+      for ( const auto& kv : counts ) cerr << "  " << kv.first << ": " << kv.second << " times" << endl;
+    }
+  };
+}
+
 // see include/eicsmear/functions.h for declaration and default values
 
 /**
@@ -95,9 +118,9 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
   // BeAGLE is currently unfixable; using a kludge to salvage what we can
   bool beaglemode=false;
   if (branchClass->InheritsFrom("erhic::EventBeagle")) {
-    cout << "Warning: BeAGLE support is rudimentary. Can't fix mother-daughter structure." << endl;
-    cout << "         The intranuclear cascade is flattened, only displaced decays are kept." << endl;
-    cout << endl;
+    cerr << "Warning: BeAGLE support is rudimentary. Can't fix mother-daughter structure." << endl;
+    cerr << "         The intranuclear cascade is flattened, only displaced decays are kept." << endl;
+    cerr << endl;
     beaglemode=true;
   }
 
@@ -210,6 +233,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     "/-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/"
             << std::endl;
 
+  WarnCounter warn;
   for (Long64_t i(0); i < maxEvent; i++) {
     if (i % 10000 == 0 && i != 0) {
       std::cout << "Processing event " << i << std::endl;
@@ -255,7 +279,6 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       }
       if ( ltype.Contains( "long", TString::kIgnoreCase) ) {
         hepmc3evt.add_attribute(lname.Data(),std::make_shared<HepMC3::LongAttribute>( leaf->GetValue() )) ;
-        cerr << lname << " is long" << endl;
         continue;
       }
       if ( ltype.Contains( "int", TString::kIgnoreCase) 
@@ -367,8 +390,9 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
           const bool ishadronorlepton = pdg && ( TString(pdg->ParticleClass()).Contains("Lepton")
                                                  || TString(pdg->ParticleClass()).Contains("Baryon")
                                                  || TString(pdg->ParticleClass()).Contains("Meson") );
-          if ( ishadronorlepton && inParticle->GetChild1Index() == 0 ){
-            cout << "Event " << i << " -- Status 2 particle " << inParticle->Id() << " with index " << myindex
+          if ( ishadronorlepton && inParticle->GetChild1Index() == 0
+               && warn("BeAGLE: status 2 hadron/lepton without children, flattened") ){
+            cerr << "Event " << i << " -- Status 2 particle " << inParticle->Id() << " with index " << myindex
                  << " has no children. Treating it as an intermediate." << endl;
           }
           isdecay = ishadronorlepton && inParticle->GetChild1Index() != 0
@@ -387,8 +411,10 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
             for ( auto c = c1; c <= cN && c <= ntracks; ++c ) {
               if ( !isownchild( inEvent->GetTrack(c-1), myindex ) ) continue;
               if ( decayparent.at(c) != 0 ){
-                cout << "Event " << i << " -- Particle with index " << c << " is claimed by decays "
-                     << decayparent.at(c) << " and " << myindex << ". Keeping the first one." << endl;
+                if ( warn("BeAGLE: particle claimed by two decays, kept the first") ){
+                  cerr << "Event " << i << " -- Particle with index " << c << " is claimed by decays "
+                       << decayparent.at(c) << " and " << myindex << ". Keeping the first one." << endl;
+                }
                 continue;
               }
               decayparent.at(c) = myindex;
@@ -410,8 +436,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 
     if ( legacymilou && inEvent->BeamLepton()->GetChild1Index()==0 ){
       if ( !milouwarn ){
-        cout << "Warning: Trying to repair legay Milou's parentage issues." << endl;
-        cout << endl;
+        cerr << "Warning: Trying to repair legacy Milou's parentage issues." << endl;
+        cerr << endl;
         milouwarn=true; 
       }
 
@@ -476,8 +502,10 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
           // 8       1     2212       2       1       1         // child index is the beam electron
           if (    inParticle->GetChild1Index()==t+1
                 || (inParticle->GetChild1Index()== 1 && inParticle->GetChildNIndex() == 1) ) {
-              cout << "This looks like a known DJANGOH problem. Fixing the child indices to 0" << endl;
-              inParticle->Print();
+              if ( warn("DJANGOH: self-parentage or beam as child, child indices set to 0") ){
+                cerr << "Event " << i << " -- Known DJANGOH problem. Fixing the child indices to 0 for:" << endl;
+                inParticle->Print();
+              }
               inParticle->SetChild1Index( 0 );
               inParticle->SetChildNIndex( 0 );
               continue;
@@ -487,9 +515,12 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       for ( UShort_t c = c1; c<=cN; ++c ){ // sigh. index starts at 1, tracks at 0;
             Particle* child = inEvent->GetTrack(c-1);
             if ( !child ) {
-              cerr << "Trying to access a non-existant child" << endl;
-              cerr << "Event is " << i << "  Problem index is " << c << endl;
-              cerr << "If this is not a djangoh file, please contact the eic-smear developers"<<endl;
+              if ( warn("Child index points beyond the particle list") ){
+                cerr << "Event " << i << " -- Trying to access a non-existent child with index " << c << endl;
+                if ( !branchClass->InheritsFrom("erhic::EventDjangoh") ){
+                  cerr << "This is only known to happen in DJANGOH, please contact the eic-smear developers" << endl;
+                }
+              }
               djangohproblem = true;
               break;
             }
@@ -514,7 +545,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
               }
             } else {
               // If multiple parents come from non-BeAGLE MC's revisit
-              cout << "Found more than one parent in a non-BeAGLE file. Please contact the authors." << endl;
+              cerr << "Event " << i << " -- Found more than one parent in a non-BeAGLE file. Please contact the authors." << endl;
               return -1;
               // We have more than one parent, are they correct?
               // This would be the logic if p1 and pN _span_
@@ -577,13 +608,13 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       // Particles with status 1 cannot have children
       const auto status = inParticle->GetStatus();
 
-      if ( status==1 ){
-        if (inParticle->GetNChildren() != 0 ){
-          cout << "Status is 1 but we have children?" << endl;
-          //inParticle->Print();
-          // Not doing anything about it at this point
-          // (except for radiating DJANGOH leptons, see below)
-        }
+      // Not doing anything about it at this point,
+      // except for radiating DJANGOH leptons, see below (so don't warn about those)
+      if ( status==1 && inParticle->GetNChildren() != 0
+           && !branchClass->InheritsFrom("erhic::EventDjangoh")
+           && warn("Status 1 particle with children") ){
+        cerr << "Event " << i << " -- Status 1 particle " << inParticle->Id()
+             << " with index " << inParticle->GetIndex() << " has children" << endl;
       }
       
       // // All child-less particles should have a "safe" status (like 21), best would be 1
@@ -618,10 +649,8 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
                  || TString(pdg->ParticleClass()).Contains("Baryon")
                  || TString(pdg->ParticleClass()).Contains("Meson")
                  ){
-              // Our status should be 2
-              cout << "Event: " << i << " -- Decayed hadron or lepton with status " << statusHepMC << endl;
+              // Our status should be 2. This is routine (e.g. PYTHIA6 uses 11), no need to warn
               if ( statusHepMC <=10 ){
-                cout <<  " --> Setting it to 2" <<  endl;
                 statusHepMC = 2;
               }
             }
@@ -662,7 +691,9 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     // Vertex: We don't keep track of time
     auto lepton=inEvent->BeamLepton();
     int index_lepton = lepton->GetIndex();
-    if ( index_lepton !=1 ) std::cout << "Warning: Found BeamLepton at " << index_lepton << endl;
+    if ( index_lepton !=1 && warn("BeamLepton not at index 1") ){
+      cerr << "Event " << i << " -- Found BeamLepton at " << index_lepton << endl;
+    }
     auto hep_lepton = hepevt_particles.at( index_lepton-1);
     hep_lepton->set_status(4);
 
@@ -684,7 +715,9 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
 
     auto hadron=inEvent->BeamHadron();
     int index_hadron = hadron->GetIndex();
-    if ( index_hadron !=2 ) std::cout << "Warning: Found BeamHadron at " << index_hadron << endl;
+    if ( index_hadron !=2 && warn("BeamHadron not at index 2") ){
+      cerr << "Event " << i << " -- Found BeamHadron at " << index_hadron << endl;
+    }
     auto hep_hadron = hepevt_particles.at( index_hadron-1);
     hep_hadron->set_status(4);
     GenVertexPtr v_hadron = std::make_shared<GenVertex>();
@@ -866,8 +899,10 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     if ( beaglemode ){
       for ( auto& hep_p : hepevt_particles ){
         if ( hep_p->status() == 2 && !hep_p->end_vertex() ){
-          cout << "Event " << i << " -- Decayed particle " << hep_p->pid()
-               << " has no decay products in the record. Setting its status to 1." << endl;
+          if ( warn("BeAGLE: decayed particle without decay products, set to status 1") ){
+            cerr << "Event " << i << " -- Decayed particle " << hep_p->pid()
+                 << " has no decay products in the record. Setting its status to 1." << endl;
+          }
           hep_p->set_status(1);
         }
       }
@@ -881,6 +916,7 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
     
   }  // event loop
 
+  warn.summary();
   file->close();
   
   Long64_t result = 0;
@@ -897,15 +933,15 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
                      Long64_t maxEvent,
                      const bool createHepMC2){
   if ( createHepMC2 ) {
-    cout << "Warning, this interface is deprecated, please use:" << endl;
-    cout << "TreeToHepMC(\""<< inputFileName<< "\",\""<< outputDirName
+    cerr << "Warning, this interface is deprecated, please use:" << endl;
+    cerr << "TreeToHepMC(\""<< inputFileName<< "\",\""<< outputDirName
          << "\","<< maxEvent << ","
          << "erhic::HepMC_outtype::HepMC2)"
          << endl;
     return TreeToHepMC(inputFileName,outputDirName,maxEvent,erhic::HepMC_outtype::HepMC2);
   } else {
-    cout << "Warning, this interface is deprecated, please use:" << endl;
-    cout << "TreeToHepMC(\""<< inputFileName<< "\",\""<< outputDirName
+    cerr << "Warning, this interface is deprecated, please use:" << endl;
+    cerr << "TreeToHepMC(\""<< inputFileName<< "\",\""<< outputDirName
          << "\","<< maxEvent << ","
          << "erhic::HepMC_outtype::HepMC3)"
          << endl;
