@@ -1,3 +1,11 @@
+commit a447706443c2a633df302c221babea6fda0d3a11
+Author: Kolja Kauder <kkauder@gmail.com>
+Date:   Wed Nov 25 2026
+	Declared version 1.2.5
+    TreeToHepMC/BeAGLE: flatten the intranuclear cascade, keep only displaced (> 100 fm) decays
+    TreeToHepMC/BeAGLE: only claim decay children that acknowledge the parent; demote childless decays to status 1
+    TreeToHepMC: rate-limit repeated warnings with an end-of-run summary, send warnings to stderr
+
 commit 33aef84b504afdcfda77718a661e12b9301eb9d1
 Author: Kolja Kauder <kkauder@gmail.com>
 Date:   Mon Nov 16 2026
