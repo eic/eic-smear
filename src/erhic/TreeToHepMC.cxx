@@ -311,16 +311,25 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
       // Index of the genuine decay a particle came from, 0 if none
       std::vector<UShort_t> decayparent( ntracks+1, 0 );
 
-      // Do all children come from a displaced vertex?
+      // The child range can't be trusted either (it may be too wide).
+      // Only count particles in it that name p as one of their parents.
+      auto isownchild = [&]( const Particle* child, UShort_t pindex ){
+        return child->GetParentIndex() == pindex || child->GetParentIndex1() == pindex;
+      };
+
+      // Do all (acknowledged) children come from a displaced vertex?
       auto isdisplaceddecay = [&]( const Particle* p ){
         const unsigned int c1 = p->GetChild1Index();
         const unsigned int cN = std::max( c1, (unsigned int) p->GetChildNIndex() );
         if ( c1 == 0 || cN > ntracks ) return false;
+        unsigned int nchildren = 0;
         for ( auto c = c1; c <= cN; ++c ){
           const Particle* child = inEvent->GetTrack(c-1);
+          if ( !isownchild( child, p->GetIndex() ) ) continue;
+          ++nchildren;
           if ( (child->GetVertex() - p->GetVertex()).Mag() < beagle_min_decay_length ) return false;
         }
-        return true;
+        return nchildren > 0;
       };
 
       for( unsigned int t=0; t<ntracks; ++t) {
@@ -372,10 +381,18 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
           inParticle->SetParentIndex( decayparent.at(myindex) != 0 ? decayparent.at(myindex) : beagle_final_index );
           inParticle->SetParentIndex1( 0 );
           if ( isdecay ){
-            // claim the children
+            // claim the children - only those that acknowledge us, and only once
             const unsigned int c1 = inParticle->GetChild1Index();
             const unsigned int cN = std::max( c1, (unsigned int) inParticle->GetChildNIndex() );
-            for ( auto c = c1; c <= cN && c <= ntracks; ++c ) decayparent.at(c) = myindex;
+            for ( auto c = c1; c <= cN && c <= ntracks; ++c ) {
+              if ( !isownchild( inEvent->GetTrack(c-1), myindex ) ) continue;
+              if ( decayparent.at(c) != 0 ){
+                cout << "Event " << i << " -- Particle with index " << c << " is claimed by decays "
+                     << decayparent.at(c) << " and " << myindex << ". Keeping the first one." << endl;
+                continue;
+              }
+              decayparent.at(c) = myindex;
+            }
           } else {
             inParticle->SetChild1Index( 0 );
             inParticle->SetChildNIndex( 0 );
@@ -839,6 +856,20 @@ Long64_t TreeToHepMC(const std::string& inputFileName,
         vprod->add_particle_out( hep_star );
         vend->add_particle_in( hep_star );
         vend->add_particle_out( hep_final );
+      }
+    }
+
+    // BeAGLE safety net: a decay can lose its children, e.g. if they have a lower index
+    // or end up flattened into the intermediates. A status 2 particle without an
+    // end vertex would be dropped by simulation frontends, so demote it to final
+    // and let the simulation decay it.
+    if ( beaglemode ){
+      for ( auto& hep_p : hepevt_particles ){
+        if ( hep_p->status() == 2 && !hep_p->end_vertex() ){
+          cout << "Event " << i << " -- Decayed particle " << hep_p->pid()
+               << " has no decay products in the record. Setting its status to 1." << endl;
+          hep_p->set_status(1);
+        }
       }
     }
 
